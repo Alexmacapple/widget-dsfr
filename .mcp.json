@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "dsfr-mcp": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "exec",
+        "-i",
+        "dsfr-mcp-server",
+        "node",
+        "/app/src/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "MCP_CLIENT": "true"
+      },
+      "description": "Serveur MCP DSFR Docker - Génération de composants et documentation DSFR"
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "description": "Documentation à jour pour langages, frameworks et APIs"
+    },
+    "angular-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@progress/kendo-angular-mcp"
+      ],
+      "description": "Support Angular et Kendo UI pour les widgets"
+    },
+    "ods-widgets": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget/mcp-ods-widgets/server.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "description": "MCP pour l'intégration des widgets OpenDataSoft avec le Design System France (DSFR) - 3 outils: create_widget, analyze_dataset, generate_dashboard"
+    }
+  }
+}

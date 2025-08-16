@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Hook Claude Code - Arrêt automatique du serveur web
+# Ce script est exécuté automatiquement à la fermeture du projet dans Claude Code
+
+echo "🛑 Arrêt du serveur web des widgets DSFR..."
+
+# Vérifier si le fichier PID existe
+if [ -f /tmp/widget-server.pid ]; then
+    PID=$(cat /tmp/widget-server.pid)
+    
+    # Vérifier si le processus existe
+    if ps -p $PID > /dev/null 2>&1; then
+        # Arrêter le serveur
+        kill -9 $PID 2>/dev/null
+        echo "✅ Serveur web arrêté (PID: $PID)"
+        
+        # Supprimer le fichier PID
+        rm -f /tmp/widget-server.pid
+    else
+        echo "ℹ️  Le serveur n'était plus en cours d'exécution"
+        rm -f /tmp/widget-server.pid
+    fi
+else
+    echo "ℹ️  Aucun serveur web à arrêter"
+fi
+
+# Nettoyer le fichier de log
+if [ -f /tmp/widget-server.log ]; then
+    rm -f /tmp/widget-server.log
+fi

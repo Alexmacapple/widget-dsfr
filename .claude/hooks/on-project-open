@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# Hook Claude Code - Démarrage automatique des services
+
+echo "🚀 Initialisation de l'environnement Widget DSFR..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# SECTION 1: ACTIVATION DES SERVEURS MCP
+echo ""
+echo "🔧 Activation des serveurs MCP..."
+
+# Vérifier le serveur Docker DSFR MCP
+echo "  • Vérification du serveur DSFR MCP Docker..."
+if docker ps | grep -q dsfr-mcp-server 2>/dev/null; then
+    echo "    ✅ Serveur DSFR MCP Docker déjà actif"
+    if curl -s http://localhost:3001/dashboard > /dev/null 2>&1; then
+        echo "    ✅ Dashboard accessible : http://localhost:3001/dashboard"
+    fi
+elif docker ps -a | grep -q dsfr-mcp-server 2>/dev/null; then
+    echo "    🔄 Redémarrage du conteneur DSFR MCP..."
+    docker start dsfr-mcp-server > /dev/null 2>&1
+    sleep 2
+    if docker ps | grep -q dsfr-mcp-server 2>/dev/null; then
+        echo "    ✅ Serveur DSFR MCP Docker redémarré"
+    else
+        echo "    ⚠️  Impossible de redémarrer le serveur DSFR MCP"
+    fi
+else
+    echo "    ⚠️  Conteneur DSFR MCP non trouvé"
+fi
+
+# Vérifier la configuration MCP
+echo "  • Vérification de la configuration MCP..."
+if [ -f ".mcp.json" ]; then
+    if grep -q "docker.*exec.*dsfr-mcp-server" .mcp.json 2>/dev/null; then
+        echo "    ✅ Configuration MCP utilise Docker"
+    else
+        echo "    ⚠️  Configuration MCP utilise Node.js local"
+        if [ -f ".mcp-docker.json" ]; then
+            echo "    🔄 Activation de la configuration Docker..."
+            cp .mcp.json .mcp-local.backup.json 2>/dev/null
+            cp .mcp-docker.json .mcp.json
+            echo "    ✅ Configuration Docker activée"
+        fi
+    fi
+else
+    echo "    ⚠️  Fichier .mcp.json non trouvé"
+fi
+
+# État des serveurs MCP
+echo ""
+echo "  📊 État des serveurs MCP :"
+if command -v claude > /dev/null 2>&1; then
+    claude mcp list 2>/dev/null | grep -E "dsfr-mcp|context7|angular-mcp" | sed 's/^/    /'
+else
+    echo "    ℹ️  CLI Claude non disponible"
+fi
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# SECTION 2: DÉMARRAGE DU SERVEUR WEB
+echo ""
+echo "🌐 Démarrage du serveur web pour les widgets..."
+
+# Vérifier si un serveur est déjà en cours
+if [ -f /tmp/widget-server.pid ]; then
+    OLD_PID=$(cat /tmp/widget-server.pid)
+    if ps -p $OLD_PID > /dev/null 2>&1; then
+        echo "ℹ️  Serveur web déjà actif (PID: $OLD_PID)"
+        PORT=$(lsof -p $OLD_PID -P -n 2>/dev/null | grep LISTEN | awk '{print $9}' | cut -d':' -f2 | head -1)
+        if [ ! -z "$PORT" ]; then
+            echo "📍 Port $PORT : http://localhost:$PORT/widget-dsfr-ods/index.html"
+        fi
+    else
+        rm -f /tmp/widget-server.pid
+        # Démarrer le serveur
+        for port in 8080 8081 8082; do
+            if ! lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
+                nohup python3 -m http.server $port > /tmp/widget-server.log 2>&1 &
+                echo $! > /tmp/widget-server.pid
+                sleep 1
+                echo "✅ Serveur web démarré sur le port $port"
+                echo "📍 http://localhost:$port/widget-dsfr-ods/index.html"
+                break
+            fi
+        done
+    fi
+else
+    # Démarrer le serveur
+    for port in 8080 8081 8082; do
+        if ! lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
+            nohup python3 -m http.server $port > /tmp/widget-server.log 2>&1 &
+            echo $! > /tmp/widget-server.pid
+            sleep 1
+            echo "✅ Serveur web démarré sur le port $port"
+            echo "📍 http://localhost:$port/widget-dsfr-ods/index.html"
+            break
+        fi
+    done
+fi
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "✅ Environnement prêt !"
+echo ""

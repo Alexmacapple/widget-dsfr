@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard SignalConso - DSFR x ODS</title>
+    
+    <!-- CSS DSFR (en premier) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- CSS ODS Widgets -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    
+    <!-- Styles personnalisés d'harmonisation -->
+    <style>
+        /* Variables DSFR pour widgets ODS */
+        :root {
+            --ods-primary: #0063cb;
+            --ods-secondary: #e1000f;
+            --ods-background: #f6f6f6;
+            --ods-text: #161616;
+        }
+        
+        /* Layout principal */
+        .dashboard-container {
+            background: var(--background-default-grey);
+            min-height: 100vh;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Widgets ODS avec style DSFR */
+        .widget-container {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .widget-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-default-grey);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-action-high-blue-france);
+        }
+        
+        /* Tables ODS en style DSFR */
+        .ods-table {
+            width: 100%;
+        }
+        
+        .ods-table th {
+            background: #f0f0f0;
+            font-weight: 700;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .ods-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .ods-table tbody tr:hover {
+            background: #f6f6f6;
+        }
+        
+        /* Charts ODS avec couleurs DSFR */
+        .ods-chart .highcharts-series-0 .highcharts-point {
+            fill: #0063cb;
+        }
+        
+        /* Maps ODS */
+        .ods-map {
+            height: 500px;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        
+        /* KPIs personnalisés */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #f5f5fe, white);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0063cb;
+        }
+        
+        .kpi-label {
+            color: #666;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+        
+        /* Facettes style DSFR */
+        .ods-facets {
+            background: white;
+            border-radius: 0.25rem;
+            padding: 1rem;
+        }
+        
+        .ods-facet-category {
+            margin-bottom: 1.5rem;
+        }
+        
+        .ods-facet-category-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header DSFR -->
+    <header class="fr-header" role="banner">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République<br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <p class="fr-header__service-title">SignalConso</p>
+                            <p class="fr-header__service-tagline">Tableau de bord des signalements consommateurs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <div class="fr-nav" role="navigation">
+        <div class="fr-container">
+            <ul class="fr-nav__list">
+                <li class="fr-nav__item">
+                    <a class="fr-nav__link" href="#" aria-current="page">Tableau de bord</a>
+                </li>
+                <li class="fr-nav__item">
+                    <a class="fr-nav__link" href="#">Statistiques</a>
+                </li>
+                <li class="fr-nav__item">
+                    <a class="fr-nav__link" href="#">Carte</a>
+                </li>
+                <li class="fr-nav__item">
+                    <a class="fr-nav__link" href="#">Export</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Contenu principal -->
+    <main class="fr-container dashboard-container fr-py-4w" ng-app="ods-widgets">
+        
+        <!-- Contexte ODS -->
+        <ods-dataset-context 
+            context="signalconso" 
+            signalconso-domain="data.economie.gouv.fr"
+            signalconso-dataset="signalconso">
+            
+            <!-- Titre et actions -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+                <div class="fr-col-12 fr-col-md-8">
+                    <h1>Signalements consommateurs</h1>
+                    <p class="fr-text--lg">
+                        Données en temps réel des signalements effectués sur SignalConso
+                    </p>
+                </div>
+                <div class="fr-col-12 fr-col-md-4 fr-text--right">
+                    <ods-aggregation context="signalconso" function="COUNT">
+                        <div class="fr-callout">
+                            <p class="fr-callout__title">{{ aggregation | number }}</p>
+                            <p class="fr-callout__text">Signalements totaux</p>
+                        </div>
+                    </ods-aggregation>
+                </div>
+            </div>
+            
+            <!-- Barre de recherche DSFR -->
+            <div class="fr-search-bar fr-mb-4w" role="search">
+                <label class="fr-label" for="search-signalements">
+                    Rechercher dans les signalements
+                </label>
+                <input class="fr-input" 
+                       type="search" 
+                       id="search-signalements"
+                       ng-model="signalconso.parameters['q']"
+                       placeholder="Nom d'établissement, ville, catégorie...">
+                <button class="fr-btn" title="Rechercher">
+                    Rechercher
+                </button>
+            </div>
+            
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                
+                <!-- Sidebar : Filtres -->
+                <aside>
+                    <div class="fr-sidemenu fr-sidemenu--sticky">
+                        <div class="fr-sidemenu__inner">
+                            <button class="fr-sidemenu__btn" aria-controls="filters" aria-expanded="true">
+                                Filtres
+                            </button>
+                            <div class="fr-collapse" id="filters">
+                                <ods-facets context="signalconso">
+                                    <!-- Catégorie -->
+                                    <div class="fr-sidemenu__item">
+                                        <button class="fr-sidemenu__btn" aria-controls="facet-cat" aria-expanded="true">
+                                            Catégorie
+                                        </button>
+                                        <div class="fr-collapse" id="facet-cat">
+                                            <ods-facet name="categorie" disjunctive="true"></ods-facet>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Région -->
+                                    <div class="fr-sidemenu__item">
+                                        <button class="fr-sidemenu__btn" aria-controls="facet-region" aria-expanded="false">
+                                            Région
+                                        </button>
+                                        <div class="fr-collapse" id="facet-region">
+                                            <ods-facet name="region" disjunctive="true"></ods-facet>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statut -->
+                                    <div class="fr-sidemenu__item">
+                                        <button class="fr-sidemenu__btn" aria-controls="facet-statut" aria-expanded="false">
+                                            Statut
+                                        </button>
+                                        <div class="fr-collapse" id="facet-statut">
+                                            <ods-facet name="statut_promesse" disjunctive="true"></ods-facet>
+                                        </div>
+                                    </div>
+                                </ods-facets>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Main Content -->
+                <div>
+                    <!-- KPIs -->
+                    <div class="widget-container">
+                        <h2 class="widget-title">Indicateurs clés</h2>
+                        <div class="kpi-grid">
+                            <div class="fr-tile fr-tile--horizontal">
+                                <div class="fr-tile__body">
+                                    <ods-aggregation context="signalconso" function="COUNT">
+                                        <div class="fr-tile__content">
+                                            <h3 class="fr-tile__title">{{ aggregation | number }}</h3>
+                                            <p class="fr-tile__detail">Total signalements</p>
+                                        </div>
+                                    </ods-aggregation>
+                                </div>
+                            </div>
+                            
+                            <div class="fr-tile fr-tile--horizontal">
+                                <div class="fr-tile__body">
+                                    <ods-aggregation context="signalconso" 
+                                                    expression="categorie" 
+                                                    function="COUNT">
+                                        <div class="fr-tile__content">
+                                            <h3 class="fr-tile__title">{{ aggregation | number }}</h3>
+                                            <p class="fr-tile__detail">Catégories</p>
+                                        </div>
+                                    </ods-aggregation>
+                                </div>
+                            </div>
+                            
+                            <div class="fr-tile fr-tile--horizontal">
+                                <div class="fr-tile__body">
+                                    <ods-aggregation context="signalconso" 
+                                                    expression="region" 
+                                                    function="COUNT">
+                                        <div class="fr-tile__content">
+                                            <h3 class="fr-tile__title">{{ aggregation | number }}</h3>
+                                            <p class="fr-tile__detail">Régions</p>
+                                        </div>
+                                    </ods-aggregation>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Graphique -->
+                    <div class="widget-container">
+                        <h2 class="widget-title">Évolution des signalements</h2>
+                        <ods-chart align-month="true" single-y-axis="true">
+                            <ods-chart-query context="signalconso" 
+                                           field-x="date_creation" 
+                                           maxpoints="30" 
+                                           timescale="month">
+                                <ods-chart-serie expression-y="nom_etablissement" 
+                                               chart-type="line" 
+                                               function-y="COUNT" 
+                                               label-y="Signalements"
+                                               color="#0063cb">
+                                </ods-chart-serie>
+                            </ods-chart-query>
+                        </ods-chart>
+                    </div>
+                    
+                    <!-- Carte -->
+                    <div class="widget-container">
+                        <h2 class="widget-title">Répartition géographique</h2>
+                        <ods-map context="signalconso" 
+                                location="12,46.5,2.5" 
+                                basemap="jawg.light"
+                                toolbar-fullscreen="true"
+                                search-box="true">
+                            <ods-map-layer context="signalconso"
+                                         color="#0063cb"
+                                         picto="ods-circle"
+                                         show-marker="true"
+                                         display="clustered"
+                                         function="COUNT"
+                                         shape-opacity="0.7"
+                                         point-opacity="0.8"
+                                         caption="true">
+                            </ods-map-layer>
+                        </ods-map>
+                    </div>
+                    
+                    <!-- Tableau -->
+                    <div class="widget-container">
+                        <h2 class="widget-title">Derniers signalements</h2>
+                        <div class="fr-table">
+                            <ods-table context="signalconso"
+                                     displayed-fields="date_creation,nom_etablissement,categorie,ville,statut_promesse"
+                                     sort="-date_creation">
+                            </ods-table>
+                        </div>
+                        
+                        <!-- Pagination DSFR -->
+                        <nav class="fr-pagination fr-mt-3w" aria-label="Pagination">
+                            <ods-pager context="signalconso" page-size="10"></ods-pager>
+                        </nav>
+                    </div>
+                    
+                    <!-- Actions d'export -->
+                    <div class="fr-btns-group fr-mt-4w">
+                        <ods-export-file context="signalconso" format="csv">
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line">
+                                Exporter en CSV
+                            </button>
+                        </ods-export-file>
+                        <ods-export-file context="signalconso" format="xlsx">
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line">
+                                Exporter en Excel
+                            </button>
+                        </ods-export-file>
+                    </div>
+                </div>
+            </div>
+            
+        </ods-dataset-context>
+    </main>
+    
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand">
+                    <p class="fr-logo">
+                        République<br>Française
+                    </p>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Dashboard SignalConso - Données ouvertes du Ministère de l'Économie
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+</body>
+</html>

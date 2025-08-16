@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard SignalConso - Signalements consommateurs - DSFR x ODS</title>
+  
+  <!-- CSS DSFR -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+  <!-- CSS ODS -->
+  <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+  
+  <style>
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .widget-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="fr-container" ng-app="ods-widgets">
+    <header class="fr-header">
+      <div class="fr-header__body">
+        <div class="fr-container">
+          <div class="fr-header__body-row">
+            <div class="fr-header__brand">
+              <p class="fr-logo">Dashboard<br>signalconso</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <main class="fr-container fr-py-4w">
+      <ods-dataset-context context="ctx" 
+                          ctx-domain="data.economie.gouv.fr"
+                          ctx-dataset="signalconso">
+        
+        <h1>SignalConso - Signalements consommateurs</h1>
+        
+        <div class="dashboard-grid">
+          
+          <div class="widget-container">
+            <h2>KPI</h2>
+            <div class="fr-tile">
+  <ods-aggregation context="ctx" ctx-dataset="signalconso" function="COUNT">
+    <div class="fr-tile__body">
+      <h3 class="fr-tile__title">{{ aggregation | number }}</h3>
+      <p class="fr-tile__detail">Total</p>
+    </div>
+  </ods-aggregation>
+</div>
+          </div>
+          <div class="widget-container">
+            <h2>FACETS</h2>
+            <div class="fr-sidemenu">
+  <ods-facets context="ctx" ctx-dataset="signalconso">
+    <ods-facet name="categorie" disjunctive="true"></ods-facet>
+  </ods-facets>
+</div>
+          </div>
+          <div class="widget-container">
+            <h2>CHART</h2>
+            <div class="fr-card">
+  <ods-chart align-month="true">
+    <ods-chart-query context="ctx" ctx-dataset="signalconso">
+      <ods-chart-serie chart-type="column" function-y="COUNT" color="#0063cb">
+      </ods-chart-serie>
+    </ods-chart-query>
+  </ods-chart>
+</div>
+          </div>
+          <div class="widget-container">
+            <h2>TABLE</h2>
+            <div class="fr-table">
+  <ods-table context="ctx" 
+             ctx-dataset="signalconso"
+             ctx-domain="data.economie.gouv.fr">
+  </ods-table>
+</div>
+          </div>
+        </div>
+        
+      </ods-dataset-context>
+    </main>
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+  <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

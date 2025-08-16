@@ -1,0 +1,41 @@
+{
+  "name": "@gouv-fr/mcp-ods-widgets",
+  "version": "4.0.0",
+  "description": "MCP COMPLET pour l'intégration de TOUS les widgets OpenDataSoft (70+) avec le Design System France (DSFR)",
+  "main": "src/index-final.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index-final.js",
+    "dev": "NODE_ENV=development node src/index-final.js",
+    "test": "node --test",
+    "build": "node scripts/build.js"
+  },
+  "keywords": [
+    "mcp",
+    "opendatasoft",
+    "ods",
+    "dsfr",
+    "widgets",
+    "gouvernement",
+    "france"
+  ],
+  "author": "Ministère de l'Économie",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "mcp": {
+    "name": "ODS Widgets DSFR",
+    "description": "Intégration des widgets OpenDataSoft avec le Design System France",
+    "version": "1.0.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  }
+}

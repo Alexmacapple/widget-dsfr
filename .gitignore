@@ -1,0 +1,51 @@
+# Dossier d'archives
+_old/
+
+# Node modules
+node_modules/
+mcp-ods-widgets/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.cache/
+.tmp/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# MCP configuration backups
+.mcp.json.backup
+.mcp-*.json
+.envrc
+
+# Package lock files (optionnel - à décider)
+# package-lock.json

@@ -1,0 +1,163 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date +'%Y-%m-%d %H:%M:%S')] Prompt: $(cat)\" >> .claude/logs/prompts.log",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command' | grep -E '^(rm -rf|sudo rm|mv .*\\s+/)' && echo 'Dangerous command blocked' >&2 && exit 2 || exit 0",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "jq -r '\"[\\(.timestamp)] Command: \\(.tool_input.command)\"' >> .claude/logs/commands.log",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json, sys; data=json.load(sys.stdin); path=data.get('tool_input',{}).get('file_path',''); sys.exit(2 if any(p in path for p in ['.env', '.env.local', '.env.production', 'package-lock.json', 'yarn.lock', '.git/', 'node_modules/', '.ssh/', '.aws/']) else 0)\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "for file in $CLAUDE_FILE_PATHS; do case \"$file\" in *.js|*.jsx|*.ts|*.tsx|*.json) npx prettier --write \"$file\" 2>/dev/null ;; *.py) black \"$file\" 2>/dev/null || python -m black \"$file\" 2>/dev/null ;; *.go) gofmt -w \"$file\" 2>/dev/null ;; *.rs) rustfmt \"$file\" 2>/dev/null ;; *.ex|*.exs) mix format \"$file\" 2>/dev/null ;; *.php) ./vendor/bin/php-cs-fixer fix \"$file\" 2>/dev/null ;; esac; done",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "for file in $CLAUDE_FILE_PATHS; do case \"$file\" in *.js|*.jsx|*.ts|*.tsx) npx eslint --fix \"$file\" 2>/dev/null ;; *.py) ruff check --fix \"$file\" 2>/dev/null || python -m ruff check --fix \"$file\" 2>/dev/null ;; esac; done",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '\\.(ts|tsx)$'; then npx tsc --noEmit --skipLibCheck 2>&1 | head -20; fi",
+            "timeout": 20,
+            "run_in_background": true
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE 'src/.*\\.(js|jsx|ts|tsx)$'; then npm test -- --run --reporter=verbose 2>&1 | head -50; fi",
+            "timeout": 60,
+            "run_in_background": true
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '\\.py$'; then python -m pytest --tb=short -q 2>&1 | head -30; fi",
+            "timeout": 60,
+            "run_in_background": true
+          },
+          {
+            "type": "command",
+            "command": "git add $CLAUDE_FILE_PATHS 2>/dev/null",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if command -v osascript >/dev/null; then osascript -e 'display notification \"Claude needs your input\" with title \"Claude Code\" sound name \"Glass\"'; elif command -v notify-send >/dev/null; then notify-send 'Claude Code' 'Awaiting your input'; elif command -v powershell >/dev/null; then powershell -c \"[System.Windows.Forms.MessageBox]::Show('Claude needs your input','Claude Code')\"; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date +'%Y-%m-%d %H:%M:%S')] Session completed\" >> .claude/logs/sessions.log",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "if [ -n \"$(git status --porcelain 2>/dev/null)\" ]; then git add -A && git commit -m \"Claude Code: Auto-commit session changes $(date +'%Y-%m-%d %H:%M')\" 2>/dev/null; fi",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "if command -v osascript >/dev/null; then osascript -e 'display notification \"Task completed successfully\" with title \"Claude Code\" sound name \"Hero\"'; elif command -v notify-send >/dev/null; then notify-send 'Claude Code' 'Task completed'; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date +'%Y-%m-%d %H:%M:%S')] Subagent task completed\" >> .claude/logs/subagents.log",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cp .claude/transcript.jsonl \".claude/logs/transcript_$(date +'%Y%m%d_%H%M%S').jsonl\" 2>/dev/null",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"[$(date +'%Y-%m-%d %H:%M:%S')] Session started in $(pwd)\" >> .claude/logs/sessions.log",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "git status --short 2>/dev/null | head -10",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "if [ -f .env.example ]; then echo 'Environment template available: .env.example'; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

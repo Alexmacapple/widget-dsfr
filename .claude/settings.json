@@ -1,0 +1,36 @@
+{
+  "project": {
+    "name": "Widget DSFR OpenDataSoft",
+    "description": "Widgets DSFR pour l'intégration de données OpenDataSoft",
+    "version": "1.0.0"
+  },
+  "hooks": {
+    "enabled": true,
+    "on-project-open": ".claude/hooks/on-project-open",
+    "on-project-close": ".claude/hooks/on-project-close"
+  },
+  "server": {
+    "autoStart": true,
+    "defaultPort": 8080,
+    "fallbackPort": 8081,
+    "portRange": [8082, 8090]
+  },
+  "urls": {
+    "main": "/widget-dsfr-ods/index.html",
+    "test": "/widget-dsfr-ods/test-simple.html",
+    "signalconso": "/html/signalconso-dsfr.html",
+    "embed": "/widget-dsfr-ods/widget-embed.html"
+  },
+  "mcp": {
+    "servers": {
+      "dsfr-mcp": {
+        "autoConnect": true,
+        "docker": true,
+        "containerName": "dsfr-mcp-server"
+      },
+      "context7": {
+        "autoConnect": true
+      }
+    }
+  }
+}
