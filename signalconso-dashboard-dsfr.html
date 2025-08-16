@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Dashboard SignalConso - Signalements consommateurs avec widgets DSFR">
+    <title>SignalConso - Dashboard DSFR</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Variables DSFR */
+        :root {
+            --primary-color: #000091;
+            --secondary-color: #6a6af4;
+            --success-color: #18753c;
+            --warning-color: #b34000;
+            --error-color: #ce0500;
+        }
+
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: Marianne, arial, sans-serif;
+            color: var(--text-default-grey);
+        }
+        
+        /* Tables DSFR */
+        .ods-table-container {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .odswidget-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        .odswidget-table th {
+            background-color: var(--background-contrast-grey);
+            color: var(--text-title-grey);
+            font-weight: 700;
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 2px solid var(--border-default-grey);
+        }
+        
+        .odswidget-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .odswidget-table tbody tr:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        /* Facettes DSFR */
+        .odswidget-facet {
+            margin-bottom: 1.5rem;
+        }
+        
+        .odswidget-facet__title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-title-grey);
+        }
+        
+        .odswidget-facet-category {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-default-grey);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .odswidget-facet-category:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        /* Charts DSFR */
+        .odswidget-chart {
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1rem;
+        }
+        
+        /* Fix pour les labels tronqués dans les graphiques */
+        .ods-chart-container svg {
+            overflow: visible !important;
+        }
+        
+        .ods-chart-container .nv-x text,
+        .ods-chart-container .nv-y text {
+            text-overflow: initial !important;
+        }
+        
+        .ods-chart-container .nvd3 .nv-axis text {
+            font-size: 12px !important;
+        }
+        
+        .ods-chart-container .tick text {
+            max-width: none !important;
+        }
+        
+        /* Séparation visuelle des graphiques */
+        .graph-section {
+            background: #f6f6f6;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        /* Search bar DSFR */
+        .search-module {
+            margin-bottom: 2rem;
+        }
+        
+        .odswidget-searchbox {
+            width: 100%;
+        }
+        
+        .odswidget-searchbox input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-default-grey);
+            border-radius: 0.25rem 0 0 0.25rem;
+            min-width: 500px;
+        }
+        
+        .odswidget-searchbox input:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .odswidget-searchbox input {
+                min-width: 100%;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* KPI Cards */
+        .kpi-card {
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            text-align: center;
+            height: 100%;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-label {
+            font-size: 1rem;
+            color: var(--text-mention-grey);
+        }
+        
+        /* Styles pour les tuiles DSFR */
+        .fr-tile__title {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+            color: var(--primary-color) !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .fr-tile__desc {
+            font-size: 1rem !important;
+            color: var(--text-mention-grey) !important;
+        }
+        
+        .fr-tile {
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fr-tile__body {
+            text-align: center;
+            width: 100%;
+        }
+        
+        /* Variables DSFR pour les couleurs */
+        .fr-display--xs {
+            font-size: 2.5rem !important;
+            line-height: 1.2;
+        }
+        
+        .fr-text--mention-grey {
+            color: #666666;
+        }
+
+        /* Pagination DSFR */
+        .odswidget-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem 0;
+        }
+        
+        .odswidget-pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-default-grey);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .odswidget-pagination button:hover:not(:disabled) {
+            background: var(--background-alt-grey);
+            border-color: var(--primary-color);
+        }
+        
+        .odswidget-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .odswidget-pagination .current {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Zone widget identifiée */
+        .widget-zone {
+            background-color: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .widget-zone::before {
+            content: attr(data-widget-id);
+            position: absolute;
+            top: -0.75rem;
+            left: 1rem;
+            background: white;
+            padding: 0 0.5rem;
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+            font-family: monospace;
+        }
+
+        /* Correction globale pour les dropdowns ODS */
+        .facet-dropdown-wrapper {
+            min-height: 42px;
+        }
+        
+        .facet-dropdown-wrapper .odswidget-facet__dropdown {
+            min-height: 42px !important;
+        }
+        
+        /* Style DSFR pour les facettes ODS dropdown - Design System France */
+        .odswidget-facet-dropdown {
+            position: relative;
+            width: 100%;
+            min-height: 42px !important;
+        }
+        
+        /* Bouton principal style fr-select DSFR */
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__button {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            min-height: 42px !important;
+            height: auto !important;
+            font-size: 1rem;
+            line-height: 1.5rem;
+            font-family: Marianne, arial, sans-serif;
+            font-weight: 400;
+            color: var(--text-default-grey, #161616);
+            background-color: var(--background-default-grey, #ffffff);
+            background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 10.5L3 5.5L4.05 4.45L8 8.4L11.95 4.45L13 5.5L8 10.5Z' fill='%23161616'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 1rem) center;
+            background-size: 1rem 1rem;
+            border: none;
+            border-bottom: 2px solid var(--border-plain-grey, #3a3a3a);
+            border-radius: 0.25rem 0.25rem 0 0;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        
+        /* Hover état */
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__button:hover {
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        
+        /* Focus état avec outline DSFR */
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__button:focus,
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__button:focus-visible {
+            outline: 2px solid var(--outline-color, #0a76f6);
+            outline-offset: 2px;
+            border-color: var(--border-plain-blue-france, #000091);
+        }
+        
+        /* État ouvert */
+        .odswidget-facet-dropdown.odswidget-facet-dropdown--open .odswidget-facet-dropdown__button {
+            border-color: var(--border-plain-blue-france, #000091);
+            background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 5.5L13 10.5L11.95 11.55L8 7.6L4.05 11.55L3 10.5L8 5.5Z' fill='%23000091'/%3E%3C/svg%3E");
+        }
+        
+        /* Forcer l'affichage du dropdown quand ouvert */
+        .odswidget-facet-dropdown.odswidget-facet-dropdown--open .odswidget-facet-dropdown__menu,
+        .odswidget-facet-dropdown.odswidget-facet-dropdown--open .odswidget-facet-dropdown__dropdown {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Menu déroulant style DSFR */
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__menu,
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--background-default-grey, #ffffff);
+            border: 1px solid var(--border-default-grey, #e5e5e5);
+            border-top: none;
+            border-radius: 0 0 0.25rem 0.25rem;
+            box-shadow: 0 16px 32px 0 rgba(0, 0, 18, 0.16);
+            max-height: 400px !important;
+            min-height: 100px !important;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        /* Champ de recherche dans le dropdown */
+        .odswidget-facet-dropdown .odswidget-facet-search {
+            padding: 0.75rem;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            border-bottom: 1px solid var(--border-default-grey, #e5e5e5);
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-search input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            min-height: 2.5rem;
+            font-size: 0.875rem;
+            font-family: Marianne, arial, sans-serif;
+            color: var(--text-default-grey, #161616);
+            background-color: var(--background-default-grey, #ffffff);
+            border: none;
+            border-bottom: 2px solid var(--border-plain-grey, #3a3a3a);
+            border-radius: 0.25rem 0.25rem 0 0;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-search input:focus {
+            outline: 2px solid var(--outline-color, #0a76f6);
+            outline-offset: 2px;
+            border-color: var(--border-plain-blue-france, #000091);
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-search input::placeholder {
+            color: var(--text-mention-grey, #666666);
+            opacity: 1;
+        }
+        
+        /* Items dans le dropdown - style checkbox DSFR */
+        .odswidget-facet-dropdown .odswidget-facet-category-value {
+            padding: 0.75rem 1rem;
+            min-height: 44px !important;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid var(--border-default-grey, #e5e5e5);
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value:last-child {
+            border-bottom: none;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value:hover {
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        
+        /* Checkbox style DSFR */
+        .odswidget-facet-dropdown .odswidget-facet-category-value input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0;
+            margin-right: 0.75rem;
+            padding: 0;
+            flex-shrink: 0;
+            border: 2px solid var(--border-action-high-blue-france, #000091);
+            border-radius: 0.25rem;
+            background-color: var(--background-default-grey, #ffffff);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 1rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value input[type="checkbox"]:checked {
+            background-color: var(--background-action-high-blue-france, #000091);
+            background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.5.5 0 0 1 .708 0z' fill='white'/%3E%3C/svg%3E");
+            border-color: var(--border-action-high-blue-france, #000091);
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value input[type="checkbox"]:focus {
+            outline: 2px solid var(--outline-color, #0a76f6);
+            outline-offset: 2px;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value input[type="checkbox"]:hover:not(:checked) {
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        
+        /* Label et compteur */
+        .odswidget-facet-dropdown .odswidget-facet-category-value-label {
+            flex: 1;
+            font-size: 1rem;
+            line-height: 1.5rem;
+            color: var(--text-default-grey, #161616);
+            font-family: Marianne, arial, sans-serif;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value-count {
+            font-size: 0.875rem;
+            line-height: 1.125rem;
+            color: var(--text-mention-grey, #666666);
+            margin-left: 0.5rem;
+            font-family: Marianne, arial, sans-serif;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value-count:before {
+            content: "(";
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-category-value-count:after {
+            content: ")";
+        }
+        
+        /* État désactivé */
+        .odswidget-facet-dropdown[disabled] .odswidget-facet-dropdown__button,
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__button[disabled] {
+            color: var(--text-disabled-grey, #929292);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        /* Scrollbar personnalisée */
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__menu::-webkit-scrollbar {
+            width: 0.5rem;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__menu::-webkit-scrollbar-track {
+            background: var(--background-contrast-grey, #f6f6f6);
+            border-radius: 0.25rem;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__menu::-webkit-scrollbar-thumb {
+            background: var(--border-default-grey, #dddddd);
+            border-radius: 0.25rem;
+        }
+        
+        .odswidget-facet-dropdown .odswidget-facet-dropdown__menu::-webkit-scrollbar-thumb:hover {
+            background: var(--border-plain-grey, #929292);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .fr-grid-row {
+                flex-direction: column;
+            }
+            
+            .fr-col-md-3 {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#widget-zone">Zone widgets</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">SignalConso</p>
+                            </a>
+                            <p class="fr-header__service-tagline">Signalements des consommateurs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main id="content" class="fr-container fr-py-6w">
+        
+        <!-- Application Angular -->
+        <div ng-app="ods-widgets">
+            
+            <!-- Contexte dataset SignalConso -->
+            <ods-dataset-context 
+                context="signalconso" 
+                signalconso-domain="data.economie.gouv.fr" 
+                signalconso-dataset="signalconso"
+                signalconso-parameters="{'disjunctive.category':true,'disjunctive.reg_name':true,'disjunctive.status':true,'disjunctive.dep_code':true}">
+                
+                <!-- Titre et description -->
+                <div class="fr-mb-4w">
+                    <h1>Tableau de bord SignalConso</h1>
+                    <p class="fr-text--lg">
+                        Explorez les signalements des consommateurs avec des filtres avancés et des visualisations interactives.
+                    </p>
+                </div>
+
+                <!-- DÉBUT ZONE WIDGET SIGNALCONSO -->
+                <div id="widget-signalconso" class="widget-zone" data-widget-id="signalconso">
+                    
+                    <!-- Contenu principal sans panneau latéral -->
+                    <div class="fr-container-fluid">
+                            
+                            <!-- Onglets pour différentes vues -->
+                            <div class="fr-tabs">
+                                <ul class="fr-tabs__list" role="tablist">
+                                    <li role="presentation">
+                                        <button class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tab-table">
+                                            Tableau
+                                        </button>
+                                    </li>
+                                    <li role="presentation">
+                                        <button class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tab-chart">
+                                            Graphiques
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <!-- Panneau Tableau -->
+                                <div id="tab-table" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel">
+                                    
+                                    <!-- Barre de recherche -->
+                                    <div class="search-module fr-mb-3w">
+                                        <div class="fr-search-bar" role="search">
+                                            <label class="fr-label" for="search-signalconso">
+                                                Rechercher dans les signalements
+                                            </label>
+                                            <ods-searchbox 
+                                                context="signalconso"
+                                                placeholder="Rechercher dans les signalements (catégorie, département, région, statut...)"
+                                                id="search-signalconso">
+                                            </ods-searchbox>
+                                        </div>
+                                    </div>
+
+                                    <!-- KPIs de PERFORMANCE - Métriques de suivi -->
+                                    <h2 class="fr-h4">Indicateurs de performance</h2>
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+                                        <!-- Taux de traitement -->
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Taux de traitement</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">35%</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Résolu</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">
+                                                            469K sur 1.3M signalements
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Volume total -->
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Volume global</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">1.3M</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Signalements</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">1,351,226 enregistrements</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Couverture territoriale -->
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Couverture</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">96</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Départements</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">
+                                                            95% du territoire
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Catégories actives -->
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Diversité</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">32</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Catégories</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">Types de problèmes</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Filtres avec listes déroulantes chargées dynamiquement -->
+                                    <ods-analysis context="signalconso" analyze="category" analyze-max="100" analyze-sort="-count">
+                                        <ods-analysis context="signalconso" analyze="reg_name" analyze-max="100" analyze-sort="-count">
+                                            <ods-analysis context="signalconso" analyze="status" analyze-max="50" analyze-sort="-count">
+                                                <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                                                    <div class="fr-col-12 fr-col-md-3">
+                                                        <label class="fr-label" for="select-category">
+                                                            Catégorie
+                                                        </label>
+                                                        <select class="fr-select" id="select-category" name="select-category">
+                                                            <option value="" selected>Toutes les catégories</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="fr-col-12 fr-col-md-3">
+                                                        <label class="fr-label" for="select-region">
+                                                            Région
+                                                        </label>
+                                                        <select class="fr-select" id="select-region" name="select-region">
+                                                            <option value="" selected>Toutes les régions</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="fr-col-12 fr-col-md-3">
+                                                        <label class="fr-label" for="select-status">
+                                                            Statut
+                                                        </label>
+                                                        <select class="fr-select" id="select-status" name="select-status">
+                                                            <option value="" selected>Tous les statuts</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="fr-col-12 fr-col-md-3">
+                                                        <button type="button" class="fr-btn fr-btn--secondary fr-btn--sm fr-mt-6v" 
+                                                                id="reset-filters-btn">
+                                                            Réinitialiser
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Script pour remplir les selects avec les vraies données -->
+                                                <script>
+                                                    // Remplir les selects avec les données de l'analyse
+                                                    setTimeout(function() {
+                                                        // Récupérer le scope Angular avec les résultats
+                                                        var analysisElements = document.querySelectorAll('ods-analysis');
+                                                        if (analysisElements.length >= 3) {
+                                                            var categoryScope = angular.element(analysisElements[0]).scope();
+                                                            var regionScope = angular.element(analysisElements[1]).scope();
+                                                            var statusScope = angular.element(analysisElements[2]).scope();
+                                                            
+                                                            // Remplir les catégories
+                                                            if (categoryScope && categoryScope.results) {
+                                                                var categorySelect = document.getElementById('select-category');
+                                                                categorySelect.innerHTML = '<option value="">Toutes les catégories</option>';
+                                                                categoryScope.results.forEach(function(item) {
+                                                                    if (item.x && item.count) {
+                                                                        var option = document.createElement('option');
+                                                                        option.value = item.x;
+                                                                        option.textContent = item.x + ' (' + item.count.toLocaleString('fr-FR') + ')';
+                                                                        categorySelect.appendChild(option);
+                                                                    }
+                                                                });
+                                                            }
+                                                            
+                                                            // Remplir les régions
+                                                            if (regionScope && regionScope.results) {
+                                                                var regionSelect = document.getElementById('select-region');
+                                                                regionSelect.innerHTML = '<option value="">Toutes les régions</option>';
+                                                                regionScope.results.forEach(function(item) {
+                                                                    if (item.x && item.count) {
+                                                                        var option = document.createElement('option');
+                                                                        option.value = item.x;
+                                                                        option.textContent = item.x + ' (' + item.count.toLocaleString('fr-FR') + ')';
+                                                                        regionSelect.appendChild(option);
+                                                                    }
+                                                                });
+                                                            }
+                                                            
+                                                            // Remplir les statuts
+                                                            if (statusScope && statusScope.results) {
+                                                                var statusSelect = document.getElementById('select-status');
+                                                                statusSelect.innerHTML = '<option value="">Tous les statuts</option>';
+                                                                statusScope.results.forEach(function(item) {
+                                                                    if (item.x && item.count) {
+                                                                        var option = document.createElement('option');
+                                                                        option.value = item.x;
+                                                                        option.textContent = item.x + ' (' + item.count.toLocaleString('fr-FR') + ')';
+                                                                        statusSelect.appendChild(option);
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    }, 2000);
+                                                </script>
+                                            </ods-analysis>
+                                        </ods-analysis>
+                                    </ods-analysis>
+                                    
+                                    <script>
+                                        // Ajouter les événements sur les nouveaux selects
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            // Catégorie
+                                            document.getElementById('select-category').addEventListener('change', function() {
+                                                filterByCategory(this.value);
+                                            });
+                                            
+                                            // Région
+                                            document.getElementById('select-region').addEventListener('change', function() {
+                                                filterByRegion(this.value);
+                                            });
+                                            
+                                            // Statut
+                                            document.getElementById('select-status').addEventListener('change', function() {
+                                                filterByStatus(this.value);
+                                            });
+                                            
+                                            // Bouton reset
+                                            document.getElementById('reset-filters-btn').addEventListener('click', function() {
+                                                resetAllFilters();
+                                            });
+                                        });
+                                        
+                                        function filterByCategory(value) {
+                                            // Chercher le contexte dans le bon scope
+                                            var element = document.querySelector('[ng-app="ods-widgets"]');
+                                            if (element) {
+                                                var scope = angular.element(element).scope();
+                                                if (scope && scope.$$childHead && scope.$$childHead.signalconso) {
+                                                    scope.$apply(function() {
+                                                        if (value) {
+                                                            scope.$$childHead.signalconso.parameters['refine.category'] = value;
+                                                        } else {
+                                                            delete scope.$$childHead.signalconso.parameters['refine.category'];
+                                                        }
+                                                    });
+                                                } else {
+                                                    // Méthode alternative
+                                                    var ctxElement = document.querySelector('ods-dataset-context');
+                                                    if (ctxElement) {
+                                                        var ctxScope = angular.element(ctxElement).scope();
+                                                        if (ctxScope && ctxScope.signalconso) {
+                                                            ctxScope.$apply(function() {
+                                                                if (value) {
+                                                                    ctxScope.signalconso.parameters['refine.category'] = value;
+                                                                } else {
+                                                                    delete ctxScope.signalconso.parameters['refine.category'];
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        function filterByRegion(value) {
+                                            var element = document.querySelector('[ng-app="ods-widgets"]');
+                                            if (element) {
+                                                var scope = angular.element(element).scope();
+                                                if (scope && scope.$$childHead && scope.$$childHead.signalconso) {
+                                                    scope.$apply(function() {
+                                                        if (value) {
+                                                            scope.$$childHead.signalconso.parameters['refine.reg_name'] = value;
+                                                        } else {
+                                                            delete scope.$$childHead.signalconso.parameters['refine.reg_name'];
+                                                        }
+                                                    });
+                                                } else {
+                                                    var ctxElement = document.querySelector('ods-dataset-context');
+                                                    if (ctxElement) {
+                                                        var ctxScope = angular.element(ctxElement).scope();
+                                                        if (ctxScope && ctxScope.signalconso) {
+                                                            ctxScope.$apply(function() {
+                                                                if (value) {
+                                                                    ctxScope.signalconso.parameters['refine.reg_name'] = value;
+                                                                } else {
+                                                                    delete ctxScope.signalconso.parameters['refine.reg_name'];
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        function filterByStatus(value) {
+                                            var element = document.querySelector('[ng-app="ods-widgets"]');
+                                            if (element) {
+                                                var scope = angular.element(element).scope();
+                                                if (scope && scope.$$childHead && scope.$$childHead.signalconso) {
+                                                    scope.$apply(function() {
+                                                        if (value) {
+                                                            scope.$$childHead.signalconso.parameters['refine.status'] = value;
+                                                        } else {
+                                                            delete scope.$$childHead.signalconso.parameters['refine.status'];
+                                                        }
+                                                    });
+                                                } else {
+                                                    var ctxElement = document.querySelector('ods-dataset-context');
+                                                    if (ctxElement) {
+                                                        var ctxScope = angular.element(ctxElement).scope();
+                                                        if (ctxScope && ctxScope.signalconso) {
+                                                            ctxScope.$apply(function() {
+                                                                if (value) {
+                                                                    ctxScope.signalconso.parameters['refine.status'] = value;
+                                                                } else {
+                                                                    delete ctxScope.signalconso.parameters['refine.status'];
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        function resetAllFilters() {
+                                            document.getElementById('select-category').value = '';
+                                            document.getElementById('select-region').value = '';
+                                            document.getElementById('select-status').value = '';
+                                            
+                                            var element = document.querySelector('[ng-app="ods-widgets"]');
+                                            if (element) {
+                                                var scope = angular.element(element).scope();
+                                                if (scope && scope.$$childHead && scope.$$childHead.signalconso) {
+                                                    scope.$apply(function() {
+                                                        delete scope.$$childHead.signalconso.parameters['refine.category'];
+                                                        delete scope.$$childHead.signalconso.parameters['refine.reg_name'];
+                                                        delete scope.$$childHead.signalconso.parameters['refine.status'];
+                                                    });
+                                                } else {
+                                                    var ctxElement = document.querySelector('ods-dataset-context');
+                                                    if (ctxElement) {
+                                                        var ctxScope = angular.element(ctxElement).scope();
+                                                        if (ctxScope && ctxScope.signalconso) {
+                                                            ctxScope.$apply(function() {
+                                                                delete ctxScope.signalconso.parameters['refine.category'];
+                                                                delete ctxScope.signalconso.parameters['refine.reg_name'];
+                                                                delete ctxScope.signalconso.parameters['refine.status'];
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </script>
+                                    
+                                    <!-- Nombre de résultats -->
+                                    <ods-results context="signalconso">
+                                        <div class="fr-mb-2w">
+                                            <p class="fr-text--sm fr-text-mention--grey">
+                                                <strong ng-bind="nhits | number"></strong> signalements trouvés
+                                            </p>
+                                        </div>
+                                    </ods-results>
+                                    
+                                    <!-- Table des signalements -->
+                                    <div class="ods-table-container">
+                                        <ods-table 
+                                            context="signalconso"
+                                            displayed-fields="creationdate,category,subcategories,dep_code,reg_name,status"
+                                            sort="-creationdate">
+                                        </ods-table>
+                                    </div>
+                                    
+                                    <!-- Pagination -->
+                                    <ods-pager 
+                                        context="signalconso"
+                                        page-size="20">
+                                    </ods-pager>
+                                </div>
+                                
+                                <!-- Panneau Graphiques -->
+                                <div id="tab-chart" class="fr-tabs__panel" role="tabpanel">
+                                    
+                                    <!-- Tuiles chiffres clés DSFR -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Total signalements</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">1.3M</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Enregistrements</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">1,351,226 au total</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Catégories actives</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">32</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Types</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">Problèmes identifiés</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Départements concernés</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">96</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Territoires</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">95% de couverture</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-tile fr-tile--vertical fr-tile--no-icon">
+                                                <div class="fr-tile__body">
+                                                    <h4 class="fr-tile__title fr-text--sm fr-text--regular fr-mb-1v" style="font-size: 0.875rem !important; color: #666666;">Régions touchées</h4>
+                                                    <div class="fr-tile__content">
+                                                        <p class="fr-display--xs fr-text--bold fr-mb-0" style="color: #000091; font-size: 2.5rem !important;">13</p>
+                                                        <p class="fr-text--sm fr-mb-0" style="color: #161616;">Régions</p>
+                                                        <p class="fr-text--xs fr-text--mention-grey fr-mt-1v">France métropolitaine</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Un graphique par ligne pour plus de lisibilité -->
+                                    
+                                    <!-- Section Évolution temporelle -->
+                                    <div class="graph-section">
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12">
+                                                <div class="fr-card">
+                                                    <div class="fr-card__body">
+                                                        <h3 class="fr-card__title">Évolution temporelle des signalements</h3>
+                                                        <p class="fr-text--sm fr-text-mention--grey fr-mb-2w">Nombre de signalements par mois</p>
+                                                        <div class="fr-card__desc" style="height: 500px; padding-right: 50px; padding-left: 20px; padding-bottom: 30px;">
+                                                            <ods-chart timescale="month" y-label="Nombre de signalements" align="right" display-legend="bottom">
+                                                                <ods-chart-query 
+                                                                    context="signalconso" 
+                                                                    field-x="creationdate"
+                                                                    timescale="month">
+                                                                    <ods-chart-serie 
+                                                                        chart-type="line"
+                                                                        function-y="COUNT"
+                                                                        label-y="Signalements"
+                                                                        color="#000091"
+                                                                        scientific-display="false">
+                                                                    </ods-chart-serie>
+                                                                </ods-chart-query>
+                                                            </ods-chart>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section Catégories -->
+                                    <div class="graph-section">
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12">
+                                                <div class="fr-card">
+                                                    <div class="fr-card__body">
+                                                        <h3 class="fr-card__title">Top 10 catégories de signalements</h3>
+                                                        <p class="fr-text--sm fr-text-mention--grey fr-mb-2w">Répartition par type de problème</p>
+                                                        <div class="fr-card__desc" style="height: 500px; padding-right: 50px; padding-left: 20px; padding-bottom: 30px;">
+                                                            <ods-chart labels-x-length="100" y-label="Nombre de signalements" align="right" display-legend="bottom">
+                                                                <ods-chart-query 
+                                                                    context="signalconso" 
+                                                                    field-x="category"
+                                                                    maxpoints="10"
+                                                                    sort="serie1-1">
+                                                                    <ods-chart-serie 
+                                                                        chart-type="column"
+                                                                        function-y="COUNT"
+                                                                        label-y="Signalements"
+                                                                        color="#000091"
+                                                                        scientific-display="false">
+                                                                    </ods-chart-serie>
+                                                                </ods-chart-query>
+                                                            </ods-chart>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section Régions -->
+                                    <div class="graph-section">
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12">
+                                                <div class="fr-card">
+                                                    <div class="fr-card__body">
+                                                        <h3 class="fr-card__title">Répartition géographique par région</h3>
+                                                        <p class="fr-text--sm fr-text-mention--grey fr-mb-2w">Distribution territoriale des signalements</p>
+                                                        <div class="fr-card__desc" style="height: 500px; padding-right: 50px; padding-left: 20px; padding-bottom: 30px;">
+                                                            <ods-chart labels-x-length="100" y-label="Nombre de signalements" align="right" display-legend="bottom">
+                                                                <ods-chart-query 
+                                                                    context="signalconso" 
+                                                                    field-x="reg_name"
+                                                                    maxpoints="20"
+                                                                    sort="serie1-1">
+                                                                    <ods-chart-serie 
+                                                                        chart-type="column"
+                                                                        function-y="COUNT"
+                                                                        label-y="Signalements"
+                                                                        color="#000091"
+                                                                        scientific-display="false">
+                                                                    </ods-chart-serie>
+                                                                </ods-chart-query>
+                                                            </ods-chart>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section Statuts -->
+                                    <div class="graph-section">
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12">
+                                                <div class="fr-card">
+                                                    <div class="fr-card__body">
+                                                        <h3 class="fr-card__title">Répartition par statut de traitement</h3>
+                                                        <p class="fr-text--sm fr-text-mention--grey fr-mb-2w">État d'avancement des dossiers</p>
+                                                        <div class="fr-card__desc" style="height: 500px; padding-right: 50px; padding-left: 20px; padding-bottom: 30px;">
+                                                            <ods-chart labels-x-length="100" y-label="Nombre de dossiers" align="right" display-legend="bottom">
+                                                                <ods-chart-query 
+                                                                    context="signalconso" 
+                                                                    field-x="status"
+                                                                    sort="serie1-1">
+                                                                    <ods-chart-serie 
+                                                                        chart-type="column"
+                                                                        function-y="COUNT"
+                                                                        label-y="Dossiers"
+                                                                        color="#000091"
+                                                                        scientific-display="false">
+                                                                    </ods-chart-serie>
+                                                                </ods-chart-query>
+                                                            </ods-chart>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section Départements -->
+                                    <div class="graph-section">
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12">
+                                                <div class="fr-card">
+                                                    <div class="fr-card__body">
+                                                        <h3 class="fr-card__title">Top 15 départements les plus concernés</h3>
+                                                        <p class="fr-text--sm fr-text-mention--grey fr-mb-2w">Classement départemental par volume</p>
+                                                        <div class="fr-card__desc" style="height: 500px; padding-right: 50px; padding-left: 20px; padding-bottom: 30px;">
+                                                            <ods-chart labels-x-length="100" y-label="Nombre de signalements" align="right" display-legend="bottom">
+                                                                <ods-chart-query 
+                                                                    context="signalconso" 
+                                                                    field-x="dep_name"
+                                                                    maxpoints="15"
+                                                                    sort="serie1-1">
+                                                                    <ods-chart-serie 
+                                                                        chart-type="column"
+                                                                        function-y="COUNT"
+                                                                        label-y="Signalements"
+                                                                        color="#000091"
+                                                                        scientific-display="false">
+                                                                    </ods-chart-serie>
+                                                                </ods-chart-query>
+                                                            </ods-chart>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                            <!-- Actions d'export -->
+                            <div class="fr-mt-4w">
+                                <div class="fr-btns-group fr-btns-group--inline">
+                                    <button class="fr-btn"
+                                            onclick="window.open('https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=csv', '_blank')">
+                                        Télécharger toutes les données au format CSV
+                                    </button>
+                                    <button class="fr-btn"
+                                            onclick="window.open('https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=xls', '_blank')">
+                                        Télécharger toutes les données au format Excel
+                                    </button>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET SIGNALCONSO -->
+                
+            </ods-dataset-context>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <p class="fr-logo">
+                        République
+                        <br>Française
+                    </p>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        SignalConso permet aux consommateurs de signaler des problèmes rencontrés avec des entreprises.
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" href="https://signal.conso.gouv.fr">signal.conso.gouv.fr</a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" href="https://data.economie.gouv.fr">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- jQuery requis pour ODS widgets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Angular et dépendances -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <!-- ODS Widgets -->
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <!-- DSFR en dernier pour éviter les conflits -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Script pour gérer les onglets DSFR et initialisation -->
+    <script>
+        // Configuration pour supprimer l'avertissement Highcharts sur l'accessibilité
+        if (window.Highcharts) {
+            Highcharts.setOptions({
+                accessibility: {
+                    enabled: false
+                }
+            });
+        }
+        
+        // Contrôleur Angular pour les filtres
+        angular.module('ods-widgets').controller('FiltersController', ['$scope', function($scope) {
+            var ctrl = this;
+            
+            // Initialisation des tableaux
+            ctrl.categories = [];
+            ctrl.regions = [];
+            ctrl.statuses = [];
+            ctrl.selectedCategory = '';
+            ctrl.selectedRegion = '';
+            ctrl.selectedStatus = '';
+            ctrl.context = null;
+            
+            ctrl.init = function(context) {
+                ctrl.context = context;
+            };
+            
+            // Mise à jour des catégories depuis l'analyse ODS
+            ctrl.updateCategories = function(results) {
+                if (results && results.length > 0) {
+                    ctrl.categories = results.map(function(item) {
+                        return {
+                            value: item.x,
+                            label: item.x + ' (' + Math.round(item.count).toLocaleString('fr-FR') + ')'
+                        };
+                    });
+                }
+                return '';
+            };
+            
+            // Mise à jour des régions
+            ctrl.updateRegions = function(results) {
+                if (results && results.length > 0) {
+                    ctrl.regions = results.map(function(item) {
+                        return {
+                            value: item.x,
+                            label: item.x + ' (' + Math.round(item.count).toLocaleString('fr-FR') + ')'
+                        };
+                    });
+                }
+                return '';
+            };
+            
+            // Mise à jour des statuts
+            ctrl.updateStatuses = function(results) {
+                if (results && results.length > 0) {
+                    ctrl.statuses = results.map(function(item) {
+                        return {
+                            value: item.x,
+                            label: item.x + ' (' + Math.round(item.count).toLocaleString('fr-FR') + ')'
+                        };
+                    });
+                }
+                return '';
+            };
+            
+            // Application d'un filtre
+            ctrl.applyFilter = function(field, value) {
+                if (ctrl.context) {
+                    if (value) {
+                        ctrl.context.parameters['refine.' + field] = value;
+                    } else {
+                        delete ctrl.context.parameters['refine.' + field];
+                    }
+                }
+            };
+            
+            // Réinitialisation de tous les filtres
+            ctrl.resetFilters = function() {
+                ctrl.selectedCategory = '';
+                ctrl.selectedRegion = '';
+                ctrl.selectedStatus = '';
+                if (ctrl.context) {
+                    delete ctrl.context.parameters['refine.category'];
+                    delete ctrl.context.parameters['refine.reg_name'];
+                    delete ctrl.context.parameters['refine.status'];
+                }
+            };
+        }]);
+        
+        // Fonction pour afficher/masquer le code d'un widget
+        function toggleCode(widgetId) {
+            const codeSection = document.getElementById('code-' + widgetId);
+            const button = event.currentTarget;
+            const isExpanded = button.getAttribute('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                codeSection.style.display = 'none';
+                button.setAttribute('aria-expanded', 'false');
+            } else {
+                codeSection.style.display = 'block';
+                button.setAttribute('aria-expanded', 'true');
+            }
+        }
+        
+        // Attendre que tous les scripts soient chargés
+        window.addEventListener('load', function() {
+            // Initialisation DSFR après un délai pour éviter les conflits
+            setTimeout(function() {
+                // Gestion des onglets
+                const tabs = document.querySelectorAll('.fr-tabs__tab');
+                const panels = document.querySelectorAll('.fr-tabs__panel');
+                
+                if (tabs.length > 0 && panels.length > 0) {
+                    tabs.forEach((tab, index) => {
+                        tab.addEventListener('click', function() {
+                            // Réinitialiser tous les onglets
+                            tabs.forEach(t => {
+                                t.setAttribute('aria-selected', 'false');
+                                t.setAttribute('tabindex', '-1');
+                            });
+                            panels.forEach(p => {
+                                p.classList.remove('fr-tabs__panel--selected');
+                            });
+                            
+                            // Activer l'onglet cliqué
+                            this.setAttribute('aria-selected', 'true');
+                            this.setAttribute('tabindex', '0');
+                            if (panels[index]) {
+                                panels[index].classList.add('fr-tabs__panel--selected');
+                            }
+                        });
+                    });
+                }
+                
+                // Fix pour les tables DSFR
+                const tableWrappers = document.querySelectorAll('.fr-table__wrapper');
+                tableWrappers.forEach(wrapper => {
+                    if (!wrapper.querySelector('.fr-table__container')) {
+                        wrapper.classList.add('fr-table__wrapper--no-scroll');
+                    }
+                });
+                
+                // Formater les nombres dans les facettes (arrondir sans virgule et ajouter parenthèses)
+                var formatFacets = function() {
+                    // Formater les nombres dans les dropdowns
+                    const facetCounts = document.querySelectorAll('.odswidget-facet-category-value-count');
+                    facetCounts.forEach(count => {
+                        const text = count.textContent.trim();
+                        if (text && !text.startsWith('(')) {
+                            // Extraire le nombre et l'arrondir
+                            const number = Math.round(parseFloat(text.replace(/[^\d.]/g, '')));
+                            if (!isNaN(number)) {
+                                // Formater avec séparateur de milliers et parenthèses
+                                count.textContent = '(' + number.toLocaleString('fr-FR') + ')';
+                            }
+                        }
+                    });
+                    
+                    // Formater aussi les nombres dans les boutons de facettes
+                    const facetButtons = document.querySelectorAll('.odswidget-facet-dropdown__button');
+                    facetButtons.forEach(button => {
+                        const text = button.textContent;
+                        // Vérifier si le texte contient un nombre à la fin
+                        const match = text.match(/(.*?)\s*\((\d+(?:\.\d+)?)\)/);
+                        if (match) {
+                            const label = match[1];
+                            const number = Math.round(parseFloat(match[2]));
+                            button.textContent = label + ' (' + number.toLocaleString('fr-FR') + ')';
+                        }
+                    });
+                };
+                
+                // Exécuter toutes les 500ms pour capturer les changements dynamiques
+                setInterval(formatFacets, 500);
+                // Exécuter immédiatement aussi
+                formatFacets();
+                
+                // Traduction des éléments ODS en français
+                var translateODS = function() {
+                    // Traduire les boutons d'action des facettes
+                    document.querySelectorAll('.odswidget-facet-category-link').forEach(link => {
+                        if (link.textContent === 'Clear all') link.textContent = 'Tout effacer';
+                        if (link.textContent === 'More') link.textContent = 'Plus';
+                        if (link.textContent === 'Less') link.textContent = 'Moins';
+                    });
+                    
+                    // Traduire les textes dans les dropdowns
+                    document.querySelectorAll('.odswidget-facet-dropdown__action').forEach(button => {
+                        if (button.textContent === 'Clear all') button.textContent = 'Tout effacer';
+                        if (button.textContent === 'More') button.textContent = 'Plus';
+                        if (button.textContent === 'Less') button.textContent = 'Moins';
+                    });
+                    
+                    // Traduire les boutons de pagination
+                    document.querySelectorAll('.odswidget-pagination__button, .odswidget-pager__page').forEach(button => {
+                        if (button.textContent === 'Previous') button.textContent = 'Précédent';
+                        if (button.textContent === 'Next') button.textContent = 'Suivant';
+                        if (button.textContent === 'First') button.textContent = 'Première';
+                        if (button.textContent === 'Last') button.textContent = 'Dernière';
+                    });
+                    
+                    // Traduire les textes "No results"
+                    document.querySelectorAll('.odswidget-facet__no-results').forEach(elem => {
+                        if (elem.textContent.includes('No results')) {
+                            elem.textContent = 'Aucun résultat';
+                        }
+                    });
+                    
+                    // Traduire dans les tooltips et aria-labels
+                    document.querySelectorAll('[aria-label]').forEach(elem => {
+                        const label = elem.getAttribute('aria-label');
+                        if (label === 'Clear all') elem.setAttribute('aria-label', 'Tout effacer');
+                        if (label === 'Show more') elem.setAttribute('aria-label', 'Afficher plus');
+                        if (label === 'Show less') elem.setAttribute('aria-label', 'Afficher moins');
+                    });
+                };
+                
+                // Exécuter la traduction régulièrement pour capturer les éléments dynamiques
+                setInterval(translateODS, 200);
+                translateODS();
+                
+                // Monitoring des appels API data.economie.gouv.fr
+                (function() {
+                    // Intercepter XMLHttpRequest
+                    const originalOpen = XMLHttpRequest.prototype.open;
+                    const originalSend = XMLHttpRequest.prototype.send;
+                    
+                    XMLHttpRequest.prototype.open = function(method, url) {
+                        this._requestMethod = method;
+                        this._requestURL = url;
+                        this._requestTime = Date.now();
+                        return originalOpen.apply(this, arguments);
+                    };
+                    
+                    XMLHttpRequest.prototype.send = function(body) {
+                        const xhr = this;
+                        
+                        // Log de la requête si c'est vers data.economie.gouv.fr
+                        if (xhr._requestURL && xhr._requestURL.includes('data.economie.gouv.fr')) {
+                            console.group('%c📡 API Call - ' + xhr._requestMethod + ' Request', 'color: #000091; font-weight: bold; font-size: 12px;');
+                            console.log('%cURL:', 'font-weight: bold;', xhr._requestURL);
+                            
+                            // Parser les paramètres de l'URL
+                            try {
+                                const url = new URL(xhr._requestURL, window.location.origin);
+                                const params = Object.fromEntries(url.searchParams);
+                                if (Object.keys(params).length > 0) {
+                                    console.log('%cParameters:', 'font-weight: bold;');
+                                    console.table(params);
+                                }
+                            } catch(e) {
+                                // Ignorer les erreurs de parsing
+                            }
+                            
+                            if (body) {
+                                console.log('%cRequest Body:', 'font-weight: bold;', body);
+                            }
+                            console.groupEnd();
+                        }
+                        
+                        // Intercepter la réponse
+                        xhr.addEventListener('load', function() {
+                            if (xhr._requestURL && xhr._requestURL.includes('data.economie.gouv.fr')) {
+                                const duration = Date.now() - xhr._requestTime;
+                                
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    
+                                    console.group('%c✅ API Response - ' + xhr.status + ' ' + xhr.statusText, 'color: #18753C; font-weight: bold; font-size: 12px;');
+                                    console.log('%cURL:', 'font-weight: bold;', xhr._requestURL);
+                                    console.log('%cDuration:', 'font-weight: bold;', duration + 'ms');
+                                    console.log('%cStatus:', 'font-weight: bold;', xhr.status);
+                                    
+                                    // Statistiques sur les données
+                                    if (response.nhits !== undefined) {
+                                        console.log('%cTotal Records:', 'font-weight: bold; color: #000091;', response.nhits.toLocaleString('fr-FR'));
+                                    }
+                                    
+                                    if (response.records && response.records.length > 0) {
+                                        console.log('%cRecords Returned:', 'font-weight: bold;', response.records.length);
+                                        
+                                        // Afficher un échantillon des données
+                                        if (response.records.length > 0) {
+                                            console.log('%cFirst Record Sample:', 'font-weight: bold;');
+                                            console.table(response.records[0].fields);
+                                        }
+                                    }
+                                    
+                                    // Afficher les facettes si présentes
+                                    if (response.facet_groups && response.facet_groups.length > 0) {
+                                        console.log('%cFacets:', 'font-weight: bold; color: #666666;');
+                                        response.facet_groups.forEach(facetGroup => {
+                                            console.group('📊 ' + facetGroup.name);
+                                            const facetData = facetGroup.facets.slice(0, 10).map(f => ({
+                                                'Valeur': f.name,
+                                                'Nombre': f.count.toLocaleString('fr-FR'),
+                                                'Pourcentage': ((f.count / response.nhits) * 100).toFixed(1) + '%'
+                                            }));
+                                            console.table(facetData);
+                                            if (facetGroup.facets.length > 10) {
+                                                console.log('... et ' + (facetGroup.facets.length - 10) + ' autres valeurs');
+                                            }
+                                            console.groupEnd();
+                                        });
+                                    }
+                                    
+                                    // Données brutes complètes disponibles
+                                    console.log('%cFull Response Data:', 'font-weight: bold;', response);
+                                    console.groupEnd();
+                                    
+                                } catch(e) {
+                                    // Si ce n'est pas du JSON, log simple
+                                    console.group('%c✅ API Response', 'color: #18753C; font-weight: bold;');
+                                    console.log('URL:', xhr._requestURL);
+                                    console.log('Duration:', duration + 'ms');
+                                    console.log('Response:', xhr.responseText);
+                                    console.groupEnd();
+                                }
+                            }
+                        });
+                        
+                        // Intercepter les erreurs
+                        xhr.addEventListener('error', function() {
+                            if (xhr._requestURL && xhr._requestURL.includes('data.economie.gouv.fr')) {
+                                console.group('%c❌ API Error', 'color: #CE0500; font-weight: bold; font-size: 12px;');
+                                console.error('URL:', xhr._requestURL);
+                                console.error('Status:', xhr.status);
+                                console.error('Error:', xhr.statusText);
+                                console.groupEnd();
+                            }
+                        });
+                        
+                        return originalSend.apply(this, arguments);
+                    };
+                    
+                    console.log('%c🔍 API Monitoring Active', 'background: #000091; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;');
+                    console.log('%cTous les appels vers data.economie.gouv.fr seront affichés dans la console', 'color: #666666; font-style: italic;');
+                })();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
