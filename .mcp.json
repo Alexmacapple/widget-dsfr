@@ -2,19 +2,15 @@
   "mcpServers": {
     "dsfr-mcp": {
       "type": "stdio",
-      "command": "docker",
+      "command": "node",
       "args": [
-        "exec",
-        "-i",
-        "dsfr-mcp-server",
-        "node",
-        "/app/src/index.js"
+        "/Users/alex/Desktop/widget/mcp-dsfr/src/index.js"
       ],
       "env": {
         "NODE_ENV": "production",
         "MCP_CLIENT": "true"
       },
-      "description": "Serveur MCP DSFR Docker - Génération de composants et documentation DSFR"
+      "description": "Serveur MCP DSFR Local - Génération de composants et documentation DSFR (v1.5.0)"
     },
     "context7": {
       "type": "stdio",
