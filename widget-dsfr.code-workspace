@@ -1,0 +1,74 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.automationProfile.osx": {
+      "path": "/bin/bash",
+      "args": ["-c", "./start-claude.sh"]
+    },
+    "files.exclude": {
+      "node_modules": true,
+      ".git": true
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Start Claude with MCP",
+        "type": "shell",
+        "command": "./start-claude.sh --start",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": [],
+        "runOptions": {
+          "runOn": "folderOpen"
+        }
+      },
+      {
+        "label": "Check MCP Status",
+        "type": "shell",
+        "command": "./start-claude.sh",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "List MCP Servers",
+        "type": "shell",
+        "command": "claude mcp list",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "angular.ng-template",
+      "johnpapa.angular2"
+    ]
+  }
+}

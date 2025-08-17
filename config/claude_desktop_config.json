@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "dsfr-mcp": {
+      "command": "node",
+      "args": ["CURRENT_DIR/mcp-dsfr/src/index.js"],
+      "env": {
+        "NODE_ENV": "production",
+        "MCP_CLIENT": "true"
+      }
+    },
+    "ods-widgets": {
+      "command": "node",
+      "args": ["CURRENT_DIR/mcp-ods-widgets/server.js"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "env": {}
+    },
+    "angular-mcp": {
+      "command": "npx",
+      "args": ["@progress/kendo-angular-mcp"],
+      "env": {}
+    }
+  }
+}
