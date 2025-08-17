@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Chart Pie - Graphiques circulaires pour données SignalConso">
+    <title>Widget DSFR - Chart Pie</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-chart svg {
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .ods-widget .odswidget-chart .highcharts-container {
+            border-radius: 0.25rem;
+        }
+        
+        .ods-widget .odswidget-chart .highcharts-legend-item text {
+            font-family: var(--font-family-base) !important;
+            fill: var(--text-default-grey) !important;
+            font-size: 14px !important;
+        }
+        
+        .ods-widget .odswidget-chart .highcharts-pie-series text {
+            font-family: var(--font-family-base) !important;
+            fill: var(--text-default-grey) !important;
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 600px;
+            background-color: var(--background-alt-grey);
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .widget-container {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        /* Amélioration pour les graphiques circulaires */
+        .chart-controls {
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-container {
+            min-height: 450px;
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pie-chart-wrapper {
+            width: 100%;
+            height: 400px;
+        }
+        
+        /* Style pour les facettes */
+        .odswidget-facet {
+            margin-bottom: 0.5rem;
+        }
+        
+        .odswidget-facet__value-label {
+            cursor: pointer;
+            padding: 0.25rem 0;
+        }
+        
+        .odswidget-facet__value-label:hover {
+            background-color: var(--background-alt-blue-france);
+            padding-left: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .odswidget-facet__value-count {
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+        
+        /* Amélioration du graphique pie */
+        .highcharts-legend-item text {
+            font-family: var(--font-family-base) !important;
+            fill: var(--text-default-grey) !important;
+        }
+        
+        .highcharts-pie-series .highcharts-point {
+            cursor: pointer;
+        }
+        
+        .highcharts-tooltip {
+            font-family: var(--font-family-base) !important;
+        }
+        
+        .highcharts-no-data text {
+            font-family: var(--font-family-base) !important;
+            fill: var(--text-default-grey) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Widget DSFR">
+                                <p class="fr-header__service-title">
+                                    Widget Chart Pie
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphiques circulaires - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Chart Pie</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Graphique circulaire - SignalConso</h1>
+                    <p class="fr-text--lead">Répartition proportionnelle des signalements par catégorie</p>
+                </div>
+            </div>
+
+            <!-- Widget -->
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <h2 class="fr-card__title">Répartition par catégorie</h2>
+                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__body">
+                            <!-- DÉBUT ZONE WIDGET CHART-PIE-001 -->
+                            <div id="widget-chart-pie-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
+                                <ods-dataset-context 
+                                    context="signalconso"
+                                    signalconso-domain="data.economie.gouv.fr"
+                                    signalconso-dataset="signalconso">
+                                    
+                                    <!-- Contrôles du graphique -->
+                                    <div class="chart-controls">
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12 fr-col-md-6">
+                                                <div class="fr-select-group">
+                                                    <label class="fr-label" for="period-select-pie">
+                                                        Période d'analyse
+                                                    </label>
+                                                    <select class="fr-select" id="period-select-pie" 
+                                                            ng-model="signalconso.parameters['refine.date_creation']">
+                                                        <option value="">Toutes périodes</option>
+                                                        <option value="[2024-01-01 TO 2024-12-31]">2024</option>
+                                                        <option value="[2023-01-01 TO 2023-12-31]">2023</option>
+                                                        <option value="[NOW-1YEAR TO NOW]">12 derniers mois</option>
+                                                        <option value="[NOW-6MONTHS TO NOW]">6 derniers mois</option>
+                                                        <option value="[NOW-3MONTHS TO NOW]">3 derniers mois</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="fr-col-12 fr-col-md-6">
+                                                <div class="fr-select-group">
+                                                    <label class="fr-label" for="top-select-pie">
+                                                        Nombre de catégories
+                                                    </label>
+                                                    <select class="fr-select" id="top-select-pie">
+                                                        <option value="5">Top 5</option>
+                                                        <option value="8">Top 8</option>
+                                                        <option value="10" selected>Top 10</option>
+                                                        <option value="15">Top 15</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Facettes pour filtrage dynamique -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+                                        <div class="fr-col-12">
+                                            <h4>Filtrer par catégorie (sélectionnez pour voir dans le graphique)</h4>
+                                            <div class="fr-callout fr-callout--blue-france">
+                                                <ods-facets context="signalconso">
+                                                    <ods-facet name="category" 
+                                                              disjunctive="true"
+                                                              sort="count"
+                                                              limit="8"
+                                                              display-control="true">
+                                                    </ods-facet>
+                                                </ods-facets>
+                                            </div>
+                                            <div class="fr-mt-2w">
+                                                <ods-clear-all-filters context="signalconso">
+                                                    <button class="fr-btn fr-btn--secondary fr-btn--sm">
+                                                        Effacer tous les filtres
+                                                    </button>
+                                                </ods-clear-all-filters>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Graphique circulaire -->
+                                    <div class="chart-container">
+                                        <div class="pie-chart-wrapper">
+                                            <ods-chart 
+                                                display-legend="true"
+                                                single-y-axis="true">
+                                                <ods-chart-query 
+                                                    context="signalconso" 
+                                                    field-x="category"
+                                                    maxpoints="10"
+                                                    sort="-y">
+                                                    <ods-chart-serie 
+                                                        chart-type="pie" 
+                                                        function-y="COUNT" 
+                                                        color="#0063cb"
+                                                        scientific-display="false"
+                                                        display-units="true"
+                                                        label-y="Nombre de signalements">
+                                                    </ods-chart-serie>
+                                                </ods-chart-query>
+                                            </ods-chart>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Légende détaillée sous forme de tableau -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12">
+                                            <h3>Détail par catégorie</h3>
+                                            <div class="fr-table fr-table--bordered">
+                                                <table>
+                                                    <caption>Répartition des signalements par catégorie</caption>
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Catégorie</th>
+                                                            <th scope="col">Nombre</th>
+                                                            <th scope="col">Pourcentage</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <ods-result-enumerator context="signalconso" max="10">
+                                                            <tr ng-repeat="item in results | orderBy:'-count'">
+                                                                <td>{{item.fields.categorie}}</td>
+                                                                <td>{{item.count | number}}</td>
+                                                                <td>{{(item.count / signalconso.nhits * 100) | number:1}}%</td>
+                                                            </tr>
+                                                        </ods-result-enumerator>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statistiques complémentaires -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--blue-france">
+                                                <h3 class="fr-callout__title">Total signalements</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.nhits | number }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--green-tilleul-verveine">
+                                                <h3 class="fr-callout__title">Période analysée</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--bold">
+                                                        {{ periodFilter || 'Toutes périodes' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--orange-terre-battue">
+                                                <h3 class="fr-callout__title">Région filtrée</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--bold">
+                                                        {{ signalconso.parameters['refine.reg_name'] || 'Toutes régions' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--purple-glycine">
+                                                <h3 class="fr-callout__title">Source</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--bold">
+                                                        DGCCRF
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ods-dataset-context>
+                            </div>
+                            <!-- FIN ZONE WIDGET CHART-PIE-001 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de visualisation des données SignalConso en graphique circulaire. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal des paramètres d'affichage -->
+    <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                                Paramètres d'affichage
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Script de traduction et amélioration -->
+    <script>
+        // Traduction automatique des éléments ODS en français
+        document.addEventListener('DOMContentLoaded', function() {
+            function translateElements() {
+                // Traduire "Clear all" en "Effacer tout"
+                document.querySelectorAll('button, a, span').forEach(function(el) {
+                    if (el.textContent === 'Clear all' || el.textContent.trim() === 'Clear all') {
+                        el.textContent = 'Effacer tout';
+                    }
+                });
+                
+                // Traduire "No data" en "Aucune donnée"
+                document.querySelectorAll('.highcharts-no-data, text').forEach(function(el) {
+                    if (el.textContent === 'No data' || el.textContent === 'No data to display') {
+                        el.textContent = 'Aucune donnée disponible';
+                    }
+                });
+                
+                // Traduire les tooltips du graphique pie
+                document.querySelectorAll('.highcharts-tooltip span').forEach(function(el) {
+                    if (el.textContent.includes('of total')) {
+                        el.textContent = el.textContent.replace('of total', 'du total');
+                    }
+                });
+            }
+            
+            // Traduction initiale après un délai
+            setTimeout(translateElements, 500);
+            setTimeout(translateElements, 1500);
+            
+            // Observer pour les changements dynamiques
+            const observer = new MutationObserver(translateElements);
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    </script>
+</body>
+</html>

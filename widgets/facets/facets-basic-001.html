@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Facets Basic - Filtres à facettes pour données SignalConso">
+    <title>Widget DSFR - Facets Basic</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-facets {
+            font-family: var(--font-family-base);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-header {
+            background-color: var(--background-contrast-grey);
+            color: var(--text-default-grey);
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem 0.25rem 0 0;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-items {
+            border: 1px solid var(--border-default-grey);
+            border-top: none;
+            border-radius: 0 0 0.25rem 0.25rem;
+            background: white;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border-default-grey-light);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item .facet-value {
+            color: var(--text-action-high-blue-france);
+            text-decoration: none;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item .facet-value:hover {
+            text-decoration: underline;
+        }
+        
+        .ods-widget .odswidget-facets .facet-count {
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 500px;
+            background-color: var(--background-alt-grey);
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .widget-container {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        /* Amélioration pour les facettes */
+        .facets-container {
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            padding: 1rem;
+        }
+        
+        .filters-summary {
+            background: var(--background-contrast-grey);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .active-filter {
+            background: var(--background-action-low-blue-france);
+            color: var(--text-action-high-blue-france);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-action-high-blue-france);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Widget DSFR">
+                                <p class="fr-header__service-title">
+                                    Widget Facets Basic
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Filtres à facettes - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Facets Basic</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Filtres à facettes - SignalConso</h1>
+                    <p class="fr-text--lead">Explorez les données par catégories et filtres interactifs</p>
+                </div>
+            </div>
+
+            <!-- Widget -->
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <h2 class="fr-card__title">Filtrage interactif des signalements</h2>
+                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__body">
+                            <!-- DÉBUT ZONE WIDGET FACETS-BASIC-001 -->
+                            <div id="widget-facets-basic-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
+                                <ods-dataset-context 
+                                    context="signalconso"
+                                    signalconso-domain="data.economie.gouv.fr"
+                                    signalconso-dataset="signalconso">
+                                    
+                                    <!-- Résumé des filtres actifs -->
+                                    <div class="filters-summary" ng-if="signalconso.parameters">
+                                        <h3>Filtres actifs</h3>
+                                        <div class="active-filters">
+                                            <div class="active-filter" ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')">
+                                                {{key.replace('refine.', '') | titlecase}} : {{value}}
+                                                <button type="button" class="fr-btn--close fr-btn--sm" 
+                                                        ng-click="signalconso.parameters[key] = undefined"
+                                                        title="Supprimer ce filtre">
+                                                    Supprimer
+                                                </button>
+                                            </div>
+                                            <button class="fr-btn fr-btn--secondary fr-btn--sm" 
+                                                    ng-click="signalconso.clearAllParameters()"
+                                                    ng-if="Object.keys(signalconso.parameters).length > 0">
+                                                Effacer tous les filtres
+                                            </button>
+                                        </div>
+                                        <p class="fr-text--sm fr-mt-2w">
+                                            <strong>{{signalconso.nhits | number}}</strong> résultats trouvés
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Interface de filtrage -->
+                                    <div class="fr-grid-row fr-grid-row--gutters">
+                                        <!-- Panneau de filtres -->
+                                        <div class="fr-col-12 fr-col-lg-4">
+                                            <div class="facets-container">
+                                                <h3>Filtrer les données</h3>
+                                                
+                                                <!-- Recherche textuelle -->
+                                                <div class="fr-search-bar fr-mb-3w">
+                                                    <label class="fr-label" for="search-facets">
+                                                        Recherche textuelle
+                                                    </label>
+                                                    <input 
+                                                        class="fr-input" 
+                                                        type="search" 
+                                                        id="search-facets"
+                                                        ng-model="signalconso.parameters['q']"
+                                                        ng-model-options="{ debounce: 300 }"
+                                                        placeholder="Nom, ville, description...">
+                                                    <button class="fr-btn" title="Rechercher">
+                                                        Rechercher
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Facettes -->
+                                                <ods-facets context="signalconso">
+                                                    <!-- Catégorie -->
+                                                    <div class="fr-mb-3w">
+                                                        <h4>Par catégorie</h4>
+                                                        <ods-facet 
+                                                            name="category"
+                                                            disjunctive="true"
+                                                            sort="count"
+                                                            limit="8">
+                                                        </ods-facet>
+                                                    </div>
+                                                    
+                                                    <!-- Région -->
+                                                    <div class="fr-mb-3w">
+                                                        <h4>Par région</h4>
+                                                        <ods-facet 
+                                                            name="reg_name"
+                                                            disjunctive="true"
+                                                            sort="count"
+                                                            limit="6">
+                                                        </ods-facet>
+                                                    </div>
+                                                    
+                                                    <!-- Département -->
+                                                    <div class="fr-mb-3w">
+                                                        <h4>Par département</h4>
+                                                        <ods-facet 
+                                                            name="dep_name"
+                                                            disjunctive="true"
+                                                            sort="count"
+                                                            limit="10">
+                                                        </ods-facet>
+                                                    </div>
+                                                    
+                                                    <!-- Statut promesse -->
+                                                    <div class="fr-mb-3w">
+                                                        <h4>Par statut</h4>
+                                                        <ods-facet 
+                                                            name="statut_promesse"
+                                                            disjunctive="true"
+                                                            sort="count">
+                                                        </ods-facet>
+                                                    </div>
+                                                    
+                                                    <!-- Année -->
+                                                    <div class="fr-mb-3w">
+                                                        <h4>Par année</h4>
+                                                        <ods-facet 
+                                                            name="creationdate"
+                                                            disjunctive="true"
+                                                            sort="count"
+                                                            date-format="year">
+                                                        </ods-facet>
+                                                    </div>
+                                                </ods-facets>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Résultats filtrés -->
+                                        <div class="fr-col-12 fr-col-lg-8">
+                                            <div class="fr-card">
+                                                <div class="fr-card__body">
+                                                    <div class="fr-card__content">
+                                                        <h3 class="fr-card__title">Résultats filtrés</h3>
+                                                        <p class="fr-card__desc">
+                                                            <strong>{{signalconso.nhits | number}}</strong> signalements correspondent à vos critères
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="fr-card__body">
+                                                    <!-- Tableau des résultats -->
+                                                    <div class="fr-table fr-table--bordered">
+                                                        <ods-table 
+                                                            context="signalconso"
+                                                            displayed-fields="['creationdate','establishmentname','category','city','dep_name','statuspromise']"
+                                                            sort="-creationdate"
+                                                            page-size="15">
+                                                        </ods-table>
+                                                    </div>
+                                                    
+                                                    <!-- Pagination -->
+                                                    <nav class="fr-pagination fr-mt-3w" aria-label="Pagination des résultats">
+                                                        <ods-pager 
+                                                            context="signalconso" 
+                                                            page-size="15">
+                                                        </ods-pager>
+                                                    </nav>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statistiques de filtrage -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--blue-france">
+                                                <h3 class="fr-callout__title">Résultats</h3>
+                                                <p class="fr-callout__text">
+                                                    <ods-aggregation 
+                                                        context="signalconso" 
+                                                        function="COUNT"
+                                                        display-units="true">
+                                                    </ods-aggregation>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--green-tilleul-verveine">
+                                                <h3 class="fr-callout__title">Catégories actives</h3>
+                                                <p class="fr-callout__text">
+                                                    <ods-aggregation 
+                                                        context="signalconso"
+                                                        function="CARDINALITY"
+                                                        expression="category">
+                                                    </ods-aggregation>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--orange-terre-battue">
+                                                <h3 class="fr-callout__title">Régions représentées</h3>
+                                                <p class="fr-callout__text">
+                                                    <ods-aggregation 
+                                                        context="signalconso" 
+                                                        function="CARDINALITY"
+                                                        expression="reg_name">
+                                                    </ods-aggregation>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--purple-glycine">
+                                                <h3 class="fr-callout__title">Période couverte</h3>
+                                                <p class="fr-callout__text">
+                                                    <ods-aggregation 
+                                                        context="signalconso" 
+                                                        function="CARDINALITY"
+                                                        expression="creationdate">
+                                                    </ods-aggregation>
+                                                    années
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ods-dataset-context>
+                            </div>
+                            <!-- FIN ZONE WIDGET FACETS-BASIC-001 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de filtrage des données SignalConso par facettes. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal des paramètres d'affichage -->
+    <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                                Paramètres d'affichage
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+</body>
+</html>
