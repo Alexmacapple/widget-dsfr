@@ -209,10 +209,6 @@ claude
 2. Vérifier `~/Library/Application Support/Claude/claude_desktop_config.json`
 3. Rouvrir Claude Desktop
 
-## 📝 Licence
-
-Ministère de l'Économie, des Finances et de la Souveraineté industrielle et numérique
-
 ---
 
 *Version 2.1 - Projet en production active avec automatisation MCP*
