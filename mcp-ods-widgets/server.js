@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Serveur MCP ODS Widgets - Version simplifiée et fonctionnelle
+ * Serveur MCP ODS Widgets - Version intégrée avec validation DSFR
  */
 
-// Simuler un serveur MCP basique qui répond aux commandes stdio
+import DSFRValidator from './services/dsfr-validator.js';
+const dsfrValidator = new DSFRValidator();
+
+// Serveur MCP qui répond aux commandes stdio
 process.stdin.on('data', (data) => {
   const input = data.toString().trim();
   
@@ -139,40 +142,50 @@ process.stdin.on('data', (data) => {
 
 // Fonctions de génération
 function generateWidget(type, dataset) {
+  // Utiliser le DSFRValidator pour enrichir le widget avec les classes DSFR
   const widgets = {
-    table: `<div class="fr-table">
-  <ods-table context="ctx" ctx-dataset="${dataset}"></ods-table>
-</div>`,
-    chart: `<div class="fr-card">
-  <ods-chart>
+    table: dsfrValidator.generateDSFRStructure('ods-table', {
+      content: `<ods-table context="ctx" ctx-dataset="${dataset}"></ods-table>`
+    }),
+    chart: dsfrValidator.generateDSFRStructure('ods-chart', {
+      title: `Graphique ${dataset}`,
+      description: 'Visualisation des données',
+      content: `<ods-chart>
     <ods-chart-query context="ctx" ctx-dataset="${dataset}">
       <ods-chart-serie chart-type="column" function-y="COUNT" color="#0063cb">
       </ods-chart-serie>
     </ods-chart-query>
-  </ods-chart>
-</div>`,
-    map: `<div class="fr-responsive-media">
-  <ods-map context="ctx" ctx-dataset="${dataset}" location="12,46.5,2.5">
+  </ods-chart>`
+    }),
+    map: dsfrValidator.generateDSFRStructure('ods-map', {
+      title: `Carte ${dataset}`,
+      content: `<ods-map context="ctx" ctx-dataset="${dataset}" location="12,46.5,2.5">
     <ods-map-layer context="ctx" color="#0063cb"></ods-map-layer>
-  </ods-map>
-</div>`,
+  </ods-map>`
+    }),
     facets: `<div class="fr-sidemenu">
   <ods-facets context="ctx" ctx-dataset="${dataset}">
     <ods-facet name="categorie"></ods-facet>
   </ods-facets>
 </div>`,
-    kpi: `<div class="fr-tile">
-  <ods-aggregation context="ctx" ctx-dataset="${dataset}" function="COUNT">
-    <h3 class="fr-tile__title">{{ aggregation }}</h3>
-  </ods-aggregation>
-</div>`
+    kpi: dsfrValidator.generateDSFRStructure('ods-aggregation', {
+      value: '{{ aggregation }}',
+      label: 'Total',
+      content: `<ods-aggregation context="ctx" ctx-dataset="${dataset}" function="COUNT"></ods-aggregation>`
+    })
   };
   
-  return `Widget ${type} créé pour ${dataset}:\n\n\`\`\`html\n${widgets[type] || widgets.table}\n\`\`\``;
+  const widgetHTML = widgets[type] || widgets.table;
+  
+  // Valider le widget généré
+  const validation = dsfrValidator.validate(widgetHTML);
+  
+  return `Widget ${type} créé pour ${dataset}:\n\n\`\`\`html\n${widgetHTML}\n\`\`\`\n\nValidation DSFR: ${validation.summary}`;
 }
 
 function analyzeDataset(dataset) {
-  return {
+  // Analyser le dataset et recommander les widgets appropriés
+  const analysis = {
     dataset: dataset,
     title: dataset,
     fields: {
@@ -185,33 +198,70 @@ function analyzeDataset(dataset) {
       { widget: 'table', score: 100 },
       { widget: 'chart', score: 85 },
       { widget: 'facets', score: 80 }
-    ]
+    ],
+    dsfrMappings: {}
   };
+  
+  // Ajouter les mappings DSFR recommandés pour chaque widget
+  analysis.recommendations.forEach(rec => {
+    const widgetType = `ods-${rec.widget}`;
+    analysis.dsfrMappings[rec.widget] = dsfrValidator.getRecommendedClasses(widgetType);
+  });
+  
+  return analysis;
 }
 
 function generateDashboard(dataset, widgets = ['kpi', 'chart', 'table']) {
-  return `Dashboard DSFR généré pour ${dataset} avec widgets: ${widgets.join(', ')}
-
-\`\`\`html
-<!DOCTYPE html>
+  // Générer les widgets avec DSFR
+  const widgetComponents = widgets.map(type => {
+    const widgetHTML = generateWidget(type, dataset).split('```html')[1].split('```')[0];
+    return `      <!-- Widget ${type.toUpperCase()} -->
+      <div class="fr-col-12 ${type === 'kpi' ? 'fr-col-md-3' : 'fr-col-md-6'} fr-mb-3w">
+        ${widgetHTML.trim()}
+      </div>`;
+  }).join('\n');
+  
+  const dashboardHTML = `<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <title>Dashboard ${dataset}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Dashboard ${dataset} - DSFR</title>
+  
+  <!-- DSFR -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+  
+  <!-- ODS Widgets après DSFR pour priorité -->
   <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
 </head>
 <body>
-  <div class="fr-container" ng-app="ods-widgets">
-    <ods-dataset-context context="ctx" ctx-dataset="${dataset}">
-      <h1>Dashboard ${dataset}</h1>
-      ${widgets.map(w => `<!-- Widget ${w} -->`).join('\n      ')}
+  <div class="fr-container fr-mt-4w" ng-app="ods-widgets">
+    <ods-dataset-context context="ctx" 
+                         ctx-dataset="${dataset}"
+                         ctx-domain="data.economie.gouv.fr">
+      
+      <h1 class="fr-h2">Dashboard ${dataset}</h1>
+      
+      <div class="fr-grid-row fr-grid-row--gutters">
+${widgetComponents}
+      </div>
     </ods-dataset-context>
   </div>
+  
+  <!-- Angular et ODS Widgets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
   <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+  
+  <!-- DSFR JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
 </body>
-</html>
-\`\`\``;
+</html>`;
+  
+  // Valider le dashboard complet
+  const validation = dsfrValidator.validate(dashboardHTML);
+  
+  return `Dashboard DSFR généré pour ${dataset} avec widgets: ${widgets.join(', ')}\n\nValidation: ${validation.summary}\n\n\`\`\`html\n${dashboardHTML}\n\`\`\``;
 }
 
 // Log de démarrage

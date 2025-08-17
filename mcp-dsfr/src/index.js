@@ -44,7 +44,7 @@ try {
   MetricsService = MetricsServiceClass;
   DashboardService = DashboardServiceClass;
 } catch (error) {
-  logError('[DOCKER] Erreur lors du chargement des dépendances:', error.message);
+  logError('[MCP] Erreur lors du chargement des dépendances:', error.message);
   // Fallback vers configuration minimale
   config = {
     server: { name: 'dsfr-mcp', version: '1.3.0' },
@@ -138,9 +138,9 @@ async function initializeServices() {
     }
 
     servicesInitialized = true;
-    logError('[DOCKER] Services initialisés avec succès');
+    logError('[MCP] Services initialisés avec succès');
   } catch (error) {
-    logError("[DOCKER] Erreur lors de l'initialisation des services:", error.message);
+    logError("[MCP] Erreur lors de l'initialisation des services:", error.message);
     // Services de fallback simulés
     _docService = createFallbackDocService();
     _validationService = createFallbackValidationService();
@@ -148,7 +148,7 @@ async function initializeServices() {
     _templateService = createFallbackTemplateService();
     _accessibilityService = createFallbackAccessibilityService();
     servicesInitialized = true;
-    logError('[DOCKER] Services fallback activés');
+    logError('[MCP] Services fallback activés');
   }
 }
 
@@ -4986,7 +4986,7 @@ ${error.message}
       }
     });
   } catch (error) {
-    logError(`[DOCKER] Erreur outil ${name}:`, error.message);
+    logError(`[MCP] Erreur outil ${name}:`, error.message);
     return {
       content: [
         {
@@ -5000,23 +5000,23 @@ ${error.message}
 
 // Gestion robuste des erreurs Docker
 process.on('uncaughtException', (error) => {
-  logError('[DOCKER] Erreur non gérée:', error.message);
+  logError('[MCP] Erreur non gérée:', error.message);
   // Délai pour éviter les boucles infinites
   setTimeout(() => process.exit(1), 2000);
 });
 
 process.on('unhandledRejection', (error) => {
-  logError('[DOCKER] Promesse rejetée:', error);
+  logError('[MCP] Promesse rejetée:', error);
   setTimeout(() => process.exit(1), 2000);
 });
 
 process.on('SIGTERM', () => {
-  logError('[DOCKER] Signal SIGTERM - Arrêt gracieux');
+  logError('[MCP] Signal SIGTERM - Arrêt gracieux');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  logError('[DOCKER] Signal SIGINT - Arrêt gracieux');
+  logError('[MCP] Signal SIGINT - Arrêt gracieux');
   process.exit(0);
 });
 
@@ -5066,13 +5066,13 @@ async function main() {
       });
     }
   } catch (error) {
-    logError("[DOCKER] [PRODUCTION] Erreur fatale lors de l'initialisation:", error.message);
+    logError("[MCP] [PRODUCTION] Erreur fatale lors de l'initialisation:", error.message);
     process.exit(1);
   }
 }
 
 // Démarrage avec gestion d'erreur robuste
 main().catch((error) => {
-  logError('[DOCKER] [PRODUCTION] Erreur critique:', error.message);
+  logError('[MCP] [PRODUCTION] Erreur critique:', error.message);
   process.exit(1);
 });

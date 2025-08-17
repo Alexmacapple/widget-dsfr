@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Widget Graphique DSFR - {{DATASET_NAME}}</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- ODS Widgets CSS après DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    
+    <style>
+        /* Surcharges DSFR pour graphiques */
+        .fr-card ods-chart {
+            min-height: 400px;
+        }
+        .chart-legend {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--background-contrast-grey);
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET {{WIDGET_ID}} -->
+    <div id="widget-{{WIDGET_ID}}" class="fr-container fr-my-4w" ng-app="ods-widgets">
+        <ods-dataset-context context="ctx" 
+                             ctx-dataset="{{DATASET_ID}}"
+                             ctx-domain="{{DOMAIN}}"
+                             ctx-apikey="{{API_KEY}}">
+            
+            <!-- Card DSFR pour le graphique -->
+            <div class="fr-card">
+                <div class="fr-card__body">
+                    <h2 class="fr-card__title">{{WIDGET_TITLE}}</h2>
+                    <p class="fr-card__desc">{{WIDGET_DESCRIPTION}}</p>
+                    
+                    <!-- Contrôles du graphique -->
+                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                        <div class="fr-col-12 fr-col-md-6">
+                            <label class="fr-label" for="chart-type-{{WIDGET_ID}}">
+                                Type de graphique
+                            </label>
+                            <select class="fr-select" id="chart-type-{{WIDGET_ID}}" ng-model="chartType">
+                                <option value="column">Barres verticales</option>
+                                <option value="bar">Barres horizontales</option>
+                                <option value="line">Lignes</option>
+                                <option value="area">Aires</option>
+                                <option value="pie">Camembert</option>
+                            </select>
+                        </div>
+                        <div class="fr-col-12 fr-col-md-6">
+                            <label class="fr-label" for="chart-field-{{WIDGET_ID}}">
+                                Dimension d'analyse
+                            </label>
+                            <select class="fr-select" id="chart-field-{{WIDGET_ID}}" ng-model="chartField">
+                                {{FIELD_OPTIONS}}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Graphique ODS dans conteneur DSFR -->
+                    <div class="fr-card__content">
+                        <ods-chart align-month="true">
+                            <ods-chart-query context="ctx" field-x="{{chartField || '{{DEFAULT_FIELD}}'}}" max-points="20">
+                                <ods-chart-serie 
+                                    expression-y="{{EXPRESSION_Y}}"
+                                    chart-type="{{chartType || 'column'}}"
+                                    function-y="{{FUNCTION_Y}}"
+                                    label-y="{{LABEL_Y}}"
+                                    color="#000091"
+                                    display-legend="true">
+                                </ods-chart-serie>
+                            </ods-chart-query>
+                        </ods-chart>
+                    </div>
+                    
+                    <!-- Alternative textuelle -->
+                    <details class="fr-accordion fr-mt-2w">
+                        <summary class="fr-accordion__btn">
+                            Alternative textuelle du graphique
+                        </summary>
+                        <div class="fr-accordion__content">
+                            <p class="fr-text--sm">
+                                Ce graphique présente {{WIDGET_DESCRIPTION}}. 
+                                Les données sont disponibles en téléchargement ci-dessous.
+                            </p>
+                            <ods-table context="ctx" displayed-fields="{{DISPLAYED_FIELDS}}"></ods-table>
+                        </div>
+                    </details>
+                    
+                    <!-- Actions -->
+                    <div class="fr-card__footer">
+                        <div class="fr-btns-group fr-btns-group--inline">
+                            <ods-export-api context="ctx" format="csv">
+                                <button class="fr-btn fr-btn--secondary">
+                                    Télécharger les données (CSV)
+                                </button>
+                            </ods-export-api>
+                            <button class="fr-btn fr-btn--tertiary" onclick="window.print()">
+                                Imprimer le graphique
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET {{WIDGET_ID}} -->
+    
+    <!-- Angular et dépendances -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    
+    <!-- ODS Widgets -->
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    
+    <!-- DSFR JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <!-- Script d'initialisation -->
+    <script>
+        angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
+            $rootScope.chartType = 'column';
+            $rootScope.chartField = '{{DEFAULT_FIELD}}';
+        }]);
+    </script>
+</body>
+</html>

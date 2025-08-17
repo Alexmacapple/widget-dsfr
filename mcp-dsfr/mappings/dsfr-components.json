@@ -1,0 +1,46 @@
+{
+  "layout": {
+    "container": ["fr-container", "fr-container-fluid"],
+    "grid": ["fr-grid-row", "fr-grid-row--gutters", "fr-grid-row--center", "fr-grid-row--middle"],
+    "columns": [
+      "fr-col-12", "fr-col-11", "fr-col-10", "fr-col-9", "fr-col-8", 
+      "fr-col-7", "fr-col-6", "fr-col-5", "fr-col-4", "fr-col-3", 
+      "fr-col-2", "fr-col-1",
+      "fr-col-md-12", "fr-col-md-6", "fr-col-md-4", "fr-col-md-3",
+      "fr-col-lg-12", "fr-col-lg-6", "fr-col-lg-4", "fr-col-lg-3"
+    ]
+  },
+  "components": {
+    "tables": ["fr-table", "fr-table--bordered", "fr-table--no-scroll", "fr-table--layout-fixed"],
+    "cards": ["fr-card", "fr-card--horizontal", "fr-card--no-arrow", "fr-card--grey"],
+    "tiles": ["fr-tile", "fr-tile--vertical", "fr-tile--horizontal", "fr-tile--no-icon"],
+    "buttons": ["fr-btn", "fr-btn--primary", "fr-btn--secondary", "fr-btn--tertiary", "fr-btn--sm", "fr-btn--lg"],
+    "badges": ["fr-badge", "fr-badge--success", "fr-badge--error", "fr-badge--info", "fr-badge--warning"],
+    "alerts": ["fr-alert", "fr-alert--success", "fr-alert--error", "fr-alert--info", "fr-alert--warning"],
+    "accordions": ["fr-accordion", "fr-accordion__title", "fr-accordion__btn", "fr-accordion__content"],
+    "tabs": ["fr-tabs", "fr-tabs__list", "fr-tabs__tab", "fr-tabs__panel"],
+    "modals": ["fr-modal", "fr-modal__header", "fr-modal__body", "fr-modal__footer"]
+  },
+  "forms": {
+    "inputs": ["fr-input", "fr-input-group", "fr-label", "fr-hint-text", "fr-error-text"],
+    "selects": ["fr-select", "fr-select-group", "fr-option"],
+    "checkboxes": ["fr-checkbox-group", "fr-checkbox", "fr-fieldset"],
+    "radios": ["fr-radio-group", "fr-radio", "fr-fieldset"],
+    "search": ["fr-search-bar", "fr-search-bar--lg"],
+    "upload": ["fr-upload", "fr-upload-group"]
+  },
+  "navigation": {
+    "header": ["fr-header", "fr-header__body", "fr-header__brand", "fr-header__service"],
+    "nav": ["fr-nav", "fr-nav__list", "fr-nav__item", "fr-nav__link"],
+    "breadcrumb": ["fr-breadcrumb", "fr-breadcrumb__list", "fr-breadcrumb__item"],
+    "pagination": ["fr-pagination", "fr-pagination__list", "fr-pagination__item"],
+    "sidemenu": ["fr-sidemenu", "fr-sidemenu__list", "fr-sidemenu__item"],
+    "footer": ["fr-footer", "fr-footer__body", "fr-footer__brand", "fr-footer__content"]
+  },
+  "utilities": {
+    "display": ["fr-hidden", "fr-unhidden", "fr-displayed-xs", "fr-displayed-sm", "fr-displayed-md", "fr-displayed-lg"],
+    "spacing": ["fr-m-*", "fr-mt-*", "fr-mb-*", "fr-ml-*", "fr-mr-*", "fr-p-*", "fr-pt-*", "fr-pb-*"],
+    "text": ["fr-text--xs", "fr-text--sm", "fr-text--md", "fr-text--lg", "fr-text--xl", "fr-text--bold", "fr-text--regular"],
+    "colors": ["fr-text-default--*", "fr-background-default--*", "fr-text-mention--*"]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "rules": {
+    "html_structure": {
+      "require_lang_attribute": true,
+      "require_semantic_html5": true,
+      "max_heading_level": 6,
+      "require_main_element": true,
+      "require_header_footer": false
+    },
+    "accessibility": {
+      "require_aria_labels": true,
+      "require_alt_text": true,
+      "contrast_minimum": "AA",
+      "require_focus_visible": true,
+      "require_skip_links": false,
+      "require_role_attributes": true
+    },
+    "dsfr_compliance": {
+      "no_inline_styles": true,
+      "use_dsfr_classes_only": false,
+      "require_fr_prefix": true,
+      "no_custom_colors": true,
+      "use_system_fonts": true
+    },
+    "performance": {
+      "lazy_load_images": true,
+      "optimize_fonts": true,
+      "minify_css": false,
+      "minify_js": false
+    },
+    "widgets_specific": {
+      "ods_table": {
+        "require_headers": true,
+        "max_columns": 10,
+        "require_responsive": true
+      },
+      "ods_chart": {
+        "require_alternative_text": true,
+        "max_data_points": 100,
+        "require_legend": true
+      },
+      "ods_map": {
+        "require_zoom_controls": true,
+        "require_attribution": true,
+        "max_markers": 1000
+      }
+    }
+  },
+  "severity_levels": {
+    "error": [
+      "require_lang_attribute",
+      "require_aria_labels",
+      "no_inline_styles"
+    ],
+    "warning": [
+      "require_alt_text",
+      "use_dsfr_classes_only",
+      "max_columns"
+    ],
+    "info": [
+      "lazy_load_images",
+      "optimize_fonts"
+    ]
+  },
+  "auto_fix": {
+    "add_lang_attribute": true,
+    "remove_inline_styles": true,
+    "add_fr_prefix": true,
+    "wrap_in_container": true
+  }
+}
