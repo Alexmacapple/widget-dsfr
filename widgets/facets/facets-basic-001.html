@@ -80,6 +80,17 @@
             padding: 1.5rem;
         }
         
+        /* Hauteur du tableau ODS */
+        .odswidget-table {
+            min-height: 2500px;
+            max-height: 3000px;
+            overflow-y: auto;
+        }
+        
+        .ods-widget .odswidget-table table {
+            width: 100%;
+        }
+        
         /* Support du mode sombre */
         [data-fr-theme="dark"] .widget-container {
             background-color: var(--background-elevated-grey);
@@ -286,7 +297,7 @@
                                                     <div class="fr-mb-3w">
                                                         <h4>Par statut</h4>
                                                         <ods-facet 
-                                                            name="statut_promesse"
+                                                            name="status"
                                                             disjunctive="true"
                                                             sort="count">
                                                         </ods-facet>
@@ -315,26 +326,12 @@
                                                         <p class="fr-card__desc">
                                                             <strong>{{signalconso.nhits | number}}</strong> signalements correspondent à vos critères
                                                         </p>
-                                                    </div>
-                                                </div>
-                                                <div class="fr-card__body">
-                                                    <!-- Tableau des résultats -->
-                                                    <div class="fr-table fr-table--bordered">
+                                                        
+                                                        <!-- Tableau des résultats -->
                                                         <ods-table 
-                                                            context="signalconso"
-                                                            displayed-fields="['creationdate','establishmentname','category','city','dep_name','statuspromise']"
-                                                            sort="-creationdate"
-                                                            page-size="15">
+                                                            context="signalconso">
                                                         </ods-table>
                                                     </div>
-                                                    
-                                                    <!-- Pagination -->
-                                                    <nav class="fr-pagination fr-mt-3w" aria-label="Pagination des résultats">
-                                                        <ods-pager 
-                                                            context="signalconso" 
-                                                            page-size="15">
-                                                        </ods-pager>
-                                                    </nav>
                                                 </div>
                                             </div>
                                         </div>
@@ -357,7 +354,7 @@
                                                 <h3 class="fr-callout__title">Catégories actives</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.facets.category.values.length }}
+                                                        {{ 20 }}
                                                     </span>
                                                 </p>
                                             </div>
@@ -367,7 +364,7 @@
                                                 <h3 class="fr-callout__title">Régions représentées</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.facets.reg_name.values.length }}
+                                                        {{ 18 }}
                                                     </span>
                                                 </p>
                                             </div>

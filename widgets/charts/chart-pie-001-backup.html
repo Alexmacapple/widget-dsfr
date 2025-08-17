@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Chart Pie - Graphiques circulaires pour données SignalConso">
-    <title>Widget DSFR - Chart Pie</title>
+    <meta name="description" content="Widget Chart Bar - Graphiques en barres pour données SignalConso">
+    <title>Widget DSFR - Chart Bar</title>
     
     <!-- Favicon DSFR -->
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
@@ -168,10 +168,10 @@
                         <div class="fr-header__service">
                             <a href="/" title="Accueil - Widget DSFR">
                                 <p class="fr-header__service-title">
-                                    Widget Chart Pie
+                                    Widget Chart Bar
                                 </p>
                             </a>
-                            <p class="fr-header__service-tagline">Graphiques circulaires - data.economie.gouv.fr</p>
+                            <p class="fr-header__service-tagline">Graphiques en barres - data.economie.gouv.fr</p>
                         </div>
                     </div>
                 </div>
@@ -191,7 +191,7 @@
                             <a class="fr-breadcrumb__link" href="/">Accueil</a>
                         </li>
                         <li>
-                            <a class="fr-breadcrumb__link" aria-current="page">Chart Pie</a>
+                            <a class="fr-breadcrumb__link" aria-current="page">Chart Bar</a>
                         </li>
                     </ol>
                 </div>
@@ -200,8 +200,8 @@
             <!-- Titre principal -->
             <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
                 <div class="fr-col-12">
-                    <h1>Graphique circulaire - SignalConso</h1>
-                    <p class="fr-text--lead">Répartition proportionnelle des signalements</p>
+                    <h1>Graphique en barres - SignalConso</h1>
+                    <p class="fr-text--lead">Distribution des signalements par catégorie</p>
                 </div>
             </div>
 
@@ -216,8 +216,8 @@
                             </div>
                         </div>
                         <div class="fr-card__body">
-                            <!-- DÉBUT ZONE WIDGET CHART-PIE-001 -->
-                            <div id="widget-chart-pie-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
+                            <!-- DÉBUT ZONE WIDGET CHART-BAR-001 -->
+                            <div id="widget-chart-bar-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
                                 <ods-dataset-context 
                                     context="signalconso"
                                     signalconso-domain="data.economie.gouv.fr"
@@ -290,7 +290,7 @@
                                     <!-- Graphique en barres -->
                                     <div class="chart-container">
                                         <ods-chart 
-                                            display-legend="true"
+                                            display-legend="false"
                                             single-y-axis="true"
                                             min="0">
                                             <ods-chart-query 
@@ -369,7 +369,7 @@
                                     </div>
                                 </ods-dataset-context>
                             </div>
-                            <!-- FIN ZONE WIDGET CHART-PIE-001 -->
+                            <!-- FIN ZONE WIDGET CHART-BAR-001 -->
                         </div>
                     </div>
                 </div>
@@ -391,7 +391,7 @@
                 </div>
                 <div class="fr-footer__content">
                     <p class="fr-footer__content-desc">
-                        Widget de visualisation des données SignalConso en graphique circulaire. 
+                        Widget de visualisation des données SignalConso en graphique barres. 
                         Données issues de data.economie.gouv.fr
                     </p>
                     <ul class="fr-footer__content-list">
