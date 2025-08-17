@@ -19,11 +19,11 @@ Ce fichier fournit des conseils à Claude Code (claude.ai/code) lors du travail 
 ## Vue d'ensemble du Projet
 
 ### Mission Principal
-Porter tous les widgets OpenDataSoft (70+) en composants DSFR, générant des fichiers HTML complets autonomes basés sur le gabarit `/Users/alex/Desktop/widget/_old/html/widget.html`, directement intégrables dans Drupal sans développement supplémentaire.
+Porter tous les widgets OpenDataSoft (70+) en composants DSFR, générant des fichiers HTML complets autonomes basés sur le gabarit `/Users/alex/Desktop/widget-dsfr/_old/html/widget.html`, directement intégrables dans Drupal sans développement supplémentaire.
 
 ### Architecture
 - **Type** : Génération HTML pure (pas de développement Drupal)
-- **Gabarit de base** : `/Users/alex/Desktop/widget/_old/html/widget.html`
+- **Gabarit de base** : `/Users/alex/Desktop/widget-dsfr/_old/html/widget.html`
 - **Identification widgets** : Format `[DATASET]-[TYPE]-[VERSION]` (ex: SIGNALCONSO-TABLE-001)
 - **Connexion données** : Directe à data.economie.gouv.fr (temps réel, sans cache)
 - **Sortie** : Fichiers HTML complets avec toutes les dépendances
@@ -40,11 +40,11 @@ Porter tous les widgets OpenDataSoft (70+) en composants DSFR, générant des fi
    - 208 composants disponibles
 
 2. **ODS-Widgets MCP** (Local)
-   - Chemin : `/Users/alex/Desktop/widget/mcp-ods-widgets/server.js`
+   - Chemin : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server.js`
    - Rôle : Génération des 70+ widgets OpenDataSoft
 
 3. **ODS Documentation** (Git Ingest + DeepWiki)
-   - Git Ingest : `/Users/alex/Desktop/widget/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt`
+   - Git Ingest : `/Users/alex/Desktop/widget-dsfr/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt`
    - GitHub : https://github.com/opendatasoft/ods-widgets
    - DeepWiki : https://deepwiki.com/opendatasoft/ods-widgets
 

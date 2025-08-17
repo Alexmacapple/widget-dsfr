@@ -7,7 +7,7 @@ echo "📊 Ouverture du dashboard de test..."
 echo ""
 
 # Ouvrir directement le fichier HTML
-DASHBOARD="/Users/alex/Desktop/widget/mcp-ods-widgets/test-signalconso.html"
+DASHBOARD="/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/test-signalconso.html"
 
 if [ -f "$DASHBOARD" ]; then
     echo "✅ Ouverture du dashboard SignalConso dans votre navigateur..."

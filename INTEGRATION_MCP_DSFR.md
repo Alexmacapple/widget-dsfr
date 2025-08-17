@@ -173,12 +173,12 @@ const widget = generateWidget('table', 'signalconso');
     "dsfr-mcp": {
       "type": "stdio",
       "command": "node",
-      "args": ["/Users/alex/Desktop/widget/mcp-dsfr/src/index.js"]
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js"]
     },
     "ods-widgets": {
       "type": "stdio",
       "command": "node",
-      "args": ["/Users/alex/Desktop/widget/mcp-ods-widgets/server.js"]
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server.js"]
     }
   }
 }

@@ -1,7 +1,7 @@
 # Architecture Widget Builder HTML - Génération DSFR/ODS
 
 ## Vue d'ensemble
-Système de génération de widgets HTML complets autonomes, basés sur le gabarit `/Users/alex/Desktop/widget/_old/html/widget.html`, avec identification unique des zones widget et connexion directe à data.economie.gouv.fr.
+Système de génération de widgets HTML complets autonomes, basés sur le gabarit `/Users/alex/Desktop/widget-dsfr/_old/html/widget.html`, avec identification unique des zones widget et connexion directe à data.economie.gouv.fr.
 
 ---
 

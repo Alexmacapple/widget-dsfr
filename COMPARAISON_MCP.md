@@ -13,7 +13,7 @@
 
 ### Dans notre architecture actuelle (3 serveurs)
 1. **dsfr-mcp** : `/Users/alex/Desktop/MCP-DSFR/src/index.js` ✅
-2. **ods-mcp** : `/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js` ✅
+2. **ods-mcp** : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js` ✅
 3. **context7** : `npx @upstash/context7-mcp@latest` ✅
 
 ---
@@ -118,7 +118,7 @@ Non utilisé actuellement mais pourrait être utile pour des widgets avancés.
     },
     "ods-widgets": {
       "command": "node", 
-      "args": ["/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js"]
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js"]
     },
     "context7": {
       "command": "npx",

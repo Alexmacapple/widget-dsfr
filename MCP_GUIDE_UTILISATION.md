@@ -94,7 +94,7 @@ claude --version
     "ods-widgets": {
       "type": "stdio",
       "command": "node",
-      "args": ["/Users/alex/Desktop/widget/mcp-ods-widgets/server-enhanced.js"],
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server-enhanced.js"],
       "env": {
         "NODE_ENV": "production"
       }
@@ -259,7 +259,7 @@ mcp__dsfr-mcp__validate_dsfr_html({
 docker logs dsfr-mcp-server
 
 # Relancer le serveur ODS
-node /Users/alex/Desktop/widget/mcp-ods-widgets/server-enhanced.js
+node /Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server-enhanced.js
 
 # Tester manuellement
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize"}' | node server-enhanced.js

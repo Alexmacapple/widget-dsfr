@@ -68,13 +68,13 @@ node --inspect mcp-dsfr/src/index.js
 ## 📋 Configuration des 4 serveurs MCP
 
 ### 1. **DSFR MCP** (Local) ✅
-- **Path** : `/Users/alex/Desktop/widget/mcp-dsfr/`
+- **Path** : `/Users/alex/Desktop/widget-dsfr/mcp-dsfr/`
 - **Version** : 1.5.0
 - **Outils** : 16 (search, generate, validate, etc.)
 - **Docs** : 213 fichiers DSFR
 
 ### 2. **ODS Widgets MCP** (Local) ✅
-- **Path** : `/Users/alex/Desktop/widget/mcp-ods-widgets/`
+- **Path** : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/`
 - **Outils** : 3 (create_widget, analyze_dataset, generate_dashboard)
 - **Widgets** : 70+ types disponibles
 

@@ -16,7 +16,7 @@ Ce guide vous accompagne dans le démarrage rapide de l'implémentation du Widge
 
 ### Serveurs MCP Opérationnels
 - [ ] **DSFR-MCP** : `/Users/alex/Desktop/MCP-DSFR/src/index.js`
-- [ ] **ODS-Widgets** : `/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js`
+- [ ] **ODS-Widgets** : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js`
 - [ ] **ODS-Docs** : Git Ingest + DeepWiki configurés
 - [ ] **Context7** : NPM package accessible
 
@@ -98,8 +98,8 @@ API_GATEWAY_PORT=3004
 
 # MCP Paths
 DSFR_MCP_PATH=/Users/alex/Desktop/MCP-DSFR/src/index.js
-ODS_WIDGETS_MCP_PATH=/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js
-GIT_INGEST_PATH=/Users/alex/Desktop/widget/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt
+ODS_WIDGETS_MCP_PATH=/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js
+GIT_INGEST_PATH=/Users/alex/Desktop/widget-dsfr/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt
 
 # Redis
 REDIS_HOST=localhost

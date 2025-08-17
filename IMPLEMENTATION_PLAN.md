@@ -383,7 +383,7 @@ services:
       - "3003:3003"
     volumes:
       - /Users/alex/Desktop/MCP-DSFR:/mcp/dsfr
-      - /Users/alex/Desktop/widget/mcp-ods-widgets:/mcp/ods
+      - /Users/alex/Desktop/widget-dsfr/mcp-ods-widgets:/mcp/ods
   
   storage:
     build: ./services/storage-service

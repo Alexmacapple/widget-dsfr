@@ -18,7 +18,7 @@ Nous avons maintenant **4 serveurs MCP** parfaitement identifiés et documentés
 ---
 
 ## 2. 📦 ODS-Widgets MCP (Local)
-**Chemin** : `/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js`
+**Chemin** : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js`
 **Rôle** : Génération des 70+ widgets OpenDataSoft
 **Capacités** :
 - Table, Chart, Map, Facets, etc.
@@ -30,7 +30,7 @@ Nous avons maintenant **4 serveurs MCP** parfaitement identifiés et documentés
 
 ## 3. 📚 ODS Documentation (Git Ingest + DeepWiki)
 **Sources multiples** :
-1. **Git Ingest** : `/Users/alex/Desktop/widget/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt`
+1. **Git Ingest** : `/Users/alex/Desktop/widget-dsfr/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt`
 2. **GitHub** : https://github.com/opendatasoft/ods-widgets
 3. **DeepWiki** : https://deepwiki.com/opendatasoft/ods-widgets
 
@@ -88,7 +88,7 @@ odsWidgetTooltip, refineOnClick
     
     "ods-widgets": {
       "command": "node",
-      "args": ["/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js"],
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js"],
       "env": {
         "NODE_ENV": "production"
       },
@@ -99,7 +99,7 @@ odsWidgetTooltip, refineOnClick
       "command": "node",
       "args": ["./mcp-servers/ods-docs-parser.js"],
       "env": {
-        "GIT_INGEST_PATH": "/Users/alex/Desktop/widget/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt",
+        "GIT_INGEST_PATH": "/Users/alex/Desktop/widget-dsfr/_old/git-ingest/opendatasoft-ods-widgets-8a5edab282632443.txt",
         "GITHUB_REPO": "https://github.com/opendatasoft/ods-widgets",
         "DEEPWIKI_URL": "https://deepwiki.com/opendatasoft/ods-widgets"
       },
@@ -317,7 +317,7 @@ npm run mcp:start-all
 
 # Ou individuellement
 node /Users/alex/Desktop/MCP-DSFR/src/index.js
-node /Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js
+node /Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js
 node ./mcp-servers/ods-docs-parser.js
 npx @upstash/context7-mcp@latest
 

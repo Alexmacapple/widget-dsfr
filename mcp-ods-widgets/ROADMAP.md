@@ -54,7 +54,7 @@
   "mcpServers": {
     "ods-widgets": {
       "command": "node",
-      "args": ["/Users/alex/Desktop/widget/mcp-ods-widgets/src/index-final.js"]
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js"]
     },
     "dsfr-mcp": {
       "command": "node",

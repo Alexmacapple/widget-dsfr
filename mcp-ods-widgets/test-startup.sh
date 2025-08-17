@@ -34,7 +34,7 @@ fi
 # Démarrer le serveur backend
 echo ""
 echo "2. Démarrage du serveur backend..."
-cd /Users/alex/Desktop/widget/widget-builder-pro
+cd /Users/alex/Desktop/widget-dsfr/widget-builder-pro
 
 # Vérifier si le serveur est déjà en cours d'exécution
 if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null ; then
@@ -64,7 +64,7 @@ fi
 # Ouvrir le fichier de test dans le navigateur
 echo ""
 echo "3. Ouverture du dashboard de test..."
-DASHBOARD_FILE="/Users/alex/Desktop/widget/mcp-ods-widgets/test-signalconso.html"
+DASHBOARD_FILE="/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/test-signalconso.html"
 
 if [ -f "$DASHBOARD_FILE" ]; then
     log_info "Ouverture du dashboard SignalConso..."
