@@ -15,7 +15,7 @@ Ce guide vous accompagne dans le démarrage rapide de l'implémentation du Widge
 - [ ] Accès aux 4 serveurs MCP
 
 ### Serveurs MCP Opérationnels
-- [ ] **DSFR-MCP** : `/Users/alex/Desktop/MCP-DSFR/src/index.js`
+- [ ] **DSFR-MCP** : `/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js`
 - [ ] **ODS-Widgets** : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js`
 - [ ] **ODS-Docs** : Git Ingest + DeepWiki configurés
 - [ ] **Context7** : NPM package accessible
@@ -25,7 +25,7 @@ Ce guide vous accompagne dans le démarrage rapide de l'implémentation du Widge
 ## 🏗️ Structure du Projet
 
 ```bash
-widget/
+widget-dsfr/
 ├── services/
 │   ├── core-engine/        # Port 3000 - Moteur principal
 │   ├── widget-builder/     # Port 3001 - Interface builder
@@ -47,8 +47,8 @@ widget/
 ### 1. Cloner et Initialiser
 
 ```bash
-# Depuis le répertoire widget existant
-cd /Users/alex/Desktop/widget
+# Depuis le répertoire widget-dsfr existant
+cd /Users/alex/Desktop/widget-dsfr
 
 # Initialiser les services
 npm init -y

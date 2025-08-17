@@ -10,7 +10,7 @@ Porter tous les widgets OpenDataSoft en composants DSFR, générant des fichiers
 
 ### Structure du projet
 ```
-widget/
+widget-dsfr/
 ├── agents/                 # Agents spécialisés pour automatisation
 │   ├── widget-explorer.md
 │   ├── widget-generator.md

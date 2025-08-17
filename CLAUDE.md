@@ -35,7 +35,7 @@ Porter tous les widgets OpenDataSoft (70+) en composants DSFR, générant des fi
 ### 4 Serveurs MCP Configurés
 
 1. **DSFR-MCP** (Local)
-   - Chemin : `/Users/alex/Desktop/MCP-DSFR/src/index.js`
+   - Chemin : `/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js`
    - Rôle : Génération et validation des composants DSFR
    - 208 composants disponibles
 

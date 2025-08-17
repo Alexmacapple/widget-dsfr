@@ -138,7 +138,7 @@ export class MCPOrchestrator {
 ```typescript
 // services/mcp-bridge/src/connectors/dsfr-mcp.connector.ts
 export class DSFRMCPConnector {
-  private readonly serverPath = '/Users/alex/Desktop/MCP-DSFR/src/index.js';
+  private readonly serverPath = '/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js';
   
   async generateComponent(widget: Widget): Promise<DSFRComponent> {
     const response = await this.callMCP('generate_dsfr_component', {

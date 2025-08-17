@@ -7,7 +7,7 @@ Nous avons maintenant **4 serveurs MCP** parfaitement identifiés et documentés
 ---
 
 ## 1. 🎨 DSFR-MCP (Local)
-**Chemin** : `/Users/alex/Desktop/MCP-DSFR/src/index.js`
+**Chemin** : `/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js`
 **Rôle** : Génération et validation des composants DSFR
 **Capacités** :
 - 208 composants DSFR (Core, Component, Layout, Utility)
@@ -78,7 +78,7 @@ odsWidgetTooltip, refineOnClick
   "mcpServers": {
     "dsfr-mcp": {
       "command": "node",
-      "args": ["/Users/alex/Desktop/MCP-DSFR/src/index.js"],
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js"],
       "env": {
         "NODE_ENV": "production",
         "MCP_CLIENT": "true"

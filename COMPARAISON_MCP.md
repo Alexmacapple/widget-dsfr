@@ -12,7 +12,7 @@
 3. **MCP DeepWiki/GitMCP** - documentation ODS
 
 ### Dans notre architecture actuelle (3 serveurs)
-1. **dsfr-mcp** : `/Users/alex/Desktop/MCP-DSFR/src/index.js` ✅
+1. **dsfr-mcp** : `/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js` ✅
 2. **ods-mcp** : `/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js` ✅
 3. **context7** : `npx @upstash/context7-mcp@latest` ✅
 
@@ -114,7 +114,7 @@ Non utilisé actuellement mais pourrait être utile pour des widgets avancés.
     // Serveurs actuels
     "dsfr-mcp": {
       "command": "node",
-      "args": ["/Users/alex/Desktop/MCP-DSFR/src/index.js"]
+      "args": ["/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js"]
     },
     "ods-widgets": {
       "command": "node", 

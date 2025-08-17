@@ -16,7 +16,7 @@
 ## 🎯 Architecture actuelle (100% MCP intégré)
 
 ```
-widget/
+widget-dsfr/
 ├── mcp-dsfr/              ✅ MCP DSFR local (v1.5.0)
 │   ├── src/
 │   │   └── index.js       # 16 outils DSFR disponibles
