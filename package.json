@@ -1,0 +1,47 @@
+{
+  "name": "widget-builder-dsfr-ods",
+  "version": "2.0.0",
+  "description": "Générateur de widgets et dashboards OpenDataSoft avec thème DSFR (Design System France)",
+  "main": "mcp-ods-widgets/server.js",
+  "scripts": {
+    "start": "node mcp-ods-widgets/server.js",
+    "test": "node tests/run-tests.js",
+    "validate": "node tests/validate-dsfr.js",
+    "serve": "python3 -m http.server 8000",
+    "docker:build": "docker build -t dsfr-mcp-server /Users/alex/Desktop/MCP-DSFR",
+    "docker:run": "docker run -d --name dsfr-mcp-server dsfr-mcp-server tail -f /dev/null"
+  },
+  "keywords": [
+    "DSFR",
+    "OpenDataSoft",
+    "widgets",
+    "dashboard",
+    "MCP",
+    "SignalConso",
+    "DGCCRF",
+    "data-visualization"
+  ],
+  "author": "Widget Builder Team",
+  "license": "MIT",
+  "dependencies": {
+    "@gouvfr/dsfr": "^1.14.0",
+    "angular": "^1.8.2",
+    "angular-sanitize": "^1.8.2"
+  },
+  "devDependencies": {
+    "@upstash/context7-mcp": "latest",
+    "@progress/kendo-angular-mcp": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/widget-builder-dsfr-ods.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/widget-builder-dsfr-ods/issues"
+  },
+  "homepage": "https://github.com/yourusername/widget-builder-dsfr-ods#readme"
+}

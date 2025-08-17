@@ -48,4 +48,6 @@ coverage/
 .envrc
 
 # Package lock files (optionnel - à décider)
-# package-lock.json
+# package-lock.jsondashboard-dgccrf.html
+mcp-ods-widgets/server-enhanced.js
+mcp-ods-widgets/test-enhanced.js

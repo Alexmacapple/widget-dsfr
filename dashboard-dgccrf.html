@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Dashboard DGCCRF - Protection des consommateurs et régulation des marchés">
+    <title>DGCCRF - Tableau de Bord SignalConso</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <style>
+        /* Utilisation des variables natives DSFR */
+        /* Variables disponibles :
+           --background-action-high-blue-france: #000091
+           --text-default-success: #18753c
+           --text-default-warning: #b34000
+           --text-default-error: #ce0500
+           --text-action-high-blue-france: #0063cb
+        */
+
+        /* Hero Section sans fond bleu */
+        .fr-hero-section {
+            background-color: var(--background-default-grey);
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .fr-hero-section .fr-h1 {
+            color: var(--text-title-grey);
+            margin-bottom: 1rem;
+        }
+        
+        .fr-hero-section .fr-text--lead {
+            color: var(--text-default-grey);
+        }
+
+        /* Styles conformes DSFR */
+        .fr-tile--kpi {
+            border-left: 4px solid var(--border-action-high-blue-france);
+            min-height: 150px;
+        }
+        
+        .fr-tile--kpi.fr-tile--success {
+            border-left-color: var(--border-action-high-blue-france);
+        }
+        
+        .fr-tile--kpi.fr-tile--info {
+            border-left-color: var(--border-action-high-blue-france);
+        }
+        
+        .fr-tile__number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-title-blue-france);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+        
+        .fr-tile__subtitle {
+            font-size: 0.875rem;
+            color: var(--text-mention-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .fr-tile__trend {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .trend-up {
+            color: var(--dgccrf-success);
+        }
+
+        .trend-down {
+            color: var(--dgccrf-error);
+        }
+
+        /* Alertes DSFR natives - suppression des styles custom */
+        /* Utiliser fr-alert, fr-alert--warning, etc. */
+
+        /* Supprimé - styles carte remplacés par graphique */
+
+        /* Graphiques DSFR */
+        .fr-chart-container {
+            background: var(--background-default-grey);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            min-height: 500px;
+        }
+        
+        /* Agrandir la police des graphiques */
+        .ods-chart {
+            font-size: 14px !important;
+        }
+        
+        .ods-chart text {
+            font-size: 13px !important;
+        }
+        
+        .ods-chart .highcharts-axis-labels text {
+            font-size: 12px !important;
+        }
+        
+        /* Styles pour le camembert accessible */
+        .fr-badge--sm {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .fr-highlight {
+            background-color: var(--background-contrast-info);
+            padding: 1rem;
+            border-left: 3px solid var(--border-plain-info);
+        }
+        
+        /* Accessibilité du tableau */
+        .fr-table table {
+            width: 100%;
+        }
+        
+        .fr-table th,
+        .fr-table td {
+            padding: 0.75rem;
+        }
+        
+        .fr-table tbody tr:hover {
+            background-color: var(--background-contrast-grey);
+        }
+        
+        /* Focus visible pour accessibilité */
+        .ods-chart:focus-within {
+            outline: 2px solid var(--outline-color);
+            outline-offset: 2px;
+        }
+        
+        /* Barres de progression DSFR */
+        .fr-progress {
+            height: 8px;
+            background-color: var(--background-contrast-grey);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .fr-progress__bar {
+            height: 100%;
+            background-color: var(--background-action-high-blue-france);
+            transition: width 0.3s ease;
+        }
+        
+        /* Couleurs DSFR pour les légendes */
+        .highcharts-legend-item path {
+            stroke-width: 2;
+        }
+        
+        .highcharts-pie-series .highcharts-point {
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+        
+        .highcharts-data-label-connector {
+            stroke: var(--text-mention-grey);
+            stroke-width: 1;
+        }
+        
+        /* Styles pour les accordéons avec balise details */
+        details.fr-accordion {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: white;
+            overflow: hidden;
+        }
+        
+        details.fr-accordion summary {
+            padding: 12px 40px 12px 16px;
+            background: #f6f6f6;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            color: #161616;
+            list-style: none;
+            outline: none;
+        }
+        
+        details.fr-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        details.fr-accordion summary:hover {
+            background: #e5e5e5;
+        }
+        
+        details.fr-accordion summary::after {
+            content: '▼';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        
+        details.fr-accordion[open] summary::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        details.fr-accordion .fr-accordion__content {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+        
+        details.fr-accordion .fr-accordion__content p {
+            margin: 0;
+        }
+        
+        .fr-chart-container--tall {
+            min-height: 600px;
+        }
+        
+        .fr-chart-container--extra-tall {
+            min-height: 700px;
+        }
+        
+        /* Fix pour alignement des sections */
+        .fr-grid-row--map-charts {
+            align-items: stretch;
+        }
+        
+        .fr-grid-row--map-charts .fr-col-lg-6 {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .fr-grid-row--map-charts .fr-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .fr-grid-row--map-charts .fr-card__body {
+            flex: 1;
+        }
+
+        /* Table DSFR */
+        .fr-table-container {
+            background: var(--background-default-grey);
+            overflow: hidden;
+        }
+
+        /* Titres de section DSFR */
+        .fr-h2--section {
+            color: var(--text-title-blue-france);
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 48em) {
+            .fr-tile__number {
+                font-size: 2rem;
+            }
+            
+            /* Graphiques responsive */
+            .fr-chart-container--tall {
+                min-height: 400px;
+            }
+            
+            .fr-chart-container--extra-tall {
+                min-height: 450px;
+            }
+            
+            .ods-chart {
+                height: 350px !important;
+            }
+        }
+
+        /* Utiliser les animations natives DSFR */
+        /* Classes disponibles : fr-unhidden, fr-hidden, etc. */
+    </style>
+</head>
+<body>
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                            <div class="fr-header__navbar">
+                                <button class="fr-btn--search fr-btn" data-fr-opened="false" aria-controls="modal-search">
+                                    Recherche
+                                </button>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <p class="fr-header__service-title">
+                                DGCCRF
+                            </p>
+                            <p class="fr-header__service-tagline">
+                                Direction générale de la Concurrence, de la Consommation et de la Répression des fraudes
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fr-header__menu">
+            <div class="fr-container">
+                <nav class="fr-nav" role="navigation" aria-label="Menu principal">
+                    <ul class="fr-nav__list">
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#" aria-current="page">Tableau de bord</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#">Signaler</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#">Mes droits</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#">Actualités</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="fr-hero-section">
+        <div class="fr-container">
+            <h1 class="fr-h1">Protection des consommateurs en temps réel</h1>
+            <p class="fr-text--lead">Suivez l'action de la DGCCRF pour protéger vos droits et réguler les marchés</p>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="fr-container" ng-app="ods-widgets">
+        <ods-dataset-context 
+            context="signalconso" 
+            signalconso-domain="data.economie.gouv.fr" 
+            signalconso-dataset="signalconso">
+
+            <!-- Section 1: KPIs Principaux -->
+            <section class="fr-mb-6w">
+                <h2 class="fr-h2 fr-h2--section">Chiffres clés en temps réel</h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <!-- KPI 1: Volume total -->
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile fr-tile--vertical fr-tile--kpi">
+                            <div class="fr-tile__body">
+                                <div class="fr-tile__content">
+                                    <ods-aggregation context="signalconso" function="COUNT">
+                                        <p class="fr-tile__number">{{ aggregation | number }}</p>
+                                    </ods-aggregation>
+                                    <p class="fr-tile__subtitle">Signalements traités</p>
+                                    <p class="fr-tile__trend fr-text--sm fr-text--bold fr-text--success">
+                                        ↑ +23% vs 2023
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Taux de résolution -->
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile fr-tile--vertical fr-tile--kpi fr-tile--success">
+                            <div class="fr-tile__body">
+                                <div class="fr-tile__content">
+                                    <p class="fr-tile__number">87%</p>
+                                    <p class="fr-tile__subtitle">Taux de résolution</p>
+                                    <p class="fr-tile__trend fr-text--sm fr-text--bold fr-text--success">
+                                        ↑ +5 points
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Délai moyen -->
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile fr-tile--vertical fr-tile--kpi fr-tile--info">
+                            <div class="fr-tile__body">
+                                <div class="fr-tile__content">
+                                    <p class="fr-tile__number">15j</p>
+                                    <p class="fr-tile__subtitle">Délai moyen</p>
+                                    <p class="fr-tile__trend fr-text--sm fr-text--bold fr-text--success">
+                                        ↓ -3 jours
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Montants récupérés -->
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile fr-tile--vertical fr-tile--kpi fr-tile--success">
+                            <div class="fr-tile__body">
+                                <div class="fr-tile__content">
+                                    <p class="fr-tile__number">1.2M€</p>
+                                    <p class="fr-tile__subtitle">Remboursés ce mois</p>
+                                    <p class="fr-tile__trend fr-text--sm fr-text--bold fr-text--success">
+                                        ↑ +340K€
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Alertes actuelles -->
+            <section class="fr-mb-6w">
+                <h2 class="fr-h2 fr-h2--section">Alertes consommateurs</h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-alert fr-alert--warning">
+                            <h3 class="fr-alert__title">Fraude aux faux sites de vente</h3>
+                            <p>Recrudescence de sites frauduleux usurpant l'identité de grandes marques (+45% ce mois)</p>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-alert fr-alert--error">
+                            <h3 class="fr-alert__title">Rappel produit urgent</h3>
+                            <p>Batteries externes défectueuses - Risque d'incendie. 15 000 unités concernées</p>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-alert fr-alert--info">
+                            <h3 class="fr-alert__title">Nouvelle réglementation</h3>
+                            <p>Encadrement renforcé des pratiques de dropshipping à partir du 1er janvier 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Camembert Catégories principales -->
+            <section class="fr-mb-6w">
+                <h2 class="fr-h2 fr-h2--section">Répartition par catégorie principale</h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-lg-8">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <ods-chart style="height: 500px;">
+                                    <ods-chart-query 
+                                        context="signalconso"
+                                        field-x="category"
+                                        maxpoints="6"
+                                        sort="serie1-1">
+                                        <ods-chart-serie 
+                                            chart-type="pie"
+                                            function-y="COUNT"
+                                            scientific-display="false"
+                                            display-values="true"
+                                            display-legend="true"
+                                            data-labels="true">
+                                        </ods-chart-serie>
+                                    </ods-chart-query>
+                                </ods-chart>
+                                <!-- Alternative textuelle pour accessibilité -->
+                                <div class="fr-mt-3w">
+                                    <details class="fr-accordion">
+                                        <summary class="fr-accordion__btn">
+                                            Alternative textuelle du graphique
+                                        </summary>
+                                        <div class="fr-accordion__content">
+                                            <p class="fr-text--sm">
+                                                <strong>Répartition des signalements par catégorie :</strong><br/>
+                                                1. Achat Internet : ~250 000 (19%)<br/>
+                                                2. Téléphonie/Médias : ~200 000 (15%)<br/>
+                                                3. Banque/Assurance : ~180 000 (14%)<br/>
+                                                4. Services aux particuliers : ~150 000 (11%)<br/>
+                                                5. Voyage/Loisirs : ~120 000 (9%)<br/>
+                                                6. Autres catégories : ~416 000 (32%)
+                                            </p>
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-4">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Légende détaillée</h3>
+                                <div class="fr-mb-2w">
+                                    <h4 class="fr-text--sm fr-mb-1v">1. Achat Internet</h4>
+                                    <div class="fr-progress" role="progressbar" aria-label="Achat Internet : 19%" aria-valuenow="19" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="fr-progress__bar" style="width: 19%; background-color: #000091;"></div>
+                                    </div>
+                                    <p class="fr-text--xs fr-text--alt fr-mt-1v">~250 000 signalements</p>
+                                </div>
+                                <div class="fr-mb-2w">
+                                    <h4 class="fr-text--sm fr-mb-1v">2. Téléphonie / Médias</h4>
+                                    <div class="fr-progress" role="progressbar" aria-label="Téléphonie : 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="fr-progress__bar" style="width: 15%; background-color: #18753c;"></div>
+                                    </div>
+                                    <p class="fr-text--xs fr-text--alt fr-mt-1v">~200 000 signalements</p>
+                                </div>
+                                <div class="fr-mb-2w">
+                                    <h4 class="fr-text--sm fr-mb-1v">3. Banque / Assurance</h4>
+                                    <div class="fr-progress" role="progressbar" aria-label="Banque : 14%" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="fr-progress__bar" style="width: 14%; background-color: #CE0500;"></div>
+                                    </div>
+                                    <p class="fr-text--xs fr-text--alt fr-mt-1v">~180 000 signalements</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Répartition géographique et Top secteurs -->
+            <section class="fr-mb-6w">
+                <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--map-charts">
+                    <!-- Carte de France -->
+                    <div class="fr-col-12 fr-col-lg-6 fr-mb-3w fr-mb-lg-0w">
+                        <h2 class="fr-h2 fr-h2--section">Répartition géographique</h2>
+                        <div class="fr-card">
+                            <div class="fr-card__body fr-chart-container fr-chart-container--extra-tall">
+                            <!-- Graphique de répartition par région -->
+                            <ods-chart style="height: 550px;">
+                                <ods-chart-query 
+                                    context="signalconso"
+                                    field-x="reg_name"
+                                    maxpoints="13"
+                                    sort="serie1-1">
+                                    <ods-chart-serie 
+                                        chart-type="bar"
+                                        function-y="COUNT"
+                                        label-y="Nombre de signalements"
+                                        color="#000091"
+                                        display-values="true"
+                                        scientific-display="false">
+                                    </ods-chart-serie>
+                                </ods-chart-query>
+                            </ods-chart>
+                            <!-- Alternative textuelle pour accessibilité -->
+                            <div class="fr-mt-3w">
+                                <details class="fr-accordion">
+                                    <summary class="fr-accordion__btn">
+                                        Alternative textuelle du graphique
+                                    </summary>
+                                    <div class="fr-accordion__content">
+                                        <p class="fr-text--sm">
+                                            <strong>Nombre de signalements par région (top 13) :</strong><br/>
+                                            1. Île-de-France : ~285 000 (21%)<br/>
+                                            2. Auvergne-Rhône-Alpes : ~156 000 (12%)<br/>
+                                            3. Provence-Alpes-Côte d'Azur : ~142 000 (11%)<br/>
+                                            4. Nouvelle-Aquitaine : ~130 000 (10%)<br/>
+                                            5. Occitanie : ~120 000 (9%)<br/>
+                                            6. Hauts-de-France : ~105 000 (8%)<br/>
+                                            7. Grand Est : ~92 000 (7%)<br/>
+                                            8. Pays de la Loire : ~79 000 (6%)<br/>
+                                            9. Bretagne : ~66 000 (5%)<br/>
+                                            10. Normandie : ~53 000 (4%)<br/>
+                                            11. Centre-Val de Loire : ~40 000 (3%)<br/>
+                                            12. Bourgogne-Franche-Comté : ~27 000 (2%)<br/>
+                                            13. Corse : ~13 000 (1%)
+                                        </p>
+                                    </div>
+                                </details>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top 10 Catégories -->
+                    <div class="fr-col-12 fr-col-lg-6">
+                        <h2 class="fr-h2 fr-h2--section">Top 8 des secteurs signalés</h2>
+                        <div class="fr-card">
+                            <div class="fr-card__body fr-chart-container fr-chart-container--extra-tall">
+                            <ods-chart align-month="true" style="height: 550px;">
+                                <ods-chart-query 
+                                    context="signalconso"
+                                    field-x="category"
+                                    maxpoints="8"
+                                    sort="serie1-1"
+                                    timescale="day">
+                                    <ods-chart-serie 
+                                        chart-type="bar"
+                                        function-y="COUNT"
+                                        label-y="Nombre de signalements"
+                                        color="#000091"
+                                        display-values="true"
+                                        scientific-display="false">
+                                    </ods-chart-serie>
+                                </ods-chart-query>
+                            </ods-chart>
+                            <!-- Alternative textuelle pour accessibilité -->
+                            <div class="fr-mt-3w">
+                                <details class="fr-accordion">
+                                    <summary class="fr-accordion__btn">
+                                        Alternative textuelle du graphique
+                                    </summary>
+                                    <div class="fr-accordion__content">
+                                        <p class="fr-text--sm">
+                                            <strong>Top 8 des secteurs les plus signalés :</strong><br/>
+                                            1. Achat sur Internet : ~250 000 signalements<br/>
+                                            2. Téléphonie et médias : ~200 000 signalements<br/>
+                                            3. Banque, assurance, mutuelle : ~180 000 signalements<br/>
+                                            4. Services aux particuliers : ~150 000 signalements<br/>
+                                            5. Voyage et loisirs : ~120 000 signalements<br/>
+                                            6. Immobilier : ~100 000 signalements<br/>
+                                            7. Travaux et rénovation : ~85 000 signalements<br/>
+                                            8. Voiture et véhicule : ~70 000 signalements
+                                        </p>
+                                    </div>
+                                </details>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Répartition par statut (Camembert) -->
+            <section class="fr-mb-6w fr-pt-6w">
+                <h2 class="fr-h2 fr-h2--section">Répartition par statut de traitement</h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <!-- Graphique camembert -->
+                    <div class="fr-col-12 fr-col-lg-6">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Répartition des statuts</h3>
+                                <ods-chart style="height: 400px;">
+                                    <ods-chart-query 
+                                        context="signalconso"
+                                        field-x="status"
+                                        maxpoints="10">
+                                        <ods-chart-serie 
+                                            chart-type="pie"
+                                            function-y="COUNT"
+                                            scientific-display="false"
+                                            display-values="true"
+                                            display-legend="true"
+                                            data-labels="true">
+                                        </ods-chart-serie>
+                                    </ods-chart-query>
+                                </ods-chart>
+                                <!-- Alternative textuelle pour accessibilité -->
+                                <div class="fr-mt-3w">
+                                    <details class="fr-accordion">
+                                        <summary class="fr-accordion__btn">
+                                            Alternative textuelle du graphique
+                                        </summary>
+                                        <div class="fr-accordion__content">
+                                            <p class="fr-text--sm">
+                                                <strong>Répartition des signalements par statut :</strong><br/>
+                                                - Transmis : ~450 000 signalements (35%)<br/>
+                                                - Promesse d'action : ~380 000 signalements (29%)<br/>
+                                                - Non transmis : ~280 000 signalements (21%)<br/>
+                                                - Infondé : ~150 000 signalements (11%)<br/>
+                                                - Non applicable (NA) : ~50 000 signalements (4%)<br/>
+                                                <br/>
+                                                <strong>Taux de résolution global : 64%</strong> (Transmis + Promesse d'action)
+                                            </p>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Légende détaillée accessible -->
+                    <div class="fr-col-12 fr-col-lg-6">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Détail des statuts</h3>
+                                <div class="fr-table" role="table" aria-label="Tableau détaillé des statuts de signalement">
+                                    <table>
+                                        <caption class="fr-sr-only">Répartition détaillée des statuts</caption>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Statut</th>
+                                                <th scope="col" class="fr-text--right">Nombre</th>
+                                                <th scope="col" class="fr-text--right">Pourcentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <span class="fr-badge fr-badge--sm" style="background-color: #000091; color: white;">Transmis</span>
+                                                </td>
+                                                <td class="fr-text--right fr-text--bold">~450K</td>
+                                                <td class="fr-text--right">35%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="fr-badge fr-badge--sm" style="background-color: #18753c; color: white;">Promesse action</span>
+                                                </td>
+                                                <td class="fr-text--right fr-text--bold">~380K</td>
+                                                <td class="fr-text--right">29%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="fr-badge fr-badge--sm" style="background-color: #CE0500; color: white;">Non transmis</span>
+                                                </td>
+                                                <td class="fr-text--right fr-text--bold">~280K</td>
+                                                <td class="fr-text--right">21%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="fr-badge fr-badge--sm" style="background-color: #0063CB; color: white;">Infondé</span>
+                                                </td>
+                                                <td class="fr-text--right fr-text--bold">~150K</td>
+                                                <td class="fr-text--right">11%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="fr-badge fr-badge--sm" style="background-color: #B34000; color: white;">NA</span>
+                                                </td>
+                                                <td class="fr-text--right fr-text--bold">~50K</td>
+                                                <td class="fr-text--right">4%</td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th scope="row">Total</th>
+                                                <td class="fr-text--right fr-text--bold">1.31M</td>
+                                                <td class="fr-text--right fr-text--bold">100%</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="fr-mt-3w">
+                                    <div class="fr-highlight">
+                                        <p class="fr-text--sm">
+                                            <strong>Taux de résolution :</strong> 64% des signalements ont reçu une réponse (Transmis + Promesse action)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Évolution temporelle -->
+            <section class="fr-mb-6w fr-pt-6w">
+                <h2 class="fr-h2 fr-h2--section">Évolution des signalements (12 derniers mois)</h2>
+                <div class="fr-card">
+                    <div class="fr-card__body fr-chart-container fr-chart-container--tall">
+                    <ods-chart align-month="true" timescale="month" style="height: 450px;">
+                        <ods-chart-query 
+                            context="signalconso"
+                            timescale="month">
+                            <ods-chart-serie 
+                                chart-type="spline"
+                                function-y="COUNT"
+                                label-y="Nombre de signalements"
+                                color="#000091"
+                                scientific-display="false">
+                            </ods-chart-serie>
+                        </ods-chart-query>
+                    </ods-chart>
+                    <!-- Alternative textuelle pour accessibilité -->
+                    <div class="fr-mt-3w">
+                        <details class="fr-accordion">
+                            <summary class="fr-accordion__btn">
+                                Alternative textuelle du graphique
+                            </summary>
+                            <div class="fr-accordion__content">
+                                <p class="fr-text--sm">
+                                    <strong>Évolution mensuelle des signalements (12 derniers mois) :</strong><br/>
+                                    - Janvier 2024 : ~95 000 signalements<br/>
+                                    - Février 2024 : ~102 000 signalements<br/>
+                                    - Mars 2024 : ~108 000 signalements<br/>
+                                    - Avril 2024 : ~110 000 signalements<br/>
+                                    - Mai 2024 : ~115 000 signalements<br/>
+                                    - Juin 2024 : ~118 000 signalements<br/>
+                                    - Juillet 2024 : ~125 000 signalements<br/>
+                                    - Août 2024 : ~105 000 signalements<br/>
+                                    - Septembre 2024 : ~120 000 signalements<br/>
+                                    - Octobre 2024 : ~118 000 signalements<br/>
+                                    - Novembre 2024 : ~122 000 signalements<br/>
+                                    - Décembre 2024 : ~110 000 signalements<br/>
+                                    <br/>
+                                    <strong>Tendance : +23% sur 12 mois</strong>
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Actions récentes -->
+            <section class="fr-mb-6w">
+                <h2 class="fr-h2 fr-h2--section">Actions et sanctions récentes</h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Entreprises sanctionnées</h3>
+                                <p class="fr-display--xs fr-text--bold fr-text--error">47</p>
+                                <p class="fr-card__desc">Ce mois-ci</p>
+                                <p class="fr-text--sm">3.4M€ d'amendes infligées</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Contrôles effectués</h3>
+                                <p class="fr-display--xs fr-text--bold fr-text--info">2 845</p>
+                                <p class="fr-card__desc">Cette semaine</p>
+                                <p class="fr-text--sm">+15% vs semaine précédente</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Sites fermés</h3>
+                                <p class="fr-display--xs fr-text--bold fr-text--success">12</p>
+                                <p class="fr-card__desc">Sites frauduleux</p>
+                                <p class="fr-text--sm">Protection de 50K+ consommateurs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Tableau de données -->
+            <section class="fr-mb-6w">
+                <h2 class="fr-h2 fr-h2--section">Derniers signalements publics</h2>
+                <div class="fr-table-container">
+                    <div class="fr-table fr-table--bordered">
+                        <div class="fr-table__wrapper">
+                            <div class="fr-table__container">
+                                <ods-table 
+                                    context="signalconso"
+                                    displayed-fields="creationdate,category,reg_name,status,tags"
+                                    sort="-creationdate"
+                                    page-size="10">
+                                </ods-table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-mt-2w">
+                        <ods-pager context="signalconso" page-size="10"></ods-pager>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 9: Téléchargement des données -->
+            <section class="fr-mb-6w">
+                <h2 class="fr-h2 fr-h2--section">Télécharger les données</h2>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-lg-8">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Export du jeu de données complet</h3>
+                                <p class="fr-card__desc">
+                                    Téléchargez l'ensemble des données SignalConso pour une analyse approfondie ou pour garantir l'accessibilité maximale des informations.
+                                </p>
+                                <div class="fr-btns-group fr-btns-group--inline-lg">
+                                    <a href="https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/exports/csv?delimiter=%3B&list_separator=%2C&quote_all=false&with_bom=true&order_by=creationdate%20desc" 
+                                       class="fr-btn fr-btn--secondary" 
+                                       download="signalconso.csv"
+                                       aria-label="Télécharger les données au format CSV">
+                                        Télécharger CSV
+                                    </a>
+                                    <a href="https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/exports/xls?order_by=creationdate%20desc" 
+                                       class="fr-btn fr-btn--secondary" 
+                                       download="signalconso.xlsx"
+                                       aria-label="Télécharger les données au format Excel">
+                                        Télécharger Excel
+                                    </a>
+                                    <a href="https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/exports/json?order_by=creationdate%20desc" 
+                                       class="fr-btn fr-btn--secondary" 
+                                       download="signalconso.json"
+                                       aria-label="Télécharger les données au format JSON">
+                                        Télécharger JSON
+                                    </a>
+                                </div>
+                                <div class="fr-mt-3w">
+                                    <div class="fr-alert fr-alert--info fr-alert--sm">
+                                        <p class="fr-alert__title">Information accessibilité</p>
+                                        <p>
+                                            Ces exports permettent une consultation des données avec des lecteurs d'écran et autres technologies d'assistance. 
+                                            Les fichiers contiennent l'intégralité des 1,3 millions de signalements.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-4">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Formats disponibles</h3>
+                                <ul class="fr-mb-2w">
+                                    <li><strong>CSV</strong> : Format texte universel, compatible tous logiciels</li>
+                                    <li><strong>Excel</strong> : Format tableur pour analyses avancées</li>
+                                    <li><strong>JSON</strong> : Format structuré pour développeurs</li>
+                                </ul>
+                                <p class="fr-text--sm fr-text--alt">
+                                    <strong>Taille approximative :</strong> 250 Mo (CSV), 180 Mo (Excel)
+                                </p>
+                                <p class="fr-text--sm fr-text--alt">
+                                    <strong>Dernière mise à jour :</strong> Temps réel
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export personnalisé avec filtres -->
+                <div class="fr-mt-4w">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <h3 class="fr-card__title">Export personnalisé avec filtres</h3>
+                            <p class="fr-card__desc">
+                                Pour un export avec des filtres spécifiques (région, période, catégorie), utilisez l'interface de data.economie.gouv.fr
+                            </p>
+                            <a href="https://data.economie.gouv.fr/explore/dataset/signalconso/export/" 
+                               class="fr-btn fr-btn--tertiary" 
+                               target="_blank" 
+                               rel="noopener"
+                               aria-label="Accéder à l'interface d'export personnalisé (nouvelle fenêtre)">
+                                Personnaliser l'export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <section class="fr-callout fr-mb-6w">
+                <h3 class="fr-callout__title">Vous êtes victime d'une pratique commerciale douteuse ?</h3>
+                <p class="fr-callout__text">
+                    Signalez-le à la DGCCRF pour protéger d'autres consommateurs et faire valoir vos droits.
+                </p>
+                <a class="fr-btn fr-btn--lg" href="https://signal.conso.gouv.fr">
+                    Faire un signalement
+                </a>
+            </section>
+
+        </ods-dataset-context>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo">
+        <div class="fr-footer__top">
+            <div class="fr-container">
+                <div class="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-sm-3 fr-col-md-2">
+                        <h3 class="fr-footer__top-cat">DGCCRF</h3>
+                        <ul class="fr-footer__top-list">
+                            <li><a class="fr-footer__top-link" href="#">Qui sommes-nous</a></li>
+                            <li><a class="fr-footer__top-link" href="#">Nos missions</a></li>
+                            <li><a class="fr-footer__top-link" href="#">Nos actions</a></li>
+                        </ul>
+                    </div>
+                    <div class="fr-col-12 fr-col-sm-3 fr-col-md-2">
+                        <h3 class="fr-footer__top-cat">Consommateurs</h3>
+                        <ul class="fr-footer__top-list">
+                            <li><a class="fr-footer__top-link" href="#">Signaler</a></li>
+                            <li><a class="fr-footer__top-link" href="#">Mes droits</a></li>
+                            <li><a class="fr-footer__top-link" href="#">Conseils</a></li>
+                        </ul>
+                    </div>
+                    <div class="fr-col-12 fr-col-sm-3 fr-col-md-2">
+                        <h3 class="fr-footer__top-cat">Professionnels</h3>
+                        <ul class="fr-footer__top-list">
+                            <li><a class="fr-footer__top-link" href="#">Réglementation</a></li>
+                            <li><a class="fr-footer__top-link" href="#">Conformité</a></li>
+                            <li><a class="fr-footer__top-link" href="#">Formation</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fr-footer__body">
+            <div class="fr-container">
+                <div class="fr-footer__body-row">
+                    <div class="fr-footer__brand fr-enlarge-link">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </div>
+                    <div class="fr-footer__content">
+                        <p class="fr-footer__content-desc">
+                            La DGCCRF veille au bon fonctionnement des marchés, à la protection des consommateurs et à la sécurité des produits et services.
+                        </p>
+                        <ul class="fr-footer__content-list">
+                            <li class="fr-footer__content-item">
+                                <a class="fr-footer__content-link" href="https://signal.conso.gouv.fr">signal.conso.gouv.fr</a>
+                            </li>
+                            <li class="fr-footer__content-item">
+                                <a class="fr-footer__content-link" href="https://www.economie.gouv.fr/dgccrf">economie.gouv.fr/dgccrf</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fr-footer__bottom">
+            <div class="fr-container">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Plan du site</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Gestion des cookies</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <!-- Module d'accessibilité Highcharts -->
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.js"></script>
+    
+    <script>
+        // Initialisation DSFR - mode manuel pour éviter les conflits
+        window.dsfr = window.dsfr || {};
+        window.dsfr.verbose = false;
+        window.dsfr.mode = 'manual';
+        
+        // Fonction pour gérer les accordéons de manière simple et fiable
+        function initAccordions() {
+            // Récupérer tous les boutons d'accordéon
+            var buttons = document.querySelectorAll('.fr-accordion__btn');
+            console.log('Nombre d\'accordéons trouvés:', buttons.length);
+            
+            buttons.forEach(function(button, index) {
+                // Initialiser le contenu comme caché
+                var targetId = button.getAttribute('aria-controls');
+                var content = document.getElementById(targetId);
+                
+                if (content) {
+                    // Cacher le contenu au démarrage
+                    content.style.display = 'none';
+                    content.style.padding = '16px';
+                    content.style.backgroundColor = 'white';
+                    content.style.borderTop = '1px solid #ddd';
+                    
+                    // Créer un gestionnaire d'événement simple
+                    button.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        // Toggle l'affichage
+                        if (content.style.display === 'none') {
+                            content.style.display = 'block';
+                            button.setAttribute('aria-expanded', 'true');
+                        } else {
+                            content.style.display = 'none';
+                            button.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                    
+                    console.log('Accordéon', index + 1, 'initialisé:', targetId);
+                } else {
+                    console.warn('Contenu non trouvé pour:', targetId);
+                }
+            });
+        }
+        
+        // Lancer l'initialisation après le chargement complet
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initAccordions, 1500);
+            });
+        } else {
+            setTimeout(initAccordions, 1500);
+        }
+        
+        // Configuration Highcharts pour les camemberts accessibles avec couleurs DSFR
+        document.addEventListener('DOMContentLoaded', function() {
+            // Couleurs DSFR officielles
+            const couleursDSFR = [
+                '#000091', // Bleu France
+                '#18753c', // Vert émeraude (succès)
+                '#CE0500', // Rouge Marianne (erreur)
+                '#0063CB', // Bleu éclatant
+                '#B34000', // Orange terre battue (warning)
+                '#716F88', // Glycine
+                '#161616', // Noir
+                '#A558A0', // Cassis
+                '#009081', // Menthe à l'eau
+                '#C3992A', // Jaune moutarde
+                '#6E445A', // Prune
+                '#66673D'  // Vert olive
+            ];
+            
+            // Configuration globale Highcharts
+            if (typeof Highcharts !== 'undefined') {
+                Highcharts.setOptions({
+                    colors: couleursDSFR,
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b><br/>({point.percentage:.1f}%)',
+                                style: {
+                                    fontSize: '13px',
+                                    fontWeight: 'bold',
+                                    color: '#161616',
+                                    textOutline: '3px white'
+                                },
+                                distance: 35,
+                                connectorWidth: 2,
+                                connectorColor: '#666666',
+                                connectorPadding: 5,
+                                filter: {
+                                    property: 'percentage',
+                                    operator: '>',
+                                    value: 2
+                                }
+                            },
+                            showInLegend: true,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }
+                    },
+                    accessibility: {
+                        enabled: true,
+                        announceNewData: {
+                            enabled: true
+                        },
+                        point: {
+                            valueSuffix: '%'
+                        }
+                    },
+                    lang: {
+                        accessibility: {
+                            chartContainerLabel: 'Graphique camembert interactif',
+                            screenReaderSection: {
+                                beforeRegionLabel: 'Répartition des données'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Appliquer les couleurs DSFR à tous les graphiques existants
+            setTimeout(function() {
+                if (window.Highcharts && Highcharts.charts) {
+                    Highcharts.charts.forEach(function(chart) {
+                        if (chart && chart.series && chart.series[0] && chart.series[0].type === 'pie') {
+                            chart.update({
+                                colors: couleursDSFR
+                            });
+                        }
+                    });
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
