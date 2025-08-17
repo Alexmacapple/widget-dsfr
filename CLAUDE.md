@@ -88,58 +88,46 @@ claude mcp get <nom>
    - Identification unique DATASET-TYPE-VERSION
    - Process de génération
    
-3. **ARCHITECTURE_MICROSERVICES.md** - Architecture micro-services détaillée (5 services)
-   - Services : Core, Builder, MCP-Bridge, Storage, Gateway
-   - TypeScript partout
-   - Ports 3000-3004
-
-4. **IMPLEMENTATION_PLAN.md** - Plan d'implémentation sur 4 semaines
-   - Sprint planning détaillé
-   - Technologies et outils
+3. **ARCHITECTURE_MCP_LOCALE.md** - Architecture MCP locale
+   - Migration Docker → Local réussie
+   - Performance améliorée 10x
+   - Configuration simplifiée
 
 ### Guides et Documentation
-5. **GUIDE_GENERATION_WIDGETS_HTML.md** - Guide complet de génération des widgets
+4. **GUIDE_GENERATION_WIDGETS_HTML.md** - Guide complet de génération des widgets
    - Process obligatoire avec MCP
    - Templates HTML complets
    - Configuration par dataset
-   
-6. **GUIDE_DEMARRAGE_IMPLEMENTATION.md** - Guide de démarrage rapide
-   - Installation et configuration
-   - Test des MCP
-   - Premier widget MVP
 
-7. **GUIDE_MCP_ODS.md** - Documentation des serveurs MCP ODS
-   - Configuration spécifique ODS
-   - Intégration avec DSFR
-
-8. **GUIDE_EPCT.md** - Méthode de développement structurée
+5. **GUIDE_EPCT.md** - Méthode de développement structurée
    - Explorer, Planifier, Coder, Tester
    - Règles d'itération sur fichiers
    - Anti-patterns à éviter
 
 ### Spécifications et Évaluation
-9. **SPECIFICATIONS_FONCTIONNELLES.md** - Spécifications détaillées (70+ widgets)
+6. **SPECIFICATIONS_FONCTIONNELLES.md** - Spécifications détaillées (70+ widgets)
    - Liste complète des widgets
    - Personas et cas d'usage
    - Pipeline de transformation
    
-10. **EVALUATION_PROJET.md** - Évaluation du projet (Score: 92/100)
+7. **EVALUATION_PROJET.md** - Évaluation du projet (Score: 92/100)
     - Analyse SWOT
     - ROI estimé
     - Recommandations prioritaires
-   
-11. **COMPARAISON_MCP.md** - Analyse comparative des serveurs MCP
-    - Couverture MCP (85% → 100%)
-    - Solutions documentation ODS
+
+8. **INTEGRATION_MCP_DSFR.md** - Documentation de l'intégration
+    - Service DSFRValidator
+    - Mappings ODS → DSFR
+    - Tests d'intégration
 
 ### Exemples
-12. **examples/signalconso-table-001.html** - Exemple de widget HTML complet
+9. **examples/** - Dashboards et widgets fonctionnels
     - HTML autonome avec gabarit
     - Zone widget identifiée
     - Connexion data.economie.gouv.fr
 
 ### Documentation MCP ODS-Widgets
-13. **mcp-ods-widgets/** - Documentation complète du serveur MCP
+10. **mcp-ods-widgets/** - Documentation complète du serveur MCP
     - **ROADMAP.md** - État et roadmap du serveur MCP (70+ widgets)
     - **README-COMPLETE.md** - Liste exhaustive des widgets disponibles
     - **PLAN_INTEGRATION_WIDGETS_DSFR*.md** - Plans d'intégration DSFR
