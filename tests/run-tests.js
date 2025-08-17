@@ -136,7 +136,7 @@ test('Les CDN DSFR et ODS sont correctement référencés', () => {
 // Test 7: Vérifier la configuration MCP
 test('Le serveur MCP ODS est configuré', () => {
     const serverPath = path.join(__dirname, '..', 'mcp-ods-widgets', 'server.js');
-    assert(fs.existsSync(serverPath), 'Le serveur MCP n'existe pas');
+    assert(fs.existsSync(serverPath), 'Le serveur MCP n\'existe pas');
     
     const content = fs.readFileSync(serverPath, 'utf8');
     assert(content.includes('create_widget'), 'La fonction create_widget n\'est pas définie');
