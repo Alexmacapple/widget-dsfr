@@ -368,12 +368,14 @@
                     <!-- Actions d'export -->
                     <div class="fr-mt-3w">
                         <div class="fr-btns-group fr-btns-group--inline">
-                            <button class="fr-btn"
-                                    onclick="window.open('https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=csv', '_blank')">
+                            <button class="fr-btn download-btn"
+                                    data-format="csv"
+                                    data-url="https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=csv">
                                 Télécharger toutes les données au format CSV
                             </button>
-                            <button class="fr-btn"
-                                    onclick="window.open('https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=xls', '_blank')">
+                            <button class="fr-btn download-btn"
+                                    data-format="xls"
+                                    data-url="https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=xls">
                                 Télécharger toutes les données au format Excel
                             </button>
                         </div>
@@ -416,5 +418,21 @@
     <!-- DSFR -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Script pour gérer les boutons de téléchargement sans onclick -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attacher les event listeners aux boutons de téléchargement
+            const downloadButtons = document.querySelectorAll('.download-btn');
+            downloadButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
