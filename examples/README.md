@@ -24,6 +24,20 @@ Ce dossier contient des exemples de widgets et dashboards conformes au Design Sy
 
 ## 📁 Autres Exemples
 
+### `signalconso-dashboard-dsfr.html` ⭐ NOUVEAU
+**Dashboard SignalConso complet** - Version production
+- Dashboard interactif avec données temps réel
+- 15+ widgets (KPIs, graphiques, carte, table)
+- Connexion directe à data.economie.gouv.fr
+- Filtres dynamiques et recherche
+- Accordéons d'accessibilité RGAA
+
+### `signalconso-simple-dsfr.html`
+**Version simplifiée du dashboard**
+- Widgets essentiels uniquement
+- Idéal pour intégration rapide
+- Structure épurée
+
 ### `signalconso-table-001.html`
 Widget de table simple avec pagination
 - Tableau des signalements
@@ -33,7 +47,9 @@ Widget de table simple avec pagination
 
 ### Hiérarchie de qualité
 1. **dashboard-dgccrf-reference.html** - Production-ready, exemple complet
-2. signalconso-table-001.html - Widget simple, bon pour débuter
+2. **signalconso-dashboard-dsfr.html** - Dashboard SignalConso complet
+3. signalconso-simple-dsfr.html - Version simplifiée
+4. signalconso-table-001.html - Widget simple, bon pour débuter
 
 ## 🚀 Utilisation
 
