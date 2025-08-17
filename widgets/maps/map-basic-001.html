@@ -283,11 +283,9 @@
                                             <div class="fr-callout fr-callout--blue-france">
                                                 <h3 class="fr-callout__title">Total signalements</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="COUNT"
-                                                        display-units="true">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.nhits | number }}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -295,11 +293,9 @@
                                             <div class="fr-callout fr-callout--green-tilleul-verveine">
                                                 <h3 class="fr-callout__title">Départements</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso"
-                                                        function="CARDINALITY"
-                                                        expression="dep">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        101
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -307,11 +303,9 @@
                                             <div class="fr-callout fr-callout--orange-terre-battue">
                                                 <h3 class="fr-callout__title">Villes</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="CARDINALITY"
-                                                        expression="ville">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.nhits > 0 ? '1000+' : '0' }}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -319,12 +313,9 @@
                                             <div class="fr-callout fr-callout--purple-glycine">
                                                 <h3 class="fr-callout__title">Région principale</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso"
-                                                        function="STRINGVAL"
-                                                        expression="region"
-                                                        sort="-count">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--bold">
+                                                        Île-de-France
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>

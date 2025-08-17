@@ -346,11 +346,9 @@
                                             <div class="fr-callout fr-callout--blue-france">
                                                 <h3 class="fr-callout__title">Résultats</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="COUNT"
-                                                        display-units="true">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.nhits | number }}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -358,11 +356,9 @@
                                             <div class="fr-callout fr-callout--green-tilleul-verveine">
                                                 <h3 class="fr-callout__title">Catégories actives</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso"
-                                                        function="CARDINALITY"
-                                                        expression="category">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.facets.category.values.length }}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -370,11 +366,9 @@
                                             <div class="fr-callout fr-callout--orange-terre-battue">
                                                 <h3 class="fr-callout__title">Régions représentées</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="CARDINALITY"
-                                                        expression="reg_name">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.facets.reg_name.values.length }}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -382,11 +376,9 @@
                                             <div class="fr-callout fr-callout--purple-glycine">
                                                 <h3 class="fr-callout__title">Période couverte</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="CARDINALITY"
-                                                        expression="creationdate">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        5
+                                                    </span>
                                                     années
                                                 </p>
                                             </div>

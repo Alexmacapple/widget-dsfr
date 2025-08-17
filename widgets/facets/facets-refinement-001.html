@@ -497,11 +497,9 @@
                                             <div class="fr-callout fr-callout--blue-france">
                                                 <h3 class="fr-callout__title">Résultats filtrés</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="COUNT"
-                                                        display-units="true">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.nhits | number }}
+                                                    </span>
                                                 </p>
                                             </div>
                                         </div>
@@ -527,11 +525,9 @@
                                             <div class="fr-callout fr-callout--purple-glycine">
                                                 <h3 class="fr-callout__title">Couverture</h3>
                                                 <p class="fr-callout__text">
-                                                    <ods-aggregation 
-                                                        context="signalconso" 
-                                                        function="CARDINALITY"
-                                                        expression="reg_name">
-                                                    </ods-aggregation>
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.facets.reg_name.values.length || 0 }}
+                                                    </span>
                                                     régions
                                                 </p>
                                             </div>

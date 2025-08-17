@@ -214,13 +214,14 @@
                                                         Période d'analyse
                                                     </label>
                                                     <select class="fr-select" id="period-select-pie" 
-                                                            ng-model="signalconso.parameters['refine.date_creation']">
+                                                            ng-model="periodFilter"
+                                                            ng-change="signalconso.parameters['refine.creationdate'] = periodFilter">
                                                         <option value="">Toutes périodes</option>
-                                                        <option value="[2024-01-01 TO 2024-12-31]">2024</option>
-                                                        <option value="[2023-01-01 TO 2023-12-31]">2023</option>
-                                                        <option value="[NOW-1YEAR TO NOW]">12 derniers mois</option>
-                                                        <option value="[NOW-6MONTHS TO NOW]">6 derniers mois</option>
-                                                        <option value="[NOW-3MONTHS TO NOW]">3 derniers mois</option>
+                                                        <option value="2024">2024</option>
+                                                        <option value="2023">2023</option>
+                                                        <option value="2022">2022</option>
+                                                        <option value="2021">2021</option>
+                                                        <option value="2020">2020</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -305,7 +306,7 @@
                                                     <tbody>
                                                         <ods-result-enumerator context="signalconso" max="10">
                                                             <tr ng-repeat="item in results | orderBy:'-count'">
-                                                                <td>{{item.fields.categorie}}</td>
+                                                                <td>{{item.fields.category}}</td>
                                                                 <td>{{item.count | number}}</td>
                                                                 <td>{{(item.count / signalconso.nhits * 100) | number:1}}%</td>
                                                             </tr>
