@@ -1,0 +1,60 @@
+// Configuration des serveurs MCP pour Claude Desktop
+// 
+// INSTRUCTIONS D'INSTALLATION :
+// 1. Copiez le contenu JSON ci-dessous (sans ces commentaires)
+// 2. Collez-le dans le fichier de configuration Claude Desktop :
+//    macOS : ~/Library/Application Support/Claude/claude_desktop_config.json
+//    Windows : %APPDATA%\Claude\claude_desktop_config.json
+//    Linux : ~/.config/Claude/claude_desktop_config.json
+// 3. Fermez complètement Claude Desktop (Cmd+Q sur Mac, Alt+F4 sur Windows)
+// 4. Rouvrez Claude Desktop - les serveurs MCP se connecteront automatiquement
+//
+// IMPORTANT : Remplacez "/Users/alex/Desktop/widget-dsfr" par le chemin absolu
+// vers votre installation du projet widget-dsfr sur votre machine
+//
+// Les 4 serveurs MCP fournis :
+// - dsfr-mcp : Validation et génération de composants DSFR (208 composants)
+// - ods-widgets : Génération des 70+ widgets OpenDataSoft avec thème DSFR
+// - context7 : Documentation et patterns de développement
+// - angular-mcp : Support Angular.js et Kendo UI pour les widgets
+//
+// ============ DÉBUT DE LA CONFIGURATION JSON ============
+
+{
+  "mcpServers": {
+    "dsfr-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "MCP_CLIENT": "true"
+      }
+    },
+    "ods-widgets": {
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "angular-mcp": {
+      "command": "npx",
+      "args": [
+        "@progress/kendo-angular-mcp"
+      ]
+    }
+  }
+}
+
+// ============ FIN DE LA CONFIGURATION JSON ============
