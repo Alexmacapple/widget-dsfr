@@ -33,7 +33,7 @@
       "type": "stdio",
       "command": "node",
       "args": [
-        "/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server.js"
+        "/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js"
       ],
       "env": {
         "NODE_ENV": "production"
