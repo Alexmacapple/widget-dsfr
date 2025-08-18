@@ -1,0 +1,38 @@
+rules:
+  - id: no-direct-innerHTML
+    pattern: |
+      $X.innerHTML = $Y
+    message: "Utiliser textContent ou des méthodes sûres pour éviter XSS"
+    languages: [javascript, typescript]
+    severity: ERROR
+    
+  - id: secure-api-calls
+    pattern: |
+      fetch("http://$URL", ...)
+    message: "Utiliser HTTPS pour toutes les connexions API"
+    languages: [javascript, typescript]
+    severity: ERROR
+    
+  - id: no-eval
+    pattern: eval(...)
+    message: "eval() est dangereux, utiliser JSON.parse() ou alternatives"
+    languages: [javascript, typescript]
+    severity: ERROR
+    
+  - id: secure-storage
+    pattern: |
+      localStorage.setItem($KEY, $SENSITIVE)
+    message: "Considérer le chiffrement pour données sensibles"
+    languages: [javascript, typescript]
+    severity: WARNING
+
+  - id: dsfr-api-security
+    pattern: |
+      fetch("$API.economie.gouv.fr", { 
+        ...
+        headers: { ... }
+        ...
+      })
+    message: "Vérifier l'authentification appropriée pour APIs gouvernementales"
+    languages: [javascript, typescript]
+    severity: INFO

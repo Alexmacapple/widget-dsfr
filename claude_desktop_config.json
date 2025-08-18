@@ -1,0 +1,98 @@
+{
+  "mcpServers": {
+    "dsfr-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget-dsfr/mcp-dsfr/src/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "MCP_CLIENT": "true"
+      }
+    },
+    "ods-widgets": {
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "angular-mcp": {
+      "command": "npx",
+      "args": [
+        "@progress/kendo-angular-mcp"
+      ]
+    },
+    "prettier": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-prettier"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "semgrep": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@semgrep/mcp-server"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git"
+      ]
+    },
+    "basic-memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "knowledge-graph": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-knowledge-graph"
+      ],
+      "env": {
+        "MEMORY_PATH": "/Users/alex/Desktop/widget-dsfr/memory/widget-relations"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-playwright"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      }
+    }
+  }
+}

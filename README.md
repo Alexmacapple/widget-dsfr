@@ -1,214 +1,219 @@
-# Widget Builder DSFR - Générateur de Widgets OpenDataSoft
+# Widget DSFR - Générateur de Widgets OpenDataSoft
 
-## 🎯 Mission
-Porter les 70+ widgets OpenDataSoft en composants conformes au Design System France (DSFR), avec génération de fichiers HTML autonomes directement intégrables dans Drupal.
+Transformez les widgets OpenDataSoft en composants conformes au Design System France (DSFR) pour une intégration directe dans Drupal.
 
-## 📥 Installation depuis Zéro
+## 🚀 Installation Rapide
 
-### Installation automatique (Recommandé)
 ```bash
-# Cloner et installer en une commande
-git clone https://github.com/votre-org/widget-dsfr.git && cd widget-dsfr && ./install.sh
+# Cloner le projet
+git clone https://github.com/votre-org/widget-dsfr.git
+cd widget-dsfr
+
+# Installer tout l'environnement
+./setup.sh
 ```
 
-### Installation manuelle
-Consultez le guide complet : **[INSTALLATION_COMPLETE.md](INSTALLATION_COMPLETE.md)**
+## 📋 Prérequis
 
-### Prérequis
-- Node.js 18+ et npm 9+
-- Git 2.30+
-- Claude Desktop ou Claude Code CLI
-- 8 GB RAM, 2 GB d'espace disque
+- **Node.js** 18.0+ ([nodejs.org](https://nodejs.org/))
+- **Git** 2.0+ ([git-scm.com](https://git-scm.com/))
+- **Claude Desktop** ou **Claude CLI** ([claude.ai](https://claude.ai))
 
-## ✅ État actuel du projet
+## 🛠 Installation Détaillée
 
-### Réalisations
-- ✅ **Intégration MCP DSFR** locale (migration Docker → Local réussie)
-- ✅ **Service DSFRValidator** opérationnel avec mappings ODS→DSFR
-- ✅ **4 templates DSFR** créés (table, chart, map, kpi)
-- ✅ **Dashboard SignalConso** fonctionnel avec 15+ widgets
-- ✅ **Tests d'intégration** 5/5 réussis (score DSFR : 90-100/100)
+### 1. Installation Standard
 
-### Architecture simplifiée
+```bash
+# Installation complète avec toutes les options
+./setup.sh
+```
+
+### 2. Options d'Installation
+
+```bash
+# Installation propre (réinitialise les configurations)
+./setup.sh --clean
+
+# Sans Claude CLI (si déjà installé)
+./setup.sh --skip-claude-cli
+
+# Sans configuration Claude Desktop
+./setup.sh --skip-desktop
+
+# Voir toutes les options
+./setup.sh --help
+```
+
+### 3. Installation Manuelle
+
+Si le script automatique ne fonctionne pas :
+
+```bash
+# 1. Installer les dépendances npm
+npm install
+cd mcp-dsfr && npm install && cd ..
+cd mcp-ods-widgets && npm install && cd ..
+
+# 2. Installer Claude CLI (optionnel)
+npm install -g @anthropic-ai/claude-cli
+
+# 3. Lancer Claude Code
+claude
+```
+
+## 📦 Architecture du Projet
+
 ```
 widget-dsfr/
-├── mcp-dsfr/              # MCP DSFR local (25MB, 213 docs)
-├── mcp-ods-widgets/       # MCP ODS Widgets avec DSFRValidator
+├── setup.sh                # Script d'installation unifié
+├── mcp-dsfr/              # Serveur MCP DSFR (208 composants)
+├── mcp-ods-widgets/       # Serveur MCP ODS Widgets (70+ widgets)
+├── agents/                # 4 agents d'automatisation EPCT
 ├── examples/              # Dashboards et widgets fonctionnels
-├── agents/                # Agents d'automatisation
-└── templates/             # Templates HTML DSFR
+├── templates/             # Templates HTML DSFR
+├── tests/                 # Tests de validation DSFR
+│   └── playwright/        # Tests automatisés navigateur
+├── memory/                # Mémorisation décisions et relations
+├── .mcp.json             # Configuration des 12 serveurs MCP
+└── MCP_USAGE_GUIDE.md    # Guide d'utilisation des serveurs
 ```
 
-## 🚀 Quick Start
+## 🎯 Utilisation
 
-### 1. Installation et configuration automatique
+### 1. Démarrer Claude Code
 
-#### Avec Claude Code (CLI)
 ```bash
-# Dans le répertoire du projet
-cd /Users/alex/Desktop/widget-dsfr
-
-# Vérifier l'état des serveurs MCP
-./start-claude.sh
-
-# Lancer Claude Code avec MCP pré-connectés
-./start-claude.sh --start
-# ou simplement
+cd widget-dsfr
 claude
 ```
 
-#### Avec VSCode
-```bash
-# Ouvrir le workspace avec automatisation
-code widget-dsfr.code-workspace
-# Puis Cmd+Shift+B pour lancer Claude avec MCP
+### 2. Vérifier les Serveurs MCP
+
+Dans Claude, tapez :
+```
+/mcp list
 ```
 
-#### Avec Claude Desktop
-Les serveurs MCP se connectent automatiquement au démarrage.
-Configuration dans : `~/Library/Application Support/Claude/claude_desktop_config.json`
+Vous devriez voir 12 serveurs :
 
-### 2. Utilisation des widgets
+#### Serveurs Principaux
+- ✅ **dsfr-mcp** - Composants DSFR
+- ✅ **ods-widgets** - Widgets OpenDataSoft
+- ✅ **context7** - Documentation
+- ✅ **angular-mcp** - Support Angular
 
-#### Ouvrir un dashboard existant
-```bash
-open examples/signalconso-dashboard-dsfr.html
+#### Serveurs de Développement
+- ✅ **prettier** - Formatage de code
+- ✅ **sequential-thinking** - Planification
+- ✅ **semgrep** - Analyse de sécurité
+- ✅ **git** - Gestion de version
+
+#### Serveurs Avancés
+- ✅ **basic-memory** - Mémorisation
+- ✅ **knowledge-graph** - Relations widgets
+- ✅ **playwright** - Tests navigateur
+- ✅ **github** - Intégration GitHub
+
+### 3. Créer un Widget
+
 ```
-
-#### Générer un nouveau widget
-```bash
-# Dans Claude Code, utiliser les commandes MCP
-/mcp list                     # Lister les serveurs disponibles
-
-# Générer via MCP ODS-Widgets
+# Créer un tableau DSFR pour SignalConso
 mcp__ods-widgets__create_widget type:"table" dataset:"signalconso"
 
-# Ou via l'agent Task
-Task: widget-generator "Créer table DSFR pour signalconso"
-```
-
-#### Valider la conformité DSFR
-```bash
-# Via MCP DSFR
+# Valider la conformité DSFR
 mcp__dsfr-mcp__validate_dsfr_html html_code:"<votre html>"
-
-# Ou via l'agent Task
-Task: dsfr-validator "Valider signalconso-table-001.html"
 ```
 
-## 📦 Serveurs MCP configurés
+### 4. Utiliser les Agents
 
-| Serveur | Status | Rôle | Commandes principales |
-|---------|--------|------|----------------------|
-| **dsfr-mcp** | ✅ Local | 208 composants DSFR, validation RGAA | `validate_dsfr_html`, `generate_dsfr_component`, `check_accessibility` |
-| **ods-widgets** | ✅ Local | 70+ widgets ODS, intégration DSFR | `create_widget`, `analyze_dataset`, `generate_dashboard` |
-| **context7** | ✅ NPM | Documentation et patterns | `resolve-library-id`, `get-library-docs` |
-| **angular-mcp** | ✅ NPM | Support Angular/Kendo UI | `kendo_angular_assistant` |
+```
+# Explorer les widgets disponibles
+Task: widget-explorer "Analyser widgets ODS"
 
-### Automatisation des serveurs MCP
+# Générer un widget DSFR
+Task: widget-generator "Créer graphique pour budget-vert"
 
-Les serveurs MCP se connectent automatiquement grâce à :
-- **`.mcp.json`** : Configuration pour Claude Code (dans le repo)
-- **`claude_desktop_config.json`** : Configuration pour Claude Desktop
-- **`start-claude.sh`** : Script de vérification et lancement
-- **`widget-dsfr.code-workspace`** : Intégration VSCode
+# Valider un fichier
+Task: dsfr-validator "Valider examples/mon-widget.html"
+```
 
-## 📊 Widgets supportés (70+)
+## 📊 Datasets Disponibles
 
-### Catégories principales
-- **Visualisation** : table, chart, map, gauge, timeline
-- **Filtrage** : facets, searchbox, dateRange
-- **Analyse** : aggregation, crossTable, kpi
-- **Export** : CSV, Excel, GeoJSON
+1. **SignalConso** - Signalements consommateurs
+2. **Annuaire DGCCRF** - Annuaire des services
+3. **Budget Vert** - Budget environnemental PLF25
+4. **Tarifs Bancaires** - Tarifs CCSF
+5. **Démarches Simplifiées** - Etikraine
+6. **Taux de Change** - Taux DGFIP
 
-## 🏗️ Technologies
+## 🧪 Tests et Validation
 
-- **Frontend** : Angular.js 1.8.2, DSFR 1.14.0, ODS Widgets v2
-- **Backend** : Node.js avec Model Context Protocol (MCP)
-- **Validation** : RGAA niveau AA, score DSFR 90-100/100
+```bash
+# Tester un widget spécifique
+node tests/validate-dsfr.js examples/mon-widget.html
 
-## 📚 Documentation essentielle
+# Lancer tous les tests
+npm test
+
+# Serveur de développement
+npm run serve
+```
+
+## 📖 Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** - Instructions pour Claude Code
-- **[AUTOMATISATION_MCP.md](AUTOMATISATION_MCP.md)** - Guide complet d'automatisation MCP
-- **[ARCHITECTURE_HTML_SIMPLE.md](ARCHITECTURE_HTML_SIMPLE.md)** - Architecture actuelle
-- **[INTEGRATION_MCP_DSFR.md](INTEGRATION_MCP_DSFR.md)** - Guide d'intégration
-- **[GUIDE_EPCT.md](GUIDE_EPCT.md)** - Méthode de développement
-- **[AGENTS_ORCHESTRATION.md](AGENTS_ORCHESTRATION.md)** - Orchestration des agents
+- **[MCP_USAGE_GUIDE.md](MCP_USAGE_GUIDE.md)** - Guide complet des 12 serveurs MCP
+- **[TODO.md](TODO.md)** - Liste des widgets à implémenter
+- **[AGENTS_ORCHESTRATION.md](AGENTS_ORCHESTRATION.md)** - Guide des agents
+- **[MIGRATION.md](MIGRATION.md)** - Guide de migration depuis ancienne version
 
-## 🎯 Prochaines étapes
+## 🆘 Dépannage
 
-1. Migration des 70+ widgets restants
-2. Création d'une interface de génération
-3. Tests d'intégration Drupal
-4. Documentation utilisateur finale
+### Les serveurs MCP ne se connectent pas
 
-## 📈 Métriques
-
-- **Widgets portés** : 15/70+ (21%)
-- **Score DSFR moyen** : 95/100
-- **Performance** : Migration Docker→Local = 10x plus rapide
-- **Taille optimisée** : 25MB (vs 178MB initial)
-
-## 🛠️ Commandes utiles
-
-### Claude Code (CLI)
 ```bash
-# Navigation et état
-claude mcp list              # Lister les serveurs MCP
-claude mcp status            # État des connexions
-/mcp list                    # Dans Claude, lister les MCP
+# Réinstaller proprement
+./setup.sh --clean
 
-# Génération de widgets
-Task: widget-explorer "Analyser widgets ODS"
-Task: widget-generator "Créer [type] pour [dataset]"
-Task: dsfr-validator "Valider [fichier].html"
-Task: migration-assistant "Migration batch widgets"
-
-# Workflow EPCT
-/epct [description de la tâche]
+# Vérifier les logs
+cat ~/Library/Caches/claude-cli-nodejs/*.log
 ```
 
-### Scripts d'automatisation
-```bash
-./start-claude.sh            # Vérifier l'état des MCP
-./start-claude.sh --start    # Lancer Claude avec MCP
-code widget-dsfr.code-workspace  # VSCode avec automatisation
-```
+### Claude Desktop ne voit pas les serveurs
 
-### Raccourcis VSCode
-- **Cmd+Shift+B** : Lancer Claude avec MCP
-- **Terminal → Run Task** : Diverses tâches MCP
-- **Cmd+Shift+P** : Palette de commandes
+1. Exécutez le script de configuration :
+   ```bash
+   ./configure-claude-desktop.sh
+   ```
+2. Fermez complètement Claude Desktop (Cmd+Q sur Mac)
+3. Rouvrez Claude Desktop
+4. Vérifiez l'icône MCP en bas à droite (12 serveurs)
 
-## 🔧 Configuration
+### Erreurs npm audit
 
-- **`.mcp.json`** : Configuration des serveurs MCP pour Claude Code
-- **`claude_desktop_config.json`** : Configuration pour Claude Desktop
-- **`widget-dsfr.code-workspace`** : Workspace VSCode avec automatisation
-- **`start-claude.sh`** : Script de vérification et lancement
+Les vulnérabilités signalées sont liées aux anciennes versions d'Angular requises par ODS Widgets. Elles sont nécessaires pour la compatibilité.
 
-## 🐛 Dépannage
+## 🤝 Contribution
 
-### Serveurs MCP non connectés
-```bash
-# Vérifier la configuration
-cat .mcp.json
+1. Fork le projet
+2. Créez votre branche (`git checkout -b feature/mon-widget`)
+3. Committez vos changements (`git commit -m 'Ajout widget X'`)
+4. Push sur la branche (`git push origin feature/mon-widget`)
+5. Créez une Pull Request
 
-# Tester un serveur directement
-node mcp-dsfr/src/index.js
-node mcp-ods-widgets/server.js
+## 📝 Licence
 
-# Relancer Claude
-exit
-claude
-```
+MIT - Voir [LICENSE](LICENSE)
 
-### Claude Desktop ne voit pas les MCP
-1. Fermer complètement Claude Desktop (Cmd+Q)
-2. Vérifier `~/Library/Application Support/Claude/claude_desktop_config.json`
-3. Rouvrir Claude Desktop
+## 🏆 État du Projet
+
+- ✅ **70+ widgets** OpenDataSoft identifiés
+- ✅ **4 agents EPCT** opérationnels
+- ✅ **12 serveurs MCP** configurés et opérationnels
+- ✅ **15+ widgets** SignalConso implémentés
+- ✅ **Score DSFR** : 90-100/100 sur les tests
+- 🚧 **En cours** : Migration complète des 55 widgets restants
 
 ---
 
-*Version 2.1 - Projet en production active avec automatisation MCP*
+*Développé avec ❤️ pour la transformation numérique de l'État français*

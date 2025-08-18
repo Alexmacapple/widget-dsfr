@@ -10,7 +10,18 @@
         "NODE_ENV": "production",
         "MCP_CLIENT": "true"
       },
-      "description": "Serveur MCP DSFR Local - Génération de composants et documentation DSFR (v1.5.0)"
+      "description": "Serveur MCP DSFR - Génération de composants et validation DSFR"
+    },
+    "ods-widgets": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/server.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "description": "MCP ODS Widgets - Création de widgets OpenDataSoft compatibles DSFR"
     },
     "context7": {
       "type": "stdio",
@@ -19,7 +30,7 @@
         "-y",
         "@upstash/context7-mcp@latest"
       ],
-      "description": "Documentation à jour pour langages, frameworks et APIs"
+      "description": "Documentation à jour pour langages et frameworks"
     },
     "angular-mcp": {
       "type": "stdio",
@@ -27,18 +38,85 @@
       "args": [
         "@progress/kendo-angular-mcp"
       ],
-      "description": "Support Angular et Kendo UI pour les widgets"
+      "description": "Support Angular et Kendo UI"
     },
-    "ods-widgets": {
+    "prettier": {
       "type": "stdio",
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/Users/alex/Desktop/widget-dsfr/mcp-ods-widgets/src/index-final.js"
+        "-y",
+        "@modelcontextprotocol/server-prettier"
+      ],
+      "description": "Formatage automatique du code HTML/CSS/JS"
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "description": "Planification structurée et décomposition de tâches complexes"
+    },
+    "semgrep": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@semgrep/mcp-server"
+      ],
+      "description": "Analyse de sécurité et détection de vulnérabilités dans le code"
+    },
+    "git": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git"
+      ],
+      "description": "Gestion de version Git intégrée - commits, branches, historique"
+    },
+    "basic-memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "description": "Mémorisation des décisions de transformation et patterns utilisés"
+    },
+    "knowledge-graph": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-knowledge-graph"
       ],
       "env": {
-        "NODE_ENV": "production"
+        "MEMORY_PATH": "$CLAUDE_PROJECT_DIR/memory/widget-relations"
       },
-      "description": "MCP pour l'intégration des widgets OpenDataSoft avec le Design System France (DSFR) - 3 outils: create_widget, analyze_dataset, generate_dashboard"
+      "description": "Cartographie des relations entre widgets et composants DSFR"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-playwright"
+      ],
+      "description": "Tests automatisés des widgets dans un navigateur réel"
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      },
+      "description": "Intégration GitHub - issues, PRs, workflows"
     }
   }
 }

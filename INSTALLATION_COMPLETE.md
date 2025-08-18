@@ -1,7 +1,7 @@
-# Guide d'Installation Complète - Widget DSFR
+# Guide d'Installation Complète - Widget DSFR v4.0
 
 ## 🎯 Objectif
-Installer et configurer le projet Widget DSFR depuis zéro avec tous les serveurs MCP automatisés.
+Installer et configurer le projet Widget DSFR avec les 12 serveurs MCP pour un environnement de développement professionnel complet.
 
 ---
 
@@ -29,295 +29,225 @@ git --version   # Doit afficher 2.30 ou plus
 
 ---
 
-## 🚀 Installation Rapide (Script Automatique)
+## 🚀 Installation Automatique (Recommandée)
 
 ```bash
 # Cloner le dépôt
 git clone https://github.com/votre-org/widget-dsfr.git
 cd widget-dsfr
 
-# Lancer l'installation automatique
-./install.sh
+# Lancer l'installation avec le nouveau script unifié
+./setup.sh
+```
 
-# C'est tout ! Les MCP sont configurés et prêts
+### Options d'installation
+```bash
+# Installation propre (réinitialise tout)
+./setup.sh --clean
+
+# Sans installer Claude CLI (si déjà installé)
+./setup.sh --skip-claude-cli
+
+# Sans configurer Claude Desktop
+./setup.sh --skip-desktop
+
+# Voir l'aide
+./setup.sh --help
 ```
 
 ---
 
 ## 📦 Installation Manuelle Détaillée
 
-### Étape 1 : Cloner le projet
-
+### Étape 1 : Cloner et préparer
 ```bash
-# Créer le répertoire de travail
-mkdir -p ~/Desktop
-cd ~/Desktop
-
-# Cloner le dépôt
 git clone https://github.com/votre-org/widget-dsfr.git
 cd widget-dsfr
 ```
 
 ### Étape 2 : Installer les dépendances
-
 ```bash
-# Installer les dépendances du projet principal
+# Dépendances principales
 npm install
 
-# Installer les dépendances des serveurs MCP locaux
+# MCP DSFR
 cd mcp-dsfr && npm install && cd ..
+
+# MCP ODS Widgets
 cd mcp-ods-widgets && npm install && cd ..
-
-# Installer les outils globaux optionnels
-npm install -g @anthropic-ai/claude-cli  # Pour Claude Code CLI
-brew install jq  # Pour Mac - parsing JSON (optionnel)
 ```
 
-### Étape 3 : Configurer Claude Code CLI
-
+### Étape 3 : Créer les dossiers nécessaires
 ```bash
-# Si Claude Code CLI n'est pas installé
+mkdir -p .claude .claude/hooks
+mkdir -p memory/widget-relations
+mkdir -p tests/playwright
+```
+
+### Étape 4 : Installer Claude CLI (si nécessaire)
+```bash
 npm install -g @anthropic-ai/claude-cli
-
-# Vérifier l'installation
-claude --version
-
-# Se connecter (première fois seulement)
-claude login
 ```
 
-### Étape 4 : Configurer Claude Desktop
+### Étape 5 : Configurer les serveurs MCP
+Créer `.mcp.json` avec les 12 serveurs (voir le contenu dans setup.sh).
 
-#### Sur macOS
+### Étape 6 : Configuration GitHub (optionnel)
 ```bash
-# Créer le répertoire de configuration si nécessaire
-mkdir -p ~/Library/Application\ Support/Claude
-
-# Copier la configuration MCP
-cp config/claude_desktop_config.json ~/Library/Application\ Support/Claude/
-
-# Relancer Claude Desktop pour appliquer
-osascript -e 'quit app "Claude"'
-sleep 2
-open -a Claude
-```
-
-#### Sur Windows (WSL2)
-```bash
-# Copier la configuration dans AppData
-cp config/claude_desktop_config.json /mnt/c/Users/$USER/AppData/Roaming/Claude/
-
-# Relancer Claude Desktop depuis Windows
-```
-
-#### Sur Linux
-```bash
-# Créer le répertoire de configuration
-mkdir -p ~/.config/Claude
-
-# Copier la configuration
-cp config/claude_desktop_config.json ~/.config/Claude/
-
-# Relancer Claude Desktop
-pkill -f Claude && sleep 2 && claude-desktop &
-```
-
-### Étape 5 : Vérifier l'installation
-
-```bash
-# Vérifier les serveurs MCP dans Claude Code
-./start-claude.sh
-
-# Lancer Claude Code avec MCP
-claude
-
-# Dans Claude, taper:
-/mcp list
-
-# Vous devriez voir:
-# ✅ dsfr-mcp
-# ✅ ods-widgets
-# ✅ context7
-# ✅ angular-mcp
+# Créer un token sur https://github.com/settings/tokens
+echo "GITHUB_PERSONAL_ACCESS_TOKEN=ghp_votre_token" >> .env
 ```
 
 ---
 
-## 🔧 Configuration des Serveurs MCP
+## 🔧 Configuration des 12 Serveurs MCP
 
-### Structure des fichiers de configuration
+### Serveurs Core (4)
+1. **dsfr-mcp** - Composants et validation DSFR
+2. **ods-widgets** - Génération de widgets OpenDataSoft
+3. **context7** - Documentation à jour
+4. **angular-mcp** - Support Angular/Kendo
+
+### Serveurs Développement (4)
+5. **prettier** - Formatage automatique du code
+6. **sequential-thinking** - Planification structurée
+7. **semgrep** - Analyse de sécurité
+8. **git** - Gestion de version intégrée
+
+### Serveurs Avancés (4)
+9. **basic-memory** - Mémorisation des patterns
+10. **knowledge-graph** - Relations entre widgets
+11. **playwright** - Tests navigateur automatisés
+12. **github** - Intégration GitHub
+
+---
+
+## ✅ Vérification de l'Installation
+
+### 1. Lancer Claude Code
+```bash
+cd widget-dsfr
+claude
+```
+
+### 2. Vérifier les serveurs MCP
+```
+/mcp list
+```
+
+Vous devriez voir les 12 serveurs avec le statut ✅ connected.
+
+### 3. Tester un serveur
+```bash
+# Tester la génération DSFR
+mcp__dsfr-mcp__list_dsfr_categories
+
+# Tester la planification
+mcp__sequential-thinking__plan task:"Test installation"
+```
+
+---
+
+## 🛠 Configuration Claude Desktop
+
+### macOS
+Le fichier est créé automatiquement dans :
+```
+~/Library/Application Support/Claude/claude_desktop_config.json
+```
+
+### Linux
+```
+~/.config/Claude/claude_desktop_config.json
+```
+
+### Windows
+```
+%APPDATA%\Claude\claude_desktop_config.json
+```
+
+**Important** : Redémarrez Claude Desktop après l'installation.
+
+---
+
+## 📁 Structure Créée
 
 ```
 widget-dsfr/
-├── .mcp.json                    # Config Claude Code (dans le repo)
-├── config/
-│   └── claude_desktop_config.json  # Template pour Claude Desktop
-├── mcp-dsfr/                   # Serveur MCP DSFR local
-│   ├── package.json
-│   └── src/index.js
-├── mcp-ods-widgets/            # Serveur MCP ODS local
-│   ├── package.json
-│   └── server.js
-└── start-claude.sh             # Script de vérification
-```
-
-### Personnalisation des chemins (si nécessaire)
-
-Si vous installez dans un répertoire différent, mettez à jour :
-
-1. **`.mcp.json`** (pour Claude Code)
-```json
-{
-  "mcpServers": {
-    "dsfr-mcp": {
-      "args": ["/VOTRE/CHEMIN/widget-dsfr/mcp-dsfr/src/index.js"]
-    }
-  }
-}
-```
-
-2. **`claude_desktop_config.json`** (pour Claude Desktop)
-```json
-{
-  "mcpServers": {
-    "dsfr-mcp": {
-      "args": ["/VOTRE/CHEMIN/widget-dsfr/mcp-dsfr/src/index.js"]
-    }
-  }
-}
+├── .claude/
+│   ├── settings.json         # Configuration Claude Code
+│   └── hooks/               # Hooks personnalisés
+├── memory/
+│   └── widget-relations/    # Knowledge graph data
+├── tests/
+│   └── playwright/          # Tests E2E
+├── .mcp.json               # Configuration 12 serveurs
+├── .env                    # Variables d'environnement
+├── .semgrep.yml           # Règles de sécurité
+└── .gitmessage           # Template commits Git
 ```
 
 ---
 
-## 🐛 Résolution des Problèmes Courants
+## 🚨 Dépannage
 
-### Problème : "command not found: claude"
-
-**Solution :**
+### Problème : Serveurs MCP non connectés
 ```bash
-# Installer Claude CLI
-npm install -g @anthropic-ai/claude-cli
+# Solution 1 : Réinstallation propre
+./setup.sh --clean
 
-# Vérifier le PATH
-echo $PATH | grep npm
-
-# Si npm n'est pas dans le PATH
-export PATH="$PATH:$(npm bin -g)"
-echo 'export PATH="$PATH:$(npm bin -g)"' >> ~/.zshrc
+# Solution 2 : Vérifier les logs
+cat ~/Library/Caches/claude-cli-nodejs/*.log
 ```
 
-### Problème : "MCP servers not connected"
-
-**Solution :**
+### Problème : Token GitHub manquant
 ```bash
-# Vérifier les permissions
-chmod +x start-claude.sh
-chmod +x mcp-dsfr/src/index.js
-chmod +x mcp-ods-widgets/server.js
-
-# Vérifier Node.js
-which node
-node --version
-
-# Tester les serveurs directement
-node mcp-dsfr/src/index.js
-node mcp-ods-widgets/server.js
+echo "GITHUB_PERSONAL_ACCESS_TOKEN=ghp_..." >> .env
+source .env
 ```
 
-### Problème : "EACCES permission denied"
-
-**Solution :**
+### Problème : Tests Playwright échouent
 ```bash
-# Corriger les permissions npm
-sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
-
-# Ou utiliser un préfixe local
-npm config set prefix ~/.npm-global
-export PATH=~/.npm-global/bin:$PATH
+# Installer les navigateurs
+npx playwright install
 ```
 
-### Problème : Claude Desktop ne voit pas les MCP
-
-**Solution :**
-1. Fermer complètement Claude Desktop (Cmd+Q sur Mac)
-2. Vérifier le fichier de config :
+### Problème : Permission denied
 ```bash
-cat ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
-3. S'assurer que les chemins sont absolus et corrects
-4. Rouvrir Claude Desktop
-
----
-
-## ✅ Test de Validation Complète
-
-Après l'installation, exécutez ces tests :
-
-```bash
-# 1. Test des serveurs MCP
-./start-claude.sh
-# Doit afficher : ✅ Tous les serveurs connectés
-
-# 2. Test de génération de widget
-claude
-# Dans Claude :
-Task: widget-generator "Créer une table test"
-
-# 3. Test du dashboard exemple
-open examples/signalconso-dashboard-dsfr.html
-# Doit ouvrir le dashboard dans le navigateur
-
-# 4. Test VSCode integration
-code widget-dsfr.code-workspace
-# Puis Cmd+Shift+B pour lancer avec MCP
+chmod +x setup.sh
+chmod +x .claude/hooks/*
 ```
 
 ---
 
-## 📚 Ressources d'Aide
+## 🎯 Prochaines Étapes
 
-### Documentation
-- [CLAUDE.md](CLAUDE.md) - Instructions pour Claude
-- [AUTOMATISATION_MCP.md](AUTOMATISATION_MCP.md) - Guide MCP détaillé
-- [README.md](README.md) - Vue d'ensemble du projet
+1. **Lire la documentation**
+   - `MCP_USAGE_GUIDE.md` - Guide des 12 serveurs
+   - `CLAUDE.md` - Instructions complètes
+   - `QUICKSTART.md` - Démarrage rapide
 
-### Support
+2. **Créer votre premier widget**
+   ```bash
+   mcp__sequential-thinking__plan task:"Créer widget table"
+   mcp__ods-widgets__create_widget type:"table" dataset:"signalconso"
+   ```
+
+3. **Explorer les exemples**
+   ```bash
+   npm run serve
+   # Ouvrir http://localhost:8000/examples/
+   ```
+
+---
+
+## 📞 Support
+
 - **Issues GitHub** : https://github.com/votre-org/widget-dsfr/issues
-- **Documentation DSFR** : https://www.systeme-de-design.gouv.fr/
-- **Documentation ODS** : https://help.opendatasoft.com/widgets/
-
-### Commandes d'aide
-```bash
-# Aide Claude CLI
-claude --help
-
-# Liste des serveurs MCP
-claude mcp list
-
-# Logs de debug
-./start-claude.sh --debug
-```
+- **Documentation Claude** : https://docs.anthropic.com/claude-code
+- **DSFR** : https://www.systeme-de-design.gouv.fr/
 
 ---
 
-## 🎉 Installation Réussie !
-
-Si tout fonctionne, vous devriez voir :
-
-```
-✅ Node.js et npm installés
-✅ Projet cloné et dépendances installées
-✅ Claude Code CLI configuré
-✅ 4 serveurs MCP connectés :
-   - dsfr-mcp (local)
-   - ods-widgets (local)
-   - context7 (npm)
-   - angular-mcp (npm)
-✅ Dashboards exemples fonctionnels
-```
-
-**Prochaine étape** : Consultez le [README.md](README.md) pour commencer à générer des widgets !
-
----
-
-*Guide d'installation v1.0 - Testé sur macOS, Linux Ubuntu, Windows WSL2*
+*Installation complète v4.0 - Janvier 2025*
+*12 serveurs MCP pour un développement professionnel*

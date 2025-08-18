@@ -1,0 +1,29 @@
+# Format: <type>(<scope>): <subject>
+#
+# Types pour widgets DSFR:
+# - feat: Nouveau widget DSFR créé
+# - fix: Correction bug dans widget  
+# - style: Mise en conformité DSFR (CSS/classes)
+# - refactor: Refactoring code widget
+# - test: Ajout tests validation DSFR
+# - docs: Documentation widget
+# - perf: Optimisation performance
+# - chore: Maintenance/configuration
+#
+# Scopes:
+# - table, chart, map, kpi, filter, etc.
+# - dataset: signalconso, dgccrf, budget-vert, etc.
+#
+# Exemples:
+# feat(table): Migration widget table SignalConso vers DSFR
+# fix(chart): Correction affichage légendes graphique budget-vert
+# style(kpi): Alignement composants KPI avec grille DSFR
+#
+# Corps du message:
+# - Décrire QUOI et POURQUOI (pas comment)
+# - Mentionner le score de validation DSFR
+# - Lister les composants DSFR utilisés
+#
+# Footer:
+# - Références: TODO.md, numéro widget ODS original
+# - Score DSFR: XX/100

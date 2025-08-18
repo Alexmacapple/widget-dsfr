@@ -1,0 +1,3 @@
+#!/bin/bash
+# Hook silencieux pour éviter les erreurs
+exit 0

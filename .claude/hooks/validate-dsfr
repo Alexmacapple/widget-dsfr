@@ -1,0 +1,14 @@
+#!/bin/bash
+# Hook pour valider automatiquement la conformité DSFR après modification
+
+# Ne s'exécute que pour les fichiers HTML dans examples/
+if [[ "$1" =~ examples/.*\.html$ ]]; then
+    echo "🔍 Validation DSFR automatique de $1..."
+    
+    # Lancer la validation DSFR
+    if [ -f "tests/validate-dsfr.js" ]; then
+        node tests/validate-dsfr.js "$1"
+    fi
+fi
+
+exit 0

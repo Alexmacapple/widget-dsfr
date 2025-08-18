@@ -39,12 +39,29 @@ widget-dsfr/
 
 ## MCP Servers Configuration
 
+### Core Servers (4)
 | Server | Path/Command | Purpose | Key Functions |
 |--------|--------------|---------|---------------|
 | **dsfr-mcp** | `mcp-dsfr/src/index.js` | DSFR components & validation | `validate_dsfr_html`, `generate_dsfr_component` |
 | **ods-widgets** | `mcp-ods-widgets/server.js` | ODS widget generation | `create_widget`, `analyze_dataset` |
 | **context7** | `npx @upstash/context7-mcp` | Documentation lookup | `resolve-library-id`, `get-library-docs` |
 | **angular-mcp** | `npx @progress/kendo-angular-mcp` | Angular/Kendo support | `kendo_angular_assistant` |
+
+### Development Tools (4)
+| Server | Purpose | Key Functions |
+|--------|---------|---------------|
+| **prettier** | Code formatting | `format` - Auto-format HTML/CSS/JS |
+| **sequential-thinking** | Task planning | `plan` - Structured task breakdown |
+| **semgrep** | Security analysis | `scan` - Detect vulnerabilities |
+| **git** | Version control | `commit`, `branch`, `log` |
+
+### Advanced Features (4)
+| Server | Purpose | Key Functions |
+|--------|---------|---------------|
+| **basic-memory** | Decision memory | `save`, `get` - Remember patterns |
+| **knowledge-graph** | Widget relations | `add_relation` - Map dependencies |
+| **playwright** | Browser testing | `test`, `screenshot` - E2E tests |
+| **github** | GitHub integration | `create_issue`, `create_pr` |
 
 ## Widget Generation Workflow
 
@@ -164,10 +181,45 @@ node tests/validate-dsfr.js examples/[widget].html
 # Run all tests
 npm test
 
+# Browser testing with Playwright
+mcp__playwright__test file:"tests/playwright/test-widgets.spec.js"
+
+# Security scan
+mcp__semgrep__scan file:"examples/[widget].html"
+
 # Manual accessibility check
 - Keyboard navigation (Tab, Enter, Space)
 - Screen reader compatibility (NVDA/JAWS)
 - Color contrast AA (4.5:1 minimum)
+```
+
+## Enhanced Workflow with All MCPs
+
+```bash
+# 1. Plan the task
+mcp__sequential-thinking__plan task:"Migrate [widget] to DSFR"
+
+# 2. Check previous patterns
+mcp__basic-memory__get key:"widget-[type]-pattern"
+
+# 3. Generate widget
+mcp__ods-widgets__create_widget type:"[type]" dataset:"[dataset]"
+
+# 4. Validate & format
+mcp__dsfr-mcp__validate_dsfr_html html_code:"..."
+mcp__prettier__format file:"examples/[widget].html"
+
+# 5. Security check
+mcp__semgrep__scan file:"examples/[widget].html"
+
+# 6. Test in browser
+mcp__playwright__test file:"tests/[widget].spec.js"
+
+# 7. Save pattern
+mcp__basic-memory__save key:"[widget]-solution" value:"[pattern]"
+
+# 8. Commit
+mcp__git__commit message:"feat: [widget] migration"
 ```
 
 ## Troubleshooting
@@ -203,8 +255,12 @@ exit && claude
 | `examples/signalconso-dashboard-dsfr.html` | Complete dashboard example |
 | `mcp-ods-widgets/templates/*.html` | Widget templates |
 | `mcp-dsfr/docs/mappings/ods-to-dsfr.json` | Component mappings |
-| `.mcp.json` | MCP server configuration |
+| `.mcp.json` | MCP server configuration (12 servers) |
+| `MCP_USAGE_GUIDE.md` | Detailed guide for all MCP servers |
 | `AGENTS_ORCHESTRATION.md` | Agent coordination guide |
+| `tests/playwright/test-widgets.spec.js` | Browser automation tests |
+| `.semgrep.yml` | Security rules configuration |
+| `.gitmessage` | Git commit template |
 
 ---
-*Version 3.0 - Focused on actionable commands and workflows*
+*Version 4.0 - Enhanced with 12 MCP servers for professional development*
