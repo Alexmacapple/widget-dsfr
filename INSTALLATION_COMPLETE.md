@@ -1,7 +1,7 @@
-# Guide d'Installation Complète - Widget DSFR v4.0
+# Guide d'Installation Complète - Widget DSFR v4.1
 
 ## 🎯 Objectif
-Installer et configurer le projet Widget DSFR avec les 12 serveurs MCP pour un environnement de développement professionnel complet.
+Installer et configurer le projet Widget DSFR avec les 11 serveurs MCP pour un environnement de développement professionnel complet.
 
 ---
 
@@ -36,17 +36,17 @@ git --version   # Doit afficher 2.30 ou plus
 git clone https://github.com/votre-org/widget-dsfr.git
 cd widget-dsfr
 
-# Lancer l'installation avec le nouveau script unifié
-./setup.sh
+# Lancer l'installation complète
+./install-mcp-complete.sh
 ```
 
 ### Options d'installation
 ```bash
-# Installation propre (réinitialise tout)
-./setup.sh --clean
-
-# Sans installer Claude CLI (si déjà installé)
-./setup.sh --skip-claude-cli
+# Le script gère automatiquement :
+# - Installation des dépendances Node.js
+# - Installation des 11 serveurs MCP
+# - Configuration de Claude Desktop/Code
+# - Installation de Semgrep (macOS/Linux)
 
 # Sans configurer Claude Desktop
 ./setup.sh --skip-desktop

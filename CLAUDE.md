@@ -47,10 +47,9 @@ widget-dsfr/
 | **context7** | `npx @upstash/context7-mcp` | Documentation lookup | `resolve-library-id`, `get-library-docs` |
 | **angular-mcp** | `npx @progress/kendo-angular-mcp` | Angular/Kendo support | `kendo_angular_assistant` |
 
-### Development Tools (4)
+### Development Tools (3)
 | Server | Purpose | Key Functions |
 |--------|---------|---------------|
-| **prettier** | Code formatting | `format` - Auto-format HTML/CSS/JS |
 | **sequential-thinking** | Task planning | `plan` - Structured task breakdown |
 | **semgrep** | Security analysis | `scan` - Detect vulnerabilities |
 | **git** | Version control | `commit`, `branch`, `log` |
@@ -197,29 +196,63 @@ mcp__semgrep__scan file:"examples/[widget].html"
 
 ```bash
 # 1. Plan the task
-mcp__sequential-thinking__plan task:"Migrate [widget] to DSFR"
+mcp__sequential-thinking__sequentialthinking thought:"Migrate [widget] to DSFR" nextThoughtNeeded:true thoughtNumber:1 totalThoughts:5
 
 # 2. Check previous patterns
-mcp__basic-memory__get key:"widget-[type]-pattern"
+mcp__basic-memory__create_entities entities:[{name:"widget-pattern", entityType:"Pattern", observations:["Previous solutions"]}]
 
 # 3. Generate widget
 mcp__ods-widgets__create_widget type:"[type]" dataset:"[dataset]"
 
-# 4. Validate & format
+# 4. Validate
 mcp__dsfr-mcp__validate_dsfr_html html_code:"..."
-mcp__prettier__format file:"examples/[widget].html"
 
-# 5. Security check
-mcp__semgrep__scan file:"examples/[widget].html"
+# 5. Security check (if available)
+# mcp__semgrep__scan file:"examples/[widget].html"
 
-# 6. Test in browser
-mcp__playwright__test file:"tests/[widget].spec.js"
+# 6. Test in browser (if available)
+# mcp__playwright__test file:"tests/[widget].spec.js"
 
-# 7. Save pattern
-mcp__basic-memory__save key:"[widget]-solution" value:"[pattern]"
+# 7. Save pattern and create relations
+mcp__basic-memory__create_entities entities:[{name:"[widget]-solution", entityType:"Solution", observations:["[pattern]"]}]
+mcp__knowledge-graph__create_relations relations:[{from:"[widget]", to:"dsfr-component", relationType:"transforms_to"}]
 
-# 8. Commit
-mcp__git__commit message:"feat: [widget] migration"
+# 8. Commit (if git available) or create issue
+# mcp__git__commit message:"feat: [widget] migration"
+mcp__github__create_issue owner:"[owner]" repo:"[repo]" title:"Migration [widget]" body:"Widget migré avec succès"
+```
+
+## Workflows Intelligents avec Agents et MCP
+
+### Migration Simple avec MCP
+```bash
+# Un widget avec orchestration MCP
+Task: widget-generator "Créer table DSFR pour signalconso"
+# Active automatiquement:
+# - sequential-thinking pour planification
+# - basic-memory pour patterns
+# - knowledge-graph pour relations
+# - dsfr-mcp pour validation
+```
+
+### Migration Complexe avec Orchestration
+```bash
+# Dashboard complet
+Task: migration-assistant "Créer dashboard SignalConso avec tous MCP"
+# Orchestre:
+# - Explorer avec memory
+# - Generator avec context7
+# - Validator avec tests
+# - Assistant avec github
+```
+
+### EPCT avec MCP Intégrés
+```bash
+/epct "Migrer widget complexe avec mémorisation"
+# Explorer: Analyse et mémorise patterns
+# Planifier: Sequential-thinking optimise
+# Coder: Generator avec patterns sauvés
+# Tester: Validator avec tous tests
 ```
 
 ## Troubleshooting
@@ -255,7 +288,7 @@ exit && claude
 | `examples/signalconso-dashboard-dsfr.html` | Complete dashboard example |
 | `mcp-ods-widgets/templates/*.html` | Widget templates |
 | `mcp-dsfr/docs/mappings/ods-to-dsfr.json` | Component mappings |
-| `.mcp.json` | MCP server configuration (12 servers) |
+| `.mcp.json` | MCP server configuration (11 servers) |
 | `MCP_USAGE_GUIDE.md` | Detailed guide for all MCP servers |
 | `AGENTS_ORCHESTRATION.md` | Agent coordination guide |
 | `tests/playwright/test-widgets.spec.js` | Browser automation tests |
@@ -263,4 +296,4 @@ exit && claude
 | `.gitmessage` | Git commit template |
 
 ---
-*Version 4.0 - Enhanced with 12 MCP servers for professional development*
+*Version 4.1 - Enhanced with 11 MCP servers for professional development*

@@ -74,7 +74,7 @@ widget-dsfr/
 ├── tests/                 # Tests de validation DSFR
 │   └── playwright/        # Tests automatisés navigateur
 ├── memory/                # Mémorisation décisions et relations
-├── .mcp.json             # Configuration des 12 serveurs MCP
+├── .mcp.json             # Configuration des 11 serveurs MCP
 └── MCP_USAGE_GUIDE.md    # Guide d'utilisation des serveurs
 ```
 
@@ -94,7 +94,7 @@ Dans Claude, tapez :
 /mcp list
 ```
 
-Vous devriez voir 12 serveurs :
+Vous devriez voir 11 serveurs :
 
 #### Serveurs Principaux
 - ✅ **dsfr-mcp** - Composants DSFR
@@ -162,7 +162,7 @@ npm run serve
 ## 📖 Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** - Instructions pour Claude Code
-- **[MCP_USAGE_GUIDE.md](MCP_USAGE_GUIDE.md)** - Guide complet des 12 serveurs MCP
+- **[MCP_USAGE_GUIDE.md](MCP_USAGE_GUIDE.md)** - Guide complet des 11 serveurs MCP
 - **[TODO.md](TODO.md)** - Liste des widgets à implémenter
 - **[AGENTS_ORCHESTRATION.md](AGENTS_ORCHESTRATION.md)** - Guide des agents
 - **[MIGRATION.md](MIGRATION.md)** - Guide de migration depuis ancienne version
@@ -187,7 +187,7 @@ cat ~/Library/Caches/claude-cli-nodejs/*.log
    ```
 2. Fermez complètement Claude Desktop (Cmd+Q sur Mac)
 3. Rouvrez Claude Desktop
-4. Vérifiez l'icône MCP en bas à droite (12 serveurs)
+4. Vérifiez l'icône MCP en bas à droite (11 serveurs)
 
 ### Erreurs npm audit
 
@@ -209,7 +209,7 @@ MIT - Voir [LICENSE](LICENSE)
 
 - ✅ **70+ widgets** OpenDataSoft identifiés
 - ✅ **4 agents EPCT** opérationnels
-- ✅ **12 serveurs MCP** configurés et opérationnels
+- ✅ **11 serveurs MCP** configurés et opérationnels
 - ✅ **15+ widgets** SignalConso implémentés
 - ✅ **Score DSFR** : 90-100/100 sur les tests
 - 🚧 **En cours** : Migration complète des 55 widgets restants

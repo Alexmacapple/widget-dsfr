@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Script pour configurer Claude Desktop avec les 12 serveurs MCP
+# Script pour configurer Claude Desktop avec les 11 serveurs MCP
+# Version 4.1 - Configuration mise à jour
 # Usage: ./configure-claude-desktop.sh
 
 set -e
@@ -12,8 +13,8 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Configuration de Claude Desktop pour Widget DSFR${NC}"
-echo -e "${BLUE}================================================${NC}"
+echo -e "${BLUE}Configuration de Claude Desktop pour Widget DSFR v4.1${NC}"
+echo -e "${BLUE}======================================================${NC}"
 
 # Détection de l'OS
 OS="unknown"
@@ -52,7 +53,7 @@ fi
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Copier la configuration
-echo -e "\n${YELLOW}Configuration des 12 serveurs MCP...${NC}"
+echo -e "\n${YELLOW}Configuration des 11 serveurs MCP...${NC}"
 
 # Créer la configuration avec les chemins corrects
 cat > "$CONFIG_DIR/claude_desktop_config.json" << EOF
@@ -90,13 +91,6 @@ cat > "$CONFIG_DIR/claude_desktop_config.json" << EOF
         "@progress/kendo-angular-mcp"
       ]
     },
-    "prettier": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-prettier"
-      ]
-    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
@@ -108,14 +102,14 @@ cat > "$CONFIG_DIR/claude_desktop_config.json" << EOF
       "command": "npx",
       "args": [
         "-y",
-        "@semgrep/mcp-server"
+        "mcp-server-semgrep"
       ]
     },
     "git": {
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-git"
+        "mcp-git"
       ]
     },
     "basic-memory": {
@@ -139,7 +133,7 @@ cat > "$CONFIG_DIR/claude_desktop_config.json" << EOF
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-playwright"
+        "@playwright/mcp"
       ]
     },
     "github": {
@@ -168,18 +162,25 @@ else
     echo "  GITHUB_PERSONAL_ACCESS_TOKEN=ghp_votre_token"
 fi
 
-echo -e "\n${BLUE}Liste des 12 serveurs MCP configurés :${NC}"
-echo "  ✅ dsfr-mcp           - Composants DSFR"
+echo -e "\n${BLUE}Liste des 11 serveurs MCP configurés :${NC}"
+echo ""
+echo -e "${GREEN}Serveurs Locaux (2) :${NC}"
+echo "  ✅ dsfr-mcp           - Composants et validation DSFR"
 echo "  ✅ ods-widgets        - Widgets OpenDataSoft"
-echo "  ✅ context7           - Documentation"
-echo "  ✅ angular-mcp        - Support Angular"
-echo "  ✅ prettier           - Formatage code"
-echo "  ✅ sequential-thinking - Planification"
-echo "  ✅ semgrep            - Sécurité"
-echo "  ✅ git                - Version control"
-echo "  ✅ basic-memory       - Mémorisation"
-echo "  ✅ knowledge-graph    - Relations widgets"
-echo "  ✅ playwright         - Tests navigateur"
+echo ""
+echo -e "${GREEN}Documentation & Support (2) :${NC}"
+echo "  ✅ context7           - Documentation à jour"
+echo "  ✅ angular-mcp        - Support Angular/Kendo"
+echo ""
+echo -e "${GREEN}Outils de Développement (3) :${NC}"
+echo "  ✅ sequential-thinking - Planification de tâches"
+echo "  ✅ semgrep            - Analyse de sécurité"
+echo "  ✅ git                - Gestion de version"
+echo ""
+echo -e "${GREEN}Fonctionnalités Avancées (4) :${NC}"
+echo "  ✅ basic-memory       - Mémorisation des patterns"
+echo "  ✅ knowledge-graph    - Relations widgets/composants"
+echo "  ✅ playwright         - Tests automatisés"
 echo "  ✅ github             - Intégration GitHub"
 
 echo -e "\n${GREEN}✅ Configuration terminée !${NC}"
@@ -188,5 +189,5 @@ echo "  1. Fermez complètement Claude Desktop (Cmd+Q sur Mac)"
 echo "  2. Rouvrez Claude Desktop"
 echo "  3. Vérifiez l'icône MCP en bas à droite"
 echo ""
-echo "Les 12 serveurs devraient apparaître connectés."
+echo "Les 11 serveurs devraient apparaître connectés."
 echo ""

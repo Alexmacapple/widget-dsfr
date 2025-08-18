@@ -40,15 +40,6 @@
       ],
       "description": "Support Angular et Kendo UI"
     },
-    "prettier": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-prettier"
-      ],
-      "description": "Formatage automatique du code HTML/CSS/JS"
-    },
     "sequential-thinking": {
       "type": "stdio",
       "command": "npx",
@@ -63,7 +54,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@semgrep/mcp-server"
+        "mcp-server-semgrep"
       ],
       "description": "Analyse de sécurité et détection de vulnérabilités dans le code"
     },
@@ -72,7 +63,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-git"
+        "mcp-git"
       ],
       "description": "Gestion de version Git intégrée - commits, branches, historique"
     },
@@ -102,7 +93,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-playwright"
+        "@playwright/mcp"
       ],
       "description": "Tests automatisés des widgets dans un navigateur réel"
     },

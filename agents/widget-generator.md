@@ -122,6 +122,10 @@ Générer automatiquement des widgets ODS avec intégration DSFR native, en resp
 ## Outils à utiliser
 - MCP `ods-widgets` pour templates
 - MCP `dsfr-mcp` pour composants DSFR
+- MCP `sequential-thinking` pour planification complexe
+- MCP `basic-memory` pour mémoriser patterns
+- MCP `knowledge-graph` pour relations widgets
+- MCP `context7` pour docs frameworks
 - `MultiEdit` pour modifications
 - `Read` pour gabarits existants
 

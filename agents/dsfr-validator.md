@@ -38,8 +38,28 @@ Valider la conformité DSFR et l'accessibilité RGAA de tous les widgets génér
 2. **Identifier** tous les composants utilisés
 3. **Valider** contre référentiel DSFR via MCP
 4. **Vérifier** critères RGAA
-5. **Corriger** automatiquement si possible
-6. **Générer** rapport de conformité
+5. **Tester** dans navigateur avec Playwright (si disponible)
+6. **Analyser** sécurité avec Semgrep (si disponible)
+7. **Corriger** automatiquement si possible
+8. **Mémoriser** erreurs fréquentes
+9. **Générer** rapport de conformité
+
+### Intégration MCP avancée
+```bash
+# Validation complète avec tous les MCP
+mcp__dsfr-mcp__validate_dsfr_html html_code:"..."
+mcp__dsfr-mcp__check_accessibility html_code:"..."
+
+# Tests navigateur (si Playwright disponible)
+# mcp__playwright__test file:"widget.html" tests:["accessibility", "responsive"]
+
+# Analyse sécurité (si Semgrep disponible)
+# mcp__semgrep__scan file:"widget.html"
+
+# Mémoriser patterns d'erreurs
+mcp__basic-memory__save key:"error-pattern-emoji" value:"Emojis détectés dans titres"
+mcp__knowledge-graph__add_relation from:"widget-001" to:"validation-error" type:"has_error"
+```
 
 ### Critères de validation DSFR
 

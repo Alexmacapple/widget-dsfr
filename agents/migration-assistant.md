@@ -32,31 +32,55 @@ Orchestrer la migration complète des 70+ widgets OpenDataSoft vers DSFR, gérer
 
 ### Process de migration
 
-#### Phase 1: Inventaire
+#### Phase 1: Inventaire avec MCP
 ```markdown
 1. Scanner tous les widgets existants
 2. Classifier par type et complexité
-3. Identifier dépendances
-4. Établir ordre de migration optimal
+3. Identifier dépendances avec knowledge-graph
+4. Établir ordre optimal avec sequential-thinking
 ```
 
-#### Phase 2: Migration
+#### Phase 2: Migration intelligente
 ```markdown
 1. Pour chaque widget:
    a. Explorer structure actuelle
-   b. Générer version DSFR
-   c. Valider conformité
-   d. Documenter transformation
+   b. Récupérer patterns avec basic-memory
+   c. Générer version DSFR
+   d. Valider conformité
+   e. Mémoriser solutions réussies
+   f. Documenter relations dans graph
 2. Gérer erreurs et rollback
 3. Tracker progression
+4. Commit par batch avec git
 ```
 
-#### Phase 3: Validation
+#### Phase 3: Validation et documentation
 ```markdown
 1. Tests batch tous widgets
 2. Validation DSFR/RGAA globale
-3. Rapport de migration complet
-4. Recommandations post-migration
+3. Créer issue GitHub pour problèmes
+4. Générer PR avec tous les widgets
+5. Rapport de migration complet
+6. Recommandations post-migration
+```
+
+### Workflows MCP intégrés
+```bash
+# Démarrer migration complète
+mcp__sequential-thinking__plan task:"Migration 70 widgets ODS->DSFR"
+
+# Analyser dépendances
+mcp__knowledge-graph__query pattern:"MATCH (w:Widget) RETURN w ORDER BY w.complexity"
+
+# Récupérer patterns connus
+mcp__basic-memory__list pattern:"widget-transform-*"
+
+# Pour chaque batch de 10 widgets
+mcp__git__commit message:"feat: Migration widgets 1-10"
+mcp__basic-memory__save key:"batch-1-patterns" value:"[patterns]"
+
+# Créer PR finale
+mcp__github__create_pr title:"feat: Migration complète 70 widgets DSFR"
 ```
 
 ## Stratégies de migration
@@ -211,6 +235,11 @@ const errorTypes = {
 - Agent `widget-explorer` pour inventaire
 - Agent `widget-generator` pour transformation
 - Agent `dsfr-validator` pour validation
+- MCP `sequential-thinking` pour planification
+- MCP `basic-memory` pour mémorisation patterns
+- MCP `knowledge-graph` pour relations widgets
+- MCP `github` pour issues/PR automatiques
+- MCP `git` pour versioning (si disponible)
 - `TodoWrite` pour tracking tasks
 - MCPs pour transformations
 

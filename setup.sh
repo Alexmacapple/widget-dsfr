@@ -406,7 +406,7 @@ cat > .mcp.json << EOF
   }
 }
 EOF
-print_success "Configuration MCP créée (12 serveurs)"
+print_success "Configuration MCP créée (11 serveurs)"
 
 # Créer .claude/settings.json si nécessaire
 if [ ! -f ".claude/settings.json" ]; then
@@ -620,7 +620,7 @@ echo -e "\n${CYAN}📋 Résumé de l'installation:${NC}"
 echo -e "   ${GREEN}✓${NC} Node.js v$NODE_VERSION"
 echo -e "   ${GREEN}✓${NC} npm $NPM_VERSION"
 echo -e "   ${GREEN}✓${NC} Dépendances installées"
-echo -e "   ${GREEN}✓${NC} 12 serveurs MCP configurés"
+echo -e "   ${GREEN}✓${NC} 11 serveurs MCP configurés"
 echo -e "   ${GREEN}✓${NC} Dossiers créés (memory, tests)"
 if [ "$CLAUDE_INSTALLED" = true ]; then
     echo -e "   ${GREEN}✓${NC} Claude CLI installé"
@@ -653,7 +653,7 @@ fi
 echo -e "\n${CYAN}📚 Documentation:${NC}"
 echo -e "   • README.md - Vue d'ensemble"
 echo -e "   • CLAUDE.md - Instructions pour Claude"
-echo -e "   • MCP_USAGE_GUIDE.md - Guide des 12 serveurs MCP"
+echo -e "   • MCP_USAGE_GUIDE.md - Guide des 11 serveurs MCP"
 echo -e "   • TODO.md - Widgets à implémenter"
 
 echo -e "\n${CYAN}🛠 En cas de problème:${NC}"
