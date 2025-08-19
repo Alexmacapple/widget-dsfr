@@ -112,22 +112,19 @@ mcp__ods-widgets__create_widget type:"chart" dataset:"signalconso"
 # 5. Valider DSFR
 mcp__dsfr-mcp__validate_dsfr_html html_code:"..."
 
-# 6. Formater le code
-mcp__prettier__format file:"examples/signalconso-chart-001.html"
-
-# 7. Analyser la sécurité
+# 6. Analyser la sécurité
 mcp__semgrep__scan file:"examples/signalconso-chart-001.html"
 
-# 8. Tester dans le navigateur
+# 7. Tester dans le navigateur
 mcp__playwright__test file:"tests/playwright/test-chart.spec.js"
 
-# 9. Sauvegarder la décision
+# 8. Sauvegarder la décision
 mcp__basic-memory__save key:"chart-signalconso-solution" value:"Utiliser Chart.js avec wrapper DSFR"
 
-# 10. Commit via Git
+# 9. Commit via Git
 mcp__git__commit message:"feat(chart): Migration chart SignalConso"
 
-# 11. Créer PR sur GitHub
+# 10. Créer PR sur GitHub
 mcp__github__create_pr title:"feat: Widget chart SignalConso"
 ```
 
@@ -137,7 +134,6 @@ mcp__github__create_pr title:"feat: Widget chart SignalConso"
 |---------|-------------------|--------------|
 | **dsfr-mcp** | Composants DSFR | `validate_dsfr_html` |
 | **ods-widgets** | Création widgets | `create_widget` |
-| **prettier** | Formatage | `format` |
 | **sequential-thinking** | Planification | `plan` |
 | **semgrep** | Sécurité | `scan` |
 | **git** | Version control | `commit` |

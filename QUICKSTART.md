@@ -32,9 +32,8 @@ mcp__sequential-thinking__plan task:"Créer tableau SignalConso"
 # 2. Générer le widget
 mcp__ods-widgets__create_widget type:"table" dataset:"signalconso"
 
-# 3. Valider et formater
+# 3. Valider
 mcp__dsfr-mcp__validate_dsfr_html html_code:"[contenu]"
-mcp__prettier__format file:"examples/signalconso-table.html"
 
 # 4. Tester la sécurité
 mcp__semgrep__scan file:"examples/signalconso-table.html"
@@ -45,7 +44,7 @@ mcp__basic-memory__save key:"table-pattern" value:"fr-table avec tri"
 
 ## 📖 Documentation Essentielle
 
-- **[MCP_USAGE_GUIDE.md](MCP_USAGE_GUIDE.md)** - Guide des 12 serveurs MCP
+- **[MCP_USAGE_GUIDE.md](MCP_USAGE_GUIDE.md)** - Guide des 11 serveurs MCP
 - **[CLAUDE.md](CLAUDE.md)** - Instructions complètes
 - **[README.md](README.md)** - Vue d'ensemble
 

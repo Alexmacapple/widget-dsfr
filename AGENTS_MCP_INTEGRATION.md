@@ -9,7 +9,7 @@ Ce document décrit comment les 11 serveurs MCP peuvent être intégrés avec le
 | Agent | MCP Utilisés | Nouveaux MCP à Intégrer | Bénéfices |
 |-------|-------------|------------------------|-----------|
 | **Widget Explorer** | dsfr-mcp, ods-widgets | sequential-thinking, basic-memory | Planification intelligente, mémorisation patterns |
-| **Widget Generator** | dsfr-mcp, ods-widgets | prettier, git, context7 | Code formaté, versioning, docs frameworks |
+| **Widget Generator** | dsfr-mcp, ods-widgets | git, context7 | Versioning automatique, docs frameworks |
 | **DSFR Validator** | dsfr-mcp | playwright, semgrep | Tests navigateur, sécurité |
 | **Migration Assistant** | Tous les agents | basic-memory, knowledge-graph, github | Orchestration intelligente, tracking |
 
@@ -37,7 +37,6 @@ Task: widget-generator "Créer table DSFR pour signalconso"
   ├── mcp__context7__get-library-docs : Vérifier docs Angular/DSFR
   ├── mcp__ods-widgets__create_widget : Générer widget
   ├── mcp__dsfr-mcp__generate_dsfr_component : Wrapper DSFR
-  ├── mcp__prettier__format : Formater le code
   └── mcp__git__commit : Versionner le widget
 ```
 
@@ -170,7 +169,6 @@ Ajouter dans la section "Communication Inter-Agents":
   "mcp_services": {
     "memory": "basic-memory",
     "graph": "knowledge-graph",
-    "format": "prettier",
     "test": "playwright",
     "security": "semgrep",
     "version": "git",
@@ -192,7 +190,6 @@ Ajouter dans la section "Communication Inter-Agents":
 - Planification avec sequential-thinking
 - Mémorisation avec basic-memory
 - Relations avec knowledge-graph
-- Formatage avec prettier
 - Tests avec playwright
 - Sécurité avec semgrep
 - Versioning avec git
@@ -218,7 +215,7 @@ Task: semgrep-scan "examples/*.html"
 
 ## Résolution des Erreurs MCP
 
-### Pour les MCP en erreur (git, playwright, prettier):
+### Pour les MCP en erreur (git, playwright):
 
 1. **Vérifier npx**:
 ```bash
@@ -227,16 +224,14 @@ npx --version  # Doit être 7.0.0+
 
 2. **Tester directement**:
 ```bash
-npx -y @modelcontextprotocol/server-git --version
-npx -y @modelcontextprotocol/server-prettier --version
-npx -y @modelcontextprotocol/server-playwright --version
+npx -y mcp-git --version
+npx -y @playwright/mcp --version
 ```
 
 3. **Si erreur persiste**, installer localement:
 ```bash
-npm install --save-dev @modelcontextprotocol/server-git
-npm install --save-dev @modelcontextprotocol/server-prettier
-npm install --save-dev @modelcontextprotocol/server-playwright
+npm install -g mcp-git
+npm install -g @playwright/mcp
 ```
 
 ## Bénéfices de l'Intégration
@@ -249,7 +244,7 @@ npm install --save-dev @modelcontextprotocol/server-playwright
 
 ## Prochaines Étapes
 
-1. ✅ Résoudre erreurs connexion MCP (git, prettier, playwright)
+1. ✅ Tous les serveurs MCP sont maintenant connectés
 2. ⏳ Mettre à jour les 4 agents avec intégrations MCP
 3. ⏳ Créer workflows automatisés utilisant tous les MCP
 4. ⏳ Documenter les nouveaux patterns dans CLAUDE.md

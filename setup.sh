@@ -325,15 +325,6 @@ cat > .mcp.json << EOF
       ],
       "description": "Support Angular et Kendo UI"
     },
-    "prettier": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-prettier"
-      ],
-      "description": "Formatage automatique du code HTML/CSS/JS"
-    },
     "sequential-thinking": {
       "type": "stdio",
       "command": "npx",
@@ -348,7 +339,7 @@ cat > .mcp.json << EOF
       "command": "npx",
       "args": [
         "-y",
-        "@semgrep/mcp-server"
+        "mcp-server-semgrep"
       ],
       "description": "Analyse de sécurité et détection de vulnérabilités dans le code"
     },
@@ -357,7 +348,7 @@ cat > .mcp.json << EOF
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-git"
+        "mcp-git"
       ],
       "description": "Gestion de version Git intégrée - commits, branches, historique"
     },
@@ -387,7 +378,7 @@ cat > .mcp.json << EOF
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-playwright"
+        "@playwright/mcp"
       ],
       "description": "Tests automatisés des widgets dans un navigateur réel"
     },
@@ -506,13 +497,6 @@ if [ "$SKIP_DESKTOP" = false ]; then
         "@progress/kendo-angular-mcp"
       ]
     },
-    "prettier": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-prettier"
-      ]
-    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
@@ -524,14 +508,14 @@ if [ "$SKIP_DESKTOP" = false ]; then
       "command": "npx",
       "args": [
         "-y",
-        "@semgrep/mcp-server"
+        "mcp-server-semgrep"
       ]
     },
     "git": {
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-git"
+        "mcp-git"
       ]
     },
     "basic-memory": {
@@ -555,7 +539,7 @@ if [ "$SKIP_DESKTOP" = false ]; then
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-playwright"
+        "@playwright/mcp"
       ]
     },
     "github": {
