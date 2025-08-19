@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Cross Table DSFR - Tableau croisé dynamique">
+    <title>Cross Table DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .cross-table { width: 100%; border-collapse: collapse; }
+        .cross-table th, .cross-table td { padding: 0.75rem; border: 1px solid #ddd; text-align: center; }
+        .cross-table th { background: #f6f6f6; font-weight: 700; }
+        .cross-table .row-header { background: #f9f9f9; font-weight: 600; text-align: left; }
+        .cross-table .total { background: #e3e3fd; font-weight: 700; }
+        .heat-cell { position: relative; }
+        .heat-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.2; background: #000091; }
+    </style>
+</head>
+<body ng-app="ods-widgets">
+    <!-- DÉBUT ZONE WIDGET CROSS-TABLE-001 -->
+    <div id="widget-cross-table-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Tableau croisé dynamique</h1>
+        <p class="fr-text--sm">Analyse croisée catégorie × région</p>
+        
+        <ods-dataset-context context="signalconso" signalconso-domain="data.economie.gouv.fr" signalconso-dataset="signalconso">
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-6">
+                    <label class="fr-label">Dimension ligne</label>
+                    <select class="fr-select" ng-model="rowDim" ng-init="rowDim='categorie'">
+                        <option value="categorie">Catégorie</option>
+                        <option value="region">Région</option>
+                        <option value="statut">Statut</option>
+                    </select>
+                </div>
+                <div class="fr-col-6">
+                    <label class="fr-label">Dimension colonne</label>
+                    <select class="fr-select" ng-model="colDim" ng-init="colDim='statut'">
+                        <option value="statut">Statut</option>
+                        <option value="region">Région</option>
+                        <option value="categorie">Catégorie</option>
+                    </select>
+                </div>
+            </div>
+            
+            <table class="cross-table">
+                <thead>
+                    <tr>
+                        <th>{{ rowDim }} / {{ colDim }}</th>
+                        <th>Nouveau</th>
+                        <th>En cours</th>
+                        <th>Traité</th>
+                        <th>Clos</th>
+                        <th class="total">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="row-header">Alimentation</td>
+                        <td class="heat-cell">245<div class="heat-bg" style="width: 60%;"></div></td>
+                        <td class="heat-cell">189<div class="heat-bg" style="width: 45%;"></div></td>
+                        <td class="heat-cell">412<div class="heat-bg" style="width: 100%;"></div></td>
+                        <td class="heat-cell">87<div class="heat-bg" style="width: 20%;"></div></td>
+                        <td class="total">933</td>
+                    </tr>
+                    <tr>
+                        <td class="row-header">Services</td>
+                        <td class="heat-cell">178<div class="heat-bg" style="width: 43%;"></div></td>
+                        <td class="heat-cell">234<div class="heat-bg" style="width: 57%;"></div></td>
+                        <td class="heat-cell">356<div class="heat-bg" style="width: 86%;"></div></td>
+                        <td class="heat-cell">92<div class="heat-bg" style="width: 22%;"></div></td>
+                        <td class="total">860</td>
+                    </tr>
+                    <tr>
+                        <td class="row-header">Commerce</td>
+                        <td class="heat-cell">298<div class="heat-bg" style="width: 72%;"></div></td>
+                        <td class="heat-cell">156<div class="heat-bg" style="width: 38%;"></div></td>
+                        <td class="heat-cell">289<div class="heat-bg" style="width: 70%;"></div></td>
+                        <td class="heat-cell">112<div class="heat-bg" style="width: 27%;"></div></td>
+                        <td class="total">855</td>
+                    </tr>
+                    <tr class="total">
+                        <td>Total</td>
+                        <td>721</td>
+                        <td>579</td>
+                        <td>1057</td>
+                        <td>291</td>
+                        <td>2648</td>
+                    </tr>
+                </tbody>
+            </table>
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET CROSS-TABLE-001 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

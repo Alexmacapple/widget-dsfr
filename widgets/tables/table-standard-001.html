@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Table Standard DSFR - SignalConso">
+    <title>Table Standard DSFR - SignalConso</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Variables DSFR */
+        :root {
+            --primary-color: #000091;
+            --secondary-color: #6a6af4;
+            --success-color: #18753c;
+            --warning-color: #b34000;
+            --error-color: #ce0500;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Marianne, arial, sans-serif;
+        }
+
+        /* Table DSFR */
+        .fr-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        
+        .fr-table thead {
+            background-color: var(--background-contrast-grey);
+        }
+        
+        .fr-table th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-default-grey);
+            color: var(--text-title-grey);
+        }
+        
+        .fr-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .fr-table tbody tr:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        /* Pagination ODS style DSFR */
+        .odswidget-table-pagination {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .odswidget-table-pagination button {
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 0.25rem;
+        }
+        
+        .odswidget-table-pagination button:hover {
+            background: var(--secondary-color);
+        }
+        
+        .odswidget-table-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 48em) {
+            .fr-table {
+                font-size: 0.875rem;
+            }
+            
+            .fr-table th,
+            .fr-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Badge de statut */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-badge.nouveau {
+            background-color: #e3e3fd;
+            color: var(--primary-color);
+        }
+
+        .status-badge.en-cours {
+            background-color: #fef3cd;
+            color: var(--warning-color);
+        }
+
+        .status-badge.traite {
+            background-color: #d1f4d1;
+            color: var(--success-color);
+        }
+
+        .status-badge.clos {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+
+        /* Barre de recherche */
+        .search-controls {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--background-alt-grey);
+            border-radius: 0.25rem;
+        }
+
+        .search-controls .fr-search-bar {
+            margin-bottom: 1rem;
+        }
+
+        /* Export buttons */
+        .export-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET TABLE-STANDARD-001 -->
+    <div id="widget-table-standard-001" class="fr-container fr-py-3w">
+        
+        <!-- En-tête du widget -->
+        <div class="fr-grid-row fr-mb-3w">
+            <div class="fr-col-12">
+                <h1 class="fr-h3">Tableau des signalements consommateurs</h1>
+                <p class="fr-text--sm">Liste complète des signalements avec tri, recherche et pagination</p>
+            </div>
+        </div>
+
+        <!-- Contexte ODS -->
+        <ods-dataset-context 
+            context="signalconso"
+            signalconso-domain="data.economie.gouv.fr"
+            signalconso-dataset="signalconso">
+            
+            <!-- Contrôles de recherche et filtrage -->
+            <div class="search-controls">
+                <div class="fr-search-bar" role="search">
+                    <label class="fr-label" for="search-table">
+                        Rechercher dans les signalements
+                    </label>
+                    <input 
+                        class="fr-input" 
+                        type="search" 
+                        id="search-table"
+                        name="search-table"
+                        placeholder="Rechercher..."
+                        ng-model="searchQuery"
+                        ng-change="signalconso.parameters['q'] = searchQuery">
+                    <button class="fr-btn" type="submit" title="Rechercher">
+                        Rechercher
+                    </button>
+                </div>
+
+                <!-- Filtres rapides -->
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="filter-category">
+                                Catégorie
+                            </label>
+                            <select 
+                                class="fr-select" 
+                                id="filter-category"
+                                ng-model="filterCategory"
+                                ng-change="signalconso.parameters['refine.categorie'] = filterCategory">
+                                <option value="">Toutes les catégories</option>
+                                <option value="Alimentation">Alimentation</option>
+                                <option value="Services">Services</option>
+                                <option value="Commerce">Commerce</option>
+                                <option value="Internet">Internet</option>
+                                <option value="Santé">Santé</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="filter-status">
+                                Statut
+                            </label>
+                            <select 
+                                class="fr-select" 
+                                id="filter-status"
+                                ng-model="filterStatus"
+                                ng-change="signalconso.parameters['refine.statut'] = filterStatus">
+                                <option value="">Tous les statuts</option>
+                                <option value="Nouveau">Nouveau</option>
+                                <option value="En cours">En cours</option>
+                                <option value="Traité">Traité</option>
+                                <option value="Clos">Clos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="filter-department">
+                                Département
+                            </label>
+                            <select 
+                                class="fr-select" 
+                                id="filter-department"
+                                ng-model="filterDepartment"
+                                ng-change="signalconso.parameters['refine.departement'] = filterDepartment">
+                                <option value="">Tous les départements</option>
+                                <option value="75">Paris (75)</option>
+                                <option value="69">Rhône (69)</option>
+                                <option value="13">Bouches-du-Rhône (13)</option>
+                                <option value="59">Nord (59)</option>
+                                <option value="33">Gironde (33)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="items-per-page">
+                                Éléments par page
+                            </label>
+                            <select 
+                                class="fr-select" 
+                                id="items-per-page"
+                                ng-model="itemsPerPage"
+                                ng-init="itemsPerPage = 20"
+                                ng-change="signalconso.parameters['rows'] = itemsPerPage">
+                                <option value="10">10</option>
+                                <option value="20" selected>20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons d'export -->
+            <div class="export-controls">
+                <button class="fr-btn fr-btn--secondary fr-btn--sm" 
+                        onclick="exportTableToCSV()">
+                    <span class="fr-icon-download-line fr-icon--sm" aria-hidden="true"></span>
+                    Exporter en CSV
+                </button>
+                <button class="fr-btn fr-btn--secondary fr-btn--sm" 
+                        onclick="window.print()">
+                    <span class="fr-icon-printer-line fr-icon--sm" aria-hidden="true"></span>
+                    Imprimer
+                </button>
+            </div>
+
+            <!-- Nombre de résultats -->
+            <div class="fr-mb-2w">
+                <p class="fr-text--sm fr-text--bold">
+                    {{ signalconso.nhits | number }} signalements trouvés
+                </p>
+            </div>
+
+            <!-- Table principale -->
+            <div class="table-container">
+                <table class="fr-table fr-table--bordered fr-table--no-scroll">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="sortable" ng-click="signalconso.parameters['sort'] = 'date_creation'">
+                                Date
+                                <span class="fr-icon-arrow-down-s-line fr-icon--xs" aria-hidden="true"></span>
+                            </th>
+                            <th scope="col" class="sortable" ng-click="signalconso.parameters['sort'] = 'categorie'">
+                                Catégorie
+                                <span class="fr-icon-arrow-down-s-line fr-icon--xs" aria-hidden="true"></span>
+                            </th>
+                            <th scope="col">Détails</th>
+                            <th scope="col" class="sortable" ng-click="signalconso.parameters['sort'] = 'ville'">
+                                Ville
+                                <span class="fr-icon-arrow-down-s-line fr-icon--xs" aria-hidden="true"></span>
+                            </th>
+                            <th scope="col">Département</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="record in signalconso.records">
+                            <td>{{ record.fields.date_creation | date:'dd/MM/yyyy' }}</td>
+                            <td>
+                                <span class="fr-badge fr-badge--sm">
+                                    {{ record.fields.categorie }}
+                                </span>
+                            </td>
+                            <td>
+                                <span ng-if="record.fields.details.length > 100">
+                                    {{ record.fields.details | limitTo:100 }}...
+                                </span>
+                                <span ng-if="record.fields.details.length <= 100">
+                                    {{ record.fields.details }}
+                                </span>
+                            </td>
+                            <td>{{ record.fields.ville }} ({{ record.fields.code_postal }})</td>
+                            <td>{{ record.fields.departement }}</td>
+                            <td>
+                                <span class="status-badge" 
+                                      ng-class="{'nouveau': record.fields.statut == 'Nouveau',
+                                                 'en-cours': record.fields.statut == 'En cours',
+                                                 'traite': record.fields.statut == 'Traité',
+                                                 'clos': record.fields.statut == 'Clos'}">
+                                    {{ record.fields.statut }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="fr-btn fr-btn--tertiary fr-btn--sm" 
+                                        title="Voir les détails"
+                                        onclick="alert('Détails du signalement #' + '{{ record.recordid }}')">
+                                    <span class="fr-icon-eye-line" aria-hidden="true"></span>
+                                    <span class="fr-sr-only">Voir</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav class="fr-pagination" aria-label="Pagination">
+                <ul class="fr-pagination__list">
+                    <li>
+                        <button class="fr-pagination__link fr-pagination__link--prev" 
+                                ng-click="signalconso.parameters['start'] = signalconso.parameters['start'] - itemsPerPage"
+                                ng-disabled="signalconso.parameters['start'] <= 0"
+                                aria-label="Page précédente">
+                            Page précédente
+                        </button>
+                    </li>
+                    <li>
+                        <span class="fr-pagination__link" aria-current="page">
+                            Page {{ (signalconso.parameters['start'] / itemsPerPage) + 1 | number:0 }}
+                        </span>
+                    </li>
+                    <li>
+                        <button class="fr-pagination__link fr-pagination__link--next" 
+                                ng-click="signalconso.parameters['start'] = signalconso.parameters['start'] + itemsPerPage"
+                                ng-disabled="signalconso.parameters['start'] + itemsPerPage >= signalconso.nhits"
+                                aria-label="Page suivante">
+                            Page suivante
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET TABLE-STANDARD-001 -->
+
+    <!-- JavaScript ODS (Angular et widgets) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    
+    <!-- JavaScript DSFR -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+
+    <!-- Script d'export CSV -->
+    <script>
+        function exportTableToCSV() {
+            const table = document.querySelector('.fr-table');
+            let csv = [];
+            
+            // En-têtes
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push('"' + th.textContent.trim() + '"');
+            });
+            csv.push(headers.join(','));
+            
+            // Données
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    row.push('"' + td.textContent.trim().replace(/"/g, '""') + '"');
+                });
+                csv.push(row.join(','));
+            });
+            
+            // Téléchargement
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'signalconso-export.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
+</body>
+</html>

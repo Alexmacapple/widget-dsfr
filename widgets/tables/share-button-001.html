@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Share Button DSFR - Bouton de partage">
+    <title>Share Button DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET SHARE-BUTTON-001 -->
+    <div id="widget-share-button-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Partager les données</h1>
+        <p class="fr-text--sm">Partagez ce contenu sur les réseaux sociaux</p>
+        
+        <div class="fr-share">
+            <p class="fr-share__title">Partager la page</p>
+            <ul class="fr-share__group">
+                <li>
+                    <button class="fr-share__link fr-share__link--facebook" 
+                            title="Partager sur Facebook"
+                            onclick="shareOnFacebook()">
+                        Partager sur Facebook
+                    </button>
+                </li>
+                <li>
+                    <button class="fr-share__link fr-share__link--twitter-x"
+                            title="Partager sur X (Twitter)"
+                            onclick="shareOnTwitter()">
+                        Partager sur X (Twitter)
+                    </button>
+                </li>
+                <li>
+                    <button class="fr-share__link fr-share__link--linkedin"
+                            title="Partager sur LinkedIn"
+                            onclick="shareOnLinkedIn()">
+                        Partager sur LinkedIn
+                    </button>
+                </li>
+                <li>
+                    <button class="fr-share__link fr-share__link--mail"
+                            title="Envoyer par email"
+                            onclick="shareByEmail()">
+                        Envoyer par email
+                    </button>
+                </li>
+                <li>
+                    <button class="fr-share__link fr-share__link--copy"
+                            title="Copier le lien"
+                            onclick="copyLink()">
+                        Copier le lien
+                    </button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="fr-alert fr-alert--success fr-mt-3w" id="copy-success" style="display: none;">
+            <p>Lien copié dans le presse-papier !</p>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET SHARE-BUTTON-001 -->
+    <script>
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent('SignalConso - Données consommateurs');
+        
+        function shareOnFacebook() {
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + url, '_blank');
+        }
+        
+        function shareOnTwitter() {
+            window.open('https://twitter.com/intent/tweet?url=' + url + '&text=' + title, '_blank');
+        }
+        
+        function shareOnLinkedIn() {
+            window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + url, '_blank');
+        }
+        
+        function shareByEmail() {
+            window.location.href = 'mailto:?subject=' + title + '&body=' + url;
+        }
+        
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                document.getElementById('copy-success').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('copy-success').style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

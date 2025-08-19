@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Aggregate Table DSFR - Table avec agrégations">
+    <title>Aggregate Table DSFR - SignalConso</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .aggregate-section { background: #f6f6f6; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; }
+        .aggregate-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .aggregate-card { background: white; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #ddd; }
+        .aggregate-value { font-size: 2rem; font-weight: 700; color: #000091; }
+        .aggregate-label { color: #666; font-size: 0.875rem; margin-top: 0.5rem; }
+        .aggregate-table { width: 100%; margin-top: 2rem; }
+        .aggregate-table th { background: #f6f6f6; padding: 0.75rem; text-align: left; font-weight: 700; }
+        .aggregate-table td { padding: 0.75rem; border-bottom: 1px solid #ddd; }
+        .aggregate-table .total-row { background: #e3e3fd; font-weight: 700; }
+    </style>
+</head>
+<body ng-app="ods-widgets">
+    <!-- DÉBUT ZONE WIDGET AGGREGATE-TABLE-001 -->
+    <div id="widget-aggregate-table-001" class="fr-container fr-py-3w">
+        
+        <h1 class="fr-h3">Table avec agrégations</h1>
+        <p class="fr-text--sm">Statistiques et agrégations par catégorie</p>
+
+        <ods-dataset-context 
+            context="signalconso"
+            signalconso-domain="data.economie.gouv.fr"
+            signalconso-dataset="signalconso">
+            
+            <!-- Cartes d'agrégation globales -->
+            <div class="aggregate-section">
+                <h2 class="fr-h5">Statistiques globales</h2>
+                <div class="aggregate-cards">
+                    <div class="aggregate-card">
+                        <div class="aggregate-value">{{ signalconso.nhits | number }}</div>
+                        <div class="aggregate-label">Total signalements</div>
+                    </div>
+                    <div class="aggregate-card">
+                        <ods-aggregation 
+                            context="signalconso"
+                            aggregation-function="COUNT"
+                            aggregation-expression="categorie">
+                            <div class="aggregate-value">{{ results[0].count | number }}</div>
+                        </ods-aggregation>
+                        <div class="aggregate-label">Catégories distinctes</div>
+                    </div>
+                    <div class="aggregate-card">
+                        <ods-aggregation 
+                            context="signalconso"
+                            aggregation-function="COUNT"
+                            aggregation-expression="departement">
+                            <div class="aggregate-value">{{ results[0].count | number }}</div>
+                        </ods-aggregation>
+                        <div class="aggregate-label">Départements</div>
+                    </div>
+                    <div class="aggregate-card">
+                        <ods-aggregation 
+                            context="signalconso"
+                            aggregation-function="AVG"
+                            aggregation-expression="delai_reponse">
+                            <div class="aggregate-value">{{ results[0].avg | number:1 }}j</div>
+                        </ods-aggregation>
+                        <div class="aggregate-label">Délai moyen</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table d'agrégation par catégorie -->
+            <div class="fr-table">
+                <h2 class="fr-h5">Agrégations par catégorie</h2>
+                <table class="aggregate-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Nombre</th>
+                            <th>Pourcentage</th>
+                            <th>Départements</th>
+                            <th>Statut principal</th>
+                            <th>Tendance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ods-facets context="signalconso" facetname="categorie">
+                            <tr ng-repeat="item in categories" ng-init="percent = (item.count / signalconso.nhits * 100)">
+                                <td>
+                                    <span class="fr-badge">{{ item.name }}</span>
+                                </td>
+                                <td><strong>{{ item.count | number }}</strong></td>
+                                <td>
+                                    <div class="fr-progress">
+                                        <div class="fr-progress__bar" style="width: {{ percent }}%"></div>
+                                    </div>
+                                    {{ percent | number:1 }}%
+                                </td>
+                                <td>
+                                    <ods-aggregation 
+                                        context="signalconso"
+                                        aggregation-function="COUNT"
+                                        aggregation-expression="departement"
+                                        aggregation-filter="categorie:'{{ item.name }}'">
+                                        {{ results[0].count }}
+                                    </ods-aggregation>
+                                </td>
+                                <td>
+                                    <span class="fr-badge fr-badge--success fr-badge--sm">Traité</span>
+                                </td>
+                                <td>
+                                    <span ng-if="percent > 10" class="fr-icon-arrow-up-line" style="color: #ce0500;"></span>
+                                    <span ng-if="percent <= 10 && percent > 5" class="fr-icon-arrow-right-line" style="color: #b34000;"></span>
+                                    <span ng-if="percent <= 5" class="fr-icon-arrow-down-line" style="color: #18753c;"></span>
+                                </td>
+                            </tr>
+                        </ods-facets>
+                        <tr class="total-row">
+                            <td>TOTAL</td>
+                            <td><strong>{{ signalconso.nhits | number }}</strong></td>
+                            <td>100%</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table d'agrégation par région -->
+            <div class="fr-table fr-mt-3w">
+                <h2 class="fr-h5">Agrégations par région</h2>
+                <table class="aggregate-table">
+                    <thead>
+                        <tr>
+                            <th>Région</th>
+                            <th>Signalements</th>
+                            <th>Moyenne/mois</th>
+                            <th>Top catégorie</th>
+                            <th>Évolution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ods-facets context="signalconso" facetname="region">
+                            <tr ng-repeat="region in regions | limitTo:10">
+                                <td><strong>{{ region.name }}</strong></td>
+                                <td>{{ region.count | number }}</td>
+                                <td>{{ region.count / 12 | number:0 }}</td>
+                                <td>
+                                    <span class="fr-badge fr-badge--info fr-badge--sm">Alimentation</span>
+                                </td>
+                                <td>
+                                    <span class="fr-badge fr-badge--success fr-badge--sm">+12%</span>
+                                </td>
+                            </tr>
+                        </ods-facets>
+                    </tbody>
+                </table>
+            </div>
+
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET AGGREGATE-TABLE-001 -->
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

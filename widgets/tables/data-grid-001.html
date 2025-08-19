@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Data Grid DSFR - Grille de données interactive">
+    <title>Data Grid DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; padding: 1rem; }
+        .grid-item { background: white; border: 1px solid #ddd; border-radius: 0.5rem; padding: 1rem; transition: transform 0.2s; }
+        .grid-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .grid-header { font-weight: 700; color: #000091; margin-bottom: 0.5rem; }
+        .grid-meta { display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.875rem; color: #666; }
+    </style>
+</head>
+<body ng-app="ods-widgets">
+    <!-- DÉBUT ZONE WIDGET DATA-GRID-001 -->
+    <div id="widget-data-grid-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Grille de données interactive</h1>
+        <p class="fr-text--sm">Affichage en grille avec interactions</p>
+        
+        <ods-dataset-context context="signalconso" signalconso-domain="data.economie.gouv.fr" signalconso-dataset="signalconso">
+            <div class="fr-mb-2w">
+                <div class="fr-search-bar" role="search">
+                    <input class="fr-input" type="search" placeholder="Filtrer..." ng-model="search" ng-change="signalconso.parameters['q'] = search">
+                    <button class="fr-btn" type="submit">Rechercher</button>
+                </div>
+            </div>
+            
+            <div class="data-grid">
+                <div class="grid-item" ng-repeat="record in signalconso.records | limitTo:12">
+                    <div class="grid-header">{{ record.fields.categorie }}</div>
+                    <p>{{ record.fields.details | limitTo:150 }}...</p>
+                    <div class="grid-meta">
+                        <span class="fr-badge fr-badge--sm">{{ record.fields.ville }}</span>
+                        <span>{{ record.fields.date_creation | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="fr-mt-2w">
+                        <span class="fr-badge" ng-class="{'fr-badge--success': record.fields.statut == 'Traité', 'fr-badge--warning': record.fields.statut == 'En cours'}">
+                            {{ record.fields.statut }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fr-pagination fr-mt-3w">
+                <button class="fr-btn fr-btn--secondary" ng-click="signalconso.parameters['start'] = signalconso.parameters['start'] - 12" ng-disabled="!signalconso.parameters['start']">Précédent</button>
+                <button class="fr-btn fr-btn--secondary" ng-click="signalconso.parameters['start'] = (signalconso.parameters['start'] || 0) + 12">Suivant</button>
+            </div>
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET DATA-GRID-001 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

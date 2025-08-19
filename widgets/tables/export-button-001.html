@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Export Button DSFR - Bouton d'export CSV/Excel">
+    <title>Export Button DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+</head>
+<body ng-app="ods-widgets">
+    <!-- DÉBUT ZONE WIDGET EXPORT-BUTTON-001 -->
+    <div id="widget-export-button-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Boutons d'export des données</h1>
+        <p class="fr-text--sm">Exportez les données dans différents formats</p>
+        
+        <ods-dataset-context context="signalconso" signalconso-domain="data.economie.gouv.fr" signalconso-dataset="signalconso">
+            <div class="fr-callout">
+                <h3 class="fr-callout__title">Export disponible</h3>
+                <p class="fr-callout__text">
+                    <strong>{{ signalconso.nhits | number }}</strong> enregistrements disponibles à l'export
+                </p>
+            </div>
+            
+            <div class="fr-btns-group fr-mt-3w">
+                <ul class="fr-btns-group__list">
+                    <li>
+                        <a class="fr-btn fr-btn--icon-left" 
+                           href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=csv"
+                           download="signalconso.csv">
+                            <span class="fr-icon-download-line" aria-hidden="true"></span>
+                            Export CSV
+                        </a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--secondary fr-btn--icon-left"
+                           href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=xls"
+                           download="signalconso.xls">
+                            <span class="fr-icon-file-download-line" aria-hidden="true"></span>
+                            Export Excel
+                        </a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--tertiary fr-btn--icon-left"
+                           href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=json"
+                           download="signalconso.json">
+                            <span class="fr-icon-code-s-slash-line" aria-hidden="true"></span>
+                            Export JSON
+                        </a>
+                    </li>
+                    <li>
+                        <a class="fr-btn fr-btn--tertiary fr-btn--icon-left"
+                           href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=geojson"
+                           download="signalconso.geojson">
+                            <span class="fr-icon-map-pin-2-line" aria-hidden="true"></span>
+                            Export GeoJSON
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="fr-alert fr-alert--info fr-mt-3w">
+                <h3 class="fr-alert__title">Information</h3>
+                <p>Les exports incluent toutes les colonnes disponibles dans le dataset.</p>
+            </div>
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET EXPORT-BUTTON-001 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

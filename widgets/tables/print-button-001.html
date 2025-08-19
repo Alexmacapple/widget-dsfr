@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Print Button DSFR - Bouton d'impression">
+    <title>Print Button DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET PRINT-BUTTON-001 -->
+    <div id="widget-print-button-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Impression des données</h1>
+        <p class="fr-text--sm">Imprimez cette page ou exportez en PDF</p>
+        
+        <div class="no-print">
+            <button class="fr-btn fr-btn--icon-left" onclick="window.print()">
+                <span class="fr-icon-printer-line" aria-hidden="true"></span>
+                Imprimer cette page
+            </button>
+            
+            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-ml-2w" onclick="printPreview()">
+                <span class="fr-icon-eye-line" aria-hidden="true"></span>
+                Aperçu avant impression
+            </button>
+        </div>
+        
+        <div class="print-only">
+            <h2>Document imprimé depuis SignalConso</h2>
+            <p>Date d'impression : <script>document.write(new Date().toLocaleDateString('fr-FR'))</script></p>
+        </div>
+        
+        <div class="fr-alert fr-alert--info fr-mt-3w no-print">
+            <h3 class="fr-alert__title">Conseil</h3>
+            <p>Pour exporter en PDF, utilisez la fonction "Imprimer en PDF" de votre navigateur.</p>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET PRINT-BUTTON-001 -->
+    <script>
+        function printPreview() {
+            const preview = window.open('', 'print-preview', 'width=800,height=600');
+            preview.document.write(document.documentElement.outerHTML);
+            preview.document.close();
+            preview.focus();
+            preview.print();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
