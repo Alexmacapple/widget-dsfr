@@ -140,13 +140,22 @@
         async function loadData() {
             try {
                 console.log('Chargement des données...');
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=500&sort=-creationdate');
+                // Charger des données avec différents statuts pour assurer la diversité
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000');
                 const data = await response.json();
                 
                 allData = data.records || [];
                 document.getElementById('total-records').textContent = data.nhits.toLocaleString('fr-FR');
                 
+                // Compter les statuts pour le debug
+                const statusCount = {};
+                allData.forEach(record => {
+                    const status = record.fields?.status || 'undefined';
+                    statusCount[status] = (statusCount[status] || 0) + 1;
+                });
+                console.log('Distribution des statuts:', statusCount);
                 console.log(`${allData.length} enregistrements chargés`);
+                
                 applyFilters();
             } catch (error) {
                 console.error('Erreur:', error);
@@ -155,18 +164,22 @@
         }
         
         function applyFilters() {
+            console.log('Filtrage avec statut:', currentFilter);
+            
             filteredData = allData.filter(record => {
                 const fields = record.fields || {};
                 
                 // Filtre par statut
-                if (currentFilter !== 'all' && fields.status !== currentFilter) {
-                    return false;
+                if (currentFilter !== 'all') {
+                    if (!fields.status || fields.status !== currentFilter) {
+                        return false;
+                    }
                 }
                 
                 // Filtre par recherche
                 if (searchTerm) {
                     const searchLower = searchTerm.toLowerCase();
-                    const searchableText = `${fields.category} ${fields.subcategories} ${fields.dep_name} ${fields.reg_name}`.toLowerCase();
+                    const searchableText = `${fields.category || ''} ${fields.subcategories || ''} ${fields.dep_name || ''} ${fields.reg_name || ''}`.toLowerCase();
                     if (!searchableText.includes(searchLower)) {
                         return false;
                     }
@@ -175,6 +188,7 @@
                 return true;
             });
             
+            console.log(`Résultats filtrés: ${filteredData.length} sur ${allData.length}`);
             document.getElementById('filtered-records').textContent = filteredData.length.toLocaleString('fr-FR');
             currentPage = 0;
             displayGrid();
