@@ -5,295 +5,169 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Start Commands
 
 ```bash
-# Start local development server
+# Development server
 npm run serve                    # Python HTTP server on http://localhost:8000
 
-# Run MCP servers
-node mcp-dsfr/src/index.js      # DSFR MCP server
-node mcp-ods-widgets/server.js  # ODS Widgets MCP server
-
-# Test and validate
-npm test                        # Run all tests
+# Testing & validation
+npm test                        # Run all tests (tests/run-tests.js)
 npm run validate               # Validate DSFR compliance
-node tests/validate-dsfr.js examples/signalconso-dashboard-dsfr.html
+node tests/validate-dsfr.js [file]  # Validate specific widget file
 
-# Check MCP connectivity
-claude mcp list                # List configured MCP servers
-claude mcp status             # Check server status
+# Installation & setup
+./setup.sh                      # Complete installation with all MCP servers
+./setup.sh --clean             # Clean reinstall
+npm install                    # Install project dependencies
 ```
 
-## Project Overview
+## Project Architecture
 
-This project transforms 70+ OpenDataSoft widgets into DSFR-compliant HTML components for direct Drupal integration. All widgets connect directly to `data.economie.gouv.fr` in real-time.
+Transforms OpenDataSoft widgets to DSFR-compliant HTML for Drupal integration with real-time data.economie.gouv.fr connections.
 
-### Core Architecture
+### Key Directories
+- **mcp-dsfr/**: DSFR component generation & validation server (208 components)
+- **mcp-ods-widgets/**: ODS widget transformation server (70+ widgets)  
+- **agents/**: EPCT workflow automation (widget-explorer, widget-generator, dsfr-validator, migration-assistant)
+- **examples/**: Production-ready widget implementations
+- **tests/**: DSFR compliance validation suite
 
-```
-widget-dsfr/
-├── mcp-dsfr/              # DSFR MCP server (208 components)
-├── mcp-ods-widgets/       # ODS Widgets MCP (70+ widgets)
-├── agents/                # 4 automation agents (EPCT workflow)
-├── examples/              # Working dashboards & widgets
-└── templates/             # DSFR HTML templates
-```
+## MCP Server Functions
 
-## MCP Servers Configuration
-
-### Core Servers (4)
-| Server | Path/Command | Purpose | Key Functions |
-|--------|--------------|---------|---------------|
-| **dsfr-mcp** | `mcp-dsfr/src/index.js` | DSFR components & validation | `validate_dsfr_html`, `generate_dsfr_component` |
-| **ods-widgets** | `mcp-ods-widgets/server.js` | ODS widget generation | `create_widget`, `analyze_dataset` |
-| **context7** | `npx @upstash/context7-mcp` | Documentation lookup | `resolve-library-id`, `get-library-docs` |
-| **angular-mcp** | `npx @progress/kendo-angular-mcp` | Angular/Kendo support | `kendo_angular_assistant` |
-
-### Development Tools (3)
-| Server | Purpose | Key Functions |
-|--------|---------|---------------|
-| **sequential-thinking** | Task planning | `plan` - Structured task breakdown |
-| **semgrep** | Security analysis | `scan` - Detect vulnerabilities |
-| **git** | Version control | `commit`, `branch`, `log` |
-
-### Advanced Features (4)
-| Server | Purpose | Key Functions |
-|--------|---------|---------------|
-| **basic-memory** | Decision memory | `save`, `get` - Remember patterns |
-| **knowledge-graph** | Widget relations | `add_relation` - Map dependencies |
-| **playwright** | Browser testing | `test`, `screenshot` - E2E tests |
-| **github** | GitHub integration | `create_issue`, `create_pr` |
-
-## Widget Generation Workflow
-
-### 1. Generate a Widget
+### Widget Generation & Validation
 ```bash
-# Using MCP ODS-Widgets
+# Generate DSFR widget
 mcp__ods-widgets__create_widget type:"table" dataset:"signalconso"
 
-# Using Agent
-Task: widget-generator "Créer table DSFR pour signalconso"
+# Validate compliance
+mcp__dsfr-mcp__validate_dsfr_html html_code:"<html>"
+
+# Analyze dataset
+mcp__ods-widgets__analyze_dataset dataset:"signalconso"
 ```
 
-### 2. Validate DSFR Compliance
-```bash
-# Using MCP DSFR
-mcp__dsfr-mcp__validate_dsfr_html html_code:"<your html>"
+### Available MCP Servers (11 total in .mcp.json)
+- **dsfr-mcp**: DSFR component generation/validation
+- **ods-widgets**: ODS widget transformation
+- **context7**: Documentation retrieval
+- **angular-mcp**: Kendo UI Angular support
+- **sequential-thinking**: Task planning
+- **basic-memory**: Pattern memorization
+- **knowledge-graph**: Widget relationships
+- **playwright**: Browser testing
+- **github**: GitHub operations
+- **git**: Version control
+- **semgrep**: Security analysis
 
-# Using Agent
-Task: dsfr-validator "Valider signalconso-table-001.html"
-```
+## Widget Development Workflow
 
-### 3. Widget Identification Format
+1. **Generate**: `mcp__ods-widgets__create_widget type:"[type]" dataset:"[dataset]"`
+2. **Validate**: `mcp__dsfr-mcp__validate_dsfr_html html_code:"..."`
+3. **Test**: `node tests/validate-dsfr.js [file]`
+
+### Widget HTML Structure
 ```html
-<!-- DÉBUT ZONE WIDGET SIGNALCONSO-TABLE-001 -->
-<div id="widget-signalconso-table-001" class="widget-container">
-    <!-- Widget content -->
+<!-- DÉBUT ZONE WIDGET [DATASET]-[TYPE]-[ID] -->
+<div id="widget-[dataset]-[type]-[id]" class="widget-container">
+    <!-- DSFR-compliant content -->
 </div>
-<!-- FIN ZONE WIDGET SIGNALCONSO-TABLE-001 -->
+<!-- FIN ZONE WIDGET [DATASET]-[TYPE]-[ID] -->
 ```
 
-## Available Datasets
+## Data Sources (data.economie.gouv.fr)
 
-1. **SignalConso** - Consumer reports
-2. **Annuaire DGCCRF** - DGCCRF directory
-3. **Budget Vert** - Green budget PLF25
-4. **Tarifs Bancaires** - Banking rates CCSF
-5. **Démarches Simplifiées** - Etikraine
-6. **Taux de Change** - Exchange rates DGFIP
+- **signalconso**: Consumer reports
+- **annuaire-dgccrf**: DGCCRF directory  
+- **budget-vert**: Green budget PLF25
+- **tarifs-bancaires**: Banking rates CCSF
+- **demarches-simplifiees**: Etikraine
+- **taux-de-change**: Exchange rates DGFIP
 
-## Key DSFR Components
+## DSFR CSS Classes
 
-```css
-/* Tables */
-.fr-table, .fr-table--bordered, .fr-table--no-scroll
+- **Tables**: `.fr-table`, `.fr-table--bordered`, `.fr-table--no-scroll`
+- **Cards**: `.fr-card`, `.fr-card__body`, `.fr-card__title`
+- **Forms**: `.fr-search-bar`, `.fr-input`, `.fr-select`, `.fr-btn`
+- **Layout**: `.fr-container`, `.fr-grid-row`, `.fr-col-*`
 
-/* Cards */
-.fr-card, .fr-card__body, .fr-card__title, .fr-card__desc
-
-/* Forms */
-.fr-search-bar, .fr-input, .fr-select, .fr-btn
-
-/* Layout */
-.fr-container, .fr-grid-row, .fr-col-*
-```
-
-## CSS/JS Loading Order (Critical)
+## Required Asset Loading Order
 
 ```html
-<!-- CSS Order -->
-1. <link rel="stylesheet" href="ods-widgets.css">
-2. <link rel="stylesheet" href="@gouvfr/dsfr.min.css">
-3. <link rel="stylesheet" href="custom.css">
+<!-- CSS -->
+<link rel="stylesheet" href="ods-widgets.css">
+<link rel="stylesheet" href="@gouvfr/dsfr.min.css">
+<link rel="stylesheet" href="custom.css">
 
-<!-- JS Order -->
-1. <script src="angular.min.js"></script>
-2. <script src="angular-sanitize.min.js"></script>
-3. <script src="ods-widgets.js"></script>
-4. <script src="@gouvfr/dsfr.module.min.js"></script>
+<!-- JS -->
+<script src="angular.min.js"></script>
+<script src="angular-sanitize.min.js"></script>  
+<script src="ods-widgets.js"></script>
+<script src="@gouvfr/dsfr.module.min.js"></script>
 ```
 
-## Agent Usage (Task Command)
+## Agent Automation
 
-| Agent | Purpose | Usage |
-|-------|---------|-------|
-| **widget-explorer** | Analyze ODS widgets | `Task: widget-explorer "Analyser widgets ODS"` |
-| **widget-generator** | Generate DSFR widgets | `Task: widget-generator "Créer [type] pour [dataset]"` |
-| **dsfr-validator** | Validate compliance | `Task: dsfr-validator "Valider [file].html"` |
-| **migration-assistant** | Batch migration | `Task: migration-assistant "Migration batch widgets"` |
+Use Task command with agent name:
+- **widget-explorer**: Analyze ODS widgets
+- **widget-generator**: Generate DSFR widgets  
+- **dsfr-validator**: Validate compliance
+- **migration-assistant**: Batch migration
 
-## EPCT Workflow
+Example: `Task: widget-generator "Créer table pour signalconso"`
 
-```bash
-# For complex tasks, use the structured workflow
-/epct [task description]
+## EPCT Workflow (Complex Tasks)
 
-# Manual workflow
-1. Explorer: Analyze codebase with parallel agents
-2. Planifier: Create detailed implementation plan
-3. Coder: Implement following project conventions
-4. Tester: Validate DSFR/RGAA compliance
-```
+Use `/epct [task]` for structured multi-step tasks:
+1. **Explorer**: Parallel codebase analysis
+2. **Planifier**: Implementation planning
+3. **Coder**: Convention-aware implementation
+4. **Tester**: DSFR/RGAA validation
 
-## Critical Rules
+## Critical Implementation Rules
 
-### File Handling
-- **ALWAYS iterate on current file** until task is complete
-- **NEVER create new files** unless explicitly requested
-- **Use Edit/MultiEdit** for progressive improvements
+### File Management
+- Iterate on existing files (Edit/MultiEdit tools)
+- Create new files only when explicitly requested
+- Preserve widget identification comments
 
-### DSFR Compliance
-- **NO emojis in HTML titles** (h1, h2, h3) - DSFR strict rule
-- **Validate all CSS classes** via MCP DSFR
-- **RGAA AA accessibility** mandatory
-- **Semantic HTML5** structure required
+### DSFR Compliance Requirements
+- NO emojis in HTML headings (h1-h6)
+- Validate CSS classes with mcp__dsfr-mcp__validate_dsfr_html
+- RGAA AA accessibility mandatory
+- Semantic HTML5 structure
 
-### Communication
-- Respond in French
-- No emojis in responses
-- Concise, technical communication
-
-## Testing & Validation
+### Testing Commands
 
 ```bash
-# Test specific widget
-node tests/validate-dsfr.js examples/[widget].html
+# Validate single widget
+node tests/validate-dsfr.js [file]
 
-# Run all tests
+# Run test suite
 npm test
 
-# Browser testing with Playwright
-mcp__playwright__test file:"tests/playwright/test-widgets.spec.js"
-
-# Security scan
-mcp__semgrep__scan file:"examples/[widget].html"
-
-# Manual accessibility check
+# Manual checks
 - Keyboard navigation (Tab, Enter, Space)
-- Screen reader compatibility (NVDA/JAWS)
+- Screen reader compatibility
 - Color contrast AA (4.5:1 minimum)
 ```
 
-## Enhanced Workflow with All MCPs
-
-```bash
-# 1. Plan the task
-mcp__sequential-thinking__sequentialthinking thought:"Migrate [widget] to DSFR" nextThoughtNeeded:true thoughtNumber:1 totalThoughts:5
-
-# 2. Check previous patterns
-mcp__basic-memory__create_entities entities:[{name:"widget-pattern", entityType:"Pattern", observations:["Previous solutions"]}]
-
-# 3. Generate widget
-mcp__ods-widgets__create_widget type:"[type]" dataset:"[dataset]"
-
-# 4. Validate
-mcp__dsfr-mcp__validate_dsfr_html html_code:"..."
-
-# 5. Security check (if available)
-# mcp__semgrep__scan file:"examples/[widget].html"
-
-# 6. Test in browser (if available)
-# mcp__playwright__test file:"tests/[widget].spec.js"
-
-# 7. Save pattern and create relations
-mcp__basic-memory__create_entities entities:[{name:"[widget]-solution", entityType:"Solution", observations:["[pattern]"]}]
-mcp__knowledge-graph__create_relations relations:[{from:"[widget]", to:"dsfr-component", relationType:"transforms_to"}]
-
-# 8. Commit (if git available) or create issue
-# mcp__git__commit message:"feat: [widget] migration"
-mcp__github__create_issue owner:"[owner]" repo:"[repo]" title:"Migration [widget]" body:"Widget migré avec succès"
-```
-
-## Workflows Intelligents avec Agents et MCP
-
-### Migration Simple avec MCP
-```bash
-# Un widget avec orchestration MCP
-Task: widget-generator "Créer table DSFR pour signalconso"
-# Active automatiquement:
-# - sequential-thinking pour planification
-# - basic-memory pour patterns
-# - knowledge-graph pour relations
-# - dsfr-mcp pour validation
-```
-
-### Migration Complexe avec Orchestration
-```bash
-# Dashboard complet
-Task: migration-assistant "Créer dashboard SignalConso avec tous MCP"
-# Orchestre:
-# - Explorer avec memory
-# - Generator avec context7
-# - Validator avec tests
-# - Assistant avec github
-```
-
-### EPCT avec MCP Intégrés
-```bash
-/epct "Migrer widget complexe avec mémorisation"
-# Explorer: Analyse et mémorise patterns
-# Planifier: Sequential-thinking optimise
-# Coder: Generator avec patterns sauvés
-# Tester: Validator avec tous tests
-```
 
 ## Troubleshooting
 
-### MCP Servers Not Connected
+### MCP Server Issues
 ```bash
-# Check configuration
-cat .mcp.json
-
-# Test servers directly
-node mcp-dsfr/src/index.js
-node mcp-ods-widgets/server.js
-
-# Restart Claude
-exit && claude
+cat .mcp.json                      # Check configuration
+node mcp-dsfr/src/index.js         # Test DSFR server
+node mcp-ods-widgets/server.js     # Test ODS server
 ```
 
-### Widget Not Displaying
-1. Check console for errors
-2. Verify dataset connection to data.economie.gouv.fr
-3. Validate HTML structure with DSFR validator
-4. Check CSS/JS loading order
+### Widget Display Problems
+- Check browser console for errors
+- Verify data.economie.gouv.fr connection
+- Validate HTML with `mcp__dsfr-mcp__validate_dsfr_html`
+- Confirm CSS/JS loading order
 
-### Performance Issues
-- Enable widget caching in production
-- Use pagination for large datasets
-- Implement virtual scrolling for tables >1000 rows
+## Key Files
 
-## Key Files Reference
-
-| File | Purpose |
-|------|---------|
-| `examples/signalconso-dashboard-dsfr.html` | Complete dashboard example |
-| `mcp-ods-widgets/templates/*.html` | Widget templates |
-| `mcp-dsfr/docs/mappings/ods-to-dsfr.json` | Component mappings |
-| `.mcp.json` | MCP server configuration (11 servers) |
-| `MCP_USAGE_GUIDE.md` | Detailed guide for all MCP servers |
-| `AGENTS_ORCHESTRATION.md` | Agent coordination guide |
-| `tests/playwright/test-widgets.spec.js` | Browser automation tests |
-| `.semgrep.yml` | Security rules configuration |
-| `.gitmessage` | Git commit template |
-
----
-*Version 4.1 - Enhanced with 11 MCP servers for professional development*
+- **examples/signalconso-dashboard-dsfr.html**: Complete dashboard reference
+- **tests/validate-dsfr.js**: DSFR validation tool
+- **.mcp.json**: MCP server configuration (11 servers)
+- **setup.sh**: Installation script
