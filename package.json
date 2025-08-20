@@ -8,6 +8,8 @@
     "test": "node tests/run-tests.js",
     "validate": "node tests/validate-dsfr.js",
     "serve": "python3 -m http.server 8000",
+    "serve:utf8": "python3 serve-utf8.py",
+    "fix:encoding": "python3 fix-encoding.py",
     "install:mcp": "./install-mcp-complete.sh",
     "check:mcp": "npm list -g --depth=0 | grep -E '(mcp|modelcontextprotocol|playwright|upstash|progress)'",
     "docker:build": "docker build -t dsfr-mcp-server /Users/alex/Desktop/MCP-DSFR",

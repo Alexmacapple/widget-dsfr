@@ -2,8 +2,9 @@
 <html lang="fr" data-fr-theme="light">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget graphique en aires DSFR - Évolution cumulative des signalements SignalConso">
+    <meta name="description" content="Widget graphique en aires DSFR - ï¿½volution cumulative des signalements SignalConso">
     <title>Graphique en aires DSFR - SignalConso</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -21,23 +22,23 @@
     </style>
 </head>
 <body>
-    <!-- DÉBUT ZONE WIDGET CHART-AREA-001 -->
+    <!-- Dï¿½BUT ZONE WIDGET CHART-AREA-001 -->
     <div id="widget-chart-area-001" class="fr-container fr-py-3w">
         <div class="fr-grid-row">
             <div class="fr-col-12">
                 <div class="fr-card">
                     <div class="fr-card__body">
-                        <h2 class="fr-h4">Évolution cumulative par catégories</h2>
-                        <p class="fr-text--sm">Visualisation des tendances par catégorie sur 12 mois</p>
+                        <h2 class="fr-h4">ï¿½volution cumulative par catï¿½gories</h2>
+                        <p class="fr-text--sm">Visualisation des tendances par catï¿½gorie sur 12 mois</p>
                         
-                        <!-- Contrôles du graphique -->
+                        <!-- Contrï¿½les du graphique -->
                         <div class="chart-controls">
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
                                         <input type="checkbox" class="fr-toggle__input" id="toggle-stacked" checked onchange="toggleStacked()">
                                         <label class="fr-toggle__label" for="toggle-stacked">
-                                            Aires empilées
+                                            Aires empilï¿½es
                                         </label>
                                     </div>
                                 </div>
@@ -54,7 +55,7 @@
                         
                         <!-- Graphique -->
                         <div class="chart-container">
-                            <canvas id="areaChart" role="img" aria-label="Graphique en aires montrant l'évolution cumulative"></canvas>
+                            <canvas id="areaChart" role="img" aria-label="Graphique en aires montrant l'ï¿½volution cumulative"></canvas>
                         </div>
                         
                         <!-- Boutons d'export -->
@@ -63,13 +64,13 @@
                                 Exporter en PNG
                             </button>
                             <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
-                                Exporter les données (CSV)
+                                Exporter les donnï¿½es (CSV)
                             </button>
                         </div>
                         
-                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <!-- Tableau de donnï¿½es alternatif (accessibilitï¿½) -->
                         <table class="fr-table data-table" id="data-table">
-                            <caption>Données du graphique : Évolution par catégories</caption>
+                            <caption>Donnï¿½es du graphique : ï¿½volution par catï¿½gories</caption>
                             <thead>
                                 <tr>
                                     <th scope="col">Mois</th>
@@ -80,7 +81,7 @@
                                 </tr>
                             </thead>
                             <tbody id="table-body">
-                                <!-- Les données seront insérées ici -->
+                                <!-- Les donnï¿½es seront insï¿½rï¿½es ici -->
                             </tbody>
                         </table>
                     </div>
@@ -98,8 +99,8 @@
             warning: 'rgba(179, 64, 0, 0.6)'
         };
         
-        // Données simulées
-        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        // Donnï¿½es simulï¿½es
+        const months = ['Jan', 'Fï¿½v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoï¿½', 'Sep', 'Oct', 'Nov', 'Dï¿½c'];
         const commerceData = [1200, 1400, 1100, 1600, 1800, 2000, 2200, 2100, 1900, 2300, 2500, 2700];
         const servicesData = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
         const transportData = [400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950];
@@ -185,14 +186,14 @@
         const ctx = document.getElementById('areaChart').getContext('2d');
         const myChart = new Chart(ctx, config);
         
-        // Basculer empilé/non empilé
+        // Basculer empilï¿½/non empilï¿½
         function toggleStacked() {
             const isStacked = document.getElementById('toggle-stacked').checked;
             myChart.options.scales.y.stacked = isStacked;
             myChart.update();
         }
         
-        // Mise à jour du tableau
+        // Mise ï¿½ jour du tableau
         function updateDataTable() {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';

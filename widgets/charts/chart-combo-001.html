@@ -2,9 +2,10 @@
 <html lang="fr" data-fr-theme="light">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget graphique combiné DSFR - Analyse croisée ligne/barres SignalConso">
-    <title>Graphique combiné DSFR - SignalConso</title>
+    <meta name="description" content="Widget graphique combinï¿½ DSFR - Analyse croisï¿½e ligne/barres SignalConso">
+    <title>Graphique combinï¿½ DSFR - SignalConso</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -18,18 +19,18 @@
     </style>
 </head>
 <body>
-    <!-- DÉBUT ZONE WIDGET CHART-COMBO-001 -->
+    <!-- Dï¿½BUT ZONE WIDGET CHART-COMBO-001 -->
     <div id="widget-chart-combo-001" class="fr-container fr-py-3w">
         <div class="fr-grid-row">
             <div class="fr-col-12">
                 <div class="fr-card">
                     <div class="fr-card__body">
-                        <h2 class="fr-h4">Analyse combinée volume et satisfaction</h2>
+                        <h2 class="fr-h4">Analyse combinï¿½e volume et satisfaction</h2>
                         <p class="fr-text--sm">Volume de signalements (barres) vs Taux de satisfaction (ligne)</p>
                         
                         <!-- Graphique -->
                         <div class="chart-container">
-                            <canvas id="comboChart" role="img" aria-label="Graphique combiné ligne et barres"></canvas>
+                            <canvas id="comboChart" role="img" aria-label="Graphique combinï¿½ ligne et barres"></canvas>
                         </div>
                         
                         <!-- Boutons d'export -->
@@ -39,9 +40,9 @@
                             </button>
                         </div>
                         
-                        <!-- Légende -->
+                        <!-- Lï¿½gende -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">
-                            <p>Les barres représentent le volume de signalements, la ligne indique le taux de satisfaction mensuel.</p>
+                            <p>Les barres reprï¿½sentent le volume de signalements, la ligne indique le taux de satisfaction mensuel.</p>
                         </div>
                     </div>
                 </div>
@@ -51,8 +52,8 @@
     <!-- FIN ZONE WIDGET CHART-COMBO-001 -->
     
     <script>
-        // Données
-        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        // Donnï¿½es
+        const months = ['Jan', 'Fï¿½v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoï¿½', 'Sep', 'Oct', 'Nov', 'Dï¿½c'];
         const volumeData = [2400, 2600, 2100, 3100, 3500, 3900, 4200, 4100, 3700, 4500, 4900, 5300];
         const satisfactionData = [72, 74, 71, 75, 78, 80, 82, 81, 79, 83, 85, 87];
         
