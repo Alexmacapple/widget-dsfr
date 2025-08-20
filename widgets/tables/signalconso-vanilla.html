@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Table SignalConso DSFR - Sans ODS Widgets">
+    <title>Table SignalConso - Version JavaScript Vanilla</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+    
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+        .table-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 2rem 0;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-badge.NA { background: #e5e5e5; color: #666; }
+        .status-badge.NonConsulte { background: #ffe9e6; color: #ce0500; }
+        .status-badge.PromesseAction { background: #d4f4dd; color: #18753c; }
+        .status-badge.Infonde { background: #fff4e6; color: #b34000; }
+        .export-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET SIGNALCONSO-VANILLA -->
+    <div id="widget-signalconso-vanilla" class="fr-container fr-py-3w">
+        
+        <h1 class="fr-h3">Signalements consommateurs</h1>
+        <p class="fr-text--sm">Données en temps réel depuis data.economie.gouv.fr</p>
+        
+        <!-- Statistiques -->
+        <div class="fr-callout fr-my-3w">
+            <h3 class="fr-callout__title">Statistiques</h3>
+            <p class="fr-callout__text">
+                Total des signalements : <strong id="total-count">Chargement...</strong>
+            </p>
+        </div>
+        
+        <!-- Filtres -->
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+            <div class="fr-col-12 fr-col-md-3">
+                <div class="fr-select-group">
+                    <label class="fr-label" for="filter-category">Catégorie</label>
+                    <select class="fr-select" id="filter-category">
+                        <option value="">Toutes les catégories</option>
+                        <option value="AchatInternet">Achat Internet</option>
+                        <option value="AchatMagasinInternet">Achat Magasin/Internet</option>
+                        <option value="TelephonieFaiMedias">Téléphonie/FAI/Médias</option>
+                        <option value="TravauxRenovations">Travaux/Rénovations</option>
+                        <option value="EauGazElectricite">Eau/Gaz/Électricité</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="fr-col-12 fr-col-md-3">
+                <div class="fr-select-group">
+                    <label class="fr-label" for="filter-status">Statut</label>
+                    <select class="fr-select" id="filter-status">
+                        <option value="">Tous les statuts</option>
+                        <option value="NA">Non applicable</option>
+                        <option value="NonConsulte">Non consulté</option>
+                        <option value="PromesseAction">Promesse d'action</option>
+                        <option value="Infonde">Infondé</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="fr-col-12 fr-col-md-3">
+                <div class="fr-select-group">
+                    <label class="fr-label" for="filter-region">Région</label>
+                    <select class="fr-select" id="filter-region">
+                        <option value="">Toutes les régions</option>
+                        <option value="Île-de-France">Île-de-France</option>
+                        <option value="Provence-Alpes-Côte d'Azur">PACA</option>
+                        <option value="Auvergne-Rhône-Alpes">Auvergne-Rhône-Alpes</option>
+                        <option value="Nouvelle-Aquitaine">Nouvelle-Aquitaine</option>
+                        <option value="Occitanie">Occitanie</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="fr-col-12 fr-col-md-3">
+                <div class="fr-select-group">
+                    <label class="fr-label" for="rows-per-page">Lignes par page</label>
+                    <select class="fr-select" id="rows-per-page">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boutons d'export -->
+        <div class="export-controls">
+            <a class="fr-btn fr-btn--secondary fr-btn--sm"
+               href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=csv"
+               download="signalconso.csv">
+                Exporter CSV
+            </a>
+            <a class="fr-btn fr-btn--secondary fr-btn--sm"
+               href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=xls"
+               download="signalconso.xls">
+                Exporter Excel
+            </a>
+            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="window.print()">
+                Imprimer
+            </button>
+        </div>
+        
+        <!-- Table des données -->
+        <div class="table-container">
+            <table class="fr-table fr-table--bordered" id="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date création</th>
+                        <th scope="col">Catégorie</th>
+                        <th scope="col">Département</th>
+                        <th scope="col">Région</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Tags</th>
+                        <th scope="col">Transmis</th>
+                        <th scope="col">Lu</th>
+                        <th scope="col">Réponse</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="9" class="loading">Chargement des données...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination" style="display: none;">
+            <ul class="fr-pagination__list">
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--first" 
+                       id="first-page" href="#" onclick="goToFirstPage(); return false;">
+                        Première page
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" 
+                       id="prev-page" href="#" onclick="goToPrevPage(); return false;">
+                        Page précédente
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-1" href="#" onclick="goToPage(1); return false;">1</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-2" href="#" onclick="goToPage(2); return false;">2</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-3" href="#" onclick="goToPage(3); return false;">3</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-4" href="#" onclick="goToPage(4); return false;">4</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-5" href="#" onclick="goToPage(5); return false;">5</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-displayed-lg" id="dots">...</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label" 
+                       id="next-page" href="#" onclick="goToNextPage(); return false;">
+                        Page suivante
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--last" 
+                       id="last-page" href="#" onclick="goToLastPage(); return false;">
+                        Dernière page
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <!-- FIN ZONE WIDGET SIGNALCONSO-VANILLA -->
+    
+    <!-- Script DSFR -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
+    
+    <!-- Script JavaScript Vanilla pour charger les données -->
+    <script>
+        // Configuration
+        let currentPage = 0;
+        let rowsPerPage = 20;
+        let totalCount = 0;
+        let currentFilters = {};
+        
+        // Fonction pour construire l'URL de l'API
+        function buildApiUrl() {
+            let url = 'https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso';
+            url += '&rows=' + rowsPerPage;
+            url += '&start=' + (currentPage * rowsPerPage);
+            url += '&sort=creationdate';
+            
+            // Ajouter les filtres
+            if (currentFilters.category) {
+                url += '&refine.category=' + encodeURIComponent(currentFilters.category);
+            }
+            if (currentFilters.status) {
+                url += '&refine.status=' + encodeURIComponent(currentFilters.status);
+            }
+            if (currentFilters.region) {
+                url += '&refine.reg_name=' + encodeURIComponent(currentFilters.region);
+            }
+            
+            return url;
+        }
+        
+        // Fonction pour charger les données
+        async function loadData() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '<tr><td colspan="9" class="loading">Chargement...</td></tr>';
+            
+            try {
+                const url = buildApiUrl();
+                console.log('🔗 Fetching URL:', url);
+                
+                const response = await fetch(url);
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📊 Data received:', data);
+                console.log('📌 Number of records:', data.records ? data.records.length : 0);
+                console.log('📌 First record:', data.records ? data.records[0] : 'No records');
+                
+                // Mettre à jour le total
+                totalCount = data.nhits;
+                document.getElementById('total-count').textContent = totalCount.toLocaleString('fr-FR');
+                
+                // Vider le tableau
+                tableBody.innerHTML = '';
+                
+                // Remplir avec les nouvelles données
+                if (data.records && data.records.length > 0) {
+                    data.records.forEach(record => {
+                        const fields = record.fields || {};
+                        const row = document.createElement('tr');
+                        
+                        // Formater la date
+                        let dateStr = 'N/A';
+                        if (fields.creationdate) {
+                            const date = new Date(fields.creationdate);
+                            dateStr = date.toLocaleDateString('fr-FR');
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${dateStr}</td>
+                            <td><span class="fr-badge fr-badge--sm">${fields.category || 'N/A'}</span></td>
+                            <td>${fields.dep_name || 'N/A'} (${fields.dep_code || 'N/A'})</td>
+                            <td>${fields.reg_name || 'N/A'}</td>
+                            <td><span class="status-badge ${fields.status || 'NA'}">${fields.status || 'N/A'}</span></td>
+                            <td>${fields.tags || '-'}</td>
+                            <td>${fields.signalement_transmis == 1 ? '✓' : '✗'}</td>
+                            <td>${fields.signalement_lu == 1 ? '✓' : '✗'}</td>
+                            <td>${fields.signalement_reponse == 1 ? '✓' : '✗'}</td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    console.log('⚠️ No records found in response');
+                    tableBody.innerHTML = '<tr><td colspan="9">Aucune donnée trouvée</td></tr>';
+                }
+                
+                // Mettre à jour la pagination
+                updatePagination();
+                
+            } catch (error) {
+                console.error('❌ Erreur lors du chargement des données:', error);
+                console.error('Stack trace:', error.stack);
+                tableBody.innerHTML = '<tr><td colspan="9" style="color: red;">Erreur de chargement: ' + error.message + '</td></tr>';
+            }
+        }
+        
+        // Fonction pour mettre à jour la pagination
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(totalCount / rowsPerPage);
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'block';
+                
+                // Cacher/afficher les boutons first/last
+                document.getElementById('first-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('prev-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('next-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                document.getElementById('last-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                
+                // Mettre à jour les numéros de page
+                const startPage = Math.max(0, currentPage - 2);
+                const endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                for (let i = 1; i <= 5; i++) {
+                    const pageLink = document.getElementById('page-' + i);
+                    const pageNum = startPage + i;
+                    
+                    if (pageNum <= totalPages) {
+                        pageLink.style.display = '';
+                        pageLink.textContent = pageNum;
+                        pageLink.setAttribute('data-page', pageNum - 1);
+                        
+                        if (pageNum - 1 === currentPage) {
+                            pageLink.setAttribute('aria-current', 'page');
+                            pageLink.classList.add('fr-pagination__link--active');
+                        } else {
+                            pageLink.removeAttribute('aria-current');
+                            pageLink.classList.remove('fr-pagination__link--active');
+                        }
+                    } else {
+                        pageLink.style.display = 'none';
+                    }
+                }
+                
+                // Afficher les points si nécessaire
+                document.getElementById('dots').style.display = endPage < totalPages - 1 ? '' : 'none';
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+        
+        // Event listeners pour les filtres
+        document.getElementById('filter-category').addEventListener('change', function(e) {
+            currentFilters.category = e.target.value;
+            currentPage = 0;
+            loadData();
+        });
+        
+        document.getElementById('filter-status').addEventListener('change', function(e) {
+            currentFilters.status = e.target.value;
+            currentPage = 0;
+            loadData();
+        });
+        
+        document.getElementById('filter-region').addEventListener('change', function(e) {
+            currentFilters.region = e.target.value;
+            currentPage = 0;
+            loadData();
+        });
+        
+        document.getElementById('rows-per-page').addEventListener('change', function(e) {
+            rowsPerPage = parseInt(e.target.value);
+            currentPage = 0;
+            loadData();
+        });
+        
+        // Fonctions de navigation
+        function goToFirstPage() {
+            currentPage = 0;
+            loadData();
+        }
+        
+        function goToLastPage() {
+            const totalPages = Math.ceil(totalCount / rowsPerPage);
+            currentPage = totalPages - 1;
+            loadData();
+        }
+        
+        function goToPrevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                loadData();
+            }
+        }
+        
+        function goToNextPage() {
+            const totalPages = Math.ceil(totalCount / rowsPerPage);
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                loadData();
+            }
+        }
+        
+        function goToPage(pageNum) {
+            const page = parseInt(event.target.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                loadData();
+            }
+        }
+        
+        // Charger les données au démarrage
+        console.log('🚀 Starting application...');
+        console.log('📍 Current location:', window.location.href);
+        loadData();
+    </script>
+</body>
+</html>

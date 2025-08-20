@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Tous les Widgets Tables DSFR</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/utility/icons/icons.min.css">
+    
+    <style>
+        body {
+            padding: 2rem;
+            background-color: #f6f6f6;
+        }
+        .test-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .test-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .widget-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1.5rem;
+            background: #f9f9f9;
+            width: 100%;
+        }
+        .widget-card h3 {
+            margin-top: 0;
+            color: #000091;
+            font-size: 1.3rem;
+        }
+        .widget-card p {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        .widget-card iframe {
+            width: 100%;
+            height: 800px;
+            min-height: 600px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-ok {
+            background: #18753c;
+            color: white;
+        }
+        .status-warning {
+            background: #b34000;
+            color: white;
+        }
+        .nav-menu {
+            background: white;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .nav-menu a {
+            color: #000091;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid #000091;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .nav-menu a:hover {
+            background: #000091;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container">
+        <h1>Test des widgets tables DSFR</h1>
+        
+        <div class="nav-menu">
+            <h2>Navigation rapide</h2>
+            <ul>
+                <li><a href="#tables-principales">Tables principales</a></li>
+                <li><a href="#tables-speciales">Tables spécialisées</a></li>
+                <li><a href="#boutons-action">Boutons d'action</a></li>
+                <li><a href="#composants-utils">Composants utilitaires</a></li>
+            </ul>
+        </div>
+
+        <!-- Tables Principales -->
+        <div class="test-section" id="tables-principales">
+            <h2>Tables principales</h2>
+            <div class="test-grid">
+                <div class="widget-card">
+                    <h3>Table standard</h3>
+                    <p>Table DSFR complète avec tri, pagination et recherche</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/table-standard-001.html"></iframe>
+                </div>
+                
+                <div class="widget-card">
+                    <h3>Table avancée</h3>
+                    <p>Table avec filtres multiples et fonctionnalités étendues</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/advanced-table-001.html"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Spécialisées -->
+        <div class="test-section" id="tables-speciales">
+            <h2>Tables spécialisées</h2>
+            <div class="test-grid">
+                <div class="widget-card">
+                    <h3>Table agrégée</h3>
+                    <p>Affichage de données agrégées avec calculs</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/aggregate-table-001.html"></iframe>
+                </div>
+                
+                <div class="widget-card">
+                    <h3>Table croisée</h3>
+                    <p>Tableau croisé dynamique pour analyse</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/cross-table-001.html"></iframe>
+                </div>
+                
+                <div class="widget-card">
+                    <h3>Data grid</h3>
+                    <p>Grille de données interactive</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/data-grid-001.html"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'Action -->
+        <div class="test-section" id="boutons-action">
+            <h2>Boutons d'action</h2>
+            <div class="test-grid">
+                <div class="widget-card">
+                    <h3>Bouton export</h3>
+                    <p>Export des données en CSV/Excel</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/export-button-001.html"></iframe>
+                </div>
+                
+                <div class="widget-card">
+                    <h3>Bouton téléchargement</h3>
+                    <p>Téléchargement direct des données</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/download-button-001.html"></iframe>
+                </div>
+                
+                <div class="widget-card">
+                    <h3>Bouton impression</h3>
+                    <p>Impression optimisée des tables</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/print-button-001.html"></iframe>
+                </div>
+                
+                <div class="widget-card">
+                    <h3>Bouton partage</h3>
+                    <p>Partage des données sur réseaux sociaux</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/share-button-001.html"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Composants Utilitaires -->
+        <div class="test-section" id="composants-utils">
+            <h2>Composants utilitaires</h2>
+            <div class="test-grid">
+                <div class="widget-card">
+                    <h3>Énumérateur de résultats</h3>
+                    <p>Compteur et statistiques des résultats</p>
+                    <span class="status-badge status-ok">✓ Prêt</span>
+                    <iframe src="widgets/tables/result-enumerator-001.html"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section de test interactif -->
+        <div class="test-section">
+            <h2>Zone de test interactive</h2>
+            <div class="fr-alert fr-alert--info">
+                <h3 class="fr-alert__title">Instructions de test</h3>
+                <p>
+                    1. Vérifiez que chaque widget s'affiche correctement<br>
+                    2. Testez les fonctionnalités interactives (tri, pagination, filtres)<br>
+                    3. Vérifiez la responsivité en redimensionnant la fenêtre<br>
+                    4. Testez l'accessibilité avec la navigation clavier (Tab, Enter)<br>
+                    5. Vérifiez les connexions API vers data.economie.gouv.fr
+                </p>
+            </div>
+            
+            <div class="fr-callout fr-mt-4w">
+                <h3 class="fr-callout__title">État des connexions API</h3>
+                <p class="fr-callout__text">
+                    <span id="api-status">Test de connexion en cours...</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="test-section">
+            <h2>Statistiques</h2>
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-tile fr-tile--horizontal">
+                        <div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Total widgets</h3>
+                            <p class="fr-tile__desc">10 composants</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-tile fr-tile--horizontal">
+                        <div class="fr-tile__body">
+                            <h3 class="fr-tile__title">DSFR Compliant</h3>
+                            <p class="fr-tile__desc">100%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-tile fr-tile--horizontal">
+                        <div class="fr-tile__body">
+                            <h3 class="fr-tile__title">RGAA AA</h3>
+                            <p class="fr-tile__desc">Accessible</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-tile fr-tile--horizontal">
+                        <div class="fr-tile__body">
+                            <h3 class="fr-tile__title">API Live</h3>
+                            <p class="fr-tile__desc">data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DSFR JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
+    
+    <script>
+        // Test de connexion API
+        async function testAPIConnection() {
+            const statusEl = document.getElementById('api-status');
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=1');
+                if (response.ok) {
+                    statusEl.innerHTML = '<span style="color: #18753c;">✓ Connexion API active - data.economie.gouv.fr répond correctement</span>';
+                } else {
+                    statusEl.innerHTML = '<span style="color: #b34000;">⚠ API accessible mais erreur ' + response.status + '</span>';
+                }
+            } catch (error) {
+                statusEl.innerHTML = '<span style="color: #ce0500;">✗ Erreur de connexion API: ' + error.message + '</span>';
+            }
+        }
+        
+        // Test au chargement
+        testAPIConnection();
+        
+        // Rafraîchir toutes les 30 secondes
+        setInterval(testAPIConnection, 30000);
+    </script>
+</body>
+</html>

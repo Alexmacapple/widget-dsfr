@@ -31,27 +31,107 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        .grid-stats {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: #f6f6f6;
+        
+        /* Styles pour la modale style DSFR */
+        dialog {
+            padding: 0;
+            border: none;
             border-radius: 0.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 800px;
         }
-        .stat-item {
+        
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-wrapper {
+            background: white;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .modal-header-content {
             flex: 1;
-            text-align: center;
         }
-        .stat-value {
-            font-size: 2rem;
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
             font-weight: 700;
-            color: #000091;
+            color: #161616;
         }
-        .stat-label {
+        
+        .btn-close-modal {
+            background: white;
+            border: 2px solid #000091;
+            color: #000091;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-width: 2.5rem;
+            height: 2.5rem;
+        }
+        
+        .btn-close-modal:hover {
+            background: #000091;
+            color: white;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-info-card {
+            background: #f6f6f6;
+            padding: 1.25rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-info-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #161616;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .modal-field-group {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .modal-field-label {
             font-size: 0.875rem;
             color: #666;
-            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .modal-field-value {
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -62,18 +142,30 @@
         <p class="fr-text--sm">Affichage en grille avec interactions</p>
         
         <!-- Statistiques -->
-        <div class="grid-stats">
-            <div class="stat-item">
-                <div class="stat-value" id="total-records">-</div>
-                <div class="stat-label">Total</div>
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+            <div class="fr-col-4">
+                <div class="fr-tile fr-tile--horizontal">
+                    <div class="fr-tile__body">
+                        <h3 class="fr-tile__title">Total</h3>
+                        <p class="fr-tile__desc fr-text--bold fr-text--lg" id="total-records">-</p>
+                    </div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="filtered-records">-</div>
-                <div class="stat-label">Filtrés</div>
+            <div class="fr-col-4">
+                <div class="fr-tile fr-tile--horizontal">
+                    <div class="fr-tile__body">
+                        <h3 class="fr-tile__title">Filtrés</h3>
+                        <p class="fr-tile__desc fr-text--bold fr-text--lg" id="filtered-records">-</p>
+                    </div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" id="current-page-stat">1</div>
-                <div class="stat-label">Page</div>
+            <div class="fr-col-4">
+                <div class="fr-tile fr-tile--horizontal">
+                    <div class="fr-tile__body">
+                        <h3 class="fr-tile__title">Page</h3>
+                        <p class="fr-tile__desc fr-text--bold fr-text--lg" id="current-page-stat">1</p>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -127,6 +219,33 @@
         </nav>
     </div>
     <!-- FIN ZONE WIDGET DATA-GRID-001 -->
+    
+    <!-- Modale pour les détails -->
+    <dialog id="modal-details" role="dialog" aria-labelledby="modal-details-title">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2 id="modal-details-title" class="modal-title">
+                        Détails du signalement
+                    </h2>
+                </div>
+                <button class="btn-close-modal" 
+                        type="button"
+                        title="Fermer" 
+                        aria-label="Fermer la fenêtre"
+                        onclick="closeModal()">
+                    <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 10.586L16.95 5.636L18.364 7.05L13.414 12L18.364 16.95L16.95 18.364L12 13.414L7.05 18.364L5.636 16.95L10.586 12L5.636 7.05L7.05 5.636L12 10.586Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-details-content">
+                    <!-- Le contenu sera injecté ici -->
+                </div>
+            </div>
+        </div>
+    </dialog>
     
     <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
     <script>
@@ -252,7 +371,7 @@
                     <div class="fr-card__footer">
                         <ul class="fr-btns-group fr-btns-group--inline">
                             <li>
-                                <span class="fr-badge fr-badge--${statusColor}">${statusLabel}</span>
+                                <span class="fr-badge fr-badge--sm fr-badge--${statusColor}">${statusLabel}</span>
                             </li>
                             <li>
                                 <button class="fr-btn fr-btn--sm fr-btn--tertiary" onclick="viewDetails('${recordId}')">
@@ -272,7 +391,12 @@
                 'NA': 'grey',
                 'NonConsulte': 'error',
                 'PromesseAction': 'success',
-                'Infonde': 'warning'
+                'Infonde': 'warning',
+                'InformateurInterne': 'info',
+                'MalRenseigne': 'new',
+                'ConsulteEtReponse': 'success',
+                'ConsulteSansReponse': 'warning',
+                'ReponseInjustifiee': 'error'
             };
             return colors[status] || 'info';
         }
@@ -282,7 +406,12 @@
                 'NA': 'Non applicable',
                 'NonConsulte': 'Non consulté',
                 'PromesseAction': 'Promesse action',
-                'Infonde': 'Infondé'
+                'Infonde': 'Infondé',
+                'InformateurInterne': 'Informateur interne',
+                'MalRenseigne': 'Mal renseigné',
+                'ConsulteEtReponse': 'Consulté avec réponse',
+                'ConsulteSansReponse': 'Consulté sans réponse',
+                'ReponseInjustifiee': 'Réponse injustifiée'
             };
             return labels[status] || status || 'Inconnu';
         }
@@ -363,12 +492,155 @@
         }
         
         function viewDetails(recordId) {
+            console.log('viewDetails appelé avec recordId:', recordId);
             const record = allData.find(r => r.recordid === recordId);
+            console.log('Record trouvé:', record);
             if (record) {
                 const fields = record.fields;
-                alert(`Détails du signalement:\n\nID: ${recordId}\nCatégorie: ${fields.category}\nDépartement: ${fields.dep_name}\nRégion: ${fields.reg_name}\nStatut: ${fields.status}`);
+                const modalContent = document.getElementById('modal-details-content');
+                
+                // Création du contenu structuré style DSFR
+                modalContent.innerHTML = `
+                    <!-- Alert avec référence -->
+                    <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                        <p class="fr-alert__title">Référence du signalement</p>
+                        <p><code>${recordId}</code></p>
+                    </div>
+                    
+                    <!-- Informations principales -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Informations générales
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Date de création</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', { 
+                                        day: 'numeric', 
+                                        month: 'long', 
+                                        year: 'numeric' 
+                                    }) : 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Catégorie</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--info">${fields.category || 'Non catégorisé'}</span>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Statut actuel</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--${fields.status === 'PromesseAction' ? 'success' : fields.status === 'NonConsulte' ? 'error' : 'grey'}">
+                                        ${fields.status || 'NA'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Localisation -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Localisation
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Département</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.dep_name || 'Non renseigné'}</strong>
+                                    ${fields.dep_code ? ` <span class="fr-badge fr-badge--sm fr-badge--yellow-tournesol">${fields.dep_code}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Région</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.reg_name || 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- État du signalement -->
+                    <div class="fr-callout fr-callout--blue-ecume">
+                        <h3 class="fr-callout__title">
+                            État du traitement
+                        </h3>
+                        <ul class="fr-tags-group">
+                            <li>
+                                <p class="fr-tag ${fields.signalement_transmis == 1 ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                    ${fields.signalement_transmis == 1 ? '✓' : '✗'} Transmis
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_lu == 1 ? 'fr-tag--blue-ecume' : 'fr-tag--grey'}">
+                                    ${fields.signalement_lu == 1 ? '✓' : '✗'} Lu
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_reponse == 1 ? 'fr-tag--purple-glycine' : 'fr-tag--grey'}">
+                                    ${fields.signalement_reponse == 1 ? '✓' : '✗'} Réponse
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+                
+                // Ouvrir la modale
+                openModal();
             }
         }
+        
+        function openModal() {
+            const modal = document.getElementById('modal-details');
+            console.log('openModal appelé, modal trouvé:', modal);
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.showModal === 'function') {
+                        modal.showModal();
+                        console.log('Modal ouvert avec showModal()');
+                    } else {
+                        // Fallback pour les navigateurs qui ne supportent pas showModal
+                        modal.setAttribute('open', '');
+                        modal.style.display = 'block';
+                        console.log('Modal ouvert avec fallback');
+                    }
+                } catch (err) {
+                    console.error('Erreur ouverture modale:', err);
+                    modal.setAttribute('open', '');
+                    modal.style.display = 'block';
+                }
+            } else {
+                console.error('Element modal-details non trouvé!');
+            }
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.close === 'function') {
+                        modal.close();
+                    } else {
+                        // Fallback
+                        modal.removeAttribute('open');
+                        modal.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error('Erreur fermeture modale:', err);
+                    modal.removeAttribute('open');
+                    modal.style.display = 'none';
+                }
+            }
+        }
+        
+        // Rendre les fonctions globales
+        window.viewDetails = viewDetails;
+        window.closeModal = closeModal;
+        window.openModal = openModal;
         
         function showError() {
             const grid = document.getElementById('data-grid');

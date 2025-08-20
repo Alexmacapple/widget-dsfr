@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Diagnostic ODS</title>
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.css">
+    <style>
+        body { padding: 20px; font-family: sans-serif; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body ng-app="ods-widgets">
+    <h1>Diagnostic de connexion ODS Widgets</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Angular</h2>
+        <p>Angular version: <span class="info">{{ angular.version.full }}</span></p>
+        <p>Test binding: 2 + 2 = <span class="info">{{ 2 + 2 }}</span></p>
+        <p ng-init="testVar = 'Angular fonctionne!'">Variable test: <span class="success">{{ testVar }}</span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test API Direct (Fetch JavaScript)</h2>
+        <button onclick="testDirectAPI()">Tester l'API directement</button>
+        <pre id="api-result"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test ODS Context - SignalConso (data.economie.gouv.fr)</h2>
+        <ods-dataset-context context="ctx" 
+                           ctx-domain="data.economie.gouv.fr" 
+                           ctx-dataset="signalconso">
+            <div>
+                <p>Contexte initialisé: <span class="info">{{ ctx ? 'OUI' : 'NON' }}</span></p>
+                <p>Domain: <span class="info">{{ ctx.domain }}</span></p>
+                <p>Dataset: <span class="info">{{ ctx.dataset }}</span></p>
+                <p>Nombre de records: <span class="info">{{ ctx.nhits }}</span></p>
+                <p>Records présents: <span class="info">{{ ctx.records ? 'OUI' : 'NON' }}</span></p>
+                <p>Nombre de records chargés: <span class="info">{{ ctx.records.length }}</span></p>
+                
+                <h3>Premier enregistrement (si disponible):</h3>
+                <pre ng-if="ctx.records[0]">{{ ctx.records[0] | json }}</pre>
+                
+                <h3>Paramètres du contexte:</h3>
+                <pre>{{ ctx.parameters | json }}</pre>
+            </div>
+        </ods-dataset-context>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test avec dataset public OpenDataSoft</h2>
+        <ods-dataset-context context="test" 
+                           test-domain="public" 
+                           test-dataset="geonames-all-cities-with-a-population-1000">
+            <div>
+                <p>Test dataset public: <span class="info">{{ test.nhits }} villes</span></p>
+                <div ng-repeat="record in test.records | limitTo:3">
+                    <p>{{ record.fields.name }} - {{ record.fields.country }}</p>
+                </div>
+            </div>
+        </ods-dataset-context>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Test avec syntaxe alternative</h2>
+        <ods-dataset-context context="alt"
+                           alt-domain="data.economie.gouv.fr"
+                           alt-dataset="signalconso"
+                           alt-parameters="{'rows': 5}">
+            <ods-table context="alt"></ods-table>
+        </ods-dataset-context>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.js"></script>
+    
+    <script>
+        // Test direct de l'API
+        async function testDirectAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.textContent = 'Chargement...';
+            
+            try {
+                // Test 1: API v2.1
+                const url1 = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=1';
+                const response1 = await fetch(url1);
+                const data1 = await response1.json();
+                
+                let result = 'API v2.1:\n';
+                result += 'Status: ' + response1.status + '\n';
+                result += 'Total count: ' + (data1.total_count || 'N/A') + '\n\n';
+                
+                // Test 2: API v1.0
+                const url2 = 'https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1';
+                const response2 = await fetch(url2);
+                const data2 = await response2.json();
+                
+                result += 'API v1.0:\n';
+                result += 'Status: ' + response2.status + '\n';
+                result += 'nhits: ' + (data2.nhits || 'N/A') + '\n';
+                result += 'Records: ' + (data2.records ? data2.records.length : 0) + '\n\n';
+                
+                result += 'Données brutes v1.0:\n' + JSON.stringify(data2, null, 2);
+                
+                resultDiv.textContent = result;
+            } catch (error) {
+                resultDiv.textContent = 'Erreur: ' + error.message;
+                resultDiv.className = 'error';
+            }
+        }
+        
+        // Log pour debug
+        angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
+            $rootScope.$on('ods-widgets.context.error', function(event, error) {
+                console.error('ODS Context Error:', error);
+            });
+        }]);
+    </script>
+</body>
+</html>

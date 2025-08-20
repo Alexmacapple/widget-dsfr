@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple ODS SignalConso</title>
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+</head>
+<body ng-app="ods-widgets">
+    <div class="fr-container fr-my-5w">
+        <h1>Test de connexion ODS - SignalConso</h1>
+        
+        <ods-dataset-context 
+            context="signalconso"
+            signalconso-domain="data.economie.gouv.fr"
+            signalconso-dataset="signalconso"
+            signalconso-parameters="{'rows': 10}">
+            
+            <div class="fr-callout fr-my-3w">
+                <h3 class="fr-callout__title">Statistiques</h3>
+                <p class="fr-callout__text">
+                    Nombre total de signalements : <strong>{{ signalconso.nhits | number }}</strong>
+                </p>
+            </div>
+
+            <h2>Derniers signalements</h2>
+            
+            <table class="fr-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Catégorie</th>
+                        <th>Ville</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="record in signalconso.records">
+                        <td>{{ record.fields.date_creation | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ record.fields.categorie }}</td>
+                        <td>{{ record.fields.ville }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div ng-if="!signalconso.records || signalconso.records.length === 0" class="fr-alert fr-alert--info">
+                <p>Chargement des données en cours...</p>
+            </div>
+        </ods-dataset-context>
+    </div>
+
+    <!-- Scripts Angular et ODS Widgets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.js"></script>
+</body>
+</html>
