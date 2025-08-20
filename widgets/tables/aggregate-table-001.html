@@ -9,8 +9,12 @@
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .aggregate-section { margin-bottom: 2rem; }
         .aggregate-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .fr-table { width: 100% !important; }
+        .fr-table { width: 100% !important; border-collapse: collapse; }
         .fr-table table { width: 100% !important; }
+        .fr-table.fr-table--bordered th,
+        .fr-table.fr-table--bordered td {
+            border: 1px solid #ddd;
+        }
         .progress-bar {
             height: 8px;
             background: #e5e5e5;
@@ -86,7 +90,7 @@
 
         <!-- Table d'agrégation par catégorie -->
         <h2 class="fr-h5">Top 10 Catégories</h2>
-        <table class="fr-table" style="width: 100%; table-layout: fixed;">
+        <table class="fr-table fr-table--bordered" style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
                     <th style="width: 30%;">Catégorie</th>
@@ -107,7 +111,7 @@
 
         <!-- Table d'agrégation par région -->
         <h2 class="fr-h5 fr-mt-3w">Top 10 Régions</h2>
-        <table class="fr-table" style="width: 100%; table-layout: fixed;">
+        <table class="fr-table fr-table--bordered" style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
                     <th style="width: 25%;">Région</th>
@@ -128,7 +132,7 @@
 
         <!-- Table d'agrégation par statut -->
         <h2 class="fr-h5 fr-mt-3w">Répartition par statut</h2>
-        <table class="fr-table" style="width: 100%; table-layout: fixed;">
+        <table class="fr-table fr-table--bordered" style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
                     <th style="width: 25%;">Statut</th>

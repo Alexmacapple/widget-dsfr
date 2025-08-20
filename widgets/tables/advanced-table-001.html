@@ -8,7 +8,11 @@
     <style>
         body { overflow-x: hidden; }
         .table-container { overflow-x: hidden; overflow-y: hidden; margin: 2rem 0; }
-        .fr-table { table-layout: fixed; width: 100%; }
+        .fr-table { table-layout: fixed; width: 100%; border-collapse: collapse; }
+        .fr-table.fr-table--bordered th,
+        .fr-table.fr-table--bordered td {
+            border: 1px solid #ddd;
+        }
         .fr-table th, .fr-table td { 
             padding: 0.5rem; 
             word-break: break-word;

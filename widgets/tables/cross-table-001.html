@@ -12,7 +12,11 @@
     <style>
         body { margin: 0; font-family: Marianne, arial, sans-serif; overflow-x: hidden; }
         .table-container { overflow-x: auto; overflow-y: hidden; margin: 2rem 0; }
-        .table-container .fr-table { width: 100%; min-width: 100%; }
+        .table-container .fr-table { width: 100%; min-width: 100%; border-collapse: collapse; }
+        .fr-table.fr-table--bordered th,
+        .fr-table.fr-table--bordered td {
+            border: 1px solid #ddd;
+        }
         .heat-cell { position: relative; }
         .heat-bg { 
             position: absolute; 
