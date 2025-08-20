@@ -47,59 +47,134 @@
         .sort-arrow { cursor: pointer; user-select: none; }
         .sort-arrow:hover { color: #000091; }
         
-        /* Styles pour la modale DSFR */
+        /* Styles pour la modale style DSFR */
         dialog#modal-details {
-            padding: 0;
-            border: none;
-            border-radius: 0.5rem;
-            width: 90%;
-            max-width: 48rem;
-            max-height: 90vh;
-            background: white;
-            box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.3);
-        }
-        
-        dialog#modal-details::backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 0 0.5rem 0.5rem !important;
+            width: 95% !important;
+            max-width: 56rem !important;
+            max-height: 85vh !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            z-index: 99999 !important;
+            margin: 0 !important;
+            display: none;
         }
         
         dialog#modal-details[open] {
+            display: block !important;
+        }
+        
+        dialog#modal-details::backdrop {
+            background-color: rgba(22, 22, 22, 0.75) !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            z-index: 99998 !important;
+        }
+        
+        .modal-wrapper {
+            background: white;
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background: var(--background-contrast-grey, #e5e5e5);
+            padding: 0;
+            position: relative;
+            min-height: 4rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #000091;
+        }
+        
+        .modal-header-content {
+            padding: 1rem 3rem 1rem 2rem;
+            flex: 1;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            line-height: 1.5;
+            color: #161616;
+        }
+        
+        /* Bouton fermeture style DSFR */
+        .btn-close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 2.5rem;
+            height: 2.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: transparent;
+            border: 2px solid transparent;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         
-        .fr-modal__body {
-            background: white;
-            border-radius: 0.5rem;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
+        .btn-close-modal:hover {
+            background-color: rgba(0, 0, 145, 0.1);
+            border-color: #000091;
         }
         
-        .fr-modal__header {
-            position: relative;
-            padding: 0;
-            margin: 0;
-            height: 3rem;
+        .btn-close-modal:focus {
+            outline: 2px solid #0a76f6;
+            outline-offset: 2px;
         }
         
-        .fr-modal__content {
-            padding: 1rem 2rem 2rem 2rem;
-        }
-        
-        .fr-modal__title {
-            margin-top: 0;
+        /* Info cards dans la modale */
+        .modal-info-card {
+            background: var(--background-alt-grey, #f6f6f6);
+            padding: 1.5rem;
+            border-radius: 0.25rem;
             margin-bottom: 1.5rem;
-            line-height: 1.5;
+            border-left: 4px solid #000091;
         }
         
-        /* Bouton fermeture DSFR */
-        .fr-btn--close {
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 1;
+        .modal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .modal-field-group {
+            margin-bottom: 1rem;
+        }
+        
+        .modal-field-label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .modal-field-value {
+            font-size: 1rem;
+            color: #161616;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -347,30 +422,28 @@
             <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="clearSelection()">Annuler la sélection</button>
         </div>
         
-        <!-- Modale DSFR pour les détails -->
-        <dialog id="modal-details" class="fr-modal" role="dialog" aria-labelledby="modal-details-title">
-            <div class="fr-container fr-container--fluid fr-container-md">
-                <div class="fr-grid-row fr-grid-row--center">
-                    <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
-                        <div class="fr-modal__body">
-                            <div class="fr-modal__header">
-                                <button class="fr-btn--close fr-btn" 
-                                        type="button"
-                                        title="Fermer la fenêtre modale" 
-                                        aria-label="Fermer la fenêtre modale"
-                                        onclick="closeModal()">
-                                    Fermer
-                                </button>
-                            </div>
-                            <div class="fr-modal__content">
-                                <h1 id="modal-details-title" class="fr-modal__title">
-                                    Détails du signalement
-                                </h1>
-                                <div id="modal-details-content">
-                                    <!-- Le contenu sera injecté ici -->
-                                </div>
-                            </div>
-                        </div>
+        <!-- Modale pour les détails -->
+        <dialog id="modal-details" role="dialog" aria-labelledby="modal-details-title">
+            <div class="modal-wrapper">
+                <div class="modal-header">
+                    <div class="modal-header-content">
+                        <h2 id="modal-details-title" class="modal-title">
+                            Détails du signalement
+                        </h2>
+                    </div>
+                    <button class="btn-close-modal" 
+                            type="button"
+                            title="Fermer" 
+                            aria-label="Fermer la fenêtre"
+                            onclick="closeModal()">
+                        <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 10.586L16.95 5.636L18.364 7.05L13.414 12L18.364 16.95L16.95 18.364L12 13.414L7.05 18.364L5.636 16.95L10.586 12L5.636 7.05L7.05 5.636L12 10.586Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-details-content">
+                        <!-- Le contenu sera injecté ici -->
                     </div>
                 </div>
             </div>
@@ -535,7 +608,8 @@
                     </td>
                     <td>
                         <button class="fr-btn fr-btn--sm fr-btn--tertiary" 
-                                onclick="viewDetails('${record.recordid}')">
+                                data-recordid="${record.recordid}"
+                                onclick="viewDetails(this.getAttribute('data-recordid'))">
                             Détails
                         </button>
                     </td>
@@ -708,85 +782,99 @@
         }
         
         function viewDetails(recordId) {
+            console.log('viewDetails appelé avec recordId:', recordId);
             const record = allData.find(r => r.recordid === recordId);
+            console.log('Record trouvé:', record);
             if (record) {
                 const fields = record.fields;
                 const modal = document.getElementById('modal-details');
                 const modalContent = document.getElementById('modal-details-content');
                 
-                // Création du contenu structuré DSFR
+                // Création du contenu structuré style DSFR
                 modalContent.innerHTML = `
-                    <div class="fr-grid-row fr-grid-row--gutters">
-                        <div class="fr-col-12">
-                            <div class="fr-highlight">
-                                <p class="fr-text--sm fr-mb-0">Référence : <strong>${recordId}</strong></p>
+                    <!-- Alert avec référence -->
+                    <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                        <p class="fr-alert__title">Référence du signalement</p>
+                        <p><code>${recordId}</code></p>
+                    </div>
+                    
+                    <!-- Informations principales -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Informations générales
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Date de création</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', { 
+                                        day: 'numeric', 
+                                        month: 'long', 
+                                        year: 'numeric' 
+                                    }) : 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Catégorie</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--info">${fields.category || 'Non catégorisé'}</span>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Statut actuel</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--${fields.status === 'PromesseAction' ? 'success' : fields.status === 'NonConsulte' ? 'error' : 'grey'}">
+                                        ${fields.status || 'NA'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-                        <div class="fr-col-12 fr-col-sm-6">
-                            <p class="fr-text--bold fr-mb-1w">Informations générales</p>
-                            <dl class="fr-text--sm">
-                                <dt class="fr-text--regular">Date de création :</dt>
-                                <dd class="fr-mb-1v">${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Non renseignée'}</dd>
-                                
-                                <dt class="fr-text--regular">Catégorie :</dt>
-                                <dd class="fr-mb-1v"><span class="fr-badge">${fields.category || 'Non catégorisé'}</span></dd>
-                                
-                                <dt class="fr-text--regular">Statut :</dt>
-                                <dd class="fr-mb-1v"><span class="status-badge status-${fields.status}">${fields.status || 'NA'}</span></dd>
-                            </dl>
-                        </div>
-                        
-                        <div class="fr-col-12 fr-col-sm-6">
-                            <p class="fr-text--bold fr-mb-1w">Localisation</p>
-                            <dl class="fr-text--sm">
-                                <dt class="fr-text--regular">Département :</dt>
-                                <dd class="fr-mb-1v">${fields.dep_name || 'Non renseigné'} ${fields.dep_code ? `(${fields.dep_code})` : ''}</dd>
-                                
-                                <dt class="fr-text--regular">Région :</dt>
-                                <dd class="fr-mb-1v">${fields.reg_name || 'Non renseignée'}</dd>
-                            </dl>
+                    <!-- Localisation -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Localisation
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Département</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.dep_name || 'Non renseigné'}</strong>
+                                    ${fields.dep_code ? ` <span class="fr-badge fr-badge--sm fr-badge--yellow-tournesol">${fields.dep_code}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Région</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.reg_name || 'Non renseignée'}</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-                        <div class="fr-col-12">
-                            <p class="fr-text--bold fr-mb-1w">Détails</p>
-                            <dl class="fr-text--sm">
-                                <dt class="fr-text--regular">Sous-catégories :</dt>
-                                <dd class="fr-mb-1v">${fields.subcategories || 'Aucune sous-catégorie'}</dd>
-                                
-                                ${fields.tags ? `
-                                <dt class="fr-text--regular">Tags :</dt>
-                                <dd class="fr-mb-1v">${fields.tags}</dd>
-                                ` : ''}
-                            </dl>
-                        </div>
-                    </div>
-                    
-                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-                        <div class="fr-col-12">
-                            <p class="fr-text--bold fr-mb-1w">État du signalement</p>
-                            <ul class="fr-tags-group">
-                                <li>
-                                    <p class="fr-tag ${fields.signalement_transmis == 1 ? 'fr-tag--green-emeraude' : ''}">
-                                        Transmis : ${fields.signalement_transmis == 1 ? '✓ Oui' : '✗ Non'}
-                                    </p>
-                                </li>
-                                <li>
-                                    <p class="fr-tag ${fields.signalement_lu == 1 ? 'fr-tag--blue-ecume' : ''}">
-                                        Lu : ${fields.signalement_lu == 1 ? '✓ Oui' : '✗ Non'}
-                                    </p>
-                                </li>
-                                <li>
-                                    <p class="fr-tag ${fields.signalement_reponse == 1 ? 'fr-tag--purple-glycine' : ''}">
-                                        Réponse : ${fields.signalement_reponse == 1 ? '✓ Oui' : '✗ Non'}
-                                    </p>
-                                </li>
-                            </ul>
-                        </div>
+                    <!-- État du signalement -->
+                    <div class="fr-callout fr-callout--blue-ecume">
+                        <h3 class="fr-callout__title">
+                            État du traitement
+                        </h3>
+                        <ul class="fr-tags-group">
+                            <li>
+                                <p class="fr-tag ${fields.signalement_transmis == 1 ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                    ${fields.signalement_transmis == 1 ? '✓' : '✗'} Transmis
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_lu == 1 ? 'fr-tag--blue-ecume' : 'fr-tag--grey'}">
+                                    ${fields.signalement_lu == 1 ? '✓' : '✗'} Lu
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_reponse == 1 ? 'fr-tag--purple-glycine' : 'fr-tag--grey'}">
+                                    ${fields.signalement_reponse == 1 ? '✓' : '✗'} Réponse
+                                </p>
+                            </li>
+                        </ul>
                     </div>
                 `;
                 
@@ -797,21 +885,26 @@
         
         function openModal() {
             const modal = document.getElementById('modal-details');
+            console.log('openModal appelé, modal trouvé:', modal);
             if (modal) {
                 try {
                     // Utiliser l'API dialog HTML5
                     if (typeof modal.showModal === 'function') {
                         modal.showModal();
+                        console.log('Modal ouvert avec showModal()');
                     } else {
                         // Fallback pour les navigateurs qui ne supportent pas showModal
                         modal.setAttribute('open', '');
                         modal.style.display = 'block';
+                        console.log('Modal ouvert avec fallback');
                     }
                 } catch (err) {
                     console.error('Erreur ouverture modale:', err);
                     modal.setAttribute('open', '');
                     modal.style.display = 'block';
                 }
+            } else {
+                console.error('Element modal-details non trouvé!');
             }
         }
         
@@ -861,6 +954,11 @@
                 });
             }
         });
+        
+        // Rendre les fonctions accessibles globalement
+        window.viewDetails = viewDetails;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
         
         // Charger les données au démarrage
         loadData();
