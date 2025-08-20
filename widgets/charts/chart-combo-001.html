@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique combiné DSFR - Analyse croisée ligne/barres SignalConso">
+    <title>Graphique combiné DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        @media (max-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .export-buttons { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET CHART-COMBO-001 -->
+    <div id="widget-chart-combo-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Analyse combinée volume et satisfaction</h2>
+                        <p class="fr-text--sm">Volume de signalements (barres) vs Taux de satisfaction (ligne)</p>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="comboChart" role="img" aria-label="Graphique combiné ligne et barres"></canvas>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                                Exporter en PNG
+                            </button>
+                        </div>
+                        
+                        <!-- Légende -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p>Les barres représentent le volume de signalements, la ligne indique le taux de satisfaction mensuel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-COMBO-001 -->
+    
+    <script>
+        // Données
+        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        const volumeData = [2400, 2600, 2100, 3100, 3500, 3900, 4200, 4100, 3700, 4500, 4900, 5300];
+        const satisfactionData = [72, 74, 71, 75, 78, 80, 82, 81, 79, 83, 85, 87];
+        
+        // Configuration
+        const config = {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Volume signalements',
+                        data: volumeData,
+                        backgroundColor: 'rgba(0, 0, 145, 0.7)',
+                        borderColor: '#000091',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        type: 'line',
+                        label: 'Taux satisfaction (%)',
+                        data: satisfactionData,
+                        borderColor: '#18753C',
+                        backgroundColor: 'rgba(24, 117, 60, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Volume'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Satisfaction (%)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        min: 60,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        };
+        
+        // Initialisation
+        const ctx = document.getElementById('comboChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Export
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-combo.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

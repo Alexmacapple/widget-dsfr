@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique en aires DSFR - Évolution cumulative des signalements SignalConso">
+    <title>Graphique en aires DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { display: none; }
+        .data-table.show { display: table; }
+        @media (max-width: 768px) {
+            .chart-container { height: 300px; }
+        }
+        .fr-table { margin-top: 2rem; }
+        .export-buttons { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET CHART-AREA-001 -->
+    <div id="widget-chart-area-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Évolution cumulative par catégories</h2>
+                        <p class="fr-text--sm">Visualisation des tendances par catégorie sur 12 mois</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-stacked" checked onchange="toggleStacked()">
+                                        <label class="fr-toggle__label" for="toggle-stacked">
+                                            Aires empilées
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="areaChart" role="img" aria-label="Graphique en aires montrant l'évolution cumulative"></canvas>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                                Exporter les données (CSV)
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <table class="fr-table data-table" id="data-table">
+                            <caption>Données du graphique : Évolution par catégories</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Mois</th>
+                                    <th scope="col">Commerce</th>
+                                    <th scope="col">Services</th>
+                                    <th scope="col">Transport</th>
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Les données seront insérées ici -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-AREA-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            primary: 'rgba(0, 0, 145, 0.6)',
+            success: 'rgba(24, 117, 60, 0.6)',
+            warning: 'rgba(179, 64, 0, 0.6)'
+        };
+        
+        // Données simulées
+        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        const commerceData = [1200, 1400, 1100, 1600, 1800, 2000, 2200, 2100, 1900, 2300, 2500, 2700];
+        const servicesData = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
+        const transportData = [400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950];
+        
+        // Configuration du graphique
+        const config = {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Commerce',
+                        data: commerceData,
+                        backgroundColor: dsfrColors.primary,
+                        borderColor: '#000091',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Services',
+                        data: servicesData,
+                        backgroundColor: dsfrColors.success,
+                        borderColor: '#18753C',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Transport',
+                        data: transportData,
+                        backgroundColor: dsfrColors.warning,
+                        borderColor: '#B34000',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            footer: function(tooltipItems) {
+                                let sum = 0;
+                                tooltipItems.forEach(function(tooltipItem) {
+                                    sum += tooltipItem.parsed.y;
+                                });
+                                return 'Total: ' + sum.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('areaChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Basculer empilé/non empilé
+        function toggleStacked() {
+            const isStacked = document.getElementById('toggle-stacked').checked;
+            myChart.options.scales.y.stacked = isStacked;
+            myChart.update();
+        }
+        
+        // Mise à jour du tableau
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            months.forEach((month, index) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = month;
+                row.insertCell(1).textContent = commerceData[index].toLocaleString('fr-FR');
+                row.insertCell(2).textContent = servicesData[index].toLocaleString('fr-FR');
+                row.insertCell(3).textContent = transportData[index].toLocaleString('fr-FR');
+                const total = commerceData[index] + servicesData[index] + transportData[index];
+                row.insertCell(4).textContent = total.toLocaleString('fr-FR');
+            });
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-area.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Mois,Commerce,Services,Transport,Total\n';
+            months.forEach((month, index) => {
+                const total = commerceData[index] + servicesData[index] + transportData[index];
+                csv += `${month},${commerceData[index]},${servicesData[index]},${transportData[index]},${total}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-area.csv';
+            link.click();
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
