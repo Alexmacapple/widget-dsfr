@@ -245,37 +245,33 @@
         <!-- Compteurs de résultats DSFR -->
         <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
             <div class="fr-col-12 fr-col-sm-4">
-                <div class="fr-tile fr-tile--sm">
+                <div class="fr-tile">
                     <div class="fr-tile__body">
-                        <h3 class="fr-tile__title">Total résultats</h3>
+                        <p class="fr-tile__title">Total résultats</p>
                         <p class="fr-tile__desc">
-                            <span class="fr-badge fr-badge--info fr-badge--no-icon">
-                                <strong id="total-count">0</strong>
+                            <span class="fr-text--bold fr-text--lg" id="total-count">0</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="fr-col-12 fr-col-sm-4">
+                <div class="fr-tile">
+                    <div class="fr-tile__body">
+                        <p class="fr-tile__title">Page actuelle</p>
+                        <p class="fr-tile__desc">
+                            <span class="fr-text--bold fr-text--lg">
+                                <span id="current-page">1</span> / <span id="total-pages">1</span>
                             </span>
                         </p>
                     </div>
                 </div>
             </div>
             <div class="fr-col-12 fr-col-sm-4">
-                <div class="fr-tile fr-tile--sm">
+                <div class="fr-tile">
                     <div class="fr-tile__body">
-                        <h3 class="fr-tile__title">Page actuelle</h3>
+                        <p class="fr-tile__title">Éléments par page</p>
                         <p class="fr-tile__desc">
-                            <span class="fr-badge fr-badge--success fr-badge--no-icon">
-                                <strong><span id="current-page">1</span> / <span id="total-pages">1</span></strong>
-                            </span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="fr-col-12 fr-col-sm-4">
-                <div class="fr-tile fr-tile--sm">
-                    <div class="fr-tile__body">
-                        <h3 class="fr-tile__title">Éléments par page</h3>
-                        <p class="fr-tile__desc">
-                            <span class="fr-badge fr-badge--new fr-badge--no-icon">
-                                <strong>10</strong>
-                            </span>
+                            <span class="fr-text--bold fr-text--lg">10</span>
                         </p>
                     </div>
                 </div>
@@ -286,9 +282,51 @@
             <!-- Les cartes seront générées ici -->
         </div>
         
-        <nav role="navigation" class="fr-pagination fr-mt-3w" aria-label="Pagination" id="pagination">
-            <ul class="fr-pagination__list" id="pagination-list">
-                <!-- La pagination sera générée dynamiquement -->
+        <!-- Pagination -->
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination" style="display: none;">
+            <ul class="fr-pagination__list">
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--first" 
+                       id="first-page" href="#" onclick="goToFirstPage(); return false;">
+                        Première page
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" 
+                       id="prev-page" href="#" onclick="goToPrevPage(); return false;">
+                        Page précédente
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-1" href="#" onclick="goToPage(1); return false;">1</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-2" href="#" onclick="goToPage(2); return false;">2</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-3" href="#" onclick="goToPage(3); return false;">3</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-4" href="#" onclick="goToPage(4); return false;">4</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-5" href="#" onclick="goToPage(5); return false;">5</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-displayed-lg" id="dots">...</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label" 
+                       id="next-page" href="#" onclick="goToNextPage(); return false;">
+                        Page suivante
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--last" 
+                       id="last-page" href="#" onclick="goToLastPage(); return false;">
+                        Dernière page
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>
@@ -381,11 +419,9 @@
                                 </p>
                                 <div class="fr-card__start">
                                     <p class="fr-card__detail">
-                                        <span class="fr-icon-map-pin-2-line" aria-hidden="true"></span>
                                         ${fields.dep_name || 'Département inconnu'} (${fields.dep_code || '??'})
                                     </p>
                                     <p class="fr-card__detail">
-                                        <span class="fr-icon-calendar-line" aria-hidden="true"></span>
                                         ${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR') : 'Date inconnue'}
                                     </p>
                                     <p class="fr-card__detail">
@@ -421,153 +457,83 @@
             document.getElementById('current-page').textContent = currentPage + 1;
             document.getElementById('total-pages').textContent = totalPages;
             
-            if (totalPages <= 1) {
-                document.getElementById('pagination').style.display = 'none';
-                return;
-            }
+            const pagination = document.getElementById('pagination');
             
-            document.getElementById('pagination').style.display = 'block';
-            
-            const paginationList = document.getElementById('pagination-list');
-            paginationList.innerHTML = '';
-            
-            // Première page
-            const firstLi = document.createElement('li');
-            firstLi.innerHTML = `
-                <a class="fr-pagination__link fr-pagination__link--first ${currentPage === 0 ? 'fr-pagination__link--first-disabled' : ''}" 
-                   ${currentPage === 0 ? 'aria-disabled="true"' : ''}
-                   href="#" 
-                   title="Aller à la première page"
-                   aria-label="Aller à la première page"
-                   onclick="return goToPage(0);">
-                    Première page
-                </a>
-            `;
-            paginationList.appendChild(firstLi);
-            
-            // Page précédente
-            const prevLi = document.createElement('li');
-            const prevPageNum = currentPage > 0 ? currentPage : 1;
-            prevLi.innerHTML = `
-                <a class="fr-pagination__link fr-pagination__link--prev ${currentPage === 0 ? 'fr-pagination__link--prev-disabled' : ''}" 
-                   ${currentPage === 0 ? 'aria-disabled="true"' : ''}
-                   href="#" 
-                   title="Aller à la page ${prevPageNum}"
-                   aria-label="Aller à la page précédente (page ${prevPageNum})"
-                   onclick="return previousPage();">
-                    Page précédente
-                </a>
-            `;
-            paginationList.appendChild(prevLi);
-            
-            // Numéros de pages
-            const maxPages = 5;
-            const startPage = Math.max(0, currentPage - Math.floor(maxPages / 2));
-            const endPage = Math.min(totalPages, startPage + maxPages);
-            
-            if (startPage > 0) {
-                const li = document.createElement('li');
-                li.innerHTML = `<span aria-hidden="true">...</span>`;
-                paginationList.appendChild(li);
-            }
-            
-            for (let i = startPage; i < endPage; i++) {
-                const li = document.createElement('li');
-                const pageNum = i + 1;
+            if (totalPages > 1) {
+                pagination.style.display = 'block';
                 
-                if (i === currentPage) {
-                    li.innerHTML = `
-                        <a class="fr-pagination__link" 
-                           aria-current="page" 
-                           title="Page courante, page ${pageNum}"
-                           aria-label="Page ${pageNum} - Page courante">
-                            ${pageNum}
-                        </a>
-                    `;
-                } else {
-                    li.innerHTML = `
-                        <a class="fr-pagination__link" 
-                           href="#" 
-                           title="Aller à la page ${pageNum}"
-                           aria-label="Aller à la page ${pageNum}"
-                           onclick="return goToPage(${i});">
-                            ${pageNum}
-                        </a>
-                    `;
+                // Cacher/afficher les boutons first/last
+                document.getElementById('first-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('prev-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('next-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                document.getElementById('last-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                
+                // Mettre à jour les numéros de page
+                const startPage = Math.max(0, currentPage - 2);
+                const endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                for (let i = 1; i <= 5; i++) {
+                    const pageLink = document.getElementById('page-' + i);
+                    const pageNum = startPage + i;
+                    
+                    if (pageNum <= totalPages) {
+                        pageLink.style.display = '';
+                        pageLink.textContent = pageNum;
+                        pageLink.setAttribute('data-page', pageNum - 1);
+                        
+                        if (pageNum - 1 === currentPage) {
+                            pageLink.setAttribute('aria-current', 'page');
+                            pageLink.classList.add('fr-pagination__link--active');
+                        } else {
+                            pageLink.removeAttribute('aria-current');
+                            pageLink.classList.remove('fr-pagination__link--active');
+                        }
+                    } else {
+                        pageLink.style.display = 'none';
+                    }
                 }
-                paginationList.appendChild(li);
+                
+                // Afficher les points si nécessaire
+                document.getElementById('dots').style.display = endPage < totalPages - 1 ? '' : 'none';
+            } else {
+                pagination.style.display = 'none';
             }
-            
-            if (endPage < totalPages) {
-                const li = document.createElement('li');
-                li.innerHTML = `<span aria-hidden="true">...</span>`;
-                paginationList.appendChild(li);
-            }
-            
-            // Page suivante
-            const nextLi = document.createElement('li');
-            const nextPageNum = currentPage < totalPages - 1 ? currentPage + 2 : totalPages;
-            nextLi.innerHTML = `
-                <a class="fr-pagination__link fr-pagination__link--next ${currentPage >= totalPages - 1 ? 'fr-pagination__link--next-disabled' : ''}" 
-                   ${currentPage >= totalPages - 1 ? 'aria-disabled="true"' : ''}
-                   href="#" 
-                   title="Aller à la page ${nextPageNum}"
-                   aria-label="Aller à la page suivante (page ${nextPageNum})"
-                   onclick="return nextPage();">
-                    Page suivante
-                </a>
-            `;
-            paginationList.appendChild(nextLi);
-            
-            // Dernière page
-            const lastLi = document.createElement('li');
-            lastLi.innerHTML = `
-                <a class="fr-pagination__link fr-pagination__link--last ${currentPage >= totalPages - 1 ? 'fr-pagination__link--last-disabled' : ''}" 
-                   ${currentPage >= totalPages - 1 ? 'aria-disabled="true"' : ''}
-                   href="#" 
-                   title="Aller à la dernière page (page ${totalPages})"
-                   aria-label="Aller à la dernière page (page ${totalPages})"
-                   onclick="return goToLastPage();">
-                    Dernière page
-                </a>
-            `;
-            paginationList.appendChild(lastLi);
         }
         
-        function goToPage(page) {
-            const totalPages = Math.ceil(allData.length / itemsPerPage);
-            currentPage = Math.max(0, Math.min(page, totalPages - 1));
+        // Fonctions de navigation
+        function goToFirstPage() {
+            currentPage = 0;
             displayCards();
-            window.scrollTo(0, 0);
-            return false;
-        }
-        
-        function previousPage() {
-            if (currentPage > 0) {
-                goToPage(currentPage - 1);
-            }
-            return false;
-        }
-        
-        function nextPage() {
-            const totalPages = Math.ceil(allData.length / itemsPerPage);
-            if (currentPage < totalPages - 1) {
-                goToPage(currentPage + 1);
-            }
-            return false;
         }
         
         function goToLastPage() {
             const totalPages = Math.ceil(allData.length / itemsPerPage);
-            goToPage(totalPages - 1);
-            return false;
+            currentPage = totalPages - 1;
+            displayCards();
         }
         
-        // Rendre les fonctions de pagination accessibles globalement
-        window.goToPage = goToPage;
-        window.previousPage = previousPage;
-        window.nextPage = nextPage;
-        window.goToLastPage = goToLastPage;
+        function goToPrevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                displayCards();
+            }
+        }
+        
+        function goToNextPage() {
+            const totalPages = Math.ceil(allData.length / itemsPerPage);
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                displayCards();
+            }
+        }
+        
+        function goToPage(pageNum) {
+            const page = parseInt(event.target.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                displayCards();
+            }
+        }
         
         function viewDetails(recordId) {
             console.log('viewDetails appelé avec recordId:', recordId);

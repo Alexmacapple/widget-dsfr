@@ -16,6 +16,236 @@
         .status-Infonde { background: #fff4e6; color: #b34000; }
         .sort-arrow { cursor: pointer; user-select: none; }
         .sort-arrow:hover { color: #000091; }
+        
+        /* Styles pour les checkboxes dans le tableau */
+        .fr-table th:first-child,
+        .fr-table td:first-child {
+            padding: 1.25rem 1rem;
+            text-align: center;
+            min-width: 70px;
+        }
+        
+        .fr-table input[type="checkbox"] {
+            width: 1.75rem;
+            height: 1.75rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+        }
+        
+        /* Plus d'espace vertical entre les lignes */
+        .fr-table tbody tr {
+            height: 4rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .fr-table tbody td {
+            padding-top: 1.25rem;
+            padding-bottom: 1.25rem;
+            vertical-align: middle;
+        }
+        
+        /* Zone de click plus grande pour les checkboxes */
+        .fr-table td:first-child {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        /* Meilleur hover sur les lignes avec checkbox */
+        .fr-table tbody tr:hover {
+            background-color: #f6f6f6;
+        }
+        
+        .fr-table tbody tr:hover input[type="checkbox"] {
+            outline: 2px solid #000091;
+            outline-offset: 3px;
+        }
+        
+        /* Espacement entre checkboxes consécutives */
+        .fr-table tbody tr + tr td:first-child {
+            padding-top: 1.5rem;
+        }
+        
+        /* Styles pour la modale style DSFR */
+        dialog#modal-details {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 0 0 0.5rem 0.5rem !important;
+            width: 95% !important;
+            max-width: 56rem !important;
+            max-height: 85vh !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            z-index: 99999 !important;
+            margin: 0 !important;
+            display: none;
+        }
+        
+        dialog#modal-details[open] {
+            display: block !important;
+        }
+        
+        dialog#modal-details::backdrop {
+            background-color: rgba(22, 22, 22, 0.75) !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            z-index: 99998 !important;
+        }
+        
+        .modal-wrapper {
+            background: white;
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            background: var(--background-contrast-grey, #e5e5e5);
+            padding: 0;
+            position: relative;
+            min-height: 4rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #000091;
+        }
+        
+        .modal-header-content {
+            padding: 1rem 3rem 1rem 2rem;
+            flex: 1;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            line-height: 1.5;
+            color: #161616;
+        }
+        
+        /* Bouton fermeture style DSFR */
+        .btn-close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 2px solid transparent;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-close-modal:hover {
+            background-color: rgba(0, 0, 145, 0.1);
+            border-color: #000091;
+        }
+        
+        .btn-close-modal:focus {
+            outline: 2px solid #0a76f6;
+            outline-offset: 2px;
+        }
+        
+        /* Info cards dans la modale */
+        .modal-info-card {
+            background: var(--background-alt-grey, #f6f6f6);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-info-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            line-height: 1.5;
+            color: #161616;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .modal-field-group {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: start;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .modal-field-group:last-child {
+            border-bottom: none;
+        }
+        
+        .modal-field-label {
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .modal-field-value {
+            font-size: 1rem;
+            color: #161616;
+        }
+        
+        /* Espacement amélioré pour les checkboxes des filtres */
+        .filters-panel .fr-checkbox-group {
+            display: block !important;
+            margin-bottom: 1.5rem !important;
+            padding: 0.75rem 0;
+            width: 100%;
+        }
+        
+        .filters-panel .fr-checkbox-group:last-child {
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .filters-panel .fr-checkbox-group input[type="checkbox"] {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        
+        .filters-panel .fr-checkbox-group label {
+            display: inline-block;
+            line-height: 1.25rem;
+            margin-bottom: 0;
+        }
+        
+        .filters-panel .fr-fieldset__legend {
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e5e5;
+            padding-bottom: 0.5rem;
+        }
+        
+        .filters-panel .fr-fieldset {
+            background: white;
+            padding: 1rem;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -46,8 +276,10 @@
                     </div>
                 </div>
                 <div class="fr-col-12 fr-col-md-3">
-                    <button class="fr-btn" onclick="applyFilters()">Appliquer les filtres</button>
-                    <button class="fr-btn fr-btn--secondary" onclick="resetFilters()">Réinitialiser</button>
+                    <div class="fr-btns-group fr-btns-group--inline">
+                        <button class="fr-btn" onclick="applyFilters()">Appliquer les filtres</button>
+                        <button class="fr-btn fr-btn--secondary fr-ml-2w" onclick="resetFilters()">Réinitialiser</button>
+                    </div>
                 </div>
             </div>
             
@@ -139,13 +371,15 @@
                     </select>
                 </div>
             </div>
-            <div class="fr-col-12 fr-col-md-6 fr-text--right">
-                <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportVisible()">
-                    Exporter (visible)
-                </button>
-                <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportAll()">
-                    Exporter (tout)
-                </button>
+            <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-btns-group fr-btns-group--right fr-btns-group--inline">
+                    <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportVisible()">
+                        Exporter (visible)
+                    </button>
+                    <button class="fr-btn fr-btn--secondary fr-btn--sm fr-ml-2w" onclick="exportAll()">
+                        Exporter (tout)
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -183,27 +417,48 @@
             </table>
         </div>
         
-        <!-- Pagination avancée -->
-        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination">
+        <!-- Pagination -->
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination" style="display: none;">
             <ul class="fr-pagination__list">
                 <li>
-                    <a class="fr-pagination__link fr-pagination__link--first" href="#" onclick="goToPage(0); return false;">
+                    <a class="fr-pagination__link fr-pagination__link--first" 
+                       id="first-page" href="#" onclick="goToFirstPage(); return false;">
                         Première page
                     </a>
                 </li>
                 <li>
-                    <a class="fr-pagination__link fr-pagination__link--prev" href="#" onclick="previousPage(); return false;">
+                    <a class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" 
+                       id="prev-page" href="#" onclick="goToPrevPage(); return false;">
                         Page précédente
                     </a>
                 </li>
-                <li id="page-numbers"></li>
                 <li>
-                    <a class="fr-pagination__link fr-pagination__link--next" href="#" onclick="nextPage(); return false;">
+                    <a class="fr-pagination__link" id="page-1" href="#" onclick="goToPage(1); return false;">1</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-2" href="#" onclick="goToPage(2); return false;">2</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-3" href="#" onclick="goToPage(3); return false;">3</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-4" href="#" onclick="goToPage(4); return false;">4</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-5" href="#" onclick="goToPage(5); return false;">5</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-displayed-lg" id="dots">...</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label" 
+                       id="next-page" href="#" onclick="goToNextPage(); return false;">
                         Page suivante
                     </a>
                 </li>
                 <li>
-                    <a class="fr-pagination__link fr-pagination__link--last" href="#" onclick="goToLastPage(); return false;">
+                    <a class="fr-pagination__link fr-pagination__link--last" 
+                       id="last-page" href="#" onclick="goToLastPage(); return false;">
                         Dernière page
                     </a>
                 </li>
@@ -218,6 +473,33 @@
             <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="clearSelection()">Annuler la sélection</button>
         </div>
     </div>
+    
+    <!-- Modale pour les détails -->
+    <dialog id="modal-details" role="dialog" aria-labelledby="modal-details-title">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2 id="modal-details-title" class="modal-title">
+                        Détails du signalement
+                    </h2>
+                </div>
+                <button class="btn-close-modal" 
+                        type="button"
+                        title="Fermer" 
+                        aria-label="Fermer la fenêtre"
+                        onclick="closeModal()">
+                    <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 10.586L16.95 5.636L18.364 7.05L13.414 12L18.364 16.95L16.95 18.364L12 13.414L7.05 18.364L5.636 16.95L10.586 12L5.636 7.05L7.05 5.636L12 10.586Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-details-content">
+                    <!-- Le contenu sera injecté ici -->
+                </div>
+            </div>
+        </div>
+    </dialog>
     
     <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
     <script>
@@ -374,59 +656,85 @@
         }
         
         function updatePagination() {
+            const pagination = document.getElementById('pagination');
             const totalPages = Math.ceil(filteredData.length / rowsPerPage);
             document.getElementById('current-page-info').textContent = currentPage + 1;
             document.getElementById('total-pages').textContent = totalPages;
             
-            if (totalPages <= 1) {
-                document.getElementById('pagination').style.display = 'none';
-                return;
-            }
-            
-            document.getElementById('pagination').style.display = 'block';
-            
-            // Génération des numéros de pages
-            const pageNumbers = document.getElementById('page-numbers');
-            pageNumbers.innerHTML = '';
-            
-            const maxPages = 5;
-            const startPage = Math.max(0, currentPage - Math.floor(maxPages / 2));
-            const endPage = Math.min(totalPages, startPage + maxPages);
-            
-            for (let i = startPage; i < endPage; i++) {
-                const link = document.createElement('a');
-                link.className = 'fr-pagination__link';
-                link.href = '#';
-                link.textContent = i + 1;
-                link.onclick = (e) => { e.preventDefault(); goToPage(i); };
+            if (totalPages > 1) {
+                pagination.style.display = 'block';
                 
-                if (i === currentPage) {
-                    link.setAttribute('aria-current', 'page');
-                    link.classList.add('fr-pagination__link--active');
+                // Cacher/afficher les boutons first/last
+                document.getElementById('first-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('prev-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('next-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                document.getElementById('last-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                
+                // Mettre à jour les numéros de page
+                const startPage = Math.max(0, currentPage - 2);
+                const endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                for (let i = 1; i <= 5; i++) {
+                    const pageLink = document.getElementById('page-' + i);
+                    const pageNum = startPage + i;
+                    
+                    if (pageNum <= totalPages) {
+                        pageLink.style.display = '';
+                        pageLink.textContent = pageNum;
+                        pageLink.setAttribute('data-page', pageNum - 1);
+                        
+                        if (pageNum - 1 === currentPage) {
+                            pageLink.setAttribute('aria-current', 'page');
+                            pageLink.classList.add('fr-pagination__link--active');
+                        } else {
+                            pageLink.removeAttribute('aria-current');
+                            pageLink.classList.remove('fr-pagination__link--active');
+                        }
+                    } else {
+                        pageLink.style.display = 'none';
+                    }
                 }
                 
-                pageNumbers.appendChild(link);
+                // Afficher les points si nécessaire
+                document.getElementById('dots').style.display = endPage < totalPages - 1 ? '' : 'none';
+            } else {
+                pagination.style.display = 'none';
             }
         }
         
-        function goToPage(page) {
-            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            currentPage = Math.max(0, Math.min(page, totalPages - 1));
+        // Fonctions de navigation
+        function goToFirstPage() {
+            currentPage = 0;
             displayPage();
-        }
-        
-        function previousPage() {
-            if (currentPage > 0) goToPage(currentPage - 1);
-        }
-        
-        function nextPage() {
-            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            if (currentPage < totalPages - 1) goToPage(currentPage + 1);
         }
         
         function goToLastPage() {
             const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-            goToPage(totalPages - 1);
+            currentPage = totalPages - 1;
+            displayPage();
+        }
+        
+        function goToPrevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                displayPage();
+            }
+        }
+        
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                displayPage();
+            }
+        }
+        
+        function goToPage(pageNum) {
+            const page = parseInt(event.target.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                displayPage();
+            }
         }
         
         function changeRowsPerPage() {
@@ -555,6 +863,198 @@ Réponse: ${fields.signalement_reponse == 1 ? 'Oui' : 'Non'}`);
         // Event listeners pour les filtres
         document.getElementById('search-text').addEventListener('keyup', function(e) {
             if (e.key === 'Enter') applyFilters();
+        });
+        
+        // Fonctions pour la modale
+        function viewDetails(recordId) {
+            console.log('viewDetails appelé avec recordId:', recordId);
+            const record = allData.find(r => r.recordid === recordId);
+            console.log('Record trouvé:', record);
+            
+            if (record) {
+                const fields = record.fields;
+                const modalContent = document.getElementById('modal-details-content');
+                
+                // Création du contenu structuré style DSFR
+                modalContent.innerHTML = `
+                    <!-- Alert avec référence -->
+                    <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                        <p class="fr-alert__title">Référence du signalement</p>
+                        <p><code>${recordId}</code></p>
+                    </div>
+                    
+                    <!-- Informations principales -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Informations générales
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Date de création</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', { 
+                                        day: 'numeric', 
+                                        month: 'long', 
+                                        year: 'numeric' 
+                                    }) : 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Catégorie</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--info">${fields.category || 'Non catégorisé'}</span>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Statut actuel</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--${fields.status === 'PromesseAction' ? 'success' : fields.status === 'NonConsulte' ? 'error' : 'grey'}">
+                                        ${fields.status || 'NA'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Localisation -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Localisation
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Département</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.dep_name || 'Non renseigné'}</strong>
+                                    ${fields.dep_code ? ` <span class="fr-badge fr-badge--sm fr-badge--yellow-tournesol">${fields.dep_code}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Région</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.reg_name || 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- État du signalement -->
+                    <div class="fr-callout fr-callout--blue-ecume">
+                        <h3 class="fr-callout__title">
+                            État du traitement
+                        </h3>
+                        <ul class="fr-tags-group">
+                            <li>
+                                <p class="fr-tag ${fields.signalement_transmis == 1 ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                    ${fields.signalement_transmis == 1 ? '✓' : '✗'} Transmis
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_lu == 1 ? 'fr-tag--blue-ecume' : 'fr-tag--grey'}">
+                                    ${fields.signalement_lu == 1 ? '✓' : '✗'} Lu
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_reponse == 1 ? 'fr-tag--purple-glycine' : 'fr-tag--grey'}">
+                                    ${fields.signalement_reponse == 1 ? '✓' : '✗'} Réponse
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    ${fields.subcategories ? `
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">Sous-catégories</h3>
+                        <p>${fields.subcategories}</p>
+                    </div>
+                    ` : ''}
+                    
+                    ${fields.tags ? `
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">Tags</h3>
+                        <p>${fields.tags}</p>
+                    </div>
+                    ` : ''}
+                `;
+                
+                // Ouvrir la modale
+                openModal();
+            }
+        }
+        
+        function openModal() {
+            const modal = document.getElementById('modal-details');
+            console.log('openModal appelé, modal trouvé:', modal);
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.showModal === 'function') {
+                        modal.showModal();
+                        console.log('Modal ouvert avec showModal()');
+                    } else {
+                        // Fallback pour les navigateurs qui ne supportent pas showModal
+                        modal.setAttribute('open', '');
+                        modal.style.display = 'block';
+                        console.log('Modal ouvert avec fallback');
+                    }
+                } catch (err) {
+                    console.error('Erreur ouverture modale:', err);
+                    modal.setAttribute('open', '');
+                    modal.style.display = 'block';
+                }
+            } else {
+                console.error('Element modal-details non trouvé!');
+            }
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.close === 'function') {
+                        modal.close();
+                    } else {
+                        // Fallback
+                        modal.removeAttribute('open');
+                        modal.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error('Erreur fermeture modale:', err);
+                    modal.removeAttribute('open');
+                    modal.style.display = 'none';
+                }
+            }
+        }
+        
+        // Rendre les fonctions accessibles globalement
+        window.viewDetails = viewDetails;
+        window.closeModal = closeModal;
+        window.openModal = openModal;
+        
+        // Polyfill pour dialog si nécessaire
+        function setupDialogPolyfill() {
+            const modal = document.getElementById('modal-details');
+            if (modal && typeof modal.showModal !== 'function') {
+                modal.showModal = function() {
+                    this.style.display = 'block';
+                    this.style.position = 'fixed';
+                    this.style.top = '50%';
+                    this.style.left = '50%';
+                    this.style.transform = 'translate(-50%, -50%)';
+                    this.style.zIndex = '99999';
+                    this.setAttribute('open', '');
+                };
+                modal.close = function() {
+                    this.style.display = 'none';
+                    this.removeAttribute('open');
+                };
+            }
+        }
+        
+        // Au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDialogPolyfill();
         });
         
         // Charger les données au démarrage

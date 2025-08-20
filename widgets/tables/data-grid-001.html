@@ -202,18 +202,49 @@
         </div>
         
         <!-- Pagination -->
-        <nav role="navigation" class="fr-pagination fr-mt-3w" aria-label="Pagination" id="pagination">
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination" style="display: none;">
             <ul class="fr-pagination__list">
                 <li>
-                    <button class="fr-pagination__link fr-pagination__link--prev" onclick="previousPage()">
-                        Page précédente
-                    </button>
+                    <a class="fr-pagination__link fr-pagination__link--first" 
+                       id="first-page" href="#" onclick="goToFirstPage(); return false;">
+                        Première page
+                    </a>
                 </li>
-                <li id="page-numbers"></li>
                 <li>
-                    <button class="fr-pagination__link fr-pagination__link--next" onclick="nextPage()">
+                    <a class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" 
+                       id="prev-page" href="#" onclick="goToPrevPage(); return false;">
+                        Page précédente
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-1" href="#" onclick="goToPage(1); return false;">1</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-2" href="#" onclick="goToPage(2); return false;">2</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-3" href="#" onclick="goToPage(3); return false;">3</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-4" href="#" onclick="goToPage(4); return false;">4</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-5" href="#" onclick="goToPage(5); return false;">5</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-displayed-lg" id="dots">...</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label" 
+                       id="next-page" href="#" onclick="goToNextPage(); return false;">
                         Page suivante
-                    </button>
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--last" 
+                       id="last-page" href="#" onclick="goToLastPage(); return false;">
+                        Dernière page
+                    </a>
                 </li>
             </ul>
         </nav>
@@ -423,55 +454,82 @@
         }
         
         function updatePagination() {
+            const pagination = document.getElementById('pagination');
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
             
-            if (totalPages <= 1) {
-                document.getElementById('pagination').style.display = 'none';
-                return;
-            }
-            
-            document.getElementById('pagination').style.display = 'block';
-            
-            const pageNumbers = document.getElementById('page-numbers');
-            pageNumbers.innerHTML = '';
-            
-            const maxPages = 5;
-            const startPage = Math.max(0, currentPage - Math.floor(maxPages / 2));
-            const endPage = Math.min(totalPages, startPage + maxPages);
-            
-            for (let i = startPage; i < endPage; i++) {
-                const link = document.createElement('a');
-                link.className = 'fr-pagination__link';
-                link.href = '#';
-                link.textContent = i + 1;
-                link.onclick = (e) => { 
-                    e.preventDefault(); 
-                    currentPage = i;
-                    displayGrid();
-                };
+            if (totalPages > 1) {
+                pagination.style.display = 'block';
                 
-                if (i === currentPage) {
-                    link.setAttribute('aria-current', 'page');
+                // Cacher/afficher les boutons first/last
+                document.getElementById('first-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('prev-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('next-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                document.getElementById('last-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                
+                // Mettre à jour les numéros de page
+                const startPage = Math.max(0, currentPage - 2);
+                const endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                for (let i = 1; i <= 5; i++) {
+                    const pageLink = document.getElementById('page-' + i);
+                    const pageNum = startPage + i;
+                    
+                    if (pageNum <= totalPages) {
+                        pageLink.style.display = '';
+                        pageLink.textContent = pageNum;
+                        pageLink.setAttribute('data-page', pageNum - 1);
+                        
+                        if (pageNum - 1 === currentPage) {
+                            pageLink.setAttribute('aria-current', 'page');
+                            pageLink.classList.add('fr-pagination__link--active');
+                        } else {
+                            pageLink.removeAttribute('aria-current');
+                            pageLink.classList.remove('fr-pagination__link--active');
+                        }
+                    } else {
+                        pageLink.style.display = 'none';
+                    }
                 }
                 
-                pageNumbers.appendChild(link);
+                // Afficher les points si nécessaire
+                document.getElementById('dots').style.display = endPage < totalPages - 1 ? '' : 'none';
+            } else {
+                pagination.style.display = 'none';
             }
         }
         
-        function previousPage() {
+        // Fonctions de navigation
+        function goToFirstPage() {
+            currentPage = 0;
+            displayGrid();
+        }
+        
+        function goToLastPage() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            currentPage = totalPages - 1;
+            displayGrid();
+        }
+        
+        function goToPrevPage() {
             if (currentPage > 0) {
                 currentPage--;
                 displayGrid();
-                window.scrollTo(0, 0);
             }
         }
         
-        function nextPage() {
+        function goToNextPage() {
             const totalPages = Math.ceil(filteredData.length / itemsPerPage);
             if (currentPage < totalPages - 1) {
                 currentPage++;
                 displayGrid();
-                window.scrollTo(0, 0);
+            }
+        }
+        
+        function goToPage(pageNum) {
+            const page = parseInt(event.target.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                displayGrid();
             }
         }
         
