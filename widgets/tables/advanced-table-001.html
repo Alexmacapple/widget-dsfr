@@ -260,7 +260,7 @@
         
         .filters-panel .fr-fieldset__legend {
             margin-bottom: 0.75rem;
-            font-weight: 700 !important;
+            font-weight: normal;
             border: none;
             padding: 0;
             position: absolute;
@@ -296,6 +296,35 @@
         
         .filters-panel .fr-col-12.fr-col-md-3:last-child {
             padding-right: 0;
+        }
+        
+        /* Alignement du bloc statistiques */
+        .filters-panel .fr-callout {
+            margin-top: 1.75rem;
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .filters-panel .fr-callout__title {
+            font-size: 1rem;
+            font-weight: normal;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Arrière-plan uniforme pour tous les champs de filtres */
+        .filters-panel .fr-input-group,
+        .filters-panel .fr-select-group {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 0;
+        }
+        
+        .filters-panel .fr-input-group label,
+        .filters-panel .fr-select-group label {
+            font-weight: normal;
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
