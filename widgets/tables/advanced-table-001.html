@@ -90,7 +90,7 @@
             .fr-table th:nth-child(2), .fr-table td:nth-child(2) { width: 70px; }
             .fr-table th:nth-child(3), .fr-table td:nth-child(3) { width: 100px; }
         }
-        .filters-panel { background: #f6f6f6; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px; }
+        .filters-panel { background: white; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px; border: 1px solid #e5e5e5; }
         .status-badge { padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.875rem; }
         .status-NA { background: #e5e5e5; color: #666; }
         .status-NonConsulte { background: #ffe9e6; color: #ce0500; }
@@ -259,20 +259,43 @@
         }
         
         .filters-panel .fr-fieldset__legend {
-            margin-bottom: 1.25rem;
-            font-weight: 600;
-            border-bottom: 2px solid #e5e5e5;
-            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700 !important;
+            border: none;
+            padding: 0;
+            position: absolute;
+            background: transparent;
+            font-size: 1rem;
+            display: block;
+            width: auto;
+            max-width: 100%;
+            top: -1.75rem;
+            left: 0;
+            line-height: 1.5;
         }
         
         .filters-panel .fr-fieldset {
-            background: white;
+            background: #f9f9f9;
             padding: 1rem;
+            padding-top: 1rem;
             border-radius: 4px;
+            border: 1px solid #e5e5e5;
+            margin-top: 2.5rem;
+            position: relative;
         }
         
         .filters-panel .fr-fieldset__content {
             padding-left: 0;
+            margin-top: 0;
+        }
+        
+        /* Espacement entre les colonnes de filtres */
+        .filters-panel .fr-col-12.fr-col-md-3 {
+            padding-right: 1.5rem;
+        }
+        
+        .filters-panel .fr-col-12.fr-col-md-3:last-child {
+            padding-right: 0;
         }
     </style>
 </head>
