@@ -3,577 +3,867 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Advanced Table DSFR - Table avec colonnes configurables">
-    <title>Advanced Table DSFR - SignalConso</title>
-    
-    <!-- Favicon DSFR -->
-    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
-    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
-    
+    <title>Table Avancée DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
     <style>
-        :root {
-            --primary-color: #000091;
-            --secondary-color: #6a6af4;
-            --success-color: #18753c;
-            --warning-color: #b34000;
-            --error-color: #ce0500;
+        body { overflow-x: hidden; }
+        .table-container { overflow-x: hidden; overflow-y: hidden; margin: 2rem 0; }
+        .fr-table { table-layout: fixed; width: 100%; }
+        .fr-table th, .fr-table td { 
+            padding: 0.5rem; 
+            word-break: break-word;
+            vertical-align: top;
         }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Marianne, arial, sans-serif;
-        }
-
-        /* Configuration panel */
-        .config-panel {
-            background: var(--background-alt-grey);
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .column-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .column-option {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem;
-            background: white;
-            border: 1px solid var(--border-default-grey);
-            border-radius: 0.25rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .column-option:hover {
-            background: var(--background-hover-grey);
-        }
-
-        .column-option.selected {
-            background: #e3e3fd;
-            border-color: var(--primary-color);
-        }
-
-        .column-option input[type="checkbox"] {
-            margin-right: 0.5rem;
-        }
-
-        /* Advanced table styles */
-        .advanced-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .advanced-table th {
-            position: relative;
-            padding: 0.75rem;
-            background: var(--background-contrast-grey);
-            font-weight: 700;
-            text-align: left;
-            border-bottom: 2px solid var(--border-default-grey);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .advanced-table th:hover {
-            background: var(--background-hover-grey);
-        }
-
-        .advanced-table th.sortable::after {
-            content: "↕";
-            position: absolute;
-            right: 0.5rem;
-            opacity: 0.3;
-        }
-
-        .advanced-table th.sorted-asc::after {
-            content: "↑";
-            opacity: 1;
-            color: var(--primary-color);
-        }
-
-        .advanced-table th.sorted-desc::after {
-            content: "↓";
-            opacity: 1;
-            color: var(--primary-color);
-        }
-
-        .advanced-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-default-grey);
-        }
-
-        .advanced-table tbody tr:hover {
-            background: var(--background-alt-grey);
-        }
-
-        .advanced-table tbody tr.selected {
-            background: #e3e3fd;
-        }
-
-        /* Column resize handle */
-        .resize-handle {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-            cursor: col-resize;
-            background: transparent;
-        }
-
-        .resize-handle:hover {
-            background: var(--primary-color);
-        }
-
-        /* Toolbar */
-        .table-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .toolbar-group {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        /* Column stats */
-        .column-stats {
-            display: inline-block;
-            margin-left: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--text-mention-grey);
-        }
-
-        /* Row selection */
-        .row-checkbox {
-            width: 40px;
-            text-align: center;
-        }
-
-        /* Mobile responsive */
+        /* Largeurs optimisées pour chaque colonne */
+        .fr-table th:nth-child(1), .fr-table td:nth-child(1) { width: 40px; }  /* Checkbox */
+        .fr-table th:nth-child(2), .fr-table td:nth-child(2) { width: 85px; }  /* Date */
+        .fr-table th:nth-child(3), .fr-table td:nth-child(3) { width: 120px; } /* Catégorie */
+        .fr-table th:nth-child(4), .fr-table td:nth-child(4) { width: 15%; }   /* Département */
+        .fr-table th:nth-child(5), .fr-table td:nth-child(5) { width: 15%; }   /* Région */
+        .fr-table th:nth-child(6), .fr-table td:nth-child(6) { width: 100px; } /* Statut */
+        .fr-table th:nth-child(7), .fr-table td:nth-child(7) { width: 15%; }   /* Tags */
+        .fr-table th:nth-child(8), .fr-table td:nth-child(8) { width: 80px; }  /* Signalement */
+        .fr-table th:nth-child(9), .fr-table td:nth-child(9) { width: 80px; }  /* Actions */
+        
+        /* Styles pour badges et status plus compacts */
+        .fr-badge--sm { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+        .status-badge { font-size: 0.75rem; display: inline-block; }
+        
+        /* Responsive : masquer certaines colonnes sur mobile */
         @media (max-width: 768px) {
-            .column-selector {
-                grid-template-columns: 1fr;
+            .fr-table th:nth-child(7), .fr-table td:nth-child(7), /* Tags */
+            .fr-table th:nth-child(4), .fr-table td:nth-child(4) { /* Département */
+                display: none;
             }
-            
-            .table-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
+            .fr-table th:nth-child(2), .fr-table td:nth-child(2) { width: 70px; }
+            .fr-table th:nth-child(3), .fr-table td:nth-child(3) { width: 100px; }
         }
-
-        /* Loading state */
-        .loading-overlay {
-            position: relative;
-            min-height: 200px;
+        .filters-panel { background: #f6f6f6; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px; }
+        .status-badge { padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.875rem; }
+        .status-NA { background: #e5e5e5; color: #666; }
+        .status-NonConsulte { background: #ffe9e6; color: #ce0500; }
+        .status-PromesseAction { background: #d4f4dd; color: #18753c; }
+        .status-Infonde { background: #fff4e6; color: #b34000; }
+        .sort-arrow { cursor: pointer; user-select: none; }
+        .sort-arrow:hover { color: #000091; }
+        
+        /* Styles pour la modale DSFR */
+        dialog#modal-details {
+            padding: 0;
+            border: none;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 48rem;
+            max-height: 90vh;
+            background: white;
+            box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.3);
+        }
+        
+        dialog#modal-details::backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        dialog#modal-details[open] {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        
+        .fr-modal__body {
+            background: white;
+            border-radius: 0.5rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .fr-modal__header {
+            position: relative;
+            padding: 0;
+            margin: 0;
+            height: 3rem;
+        }
+        
+        .fr-modal__content {
+            padding: 1rem 2rem 2rem 2rem;
+        }
+        
+        .fr-modal__title {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        /* Bouton fermeture DSFR */
+        .fr-btn--close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1;
         }
     </style>
 </head>
-<body ng-app="ods-widgets">
-    <!-- DÉBUT ZONE WIDGET ADVANCED-TABLE-001 -->
-    <div id="widget-advanced-table-001" class="fr-container fr-py-3w">
+<body>
+    <div class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Table avancée avec filtres multiples</h1>
+        <p class="fr-text--sm">Filtrage avancé, tri multi-colonnes et export personnalisé</p>
         
-        <div class="fr-grid-row fr-mb-3w">
-            <div class="fr-col-12">
-                <h1 class="fr-h3">Table avancée avec colonnes configurables</h1>
-                <p class="fr-text--sm">Personnalisez l'affichage en sélectionnant les colonnes visibles et leur ordre</p>
+        <!-- Panneau de filtres avancés -->
+        <div class="filters-panel">
+            <h2 class="fr-h5">Filtres avancés</h2>
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="search-text">Recherche textuelle</label>
+                        <input class="fr-input" type="text" id="search-text" placeholder="Rechercher...">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="date-from">Date début</label>
+                        <input class="fr-input" type="date" id="date-from">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="date-to">Date fin</label>
+                        <input class="fr-input" type="date" id="date-to">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-btns-group fr-btns-group--inline-sm">
+                        <ul class="fr-btns-group__list">
+                            <li>
+                                <button class="fr-btn" onclick="applyFilters()">
+                                    Appliquer les filtres
+                                </button>
+                            </li>
+                            <li>
+                                <button class="fr-btn fr-btn--secondary" onclick="resetFilters()">
+                                    Réinitialiser
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <ods-dataset-context 
-            context="signalconso"
-            signalconso-domain="data.economie.gouv.fr"
-            signalconso-dataset="signalconso"
-            ng-init="selectedColumns = ['date_creation', 'categorie', 'ville', 'statut']; 
-                     sortColumn = 'date_creation'; 
-                     sortOrder = 'desc';
-                     selectedRows = [];
-                     pageSize = 25">
             
-            <!-- Configuration Panel -->
-            <div class="config-panel">
-                <h2 class="fr-h5">Configuration des colonnes</h2>
-                <p class="fr-text--sm">Cochez les colonnes à afficher dans le tableau</p>
-                
-                <div class="column-selector">
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('date_creation') > -1}"
-                         ng-click="toggleColumn('date_creation')">
-                        <input type="checkbox" 
-                               id="col-date"
-                               ng-checked="selectedColumns.indexOf('date_creation') > -1">
-                        <label for="col-date">Date de création</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('categorie') > -1}"
-                         ng-click="toggleColumn('categorie')">
-                        <input type="checkbox" 
-                               id="col-categorie"
-                               ng-checked="selectedColumns.indexOf('categorie') > -1">
-                        <label for="col-categorie">Catégorie</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('sous_categorie') > -1}"
-                         ng-click="toggleColumn('sous_categorie')">
-                        <input type="checkbox" 
-                               id="col-sous-categorie"
-                               ng-checked="selectedColumns.indexOf('sous_categorie') > -1">
-                        <label for="col-sous-categorie">Sous-catégorie</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('details') > -1}"
-                         ng-click="toggleColumn('details')">
-                        <input type="checkbox" 
-                               id="col-details"
-                               ng-checked="selectedColumns.indexOf('details') > -1">
-                        <label for="col-details">Détails</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('entreprise') > -1}"
-                         ng-click="toggleColumn('entreprise')">
-                        <input type="checkbox" 
-                               id="col-entreprise"
-                               ng-checked="selectedColumns.indexOf('entreprise') > -1">
-                        <label for="col-entreprise">Entreprise</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('siret') > -1}"
-                         ng-click="toggleColumn('siret')">
-                        <input type="checkbox" 
-                               id="col-siret"
-                               ng-checked="selectedColumns.indexOf('siret') > -1">
-                        <label for="col-siret">SIRET</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('code_postal') > -1}"
-                         ng-click="toggleColumn('code_postal')">
-                        <input type="checkbox" 
-                               id="col-cp"
-                               ng-checked="selectedColumns.indexOf('code_postal') > -1">
-                        <label for="col-cp">Code postal</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('ville') > -1}"
-                         ng-click="toggleColumn('ville')">
-                        <input type="checkbox" 
-                               id="col-ville"
-                               ng-checked="selectedColumns.indexOf('ville') > -1">
-                        <label for="col-ville">Ville</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('departement') > -1}"
-                         ng-click="toggleColumn('departement')">
-                        <input type="checkbox" 
-                               id="col-departement"
-                               ng-checked="selectedColumns.indexOf('departement') > -1">
-                        <label for="col-departement">Département</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('region') > -1}"
-                         ng-click="toggleColumn('region')">
-                        <input type="checkbox" 
-                               id="col-region"
-                               ng-checked="selectedColumns.indexOf('region') > -1">
-                        <label for="col-region">Région</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('statut') > -1}"
-                         ng-click="toggleColumn('statut')">
-                        <input type="checkbox" 
-                               id="col-statut"
-                               ng-checked="selectedColumns.indexOf('statut') > -1">
-                        <label for="col-statut">Statut</label>
-                    </div>
-                    
-                    <div class="column-option" 
-                         ng-class="{'selected': selectedColumns.indexOf('date_resolution') > -1}"
-                         ng-click="toggleColumn('date_resolution')">
-                        <input type="checkbox" 
-                               id="col-resolution"
-                               ng-checked="selectedColumns.indexOf('date_resolution') > -1">
-                        <label for="col-resolution">Date résolution</label>
-                    </div>
+            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                <div class="fr-col-12 fr-col-md-3">
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend fr-text--regular">Statuts</legend>
+                        <div class="fr-fieldset__content">
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="status-na" name="status-na" value="NA">
+                                <label class="fr-label" for="status-na">
+                                    Non applicable
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="status-nc" name="status-nc" value="NonConsulte">
+                                <label class="fr-label" for="status-nc">
+                                    Non consulté
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="status-pa" name="status-pa" value="PromesseAction">
+                                <label class="fr-label" for="status-pa">
+                                    Promesse action
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="status-inf" name="status-inf" value="Infonde">
+                                <label class="fr-label" for="status-inf">
+                                    Infondé
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
                 
-                <div class="fr-mt-2w">
-                    <button class="fr-btn fr-btn--secondary fr-btn--sm" 
-                            ng-click="selectedColumns = ['date_creation', 'categorie', 'ville', 'statut']">
-                        Réinitialiser colonnes
-                    </button>
-                    <button class="fr-btn fr-btn--secondary fr-btn--sm" 
-                            ng-click="selectedColumns = ['date_creation', 'categorie', 'sous_categorie', 'details', 'entreprise', 'siret', 'code_postal', 'ville', 'departement', 'region', 'statut', 'date_resolution']">
-                        Toutes les colonnes
-                    </button>
-                </div>
-            </div>
-
-            <!-- Toolbar -->
-            <div class="table-toolbar">
-                <div class="toolbar-group">
-                    <div class="fr-search-bar fr-search-bar--sm" role="search">
-                        <input class="fr-input" 
-                               type="search" 
-                               placeholder="Rechercher..."
-                               ng-model="searchQuery"
-                               ng-change="signalconso.parameters['q'] = searchQuery">
-                        <button class="fr-btn" type="submit">
-                            Rechercher
-                        </button>
-                    </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend fr-text--regular">Catégories</legend>
+                        <div class="fr-fieldset__content">
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="cat-ai" name="cat-ai" value="AchatInternet">
+                                <label class="fr-label" for="cat-ai">
+                                    Achat Internet
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="cat-ami" name="cat-ami" value="AchatMagasinInternet">
+                                <label class="fr-label" for="cat-ami">
+                                    Achat Magasin
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="cat-tel" name="cat-tel" value="TelephonieFaiMedias">
+                                <label class="fr-label" for="cat-tel">
+                                    Téléphonie/FAI
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="cat-trav" name="cat-trav" value="TravauxRenovations">
+                                <label class="fr-label" for="cat-trav">
+                                    Travaux
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
                 
-                <div class="toolbar-group">
-                    <span class="fr-text--sm">
-                        <strong>{{ signalconso.nhits | number }}</strong> résultats
-                        <span ng-if="selectedRows.length > 0">
-                            • <strong>{{ selectedRows.length }}</strong> sélectionnés
-                        </span>
-                    </span>
-                    
-                    <div class="fr-select-group fr-select-group--inline">
-                        <select class="fr-select fr-select--sm" 
-                                ng-model="pageSize"
-                                ng-change="signalconso.parameters['rows'] = pageSize">
-                            <option value="10">10 lignes</option>
-                            <option value="25">25 lignes</option>
-                            <option value="50">50 lignes</option>
-                            <option value="100">100 lignes</option>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="filter-region">Régions</label>
+                        <select class="fr-select" id="filter-region">
+                            <option value="">Toutes les régions</option>
+                            <option value="Île-de-France">Île-de-France</option>
+                            <option value="Provence-Alpes-Côte d'Azur">Provence-Alpes-Côte d'Azur</option>
+                            <option value="Auvergne-Rhône-Alpes">Auvergne-Rhône-Alpes</option>
+                            <option value="Nouvelle-Aquitaine">Nouvelle-Aquitaine</option>
+                            <option value="Occitanie">Occitanie</option>
+                            <option value="Grand Est">Grand Est</option>
+                            <option value="Hauts-de-France">Hauts-de-France</option>
+                            <option value="Normandie">Normandie</option>
+                            <option value="Bretagne">Bretagne</option>
+                            <option value="Pays de la Loire">Pays de la Loire</option>
+                            <option value="Centre-Val de Loire">Centre-Val de Loire</option>
+                            <option value="Bourgogne-Franche-Comté">Bourgogne-Franche-Comté</option>
+                            <option value="Corse">Corse</option>
                         </select>
                     </div>
-                    
-                    <button class="fr-btn fr-btn--tertiary fr-btn--sm"
-                            ng-if="selectedRows.length > 0"
-                            ng-click="exportSelected()">
-                        <span class="fr-icon-download-line" aria-hidden="true"></span>
-                        Exporter sélection
-                    </button>
+                </div>
+                
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-callout fr-callout--blue-ecume">
+                        <h3 class="fr-callout__title">Statistiques filtrées</h3>
+                        <p class="fr-callout__text">
+                            Résultats : <strong id="filtered-count">0</strong> / <strong id="total-count">0</strong><br>
+                            Page : <strong id="current-page-info">1</strong> / <strong id="total-pages">1</strong>
+                        </p>
+                    </div>
                 </div>
             </div>
-
-            <!-- Advanced Table -->
-            <div class="fr-table fr-table--no-scroll">
-                <div style="overflow-x: auto;">
-                    <table class="advanced-table">
-                        <thead>
-                            <tr>
-                                <th class="row-checkbox">
-                                    <input type="checkbox" 
-                                           ng-model="selectAll"
-                                           ng-change="toggleAllRows()">
-                                </th>
-                                <th ng-repeat="col in selectedColumns" 
-                                    class="sortable"
-                                    ng-class="{'sorted-asc': sortColumn === col && sortOrder === 'asc',
-                                               'sorted-desc': sortColumn === col && sortOrder === 'desc'}"
-                                    ng-click="changeSort(col)">
-                                    {{ getColumnLabel(col) }}
-                                    <span class="resize-handle"></span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="record in signalconso.records"
-                                ng-class="{'selected': isRowSelected(record.recordid)}">
-                                <td class="row-checkbox">
-                                    <input type="checkbox" 
-                                           ng-model="record.selected"
-                                           ng-change="toggleRow(record.recordid)">
-                                </td>
-                                <td ng-repeat="col in selectedColumns">
-                                    <span ng-if="col === 'date_creation' || col === 'date_resolution'">
-                                        {{ record.fields[col] | date:'dd/MM/yyyy' }}
-                                    </span>
-                                    <span ng-if="col === 'statut'">
-                                        <span class="fr-badge fr-badge--sm"
-                                              ng-class="{'fr-badge--success': record.fields[col] === 'Traité',
-                                                         'fr-badge--warning': record.fields[col] === 'En cours',
-                                                         'fr-badge--info': record.fields[col] === 'Nouveau'}">
-                                            {{ record.fields[col] }}
-                                        </span>
-                                    </span>
-                                    <span ng-if="col === 'details' && record.fields[col].length > 100">
-                                        <span title="{{ record.fields[col] }}">
-                                            {{ record.fields[col] | limitTo:100 }}...
-                                        </span>
-                                    </span>
-                                    <span ng-if="col !== 'date_creation' && col !== 'date_resolution' && col !== 'statut' && (col !== 'details' || record.fields[col].length <= 100)">
-                                        {{ record.fields[col] }}
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+        </div>
+        
+        <!-- Contrôles de table -->
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+            <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-select-group">
+                    <label class="fr-label" for="rows-per-page">Lignes par page</label>
+                    <select class="fr-select" id="rows-per-page" onchange="changeRowsPerPage()">
+                        <option value="20">20</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                    </select>
                 </div>
             </div>
-
-            <!-- Pagination avancée -->
-            <nav class="fr-pagination fr-mt-3w" aria-label="Pagination">
-                <ul class="fr-pagination__list">
-                    <li>
-                        <button class="fr-pagination__link fr-pagination__link--first"
-                                ng-click="signalconso.parameters['start'] = 0"
-                                ng-disabled="signalconso.parameters['start'] === 0">
-                            Première page
-                        </button>
-                    </li>
-                    <li>
-                        <button class="fr-pagination__link fr-pagination__link--prev"
-                                ng-click="signalconso.parameters['start'] = signalconso.parameters['start'] - pageSize"
-                                ng-disabled="signalconso.parameters['start'] <= 0">
-                            Page précédente
-                        </button>
-                    </li>
-                    <li>
-                        <span class="fr-pagination__link" aria-current="page">
-                            Page {{ (signalconso.parameters['start'] / pageSize) + 1 | number:0 }} 
-                            sur {{ Math.ceil(signalconso.nhits / pageSize) | number:0 }}
-                        </span>
-                    </li>
-                    <li>
-                        <button class="fr-pagination__link fr-pagination__link--next"
-                                ng-click="signalconso.parameters['start'] = signalconso.parameters['start'] + pageSize"
-                                ng-disabled="signalconso.parameters['start'] + pageSize >= signalconso.nhits">
-                            Page suivante
-                        </button>
-                    </li>
-                    <li>
-                        <button class="fr-pagination__link fr-pagination__link--last"
-                                ng-click="signalconso.parameters['start'] = Math.floor(signalconso.nhits / pageSize) * pageSize"
-                                ng-disabled="signalconso.parameters['start'] + pageSize >= signalconso.nhits">
-                            Dernière page
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-
-        </ods-dataset-context>
+            <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-btns-group fr-btns-group--right fr-btns-group--inline-sm">
+                    <ul class="fr-btns-group__list">
+                        <li>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportVisible()">
+                                Exporter (visible)
+                            </button>
+                        </li>
+                        <li>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportAll()">
+                                Exporter (tout)
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="table-container">
+            <table class="fr-table fr-table--bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                        </th>
+                        <th class="sort-arrow" onclick="sortTable('creationdate')">
+                            Date<br><span id="sort-creationdate" style="font-size: 0.8rem;">↕</span>
+                        </th>
+                        <th class="sort-arrow" onclick="sortTable('category')">
+                            Catégorie<br><span id="sort-category" style="font-size: 0.8rem;">↕</span>
+                        </th>
+                        <th class="sort-arrow" onclick="sortTable('dep_name')">
+                            Dépt<br><span id="sort-dep_name" style="font-size: 0.8rem;">↕</span>
+                        </th>
+                        <th class="sort-arrow" onclick="sortTable('reg_name')">
+                            Région<br><span id="sort-reg_name" style="font-size: 0.8rem;">↕</span>
+                        </th>
+                        <th class="sort-arrow" onclick="sortTable('status')">
+                            Statut<br><span id="sort-status" style="font-size: 0.8rem;">↕</span>
+                        </th>
+                        <th>Tags</th>
+                        <th>Signal.</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td colspan="9" style="text-align: center;">Chargement des données...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination avancée -->
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination">
+            <ul class="fr-pagination__list">
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--first" href="#" onclick="goToPage(0); return false;">
+                        Première page
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--prev" href="#" onclick="previousPage(); return false;">
+                        Page précédente
+                    </a>
+                </li>
+                <li id="page-numbers"></li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--next" href="#" onclick="nextPage(); return false;">
+                        Page suivante
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--last" href="#" onclick="goToLastPage(); return false;">
+                        Dernière page
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Actions en masse -->
+        <div class="fr-alert fr-alert--info fr-mt-3w" id="bulk-actions" style="display: none;">
+            <h3 class="fr-alert__title">Actions en masse</h3>
+            <p><span id="selected-count">0</span> élément(s) sélectionné(s)</p>
+            <button class="fr-btn fr-btn--sm" onclick="exportSelected()">Exporter la sélection</button>
+            <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="clearSelection()">Annuler la sélection</button>
+        </div>
+        
+        <!-- Modale DSFR pour les détails -->
+        <dialog id="modal-details" class="fr-modal" role="dialog" aria-labelledby="modal-details-title">
+            <div class="fr-container fr-container--fluid fr-container-md">
+                <div class="fr-grid-row fr-grid-row--center">
+                    <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                        <div class="fr-modal__body">
+                            <div class="fr-modal__header">
+                                <button class="fr-btn--close fr-btn" 
+                                        type="button"
+                                        title="Fermer la fenêtre modale" 
+                                        aria-label="Fermer la fenêtre modale"
+                                        onclick="closeModal()">
+                                    Fermer
+                                </button>
+                            </div>
+                            <div class="fr-modal__content">
+                                <h1 id="modal-details-title" class="fr-modal__title">
+                                    Détails du signalement
+                                </h1>
+                                <div id="modal-details-content">
+                                    <!-- Le contenu sera injecté ici -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </dialog>
     </div>
-    <!-- FIN ZONE WIDGET ADVANCED-TABLE-001 -->
-
-    <!-- JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
-    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
-
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
     <script>
-        angular.module('ods-widgets').controller('AdvancedTableController', ['$scope', function($scope) {
-            // Column management
-            $scope.toggleColumn = function(column) {
-                const index = $scope.selectedColumns.indexOf(column);
-                if (index > -1) {
-                    $scope.selectedColumns.splice(index, 1);
-                } else {
-                    $scope.selectedColumns.push(column);
+        let allData = [];
+        let filteredData = [];
+        let displayedData = [];
+        let currentPage = 0;
+        let rowsPerPage = 50;
+        let currentSort = { field: 'creationdate', desc: true };
+        let selectedRows = new Set();
+        
+        async function loadData() {
+            try {
+                console.log('Chargement des données...');
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=500&sort=-creationdate');
+                const data = await response.json();
+                
+                allData = data.records || [];
+                document.getElementById('total-count').textContent = data.nhits.toLocaleString('fr-FR');
+                
+                console.log(`${allData.length} enregistrements chargés`);
+                applyFilters();
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('table-body').innerHTML = 
+                    '<tr><td colspan="9" style="text-align: center; color: red;">Erreur de chargement des données</td></tr>';
+            }
+        }
+        
+        function applyFilters() {
+            filteredData = allData.filter(record => {
+                const fields = record.fields || {};
+                
+                // Recherche textuelle
+                const searchText = document.getElementById('search-text').value.toLowerCase();
+                if (searchText) {
+                    const searchableText = JSON.stringify(fields).toLowerCase();
+                    if (!searchableText.includes(searchText)) return false;
                 }
-            };
+                
+                // Filtre dates
+                const dateFrom = document.getElementById('date-from').value;
+                const dateTo = document.getElementById('date-to').value;
+                if (dateFrom && fields.creationdate < dateFrom) return false;
+                if (dateTo && fields.creationdate > dateTo) return false;
+                
+                // Filtre statuts
+                const checkedStatuses = [];
+                if (document.getElementById('status-na').checked) checkedStatuses.push('NA');
+                if (document.getElementById('status-nc').checked) checkedStatuses.push('NonConsulte');
+                if (document.getElementById('status-pa').checked) checkedStatuses.push('PromesseAction');
+                if (document.getElementById('status-inf').checked) checkedStatuses.push('Infonde');
+                if (checkedStatuses.length > 0 && !checkedStatuses.includes(fields.status)) return false;
+                
+                // Filtre catégories
+                const checkedCategories = [];
+                if (document.getElementById('cat-ai').checked) checkedCategories.push('AchatInternet');
+                if (document.getElementById('cat-ami').checked) checkedCategories.push('AchatMagasinInternet');
+                if (document.getElementById('cat-tel').checked) checkedCategories.push('TelephonieFaiMedias');
+                if (document.getElementById('cat-trav').checked) checkedCategories.push('TravauxRenovations');
+                if (checkedCategories.length > 0 && !checkedCategories.includes(fields.category)) return false;
+                
+                // Filtre régions
+                const filterRegion = document.getElementById('filter-region').value;
+                if (filterRegion && fields.reg_name !== filterRegion) return false;
+                
+                return true;
+            });
             
-            // Column labels
-            $scope.getColumnLabel = function(column) {
-                const labels = {
-                    'date_creation': 'Date création',
-                    'categorie': 'Catégorie',
-                    'sous_categorie': 'Sous-catégorie',
-                    'details': 'Détails',
-                    'entreprise': 'Entreprise',
-                    'siret': 'SIRET',
-                    'code_postal': 'Code postal',
-                    'ville': 'Ville',
-                    'departement': 'Département',
-                    'region': 'Région',
-                    'statut': 'Statut',
-                    'date_resolution': 'Date résolution'
-                };
-                return labels[column] || column;
-            };
+            document.getElementById('filtered-count').textContent = filteredData.length.toLocaleString('fr-FR');
+            currentPage = 0;
+            sortTable(currentSort.field);
+        }
+        
+        function sortTable(field) {
+            // Mise à jour de l'indicateur de tri
+            document.querySelectorAll('[id^="sort-"]').forEach(el => el.textContent = '↕');
             
-            // Sorting
-            $scope.changeSort = function(column) {
-                if ($scope.sortColumn === column) {
-                    $scope.sortOrder = $scope.sortOrder === 'asc' ? 'desc' : 'asc';
-                } else {
-                    $scope.sortColumn = column;
-                    $scope.sortOrder = 'asc';
+            if (currentSort.field === field) {
+                currentSort.desc = !currentSort.desc;
+            } else {
+                currentSort.field = field;
+                currentSort.desc = true;
+            }
+            
+            document.getElementById('sort-' + field).textContent = currentSort.desc ? '↓' : '↑';
+            
+            // Tri des données
+            filteredData.sort((a, b) => {
+                const valA = a.fields[field] || '';
+                const valB = b.fields[field] || '';
+                const comparison = valA > valB ? 1 : valA < valB ? -1 : 0;
+                return currentSort.desc ? -comparison : comparison;
+            });
+            
+            displayPage();
+        }
+        
+        function displayPage() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Aucun résultat</td></tr>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            const start = currentPage * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, filteredData.length);
+            displayedData = filteredData.slice(start, end);
+            
+            displayedData.forEach((record, index) => {
+                const fields = record.fields || {};
+                const row = document.createElement('tr');
+                const globalIndex = start + index;
+                
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" id="row-${globalIndex}" 
+                               onchange="toggleRowSelection(${globalIndex})"
+                               ${selectedRows.has(globalIndex) ? 'checked' : ''}>
+                    </td>
+                    <td>${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit', year: '2-digit'}) : ''}</td>
+                    <td>
+                        <span class="fr-badge fr-badge--sm" title="${fields.category || ''}">
+                            ${fields.category ? (fields.category.length > 15 ? fields.category.substring(0, 15) + '...' : fields.category) : ''}
+                        </span>
+                    </td>
+                    <td title="${fields.dep_name || ''} (${fields.dep_code || ''})">
+                        ${fields.dep_name ? fields.dep_name.substring(0, 12) : ''}<br>
+                        <small>(${fields.dep_code || ''})</small>
+                    </td>
+                    <td title="${fields.reg_name || ''}">
+                        ${fields.reg_name ? (fields.reg_name.length > 20 ? fields.reg_name.substring(0, 20) + '...' : fields.reg_name) : ''}
+                    </td>
+                    <td>
+                        <span class="status-badge status-${fields.status}" title="${fields.status || ''}">
+                            ${fields.status ? (fields.status.length > 12 ? fields.status.substring(0, 12) + '...' : fields.status) : ''}
+                        </span>
+                    </td>
+                    <td title="${fields.tags || fields.subcategories || '-'}">
+                        <small>${(fields.tags || fields.subcategories || '-').substring(0, 25)}${(fields.tags || fields.subcategories || '').length > 25 ? '...' : ''}</small>
+                    </td>
+                    <td>
+                        <div style="display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem;">
+                            <span title="Transmis: ${fields.signalement_transmis == 1 ? 'Oui' : 'Non'}">
+                                T:${fields.signalement_transmis == 1 ? '✓' : '✗'}
+                            </span>
+                            <span title="Lu: ${fields.signalement_lu == 1 ? 'Oui' : 'Non'}">
+                                L:${fields.signalement_lu == 1 ? '✓' : '✗'}
+                            </span>
+                            <span title="Réponse: ${fields.signalement_reponse == 1 ? 'Oui' : 'Non'}">
+                                R:${fields.signalement_reponse == 1 ? '✓' : '✗'}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="fr-btn fr-btn--sm fr-btn--tertiary" 
+                                onclick="viewDetails('${record.recordid}')">
+                            Détails
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            updatePagination();
+            updateBulkActions();
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            document.getElementById('current-page-info').textContent = currentPage + 1;
+            document.getElementById('total-pages').textContent = totalPages;
+            
+            if (totalPages <= 1) {
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('pagination').style.display = 'block';
+            
+            // Génération des numéros de pages
+            const pageNumbers = document.getElementById('page-numbers');
+            pageNumbers.innerHTML = '';
+            
+            const maxPages = 5;
+            const startPage = Math.max(0, currentPage - Math.floor(maxPages / 2));
+            const endPage = Math.min(totalPages, startPage + maxPages);
+            
+            for (let i = startPage; i < endPage; i++) {
+                const link = document.createElement('a');
+                link.className = 'fr-pagination__link';
+                link.href = '#';
+                link.textContent = i + 1;
+                link.onclick = (e) => { e.preventDefault(); goToPage(i); };
+                
+                if (i === currentPage) {
+                    link.setAttribute('aria-current', 'page');
+                    link.classList.add('fr-pagination__link--active');
                 }
-                const sort = $scope.sortOrder === 'desc' ? '-' + column : column;
-                $scope.signalconso.parameters['sort'] = sort;
-            };
+                
+                pageNumbers.appendChild(link);
+            }
+        }
+        
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            currentPage = Math.max(0, Math.min(page, totalPages - 1));
+            displayPage();
+        }
+        
+        function previousPage() {
+            if (currentPage > 0) goToPage(currentPage - 1);
+        }
+        
+        function nextPage() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            if (currentPage < totalPages - 1) goToPage(currentPage + 1);
+        }
+        
+        function goToLastPage() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            goToPage(totalPages - 1);
+        }
+        
+        function changeRowsPerPage() {
+            rowsPerPage = parseInt(document.getElementById('rows-per-page').value);
+            currentPage = 0;
+            displayPage();
+        }
+        
+        function resetFilters() {
+            document.getElementById('search-text').value = '';
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('filter-region').value = '';
+            applyFilters();
+        }
+        
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all').checked;
+            const start = currentPage * rowsPerPage;
             
-            // Row selection
-            $scope.toggleRow = function(recordId) {
-                const index = $scope.selectedRows.indexOf(recordId);
-                if (index > -1) {
-                    $scope.selectedRows.splice(index, 1);
-                } else {
-                    $scope.selectedRows.push(recordId);
+            displayedData.forEach((_, index) => {
+                const globalIndex = start + index;
+                const checkbox = document.getElementById('row-' + globalIndex);
+                if (checkbox) {
+                    checkbox.checked = selectAll;
+                    if (selectAll) {
+                        selectedRows.add(globalIndex);
+                    } else {
+                        selectedRows.delete(globalIndex);
+                    }
                 }
-            };
+            });
             
-            $scope.isRowSelected = function(recordId) {
-                return $scope.selectedRows.indexOf(recordId) > -1;
-            };
+            updateBulkActions();
+        }
+        
+        function toggleRowSelection(index) {
+            if (selectedRows.has(index)) {
+                selectedRows.delete(index);
+            } else {
+                selectedRows.add(index);
+            }
+            updateBulkActions();
+        }
+        
+        function updateBulkActions() {
+            const bulkActions = document.getElementById('bulk-actions');
+            const selectedCount = document.getElementById('selected-count');
             
-            $scope.toggleAllRows = function() {
-                if ($scope.selectAll) {
-                    $scope.selectedRows = $scope.signalconso.records.map(r => r.recordid);
-                } else {
-                    $scope.selectedRows = [];
+            if (selectedRows.size > 0) {
+                bulkActions.style.display = 'block';
+                selectedCount.textContent = selectedRows.size;
+            } else {
+                bulkActions.style.display = 'none';
+            }
+        }
+        
+        function clearSelection() {
+            selectedRows.clear();
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateBulkActions();
+        }
+        
+        function exportData(data, filename) {
+            const headers = ['Date', 'Catégorie', 'Département', 'Région', 'Statut', 'Tags', 'Transmis', 'Lu', 'Réponse'];
+            const csv = [headers.join(',')];
+            
+            data.forEach(record => {
+                const f = record.fields || {};
+                const row = [
+                    f.creationdate || '',
+                    f.category || '',
+                    `${f.dep_name || ''} (${f.dep_code || ''})`,
+                    f.reg_name || '',
+                    f.status || '',
+                    (f.tags || f.subcategories || '').replace(/,/g, ';'),
+                    f.signalement_transmis == 1 ? 'Oui' : 'Non',
+                    f.signalement_lu == 1 ? 'Oui' : 'Non',
+                    f.signalement_reponse == 1 ? 'Oui' : 'Non'
+                ];
+                csv.push(row.map(cell => `"${cell}"`).join(','));
+            });
+            
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+        }
+        
+        function exportVisible() {
+            exportData(displayedData, 'signalconso-page.csv');
+        }
+        
+        function exportAll() {
+            exportData(filteredData, 'signalconso-filtered.csv');
+        }
+        
+        function exportSelected() {
+            const selected = Array.from(selectedRows).map(index => filteredData[index]).filter(Boolean);
+            exportData(selected, 'signalconso-selection.csv');
+        }
+        
+        function viewDetails(recordId) {
+            const record = allData.find(r => r.recordid === recordId);
+            if (record) {
+                const fields = record.fields;
+                const modal = document.getElementById('modal-details');
+                const modalContent = document.getElementById('modal-details-content');
+                
+                // Création du contenu structuré DSFR
+                modalContent.innerHTML = `
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                        <div class="fr-col-12">
+                            <div class="fr-highlight">
+                                <p class="fr-text--sm fr-mb-0">Référence : <strong>${recordId}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                        <div class="fr-col-12 fr-col-sm-6">
+                            <p class="fr-text--bold fr-mb-1w">Informations générales</p>
+                            <dl class="fr-text--sm">
+                                <dt class="fr-text--regular">Date de création :</dt>
+                                <dd class="fr-mb-1v">${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Non renseignée'}</dd>
+                                
+                                <dt class="fr-text--regular">Catégorie :</dt>
+                                <dd class="fr-mb-1v"><span class="fr-badge">${fields.category || 'Non catégorisé'}</span></dd>
+                                
+                                <dt class="fr-text--regular">Statut :</dt>
+                                <dd class="fr-mb-1v"><span class="status-badge status-${fields.status}">${fields.status || 'NA'}</span></dd>
+                            </dl>
+                        </div>
+                        
+                        <div class="fr-col-12 fr-col-sm-6">
+                            <p class="fr-text--bold fr-mb-1w">Localisation</p>
+                            <dl class="fr-text--sm">
+                                <dt class="fr-text--regular">Département :</dt>
+                                <dd class="fr-mb-1v">${fields.dep_name || 'Non renseigné'} ${fields.dep_code ? `(${fields.dep_code})` : ''}</dd>
+                                
+                                <dt class="fr-text--regular">Région :</dt>
+                                <dd class="fr-mb-1v">${fields.reg_name || 'Non renseignée'}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                        <div class="fr-col-12">
+                            <p class="fr-text--bold fr-mb-1w">Détails</p>
+                            <dl class="fr-text--sm">
+                                <dt class="fr-text--regular">Sous-catégories :</dt>
+                                <dd class="fr-mb-1v">${fields.subcategories || 'Aucune sous-catégorie'}</dd>
+                                
+                                ${fields.tags ? `
+                                <dt class="fr-text--regular">Tags :</dt>
+                                <dd class="fr-mb-1v">${fields.tags}</dd>
+                                ` : ''}
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                        <div class="fr-col-12">
+                            <p class="fr-text--bold fr-mb-1w">État du signalement</p>
+                            <ul class="fr-tags-group">
+                                <li>
+                                    <p class="fr-tag ${fields.signalement_transmis == 1 ? 'fr-tag--green-emeraude' : ''}">
+                                        Transmis : ${fields.signalement_transmis == 1 ? '✓ Oui' : '✗ Non'}
+                                    </p>
+                                </li>
+                                <li>
+                                    <p class="fr-tag ${fields.signalement_lu == 1 ? 'fr-tag--blue-ecume' : ''}">
+                                        Lu : ${fields.signalement_lu == 1 ? '✓ Oui' : '✗ Non'}
+                                    </p>
+                                </li>
+                                <li>
+                                    <p class="fr-tag ${fields.signalement_reponse == 1 ? 'fr-tag--purple-glycine' : ''}">
+                                        Réponse : ${fields.signalement_reponse == 1 ? '✓ Oui' : '✗ Non'}
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                // Ouvrir la modale
+                openModal();
+            }
+        }
+        
+        function openModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.showModal === 'function') {
+                        modal.showModal();
+                    } else {
+                        // Fallback pour les navigateurs qui ne supportent pas showModal
+                        modal.setAttribute('open', '');
+                        modal.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error('Erreur ouverture modale:', err);
+                    modal.setAttribute('open', '');
+                    modal.style.display = 'block';
                 }
-            };
-            
-            // Export selected rows
-            $scope.exportSelected = function() {
-                console.log('Exporting rows:', $scope.selectedRows);
-                // Implement export logic here
-            };
-            
-            // Math functions for template
-            $scope.Math = window.Math;
-        }]);
+            }
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.close === 'function') {
+                        modal.close();
+                    } else {
+                        // Fallback
+                        modal.removeAttribute('open');
+                        modal.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error('Erreur fermeture modale:', err);
+                    modal.removeAttribute('open');
+                    modal.style.display = 'none';
+                }
+            }
+        }
+        
+        // Event listeners pour les filtres
+        document.getElementById('search-text').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') applyFilters();
+        });
+        
+        // Gérer la fermeture avec Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('modal-details');
+                if (modal && modal.hasAttribute('open')) {
+                    closeModal();
+                }
+            }
+        });
+        
+        // Fermer la modale en cliquant en dehors
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal();
+                    }
+                });
+            }
+        });
+        
+        // Charger les données au démarrage
+        loadData();
     </script>
-
 </body>
 </html>
