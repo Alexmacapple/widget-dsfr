@@ -3,427 +3,309 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Chart Line - Graphiques en ligne pour données SignalConso">
-    <title>Widget DSFR - Chart Line</title>
-    
-    <!-- Favicon DSFR -->
-    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
-    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
-    
-    <!-- CSS - Ordre important : ODS puis DSFR -->
-    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <meta name="description" content="Widget graphique en ligne DSFR - Évolution temporelle des données SignalConso">
+    <title>Graphique en ligne DSFR - SignalConso</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
-
-    <!-- jQuery requis par ODS Widgets -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
-    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        /* Harmonisation des widgets ODS avec DSFR */
-        .ods-widget {
-            font-family: var(--font-family-base);
-            color: var(--text-default-grey);
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { display: none; }
+        .data-table.show { display: table; }
+        @media (max-width: 768px) {
+            .chart-container { height: 300px; }
         }
-        
-        .ods-widget .odswidget-chart svg {
-            border-radius: 0.25rem;
-            border: 1px solid var(--border-default-grey);
-        }
-        
-        .ods-widget .odswidget-chart .highcharts-container {
-            border-radius: 0.25rem;
-        }
-        
-        .ods-widget .odswidget-chart .highcharts-legend-item text {
-            font-family: var(--font-family-base) !important;
-            fill: var(--text-default-grey) !important;
-        }
-        
-        .ods-widget .odswidget-chart .highcharts-axis-labels text {
-            font-family: var(--font-family-base) !important;
-            fill: var(--text-default-grey) !important;
-        }
-        
-        /* Zone de widget */
-        .widget-container {
-            min-height: 500px;
-            background-color: var(--background-alt-grey);
-            border: 1px solid var(--border-default-grey);
-            border-radius: 0.25rem;
-            padding: 1.5rem;
-        }
-        
-        /* Support du mode sombre */
-        [data-fr-theme="dark"] .widget-container {
-            background-color: var(--background-elevated-grey);
-            border-color: var(--border-default-grey);
-        }
-        
-        /* Amélioration pour les graphiques */
-        .chart-controls {
-            margin-bottom: 1.5rem;
-        }
-        
-        .chart-container {
-            min-height: 400px;
-            background: white;
-            border-radius: 0.25rem;
-            border: 1px solid var(--border-default-grey);
-            padding: 1rem;
-        }
-        
-        /* Style pour les facettes */
-        .odswidget-facet {
-            margin-bottom: 0.5rem;
-            background: white;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-        }
-        
-        .odswidget-facet__value-label {
-            cursor: pointer;
-            padding: 0.25rem 0;
-        }
-        
-        .odswidget-facet__value-label:hover {
-            background-color: var(--background-alt-blue-france);
-            padding-left: 0.5rem;
-            transition: all 0.2s;
-        }
-        
-        .odswidget-facet__value-count {
-            color: var(--text-mention-grey);
-            font-size: 0.875rem;
-            margin-left: 0.5rem;
-        }
-        
-        /* Message No data */
-        .highcharts-no-data text {
-            font-family: var(--font-family-base) !important;
-            fill: var(--text-default-grey) !important;
-        }
+        .fr-table { margin-top: 2rem; }
+        .export-buttons { margin-top: 1rem; }
     </style>
 </head>
 <body>
-    <!-- Skip links pour l'accessibilité -->
-    <div class="fr-skiplinks">
-        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
-            <ul class="fr-skiplinks__list">
-                <li><a class="fr-link" href="#content">Contenu</a></li>
-                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
-            </ul>
-        </nav>
-    </div>
-
-    <!-- Header DSFR -->
-    <header role="banner" class="fr-header">
-        <div class="fr-header__body">
-            <div class="fr-container">
-                <div class="fr-header__body-row">
-                    <div class="fr-header__brand fr-enlarge-link">
-                        <div class="fr-header__brand-top">
-                            <div class="fr-header__logo">
-                                <p class="fr-logo">
-                                    République
-                                    <br>Française
-                                </p>
+    <!-- DÉBUT ZONE WIDGET CHART-LINE-001 -->
+    <div id="widget-chart-line-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Évolution mensuelle des signalements SignalConso</h2>
+                        <p class="fr-text--sm">Nombre de signalements par mois sur les 12 derniers mois</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="period-select">Période</label>
+                                        <select class="fr-select" id="period-select" onchange="updatePeriod()">
+                                            <option value="12">12 derniers mois</option>
+                                            <option value="6">6 derniers mois</option>
+                                            <option value="3">3 derniers mois</option>
+                                            <option value="24">24 derniers mois</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="fr-header__service">
-                            <a href="/" title="Accueil - Widget DSFR">
-                                <p class="fr-header__service-title">
-                                    Widget Chart Line
-                                </p>
-                            </a>
-                            <p class="fr-header__service-tagline">Graphiques en ligne - data.economie.gouv.fr</p>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="lineChart" role="img" aria-label="Graphique montrant l'évolution mensuelle des signalements"></canvas>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main content -->
-    <main id="content" role="main">
-        <div class="fr-container fr-py-6w">
-            <!-- Fil d'Ariane -->
-            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
-                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
-                <div class="fr-collapse" id="breadcrumb-1">
-                    <ol class="fr-breadcrumb__list">
-                        <li>
-                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
-                        </li>
-                        <li>
-                            <a class="fr-breadcrumb__link" aria-current="page">Chart Line</a>
-                        </li>
-                    </ol>
-                </div>
-            </nav>
-
-            <!-- Titre principal -->
-            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
-                <div class="fr-col-12">
-                    <h1>Graphique en ligne - SignalConso</h1>
-                    <p class="fr-text--lead">Évolution temporelle des signalements consommateurs</p>
-                </div>
-            </div>
-
-            <!-- Widget -->
-            <div class="fr-grid-row fr-grid-row--gutters">
-                <div class="fr-col-12">
-                    <div class="fr-card">
-                        <div class="fr-card__body">
-                            <div class="fr-card__content">
-                                <h2 class="fr-card__title">Évolution des signalements par mois</h2>
-                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
-                            </div>
-                        </div>
-                        <div class="fr-card__body">
-                            <!-- DÉBUT ZONE WIDGET CHART-LINE-001 -->
-                            <div id="widget-chart-line-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
-                                <ods-dataset-context 
-                                    context="signalconso"
-                                    signalconso-domain="data.economie.gouv.fr"
-                                    signalconso-dataset="signalconso">
-                                    
-                                    <!-- Contrôles du graphique -->
-                                    <div class="chart-controls">
-                                        <div class="fr-grid-row fr-grid-row--gutters">
-                                            <div class="fr-col-12 fr-col-md-6">
-                                                <div class="fr-select-group">
-                                                    <label class="fr-label" for="period-select">
-                                                        Période d'analyse
-                                                    </label>
-                                                    <select class="fr-select" id="period-select" 
-                                                            ng-model="periodFilter"
-                                                            ng-change="signalconso.parameters['refine.creationdate'] = periodFilter">
-                                                        <option value="">Toutes périodes</option>
-                                                        <option value="2024">2024</option>
-                                                        <option value="2023">2023</option>
-                                                        <option value="2022">2022</option>
-                                                        <option value="2021">2021</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="fr-col-12 fr-col-md-6">
-                                                <div class="fr-select-group">
-                                                    <label class="fr-label" for="category-select">
-                                                        Catégorie
-                                                    </label>
-                                                    <select class="fr-select" id="category-select"
-                                                            ng-model="signalconso.parameters['refine.category']">
-                                                        <option value="">Toutes catégories</option>
-                                                        <option value="Téléphonie - Internet - TV">Téléphonie - Internet - TV</option>
-                                                        <option value="Voyage - Loisirs">Voyage - Loisirs</option>
-                                                        <option value="Travaux - Rénovation">Travaux - Rénovation</option>
-                                                        <option value="Produits - Objets">Produits - Objets</option>
-                                                        <option value="Voiture / Véhicule">Voiture / Véhicule</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Facettes pour filtrage dynamique -->
-                                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
-                                        <div class="fr-col-12">
-                                            <h4>Filtrer par catégorie (cliquez pour filtrer le graphique)</h4>
-                                            <ods-facets context="signalconso">
-                                                <ods-facet name="category" disjunctive="true" limit="5"></ods-facet>
-                                            </ods-facets>
-                                            
-                                            <ods-clear-all-filters context="signalconso">
-                                                <button class="fr-btn fr-btn--secondary fr-btn--sm fr-mt-1w">
-                                                    Effacer tous les filtres
-                                                </button>
-                                            </ods-clear-all-filters>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Graphique en ligne -->
-                                    <div class="chart-container">
-                                        <ods-chart 
-                                            align-month="true"
-                                            display-legend="true"
-                                            single-y-axis="true"
-                                            timescale="month">
-                                            <ods-chart-query 
-                                                context="signalconso" 
-                                                field-x="creationdate"
-                                                maxpoints="0"
-                                                timescale="month">
-                                                <ods-chart-serie 
-                                                    chart-type="line" 
-                                                    function-y="COUNT" 
-                                                    color="#0063cb"
-                                                    scientific-display="false"
-                                                    display-units="true"
-                                                    label-y="Nombre de signalements">
-                                                </ods-chart-serie>
-                                            </ods-chart-query>
-                                        </ods-chart>
-                                    </div>
-                                    
-                                    <!-- Statistiques complémentaires -->
-                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-                                        <div class="fr-col-12 fr-col-md-4">
-                                            <div class="fr-callout fr-callout--blue-france">
-                                                <h3 class="fr-callout__title">Total signalements</h3>
-                                                <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.nhits | number }}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="fr-col-12 fr-col-md-4">
-                                            <div class="fr-callout fr-callout--green-tilleul-verveine">
-                                                <h3 class="fr-callout__title">Période analysée</h3>
-                                                <p class="fr-callout__text">
-                                                    <span class="fr-text--bold">
-                                                        {{ periodFilter || 'Toutes périodes' }}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="fr-col-12 fr-col-md-4">
-                                            <div class="fr-callout fr-callout--orange-terre-battue">
-                                                <h3 class="fr-callout__title">Catégories filtrées</h3>
-                                                <p class="fr-callout__text">
-                                                    <span class="fr-text--bold" ng-if="!signalconso.parameters['refine.category']">
-                                                        Toutes catégories
-                                                    </span>
-                                                    <span class="fr-text--bold" ng-if="signalconso.parameters['refine.category']">
-                                                        {{ signalconso.parameters['refine.category'] }}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </ods-dataset-context>
-                            </div>
-                            <!-- FIN ZONE WIDGET CHART-LINE-001 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer DSFR -->
-    <footer class="fr-footer" role="contentinfo" id="fr-footer">
-        <div class="fr-container">
-            <div class="fr-footer__body">
-                <div class="fr-footer__brand fr-enlarge-link">
-                    <a href="/" title="Retour à l'accueil">
-                        <p class="fr-logo">
-                            République
-                            <br>Française
-                        </p>
-                    </a>
-                </div>
-                <div class="fr-footer__content">
-                    <p class="fr-footer__content-desc">
-                        Widget de visualisation des données SignalConso en graphique ligne. 
-                        Données issues de data.economie.gouv.fr
-                    </p>
-                    <ul class="fr-footer__content-list">
-                        <li class="fr-footer__content-item">
-                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="fr-footer__bottom">
-                <ul class="fr-footer__bottom-list">
-                    <li class="fr-footer__bottom-item">
-                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
-                    </li>
-                    <li class="fr-footer__bottom-item">
-                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
-                    </li>
-                    <li class="fr-footer__bottom-item">
-                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
-                    </li>
-                </ul>
-                <div class="fr-footer__bottom-copy">
-                    <p>
-                        Sauf mention contraire, tous les contenus de ce site sont sous
-                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modal des paramètres d'affichage -->
-    <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
-        <div class="fr-container fr-container--fluid fr-container-md">
-            <div class="fr-grid-row fr-grid-row--center">
-                <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
-                    <div class="fr-modal__body">
-                        <div class="fr-modal__header">
-                            <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal" title="Fermer">
-                                Fermer
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                                Plein écran
                             </button>
                         </div>
-                        <div class="fr-modal__content">
-                            <h1 id="fr-theme-modal-title" class="fr-modal__title">
-                                Paramètres d'affichage
-                            </h1>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <table class="fr-table data-table" id="data-table">
+                            <caption>Données du graphique : Évolution mensuelle des signalements</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Mois</th>
+                                    <th scope="col">Nombre de signalements</th>
+                                    <th scope="col">Variation (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Les données seront insérées ici -->
+                            </tbody>
+                        </table>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de ces données</p>
+                            <p>Les données proviennent de SignalConso, la plateforme de signalement des anomalies de consommation. 
+                            Les valeurs sont mises à jour quotidiennement depuis data.economie.gouv.fr.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </dialog>
-
-    <!-- JS - Ordre important -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
-    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
-    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-LINE-001 -->
     
-    <!-- Script de traduction et amélioration -->
     <script>
-        // Traduction automatique des éléments ODS en français
-        document.addEventListener('DOMContentLoaded', function() {
-            function translateElements() {
-                // Traduire "Clear all" en "Effacer tout"
-                document.querySelectorAll('button, a, span').forEach(function(el) {
-                    if (el.textContent === 'Clear all' || el.textContent.trim() === 'Clear all') {
-                        el.textContent = 'Effacer tout';
-                    }
-                });
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            primary: '#000091',
+            primaryLight: '#6A6AF4',
+            success: '#18753C',
+            error: '#CE0500',
+            warning: '#B34000',
+            info: '#0063CB',
+            grey: '#666666'
+        };
+        
+        // Données simulées (en production, elles viendraient de l'API)
+        const generateMonthlyData = (months) => {
+            const data = [];
+            const labels = [];
+            const currentDate = new Date();
+            
+            for (let i = months - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(currentDate.getMonth() - i);
+                const monthName = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+                labels.push(monthName);
                 
-                // Traduire les éléments du timerange
-                document.querySelectorAll('.odswidget-timerange').forEach(function(widget) {
-                    widget.querySelectorAll('*').forEach(function(el) {
-                        if (el.textContent === 'From') el.textContent = 'De';
-                        if (el.textContent === 'To') el.textContent = 'À';
-                    });
-                });
-                
-                // Traduire "No data" en "Aucune donnée"
-                document.querySelectorAll('.highcharts-no-data').forEach(function(el) {
-                    if (el.textContent === 'No data' || el.textContent.includes('No data')) {
-                        el.textContent = 'Aucune donnée disponible';
-                    }
-                });
+                // Simulation de données avec tendance et variation
+                const baseValue = 25000;
+                const trend = (months - i) * 200;
+                const variation = Math.random() * 5000 - 2500;
+                data.push(Math.round(baseValue + trend + variation));
             }
             
-            // Traduction initiale après un délai
-            setTimeout(translateElements, 500);
-            setTimeout(translateElements, 1500);
+            return { labels, data };
+        };
+        
+        // Configuration initiale du graphique
+        let chartData = generateMonthlyData(12);
+        
+        const config = {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Nombre de signalements',
+                    data: chartData.data,
+                    borderColor: dsfrColors.primary,
+                    backgroundColor: dsfrColors.primaryLight + '20',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: dsfrColors.primary,
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Signalements: ' + context.parsed.y.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
             
-            // Observer pour les changements dynamiques
-            const observer = new MutationObserver(translateElements);
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
+            chartData.labels.forEach((label, index) => {
+                const row = tableBody.insertRow();
+                const cellMonth = row.insertCell(0);
+                const cellValue = row.insertCell(1);
+                const cellVariation = row.insertCell(2);
+                
+                cellMonth.textContent = label;
+                cellValue.textContent = chartData.data[index].toLocaleString('fr-FR');
+                
+                // Calcul de la variation
+                if (index > 0) {
+                    const variation = ((chartData.data[index] - chartData.data[index - 1]) / chartData.data[index - 1] * 100).toFixed(1);
+                    cellVariation.textContent = (variation > 0 ? '+' : '') + variation + '%';
+                    cellVariation.style.color = variation > 0 ? dsfrColors.success : dsfrColors.error;
+                } else {
+                    cellVariation.textContent = '-';
+                }
             });
+        }
+        
+        // Mise à jour de la période
+        function updatePeriod() {
+            const period = parseInt(document.getElementById('period-select').value);
+            chartData = generateMonthlyData(period);
+            
+            myChart.data.labels = chartData.labels;
+            myChart.data.datasets[0].data = chartData.data;
+            myChart.update();
+            
+            updateDataTable();
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-evolution.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Mois,Nombre de signalements\n';
+            chartData.labels.forEach((label, index) => {
+                csv += `"${label}",${chartData.data[index]}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-evolution.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-line-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            myChart.resize();
         });
     </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
 </body>
 </html>
