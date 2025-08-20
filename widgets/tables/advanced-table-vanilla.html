@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Table Avancée DSFR - SignalConso</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <style>
         body { overflow-x: hidden; }
         .table-container { overflow-x: auto; overflow-y: hidden; margin: 2rem 0; }
@@ -563,7 +563,7 @@
         </div>
     </dialog>
     
-    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     <script>
         let allData = [];
         let filteredData = [];
@@ -575,14 +575,12 @@
         
         async function loadData() {
             try {
-                console.log('Chargement des données...');
                 const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=500&sort=-creationdate');
                 const data = await response.json();
                 
                 allData = data.records || [];
                 document.getElementById('total-count').textContent = data.nhits.toLocaleString('fr-FR');
                 
-                console.log(`${allData.length} enregistrements chargés`);
                 applyFilters();
             } catch (error) {
                 console.error('Erreur:', error);
@@ -929,9 +927,7 @@ Réponse: ${fields.signalement_reponse == 1 ? 'Oui' : 'Non'}`);
         
         // Fonctions pour la modale
         function viewDetails(recordId) {
-            console.log('viewDetails appelé avec recordId:', recordId);
             const record = allData.find(r => r.recordid === recordId);
-            console.log('Record trouvé:', record);
             
             if (record) {
                 const fields = record.fields;
@@ -1046,18 +1042,15 @@ Réponse: ${fields.signalement_reponse == 1 ? 'Oui' : 'Non'}`);
         
         function openModal() {
             const modal = document.getElementById('modal-details');
-            console.log('openModal appelé, modal trouvé:', modal);
             if (modal) {
                 try {
                     // Utiliser l'API dialog HTML5
                     if (typeof modal.showModal === 'function') {
                         modal.showModal();
-                        console.log('Modal ouvert avec showModal()');
                     } else {
                         // Fallback pour les navigateurs qui ne supportent pas showModal
                         modal.setAttribute('open', '');
                         modal.style.display = 'block';
-                        console.log('Modal ouvert avec fallback');
                     }
                 } catch (err) {
                     console.error('Erreur ouverture modale:', err);

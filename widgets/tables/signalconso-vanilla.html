@@ -7,7 +7,7 @@
     <title>Table SignalConso - Version JavaScript Vanilla</title>
     
     <!-- DSFR CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     
     <style>
         body {
@@ -377,7 +377,7 @@
     </dialog>
     
     <!-- Script DSFR -->
-    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     
     <!-- Script JavaScript Vanilla pour charger les données -->
     <script>
@@ -415,15 +415,10 @@
             
             try {
                 const url = buildApiUrl();
-                console.log('🔗 Fetching URL:', url);
                 
                 const response = await fetch(url);
-                console.log('📡 Response status:', response.status);
                 
                 const data = await response.json();
-                console.log('📊 Data received:', data);
-                console.log('📌 Number of records:', data.records ? data.records.length : 0);
-                console.log('📌 First record:', data.records ? data.records[0] : 'No records');
                 
                 // Mettre à jour le total
                 totalCount = data.nhits;
@@ -474,7 +469,6 @@
                         tableBody.appendChild(row);
                     });
                 } else {
-                    console.log('⚠️ No records found in response');
                     tableBody.innerHTML = '<tr><td colspan="10">Aucune donnée trouvée</td></tr>';
                 }
                 
@@ -596,7 +590,6 @@
         
         // Fonction pour voir les détails
         function viewDetails(recordId) {
-            console.log('viewDetails appelé avec recordId:', recordId);
             
             // Trouver l'enregistrement dans les données
             let record = null;
@@ -723,18 +716,15 @@
         
         function openModal() {
             const modal = document.getElementById('modal-details');
-            console.log('openModal appelé, modal trouvé:', modal);
             if (modal) {
                 try {
                     // Utiliser l'API dialog HTML5
                     if (typeof modal.showModal === 'function') {
                         modal.showModal();
-                        console.log('Modal ouvert avec showModal()');
                     } else {
                         // Fallback pour les navigateurs qui ne supportent pas showModal
                         modal.setAttribute('open', '');
                         modal.style.display = 'block';
-                        console.log('Modal ouvert avec fallback');
                     }
                 } catch (err) {
                     console.error('Erreur ouverture modale:', err);
@@ -776,7 +766,6 @@
             if (e.target && e.target.classList.contains('btn-details')) {
                 e.preventDefault();
                 const recordId = e.target.getAttribute('data-recordid');
-                console.log('Button clicked, recordId:', recordId);
                 if (recordId) {
                     viewDetails(recordId);
                 }
@@ -809,8 +798,6 @@
         });
         
         // Charger les données au démarrage
-        console.log('🚀 Starting application...');
-        console.log('📍 Current location:', window.location.href);
         loadData();
     </script>
 </body>

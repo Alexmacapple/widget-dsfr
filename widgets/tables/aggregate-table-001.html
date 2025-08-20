@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Table avec agrégations - SignalConso</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <style>
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .aggregate-section { margin-bottom: 2rem; }
@@ -147,7 +147,7 @@
         </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     <script>
         let allData = [];
         let aggregations = {
@@ -160,7 +160,6 @@
 
         async function loadData() {
             try {
-                console.log('Chargement des données...');
                 
                 // Charger les données
                 const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&sort=-creationdate');
@@ -169,7 +168,6 @@
                 allData = data.records || [];
                 const totalCount = data.nhits;
                 
-                console.log(`${allData.length} enregistrements chargés sur ${totalCount} total`);
                 
                 // Afficher le total
                 document.getElementById('total-count').textContent = totalCount.toLocaleString('fr-FR');
@@ -253,7 +251,6 @@
                 const facetResponse = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=category&facet=reg_name&facet=status');
                 const facetData = await facetResponse.json();
                 
-                console.log('Facets loaded:', facetData.facet_groups);
                 
                 // Traiter et afficher les facettes
                 displayCategoriesTable(facetData.facet_groups, facetData.nhits);
