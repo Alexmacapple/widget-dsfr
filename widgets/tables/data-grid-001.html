@@ -5,59 +5,371 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Widget Data Grid DSFR - Grille de données interactive">
     <title>Data Grid DSFR - SignalConso</title>
-    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
-    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.min.css">
     <style>
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
-        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; padding: 1rem; }
-        .grid-item { background: white; border: 1px solid #ddd; border-radius: 0.5rem; padding: 1rem; transition: transform 0.2s; }
-        .grid-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .grid-header { font-weight: 700; color: #000091; margin-bottom: 0.5rem; }
-        .grid-meta { display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.875rem; color: #666; }
+        .data-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 1.5rem; 
+            margin: 2rem 0;
+        }
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .skeleton-card {
+            height: 250px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 0.5rem;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .grid-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f6f6f6;
+            border-radius: 0.5rem;
+        }
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #000091;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+            text-transform: uppercase;
+        }
     </style>
 </head>
-<body ng-app="ods-widgets">
+<body>
     <!-- DÉBUT ZONE WIDGET DATA-GRID-001 -->
     <div id="widget-data-grid-001" class="fr-container fr-py-3w">
         <h1 class="fr-h3">Grille de données interactive</h1>
         <p class="fr-text--sm">Affichage en grille avec interactions</p>
         
-        <ods-dataset-context context="signalconso" signalconso-domain="data.economie.gouv.fr" signalconso-dataset="signalconso">
-            <div class="fr-mb-2w">
-                <div class="fr-search-bar" role="search">
-                    <input class="fr-input" type="search" placeholder="Filtrer..." ng-model="search" ng-change="signalconso.parameters['q'] = search">
-                    <button class="fr-btn" type="submit">Rechercher</button>
-                </div>
+        <!-- Statistiques -->
+        <div class="grid-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="total-records">-</div>
+                <div class="stat-label">Total</div>
             </div>
-            
-            <div class="data-grid">
-                <div class="grid-item" ng-repeat="record in signalconso.records | limitTo:12">
-                    <div class="grid-header">{{ record.fields.categorie }}</div>
-                    <p>{{ record.fields.details | limitTo:150 }}...</p>
-                    <div class="grid-meta">
-                        <span class="fr-badge fr-badge--sm">{{ record.fields.ville }}</span>
-                        <span>{{ record.fields.date_creation | date:'dd/MM/yyyy' }}</span>
-                    </div>
-                    <div class="fr-mt-2w">
-                        <span class="fr-badge" ng-class="{'fr-badge--success': record.fields.statut == 'Traité', 'fr-badge--warning': record.fields.statut == 'En cours'}">
-                            {{ record.fields.statut }}
-                        </span>
-                    </div>
-                </div>
+            <div class="stat-item">
+                <div class="stat-value" id="filtered-records">-</div>
+                <div class="stat-label">Filtrés</div>
             </div>
-            
-            <div class="fr-pagination fr-mt-3w">
-                <button class="fr-btn fr-btn--secondary" ng-click="signalconso.parameters['start'] = signalconso.parameters['start'] - 12" ng-disabled="!signalconso.parameters['start']">Précédent</button>
-                <button class="fr-btn fr-btn--secondary" ng-click="signalconso.parameters['start'] = (signalconso.parameters['start'] || 0) + 12">Suivant</button>
+            <div class="stat-item">
+                <div class="stat-value" id="current-page-stat">1</div>
+                <div class="stat-label">Page</div>
             </div>
-        </ods-dataset-context>
+        </div>
+        
+        <!-- Barre de recherche -->
+        <div class="fr-mb-3w">
+            <div class="fr-search-bar" role="search">
+                <input class="fr-input" type="search" id="search-input" placeholder="Rechercher par catégorie, département, région...">
+                <button class="fr-btn" type="submit" onclick="applySearch()">Rechercher</button>
+            </div>
+        </div>
+        
+        <!-- Filtres rapides -->
+        <div class="fr-mb-3w">
+            <div class="fr-btns-group fr-btns-group--inline">
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('all')">Tous</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('NA')">Non applicable</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('NonConsulte')">Non consulté</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('PromesseAction')">Promesse action</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('Infonde')">Infondé</button>
+            </div>
+        </div>
+        
+        <!-- Grille de données -->
+        <div id="data-grid" class="data-grid">
+            <!-- Skeleton loading -->
+            <div class="skeleton-grid" id="skeleton-loader">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <nav role="navigation" class="fr-pagination fr-mt-3w" aria-label="Pagination" id="pagination">
+            <ul class="fr-pagination__list">
+                <li>
+                    <button class="fr-pagination__link fr-pagination__link--prev" onclick="previousPage()">
+                        Page précédente
+                    </button>
+                </li>
+                <li id="page-numbers"></li>
+                <li>
+                    <button class="fr-pagination__link fr-pagination__link--next" onclick="nextPage()">
+                        Page suivante
+                    </button>
+                </li>
+            </ul>
+        </nav>
     </div>
     <!-- FIN ZONE WIDGET DATA-GRID-001 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
-    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.11.2/dist/dsfr.module.min.js"></script>
+    <script>
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 0;
+        const itemsPerPage = 12;
+        let currentFilter = 'all';
+        let searchTerm = '';
+        
+        async function loadData() {
+            try {
+                console.log('Chargement des données...');
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=500&sort=-creationdate');
+                const data = await response.json();
+                
+                allData = data.records || [];
+                document.getElementById('total-records').textContent = data.nhits.toLocaleString('fr-FR');
+                
+                console.log(`${allData.length} enregistrements chargés`);
+                applyFilters();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError();
+            }
+        }
+        
+        function applyFilters() {
+            filteredData = allData.filter(record => {
+                const fields = record.fields || {};
+                
+                // Filtre par statut
+                if (currentFilter !== 'all' && fields.status !== currentFilter) {
+                    return false;
+                }
+                
+                // Filtre par recherche
+                if (searchTerm) {
+                    const searchLower = searchTerm.toLowerCase();
+                    const searchableText = `${fields.category} ${fields.subcategories} ${fields.dep_name} ${fields.reg_name}`.toLowerCase();
+                    if (!searchableText.includes(searchLower)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            document.getElementById('filtered-records').textContent = filteredData.length.toLocaleString('fr-FR');
+            currentPage = 0;
+            displayGrid();
+        }
+        
+        function displayGrid() {
+            const grid = document.getElementById('data-grid');
+            const skeleton = document.getElementById('skeleton-loader');
+            
+            if (skeleton) {
+                skeleton.remove();
+            }
+            
+            grid.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                grid.innerHTML = '<div class="fr-alert fr-alert--info"><p>Aucun résultat trouvé</p></div>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            const start = currentPage * itemsPerPage;
+            const end = Math.min(start + itemsPerPage, filteredData.length);
+            const pageData = filteredData.slice(start, end);
+            
+            pageData.forEach(record => {
+                const fields = record.fields || {};
+                const card = createCard(fields, record.recordid);
+                grid.appendChild(card);
+            });
+            
+            updatePagination();
+            document.getElementById('current-page-stat').textContent = currentPage + 1;
+        }
+        
+        function createCard(fields, recordId) {
+            const card = document.createElement('div');
+            card.className = 'fr-card fr-card--shadow';
+            
+            const statusColor = getStatusColor(fields.status);
+            const statusLabel = getStatusLabel(fields.status);
+            
+            card.innerHTML = `
+                <div class="fr-card__body">
+                    <div class="fr-card__content">
+                        <h3 class="fr-card__title">
+                            <span class="fr-badge fr-badge--${getCategoryColor(fields.category)}">${fields.category || 'Non catégorisé'}</span>
+                        </h3>
+                        <p class="fr-card__desc">
+                            ${fields.subcategories ? fields.subcategories.substring(0, 150) + '...' : 'Pas de sous-catégorie'}
+                        </p>
+                        <div class="fr-card__start">
+                            <p class="fr-card__detail">
+                                ${fields.dep_name || 'Département inconnu'} - ${fields.reg_name || 'Région inconnue'}
+                            </p>
+                            <p class="fr-card__detail">
+                                ${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="fr-card__footer">
+                        <ul class="fr-btns-group fr-btns-group--inline">
+                            <li>
+                                <span class="fr-badge fr-badge--${statusColor}">${statusLabel}</span>
+                            </li>
+                            <li>
+                                <button class="fr-btn fr-btn--sm fr-btn--tertiary" onclick="viewDetails('${recordId}')">
+                                    Détails
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function getStatusColor(status) {
+            const colors = {
+                'NA': 'grey',
+                'NonConsulte': 'error',
+                'PromesseAction': 'success',
+                'Infonde': 'warning'
+            };
+            return colors[status] || 'info';
+        }
+        
+        function getStatusLabel(status) {
+            const labels = {
+                'NA': 'Non applicable',
+                'NonConsulte': 'Non consulté',
+                'PromesseAction': 'Promesse action',
+                'Infonde': 'Infondé'
+            };
+            return labels[status] || status || 'Inconnu';
+        }
+        
+        function getCategoryColor(category) {
+            const hash = category ? category.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 0;
+            const colors = ['info', 'success', 'warning', 'error', 'new', 'grey'];
+            return colors[hash % colors.length];
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('pagination').style.display = 'block';
+            
+            const pageNumbers = document.getElementById('page-numbers');
+            pageNumbers.innerHTML = '';
+            
+            const maxPages = 5;
+            const startPage = Math.max(0, currentPage - Math.floor(maxPages / 2));
+            const endPage = Math.min(totalPages, startPage + maxPages);
+            
+            for (let i = startPage; i < endPage; i++) {
+                const link = document.createElement('a');
+                link.className = 'fr-pagination__link';
+                link.href = '#';
+                link.textContent = i + 1;
+                link.onclick = (e) => { 
+                    e.preventDefault(); 
+                    currentPage = i;
+                    displayGrid();
+                };
+                
+                if (i === currentPage) {
+                    link.setAttribute('aria-current', 'page');
+                }
+                
+                pageNumbers.appendChild(link);
+            }
+        }
+        
+        function previousPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                displayGrid();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        function nextPage() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                displayGrid();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        function filterByStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.fr-btns-group button').forEach(btn => {
+                btn.classList.remove('fr-btn--primary');
+                btn.classList.add('fr-btn--secondary');
+            });
+            event.target.classList.remove('fr-btn--secondary');
+            event.target.classList.add('fr-btn--primary');
+            applyFilters();
+        }
+        
+        function applySearch() {
+            searchTerm = document.getElementById('search-input').value;
+            applyFilters();
+        }
+        
+        function viewDetails(recordId) {
+            const record = allData.find(r => r.recordid === recordId);
+            if (record) {
+                const fields = record.fields;
+                alert(`Détails du signalement:\n\nID: ${recordId}\nCatégorie: ${fields.category}\nDépartement: ${fields.dep_name}\nRégion: ${fields.reg_name}\nStatut: ${fields.status}`);
+            }
+        }
+        
+        function showError() {
+            const grid = document.getElementById('data-grid');
+            grid.innerHTML = '<div class="fr-alert fr-alert--error"><p>Erreur de chargement des données</p></div>';
+        }
+        
+        // Event listener pour la recherche avec Enter
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applySearch();
+            }
+        });
+        
+        // Charger les données au démarrage
+        loadData();
+    </script>
 </body>
 </html>
