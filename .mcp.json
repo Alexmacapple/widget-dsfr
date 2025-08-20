@@ -49,15 +49,6 @@
       ],
       "description": "Planification structurée et décomposition de tâches complexes"
     },
-    "semgrep": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-server-semgrep"
-      ],
-      "description": "Analyse de sécurité et détection de vulnérabilités dans le code"
-    },
     "git": {
       "type": "stdio",
       "command": "npx",
