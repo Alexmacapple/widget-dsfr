@@ -108,6 +108,13 @@
         "GITHUB_PERSONAL_ACCESS_TOKEN": ""
       },
       "description": "Intégration GitHub - issues, PRs, workflows"
+    },
+    "ccusage": {
+      "type": "stdio",
+      "command": "ccusage",
+      "args": ["mcp"],
+      "env": {},
+      "description": "Suivi et analyse de la consommation d'API Claude Code"
     }
   }
 }
