@@ -156,6 +156,7 @@
             departments: {},
             status: {}
         };
+        let regionDetails = {}; // Pour stocker les détails par région
 
         async function loadData() {
             try {
@@ -192,6 +193,7 @@
                 departments: {},
                 status: {}
             };
+            regionDetails = {};
 
             // Calculer les agrégations locales sur l'échantillon
             allData.forEach(record => {
@@ -202,9 +204,29 @@
                     aggregations.categories[fields.category] = (aggregations.categories[fields.category] || 0) + 1;
                 }
                 
-                // Régions
+                // Régions avec détails
                 if (fields.reg_name) {
                     aggregations.regions[fields.reg_name] = (aggregations.regions[fields.reg_name] || 0) + 1;
+                    
+                    // Initialiser les détails de la région si nécessaire
+                    if (!regionDetails[fields.reg_name]) {
+                        regionDetails[fields.reg_name] = {
+                            departments: {},
+                            categories: {}
+                        };
+                    }
+                    
+                    // Compter les départements par région
+                    if (fields.dep_name) {
+                        regionDetails[fields.reg_name].departments[fields.dep_name] = 
+                            (regionDetails[fields.reg_name].departments[fields.dep_name] || 0) + 1;
+                    }
+                    
+                    // Compter les catégories par région
+                    if (fields.category) {
+                        regionDetails[fields.reg_name].categories[fields.category] = 
+                            (regionDetails[fields.reg_name].categories[fields.category] || 0) + 1;
+                    }
                 }
                 
                 // Départements
@@ -293,6 +315,31 @@
             // Top 10 régions
             regionFacet.facets.slice(0, 10).forEach((item, index) => {
                 const percent = (item.count / totalHits * 100).toFixed(1);
+                
+                // Trouver le département et la catégorie principaux pour cette région
+                let mainDepartment = '-';
+                let mainCategory = '-';
+                
+                if (regionDetails[item.name]) {
+                    // Département principal
+                    const depts = regionDetails[item.name].departments;
+                    if (Object.keys(depts).length > 0) {
+                        const topDept = Object.entries(depts).sort((a, b) => b[1] - a[1])[0];
+                        if (topDept) {
+                            mainDepartment = topDept[0];
+                        }
+                    }
+                    
+                    // Catégorie principale
+                    const cats = regionDetails[item.name].categories;
+                    if (Object.keys(cats).length > 0) {
+                        const topCat = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
+                        if (topCat) {
+                            mainCategory = topCat[0];
+                        }
+                    }
+                }
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${item.name}</strong></td>
@@ -300,8 +347,8 @@
                     <td>
                         <span class="fr-badge fr-badge--sm">${percent}%</span>
                     </td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td>${mainDepartment}</td>
+                    <td><span class="fr-badge fr-badge--sm fr-badge--grey">${mainCategory}</span></td>
                 `;
                 tbody.appendChild(row);
             });
