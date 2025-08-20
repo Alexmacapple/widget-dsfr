@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <style>
         body { overflow-x: hidden; }
-        .table-container { overflow-x: auto; overflow-y: hidden; margin: 2rem 0; }
+        .table-container { overflow-x: hidden; overflow-y: hidden; margin: 2rem 0; }
         .fr-table {
             border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
         }
         .fr-table.fr-table--bordered th,
         .fr-table.fr-table--bordered td {
@@ -34,33 +36,54 @@
         .sort-arrow { cursor: pointer; user-select: none; }
         .sort-arrow:hover { color: #000091; }
         
+        /* Largeur des colonnes pour éviter le scroll */
+        .fr-table th:nth-child(1) { width: 4%; }  /* Checkbox */
+        .fr-table th:nth-child(2) { width: 10%; } /* Date */
+        .fr-table th:nth-child(3) { width: 12%; } /* Catégorie */
+        .fr-table th:nth-child(4) { width: 12%; } /* Département */
+        .fr-table th:nth-child(5) { width: 12%; } /* Région */
+        .fr-table th:nth-child(6) { width: 10%; } /* Statut */
+        .fr-table th:nth-child(7) { width: 15%; } /* Tags */
+        .fr-table th:nth-child(8) { width: 15%; } /* Signalement */
+        .fr-table th:nth-child(9) { width: 10%; } /* Actions */
+        
         /* Styles pour les checkboxes dans le tableau */
         .fr-table th:first-child,
         .fr-table td:first-child {
-            padding: 1.25rem 1rem;
+            padding: 0.5rem;
             text-align: center;
-            min-width: 70px;
         }
         
         .fr-table input[type="checkbox"] {
-            width: 1.75rem;
-            height: 1.75rem;
+            width: 1.5rem;
+            height: 1.5rem;
             cursor: pointer;
-            margin: 0.5rem;
+            margin: 0.25rem;
             display: inline-block;
             vertical-align: middle;
             position: relative;
         }
         
+        /* Gestion du texte dans les cellules */
+        .fr-table td {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .fr-table th {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
         /* Plus d'espace vertical entre les lignes */
         .fr-table tbody tr {
-            height: 4rem;
+            height: 3rem;
             border-bottom: 1px solid #e5e5e5;
         }
         
         .fr-table tbody td {
-            padding-top: 1.25rem;
-            padding-bottom: 1.25rem;
             vertical-align: middle;
         }
         
@@ -80,10 +103,6 @@
             outline-offset: 3px;
         }
         
-        /* Espacement entre checkboxes consécutives */
-        .fr-table tbody tr + tr td:first-child {
-            padding-top: 1.5rem;
-        }
         
         /* Styles pour la modale style DSFR */
         dialog#modal-details {
