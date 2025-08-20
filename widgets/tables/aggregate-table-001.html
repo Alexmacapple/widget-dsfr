@@ -216,10 +216,11 @@
                         };
                     }
                     
-                    // Compter les départements par région
-                    if (fields.dep_name) {
-                        regionDetails[fields.reg_name].departments[fields.dep_name] = 
-                            (regionDetails[fields.reg_name].departments[fields.dep_name] || 0) + 1;
+                    // Compter les départements par région avec leur code
+                    if (fields.dep_name && fields.dep_code) {
+                        const deptWithCode = `${fields.dep_name} (${fields.dep_code})`;
+                        regionDetails[fields.reg_name].departments[deptWithCode] = 
+                            (regionDetails[fields.reg_name].departments[deptWithCode] || 0) + 1;
                     }
                     
                     // Compter les catégories par région
