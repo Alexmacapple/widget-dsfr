@@ -55,7 +55,7 @@ mcp__ods-widgets__analyze_dataset dataset:"signalconso"
 - **playwright**: Browser testing
 - **github**: GitHub operations
 - **git**: Version control
-- **semgrep**: Security analysis
+- **ccusage**: Claude Code API consumption tracking
 
 ## Widget Development Workflow
 
