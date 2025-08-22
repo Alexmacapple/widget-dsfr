@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique nuage de points DSFR - Corrélation entre données SignalConso">
+    <title>Graphique nuage de points DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { display: none; }
+        .data-table.show { display: table; width: 100%; }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: auto;
+        }
+        /* Fix pour le chevauchement du caption */
+        .fr-table caption {
+            position: relative !important;
+            padding: 1rem;
+            background: #f5f5fe;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 300px; }
+        }
+        .export-buttons { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET CHART-SCATTER-001 -->
+    <div id="widget-chart-scatter-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Corrélation temps de résolution / satisfaction client</h2>
+                        <p class="fr-text--sm">Analyse de la relation entre le temps de traitement et la satisfaction des consommateurs</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="category-select">Catégorie</label>
+                                        <select class="fr-select" id="category-select" onchange="updateCategory()">
+                                            <option value="all">Toutes catégories</option>
+                                            <option value="commerce">Commerce</option>
+                                            <option value="services">Services</option>
+                                            <option value="alimentation">Alimentation</option>
+                                            <option value="transport">Transport</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-regression" onchange="toggleRegression()">
+                                        <label class="fr-toggle__label" for="toggle-regression">
+                                            Afficher la ligne de tendance
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="scatterChart" role="img" aria-label="Graphique montrant la corrélation entre temps de résolution et satisfaction"></canvas>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Statistiques -->
+                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Corrélation</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="correlation-value">0.72</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Temps moyen</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="avg-time">15 jours</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Satisfaction moyenne</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="avg-satisfaction">3.8/5</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Échantillon</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="sample-size">500 cas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de ces données</p>
+                            <p>Ce graphique montre la corrélation entre le temps de résolution des signalements (en jours) 
+                            et la satisfaction client (note sur 5). Chaque point représente un dossier traité.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-SCATTER-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            primary: '#000091',
+            primaryLight: '#6A6AF4',
+            success: '#18753C',
+            error: '#CE0500',
+            warning: '#B34000',
+            info: '#0063CB',
+            grey: '#666666'
+        };
+        
+        // Génération de données simulées
+        const generateScatterData = (category = 'all') => {
+            const numPoints = category === 'all' ? 500 : 100;
+            const data = [];
+            
+            for (let i = 0; i < numPoints; i++) {
+                // Temps de résolution (1-60 jours)
+                const x = Math.random() * 59 + 1;
+                // Satisfaction (1-5) - inversement corrélée au temps
+                const baseY = 5 - (x / 60) * 3;
+                const noise = (Math.random() - 0.5) * 2;
+                const y = Math.max(1, Math.min(5, baseY + noise));
+                
+                data.push({
+                    x: Math.round(x),
+                    y: Math.round(y * 10) / 10
+                });
+            }
+            
+            return data;
+        };
+        
+        // Calcul de la ligne de régression
+        function calculateRegression(data) {
+            const n = data.length;
+            const sumX = data.reduce((sum, point) => sum + point.x, 0);
+            const sumY = data.reduce((sum, point) => sum + point.y, 0);
+            const sumXY = data.reduce((sum, point) => sum + point.x * point.y, 0);
+            const sumX2 = data.reduce((sum, point) => sum + point.x * point.x, 0);
+            
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+            
+            // Calcul du coefficient de corrélation
+            const meanX = sumX / n;
+            const meanY = sumY / n;
+            const numerator = data.reduce((sum, point) => 
+                sum + (point.x - meanX) * (point.y - meanY), 0);
+            const denomX = Math.sqrt(data.reduce((sum, point) => 
+                sum + Math.pow(point.x - meanX, 2), 0));
+            const denomY = Math.sqrt(data.reduce((sum, point) => 
+                sum + Math.pow(point.y - meanY, 2), 0));
+            const correlation = numerator / (denomX * denomY);
+            
+            return { slope, intercept, correlation };
+        }
+        
+        // Données initiales
+        let scatterData = generateScatterData();
+        let regression = calculateRegression(scatterData);
+        
+        // Configuration du graphique
+        const config = {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Signalements',
+                    data: scatterData,
+                    backgroundColor: dsfrColors.primary + '60',
+                    borderColor: dsfrColors.primary,
+                    borderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'point'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        callbacks: {
+                            label: function(context) {
+                                return `Temps: ${context.parsed.x} jours | Satisfaction: ${context.parsed.y}/5`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Temps de résolution (jours)',
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Satisfaction client (note sur 5)',
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 14
+                            }
+                        },
+                        min: 0,
+                        max: 5,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('scatterChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Mise à jour des statistiques
+        function updateStatistics() {
+            document.getElementById('correlation-value').textContent = 
+                regression.correlation.toFixed(2);
+            
+            const avgX = scatterData.reduce((sum, p) => sum + p.x, 0) / scatterData.length;
+            const avgY = scatterData.reduce((sum, p) => sum + p.y, 0) / scatterData.length;
+            
+            document.getElementById('avg-time').textContent = 
+                Math.round(avgX) + ' jours';
+            document.getElementById('avg-satisfaction').textContent = 
+                avgY.toFixed(1) + '/5';
+            document.getElementById('sample-size').textContent = 
+                scatterData.length + ' cas';
+        }
+        
+        // Mise à jour de la catégorie
+        function updateCategory() {
+            const category = document.getElementById('category-select').value;
+            scatterData = generateScatterData(category);
+            regression = calculateRegression(scatterData);
+            
+            myChart.data.datasets[0].data = scatterData;
+            
+            // Supprimer la ligne de tendance si elle existe
+            if (myChart.data.datasets.length > 1) {
+                myChart.data.datasets.pop();
+            }
+            
+            // Ré-ajouter si nécessaire
+            if (document.getElementById('toggle-regression').checked) {
+                addRegressionLine();
+            }
+            
+            myChart.update();
+            updateStatistics();
+        }
+        
+        // Ajouter la ligne de régression
+        function addRegressionLine() {
+            const minX = 0;
+            const maxX = 60;
+            
+            const regressionLine = {
+                label: 'Ligne de tendance',
+                data: [
+                    { x: minX, y: regression.intercept + regression.slope * minX },
+                    { x: maxX, y: regression.intercept + regression.slope * maxX }
+                ],
+                type: 'line',
+                borderColor: dsfrColors.error,
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                pointHoverRadius: 0
+            };
+            
+            myChart.data.datasets.push(regressionLine);
+        }
+        
+        // Toggle ligne de régression
+        function toggleRegression() {
+            const isChecked = document.getElementById('toggle-regression').checked;
+            
+            if (isChecked && myChart.data.datasets.length === 1) {
+                addRegressionLine();
+            } else if (!isChecked && myChart.data.datasets.length > 1) {
+                myChart.data.datasets.pop();
+            }
+            
+            myChart.update();
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'correlation-signalconso.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Temps de résolution (jours),Satisfaction client (note sur 5)\n';
+            scatterData.forEach(point => {
+                csv += `${point.x},${point.y}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'correlation-signalconso.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-scatter-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Initialisation
+        updateStatistics();
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

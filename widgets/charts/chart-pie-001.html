@@ -13,23 +13,47 @@
         .chart-container { position: relative; height: 400px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
         .data-table { display: none; }
-        .data-table.show { display: table; }
-        .legend-container { margin-top: 2rem; }
+        .data-table.show { display: table; width: 100%; }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: auto;
+        }
+        /* Fix pour le chevauchement du caption */
+        .fr-table caption {
+            position: relative !important;
+            padding: 1rem;
+            background: #f5f5fe;
+            font-weight: bold;
+        }
+        .legend-container { 
+            margin-top: 1rem;
+            display: block;
+        }
         @media (max-width: 768px) {
             .chart-container { height: 350px; }
         }
-        .fr-table { margin-top: 2rem; }
         .export-buttons { margin-top: 1rem; }
         .legend-item {
             display: flex;
             align-items: center;
             margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
         }
         .legend-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 0.5rem;
-            border-radius: 3px;
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.75rem;
+            border-radius: 2px;
+            flex-shrink: 0;
+            display: block;
+        }
+        .legend-item .fr-text--sm {
+            line-height: 1rem;
+            margin: 0;
         }
     </style>
 </head>
@@ -46,7 +70,7 @@
                         <!-- Contrôles du graphique -->
                         <div class="chart-controls">
                             <div class="fr-grid-row fr-grid-row--gutters">
-                                <div class="fr-col-12 fr-col-md-4">
+                                <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-select-group">
                                         <label class="fr-label" for="data-type">Données à afficher</label>
                                         <select class="fr-select" id="data-type" onchange="changeDataType()">
@@ -56,19 +80,11 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="fr-col-12 fr-col-md-4">
+                                <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
                                         <input type="checkbox" class="fr-toggle__input" id="toggle-legend" checked onchange="toggleLegend()">
                                         <label class="fr-toggle__label" for="toggle-legend">
                                             Afficher la légende
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="fr-col-12 fr-col-md-4">
-                                    <div class="fr-toggle">
-                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
-                                        <label class="fr-toggle__label" for="toggle-table">
-                                            Afficher le tableau
                                         </label>
                                     </div>
                                 </div>
@@ -103,19 +119,27 @@
                         </div>
                         
                         <!-- Tableau de données alternatif (accessibilité) -->
-                        <table class="fr-table data-table" id="data-table">
-                            <caption>Données du graphique : Répartition par catégorie</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Catégorie</th>
-                                    <th scope="col">Nombre</th>
-                                    <th scope="col">Pourcentage</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <!-- Les données seront insérées ici -->
-                            </tbody>
-                        </table>
+                        <div class="fr-mt-3w">
+                            <button class="fr-btn fr-btn--tertiary" id="toggle-table-btn" aria-expanded="false" onclick="toggleDataTable()">
+                                Afficher le tableau de données
+                            </button>
+                        </div>
+                        
+                        <div class="fr-table fr-table--bordered data-table" id="data-table">
+                            <table>
+                                <caption>Données du graphique : Répartition par catégorie</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Catégorie</th>
+                                        <th scope="col">Nombre</th>
+                                        <th scope="col">Pourcentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Les données seront insérées ici -->
+                                </tbody>
+                            </table>
+                        </div>
                         
                         <!-- Légende et informations -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">
@@ -307,13 +331,17 @@
         // Afficher/masquer le tableau
         function toggleDataTable() {
             const table = document.getElementById('data-table');
-            const isChecked = document.getElementById('toggle-table').checked;
+            const button = document.getElementById('toggle-table-btn');
             
-            if (isChecked) {
+            if (table.classList.contains('show')) {
+                table.classList.remove('show');
+                button.setAttribute('aria-expanded', 'false');
+                button.textContent = 'Afficher le tableau de données';
+            } else {
                 table.classList.add('show');
                 updateDataTable();
-            } else {
-                table.classList.remove('show');
+                button.setAttribute('aria-expanded', 'true');
+                button.textContent = 'Masquer le tableau de données';
             }
         }
         
