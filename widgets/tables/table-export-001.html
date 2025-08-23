@@ -203,10 +203,10 @@
             border: 1px solid #e5e5e5;
             border-radius: 0.25rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 0.5rem;
+            padding: 1rem;
             display: none;
             z-index: 100;
-            min-width: 200px;
+            min-width: 250px;
         }
         
         .column-dropdown.active {
@@ -236,6 +236,25 @@
         
         #accordion-options .fr-grid-row {
             padding: 1rem;
+        }
+        
+        /* Espacement spécifique pour le dropdown des colonnes */
+        .column-checkbox {
+            margin-bottom: 0.75rem !important;
+            padding: 0.25rem 0;
+        }
+        
+        .column-checkbox:last-child {
+            margin-bottom: 0 !important;
+        }
+        
+        .column-checkbox label {
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .column-checkbox input[type="checkbox"] {
+            margin-right: 0.5rem;
         }
         
         .batch-export {
@@ -314,29 +333,29 @@
                                         Colonnes
                                     </button>
                                     <div class="column-dropdown" id="column-dropdown">
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group column-checkbox">
                                             <input type="checkbox" id="col-id" checked>
-                                            <label for="col-id">ID</label>
+                                            <label for="col-id" class="fr-label">ID</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group column-checkbox">
                                             <input type="checkbox" id="col-date" checked>
-                                            <label for="col-date">Date</label>
+                                            <label for="col-date" class="fr-label">Date</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group column-checkbox">
                                             <input type="checkbox" id="col-company" checked>
-                                            <label for="col-company">Entreprise</label>
+                                            <label for="col-company" class="fr-label">Entreprise</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group column-checkbox">
                                             <input type="checkbox" id="col-category" checked>
-                                            <label for="col-category">Catégorie</label>
+                                            <label for="col-category" class="fr-label">Catégorie</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group column-checkbox">
                                             <input type="checkbox" id="col-status" checked>
-                                            <label for="col-status">Statut</label>
+                                            <label for="col-status" class="fr-label">Statut</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group column-checkbox">
                                             <input type="checkbox" id="col-region" checked>
-                                            <label for="col-region">Région</label>
+                                            <label for="col-region" class="fr-label">Région</label>
                                         </div>
                                     </div>
                                 </div>
