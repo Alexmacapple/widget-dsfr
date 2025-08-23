@@ -94,6 +94,24 @@
         .fr-badge {
             margin-top: 0.25rem;
         }
+        
+        /* Focus visible renforcé pour accessibilité */
+        .fr-btn:focus-visible,
+        .fr-input:focus-visible,
+        .fr-select:focus-visible,
+        .fr-checkbox-group input:focus-visible,
+        button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(0, 0, 145, 0.2);
+        }
+        
+        .btn-close-modal:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: -2px;
+        }
+        
         @media (max-width: 768px) {
             .filters-container {
                 padding: 1rem;
@@ -235,8 +253,9 @@
                                     <div class="fr-input-group">
                                         <label class="fr-label" for="global-search">
                                             Recherche globale
+                                            <span class="fr-hint-text" id="search-hint">Recherchez par ID, catégorie ou description</span>
                                         </label>
-                                        <input class="fr-input" type="text" id="global-search" placeholder="Rechercher..." onkeyup="applyFilters()">
+                                        <input class="fr-input" type="text" id="global-search" placeholder="Rechercher..." aria-describedby="search-hint" onkeyup="applyFilters()">
                                     </div>
                                 </div>
                                 
@@ -308,10 +327,10 @@
                                     <label class="fr-label">Montant du litige</label>
                                     <div class="fr-grid-row fr-grid-row--gutters">
                                         <div class="fr-col-6">
-                                            <input class="fr-input" type="number" id="amount-min" placeholder="Min (€)" onchange="applyFilters()">
+                                            <input class="fr-input" type="number" id="amount-min" placeholder="Min (€)" aria-label="Montant minimum" onchange="applyFilters()">
                                         </div>
                                         <div class="fr-col-6">
-                                            <input class="fr-input" type="number" id="amount-max" placeholder="Max (€)" onchange="applyFilters()">
+                                            <input class="fr-input" type="number" id="amount-max" placeholder="Max (€)" aria-label="Montant maximum" onchange="applyFilters()">
                                         </div>
                                     </div>
                                 </div>
@@ -828,8 +847,75 @@
             }
         });
         
-        // Initialisation au chargement
-        window.addEventListener('DOMContentLoaded', initTable);
+        // Support clavier pour tous les boutons custom
+        document.addEventListener('DOMContentLoaded', function() {
+            initTable();
+            
+            // Support clavier pour bouton fermer modale
+            const closeBtn = document.querySelector('.btn-close-modal');
+            if (closeBtn) {
+                closeBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        closeModal();
+                    }
+                });
+            }
+            
+            // Gestion focus trap dans la modale
+            const modal = document.getElementById('modal-details');
+            let focusableElements;
+            
+            modal.addEventListener('keydown', function(e) {
+                if (!modal.hasAttribute('open')) return;
+                
+                focusableElements = modal.querySelectorAll(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                
+                const firstFocusable = focusableElements[0];
+                const lastFocusable = focusableElements[focusableElements.length - 1];
+                
+                // Trap Tab navigation
+                if (e.key === 'Tab') {
+                    if (e.shiftKey) { // Shift + Tab
+                        if (document.activeElement === firstFocusable) {
+                            e.preventDefault();
+                            lastFocusable.focus();
+                        }
+                    } else { // Tab
+                        if (document.activeElement === lastFocusable) {
+                            e.preventDefault();
+                            firstFocusable.focus();
+                        }
+                    }
+                }
+            });
+            
+            // Observer pour ajouter support clavier aux tags dynamiques
+            const filterTagsContainer = document.getElementById('active-filters');
+            if (filterTagsContainer) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Element node
+                                const buttons = node.querySelectorAll('button');
+                                buttons.forEach(button => {
+                                    button.addEventListener('keydown', function(e) {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            this.click();
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    });
+                });
+                
+                observer.observe(filterTagsContainer, { childList: true });
+            }
+        });
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
