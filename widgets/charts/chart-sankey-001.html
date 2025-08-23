@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget diagramme Sankey DSFR - Flux des signalements SignalConso">
+    <title>Diagramme Sankey DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { 
+            position: relative; 
+            height: 600px; 
+            margin: 2rem 0;
+        }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+            width: 100% !important;
+        }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+            display: block !important;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        .export-buttons { margin-top: 1rem; }
+        
+        /* Sankey Styles */
+        .node rect {
+            cursor: pointer;
+            fill-opacity: .9;
+            shape-rendering: crispEdges;
+        }
+        .node text {
+            pointer-events: none;
+            font-size: 12px;
+            fill: #161616;
+        }
+        .link {
+            fill: none;
+            stroke-opacity: 0.4;
+            transition: stroke-opacity 0.2s;
+        }
+        .link:hover {
+            stroke-opacity: 0.7;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET CHART-SANKEY-001 -->
+    <div id="widget-chart-sankey-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Flux de traitement des signalements</h2>
+                        <p class="fr-text--sm">Visualisation du parcours des signalements de la catégorie au statut final</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="flow-type">Type de flux</label>
+                                        <select class="fr-select" id="flow-type" onchange="updateFlowType()">
+                                            <option value="category-status">Catégorie → Statut</option>
+                                            <option value="region-category">Région → Catégorie</option>
+                                            <option value="category-resolution">Catégorie → Résolution</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container" id="sankey-container">
+                            <!-- Le diagramme Sankey D3.js sera inséré ici -->
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsSVG()">
+                                Exporter en SVG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Statistiques -->
+                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Total flux</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="total-flow">130 000</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Nœuds</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="nodes-count">15</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Flux principal</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="main-flow">28 500</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Taux résolution</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="resolution-rate">73%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Flux de traitement</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Source</th>
+                                                        <th scope="col">Destination</th>
+                                                        <th scope="col">Volume</th>
+                                                        <th scope="col">Pourcentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de cette visualisation</p>
+                            <p>Le diagramme de Sankey montre les flux de signalements entre différentes étapes du processus. 
+                            La largeur des liens est proportionnelle au volume de signalements. 
+                            Cela permet d'identifier rapidement les parcours principaux et les goulots d'étranglement.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-SANKEY-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            nodes: [
+                '#000091', // Bleu France
+                '#18753C', // Vert
+                '#CE0500', // Rouge
+                '#B34000', // Orange
+                '#0063CB', // Bleu clair
+                '#6A6AF4', // Violet
+                '#27A658', // Vert clair
+                '#E94539', // Rouge clair
+                '#FC5D00', // Orange vif
+                '#0088CE', // Cyan
+                '#313178', // Bleu foncé
+                '#2DB783'  // Vert menthe
+            ],
+            link: '#000091',
+            grey: '#666666'
+        };
+        
+        // Données pour différents types de flux
+        const flowData = {
+            'category-status': {
+                nodes: [
+                    // Catégories (source)
+                    {id: 0, name: "Téléphonie"},
+                    {id: 1, name: "Voyage"},
+                    {id: 2, name: "Produits"},
+                    {id: 3, name: "Voiture"},
+                    {id: 4, name: "Travaux"},
+                    {id: 5, name: "Santé"},
+                    {id: 6, name: "Services"},
+                    {id: 7, name: "Autres"},
+                    // Statuts (destination)
+                    {id: 8, name: "Résolu"},
+                    {id: 9, name: "En cours"},
+                    {id: 10, name: "Transmis"},
+                    {id: 11, name: "Infondé"},
+                    {id: 12, name: "Abandonné"}
+                ],
+                links: [
+                    {source: 0, target: 8, value: 18000},
+                    {source: 0, target: 9, value: 6500},
+                    {source: 0, target: 10, value: 2500},
+                    {source: 0, target: 11, value: 1000},
+                    {source: 0, target: 12, value: 500},
+                    
+                    {source: 1, target: 8, value: 15000},
+                    {source: 1, target: 9, value: 5200},
+                    {source: 1, target: 10, value: 2000},
+                    {source: 1, target: 11, value: 1500},
+                    {source: 1, target: 12, value: 500},
+                    
+                    {source: 2, target: 8, value: 10000},
+                    {source: 2, target: 9, value: 4900},
+                    {source: 2, target: 10, value: 2000},
+                    {source: 2, target: 11, value: 1500},
+                    {source: 2, target: 12, value: 500},
+                    
+                    {source: 3, target: 8, value: 9000},
+                    {source: 3, target: 9, value: 4500},
+                    {source: 3, target: 10, value: 1500},
+                    {source: 3, target: 11, value: 1000},
+                    {source: 3, target: 12, value: 500},
+                    
+                    {source: 4, target: 8, value: 7000},
+                    {source: 4, target: 9, value: 4300},
+                    {source: 4, target: 10, value: 1500},
+                    {source: 4, target: 11, value: 1000},
+                    {source: 4, target: 12, value: 500},
+                    
+                    {source: 5, target: 8, value: 6000},
+                    {source: 5, target: 9, value: 3200},
+                    {source: 5, target: 10, value: 1000},
+                    {source: 5, target: 11, value: 700},
+                    {source: 5, target: 12, value: 300},
+                    
+                    {source: 6, target: 8, value: 4500},
+                    {source: 6, target: 9, value: 2900},
+                    {source: 6, target: 10, value: 800},
+                    {source: 6, target: 11, value: 500},
+                    {source: 6, target: 12, value: 200},
+                    
+                    {source: 7, target: 8, value: 3500},
+                    {source: 7, target: 9, value: 2500},
+                    {source: 7, target: 10, value: 800},
+                    {source: 7, target: 11, value: 500},
+                    {source: 7, target: 12, value: 200}
+                ]
+            },
+            'region-category': {
+                nodes: [
+                    // Régions (source)
+                    {id: 0, name: "Île-de-France"},
+                    {id: 1, name: "Auvergne-Rhône-Alpes"},
+                    {id: 2, name: "Nouvelle-Aquitaine"},
+                    {id: 3, name: "Occitanie"},
+                    {id: 4, name: "Hauts-de-France"},
+                    {id: 5, name: "PACA"},
+                    {id: 6, name: "Grand Est"},
+                    // Catégories (destination)
+                    {id: 7, name: "Téléphonie"},
+                    {id: 8, name: "Voyage"},
+                    {id: 9, name: "Produits"},
+                    {id: 10, name: "Voiture"},
+                    {id: 11, name: "Travaux"},
+                    {id: 12, name: "Autres"}
+                ],
+                links: [
+                    {source: 0, target: 7, value: 12000},
+                    {source: 0, target: 8, value: 10000},
+                    {source: 0, target: 9, value: 8000},
+                    {source: 0, target: 10, value: 6000},
+                    {source: 0, target: 11, value: 5000},
+                    {source: 0, target: 12, value: 4000},
+                    
+                    {source: 1, target: 7, value: 6000},
+                    {source: 1, target: 8, value: 5000},
+                    {source: 1, target: 9, value: 4000},
+                    {source: 1, target: 10, value: 3500},
+                    {source: 1, target: 11, value: 2000},
+                    {source: 1, target: 12, value: 1500},
+                    
+                    {source: 2, target: 7, value: 4500},
+                    {source: 2, target: 8, value: 4000},
+                    {source: 2, target: 9, value: 3500},
+                    {source: 2, target: 10, value: 3000},
+                    {source: 2, target: 11, value: 1800},
+                    {source: 2, target: 12, value: 1200},
+                    
+                    {source: 3, target: 7, value: 3500},
+                    {source: 3, target: 8, value: 3200},
+                    {source: 3, target: 9, value: 3000},
+                    {source: 3, target: 10, value: 2500},
+                    {source: 3, target: 11, value: 1500},
+                    {source: 3, target: 12, value: 1300},
+                    
+                    {source: 4, target: 7, value: 3000},
+                    {source: 4, target: 8, value: 2500},
+                    {source: 4, target: 9, value: 2200},
+                    {source: 4, target: 10, value: 2000},
+                    {source: 4, target: 11, value: 1300},
+                    {source: 4, target: 12, value: 1000},
+                    
+                    {source: 5, target: 7, value: 2500},
+                    {source: 5, target: 8, value: 2200},
+                    {source: 5, target: 9, value: 2000},
+                    {source: 5, target: 10, value: 1800},
+                    {source: 5, target: 11, value: 1000},
+                    {source: 5, target: 12, value: 500},
+                    
+                    {source: 6, target: 7, value: 2000},
+                    {source: 6, target: 8, value: 1800},
+                    {source: 6, target: 9, value: 1600},
+                    {source: 6, target: 10, value: 1200},
+                    {source: 6, target: 11, value: 800},
+                    {source: 6, target: 12, value: 600}
+                ]
+            },
+            'category-resolution': {
+                nodes: [
+                    // Catégories (source)
+                    {id: 0, name: "Téléphonie"},
+                    {id: 1, name: "Voyage"},
+                    {id: 2, name: "Produits"},
+                    {id: 3, name: "Voiture"},
+                    {id: 4, name: "Travaux"},
+                    // Type de résolution (intermédiaire)
+                    {id: 5, name: "Remboursement"},
+                    {id: 6, name: "Échange"},
+                    {id: 7, name: "Réparation"},
+                    {id: 8, name: "Médiation"},
+                    {id: 9, name: "Procédure"},
+                    // Résultat final (destination)
+                    {id: 10, name: "Satisfait"},
+                    {id: 11, name: "Partiellement satisfait"},
+                    {id: 12, name: "Non satisfait"}
+                ],
+                links: [
+                    // Catégories vers résolutions
+                    {source: 0, target: 5, value: 10000},
+                    {source: 0, target: 6, value: 3000},
+                    {source: 0, target: 7, value: 8000},
+                    {source: 0, target: 8, value: 5000},
+                    {source: 0, target: 9, value: 2500},
+                    
+                    {source: 1, target: 5, value: 12000},
+                    {source: 1, target: 6, value: 2000},
+                    {source: 1, target: 7, value: 1000},
+                    {source: 1, target: 8, value: 6000},
+                    {source: 1, target: 9, value: 3200},
+                    
+                    {source: 2, target: 5, value: 5000},
+                    {source: 2, target: 6, value: 8000},
+                    {source: 2, target: 7, value: 3000},
+                    {source: 2, target: 8, value: 2000},
+                    {source: 2, target: 9, value: 900},
+                    
+                    {source: 3, target: 5, value: 3000},
+                    {source: 3, target: 6, value: 2000},
+                    {source: 3, target: 7, value: 7000},
+                    {source: 3, target: 8, value: 3000},
+                    {source: 3, target: 9, value: 1500},
+                    
+                    {source: 4, target: 5, value: 2000},
+                    {source: 4, target: 6, value: 1000},
+                    {source: 4, target: 7, value: 6000},
+                    {source: 4, target: 8, value: 4000},
+                    {source: 4, target: 9, value: 1300},
+                    
+                    // Résolutions vers satisfaction
+                    {source: 5, target: 10, value: 25000},
+                    {source: 5, target: 11, value: 5000},
+                    {source: 5, target: 12, value: 2000},
+                    
+                    {source: 6, target: 10, value: 12000},
+                    {source: 6, target: 11, value: 3000},
+                    {source: 6, target: 12, value: 1000},
+                    
+                    {source: 7, target: 10, value: 18000},
+                    {source: 7, target: 11, value: 5000},
+                    {source: 7, target: 12, value: 2000},
+                    
+                    {source: 8, target: 10, value: 12000},
+                    {source: 8, target: 11, value: 6000},
+                    {source: 8, target: 12, value: 2000},
+                    
+                    {source: 9, target: 10, value: 3000},
+                    {source: 9, target: 11, value: 3000},
+                    {source: 9, target: 12, value: 3400}
+                ]
+            }
+        };
+        
+        let currentFlowType = 'category-status';
+        
+        // Fonction pour dessiner le diagramme Sankey
+        function drawSankey() {
+            // Clear previous chart
+            d3.select("#sankey-container").selectAll("*").remove();
+            
+            const data = flowData[currentFlowType];
+            
+            // Dimensions
+            const margin = {top: 20, right: 120, bottom: 20, left: 120};
+            const container = document.getElementById("sankey-container");
+            const width = container.offsetWidth - margin.left - margin.right;
+            const height = container.offsetHeight - margin.top - margin.bottom;
+            
+            // Créer le SVG
+            const svg = d3.select("#sankey-container")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+            
+            // Créer le générateur Sankey
+            const sankey = d3.sankey()
+                .nodeId(d => d.id)
+                .nodeWidth(20)
+                .nodePadding(15)
+                .extent([[0, 0], [width, height]]);
+            
+            // Générer le layout
+            const graph = sankey({
+                nodes: data.nodes.map(d => Object.assign({}, d)),
+                links: data.links.map(d => Object.assign({}, d))
+            });
+            
+            // Tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+            
+            // Créer les liens
+            const link = svg.append("g")
+                .selectAll(".link")
+                .data(graph.links)
+                .enter().append("path")
+                .attr("class", "link")
+                .attr("d", d3.sankeyLinkHorizontal())
+                .style("stroke", (d, i) => dsfrColors.nodes[i % dsfrColors.nodes.length])
+                .style("stroke-width", d => Math.max(1, d.width))
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`<strong>${d.source.name} → ${d.target.name}</strong><br/>
+                                 Volume: ${d.value.toLocaleString('fr-FR')}<br/>
+                                 ${((d.value / d.source.value) * 100).toFixed(1)}% du flux source`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+            
+            // Créer les nœuds
+            const node = svg.append("g")
+                .selectAll(".node")
+                .data(graph.nodes)
+                .enter().append("g")
+                .attr("class", "node");
+            
+            // Rectangles des nœuds
+            node.append("rect")
+                .attr("x", d => d.x0)
+                .attr("y", d => d.y0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("width", d => d.x1 - d.x0)
+                .style("fill", (d, i) => dsfrColors.nodes[i % dsfrColors.nodes.length])
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    
+                    const incoming = d.targetLinks ? d.targetLinks.reduce((sum, l) => sum + l.value, 0) : 0;
+                    const outgoing = d.sourceLinks ? d.sourceLinks.reduce((sum, l) => sum + l.value, 0) : 0;
+                    
+                    tooltip.html(`<strong>${d.name}</strong><br/>
+                                 Entrant: ${incoming.toLocaleString('fr-FR')}<br/>
+                                 Sortant: ${outgoing.toLocaleString('fr-FR')}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+            
+            // Labels des nœuds
+            node.append("text")
+                .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
+                .attr("y", d => (d.y1 + d.y0) / 2)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+                .text(d => d.name)
+                .append("tspan")
+                .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
+                .attr("dy", "1.2em")
+                .style("font-size", "10px")
+                .style("fill", dsfrColors.grey)
+                .text(d => {
+                    const total = d.sourceLinks ? d.sourceLinks.reduce((sum, l) => sum + l.value, 0) :
+                                 d.targetLinks ? d.targetLinks.reduce((sum, l) => sum + l.value, 0) : 0;
+                    return total.toLocaleString('fr-FR');
+                });
+            
+            updateStatistics(data);
+        }
+        
+        // Mise à jour des statistiques
+        function updateStatistics(data) {
+            const totalFlow = data.links.reduce((sum, l) => sum + l.value, 0);
+            const nodesCount = data.nodes.length;
+            const mainFlow = Math.max(...data.links.map(l => l.value));
+            
+            // Calcul du taux de résolution
+            let resolutionRate = 73; // Par défaut
+            if (currentFlowType === 'category-status') {
+                const resolvedNode = data.nodes.find(n => n.name === "Résolu");
+                if (resolvedNode) {
+                    const resolvedFlow = data.links
+                        .filter(l => l.target === resolvedNode.id)
+                        .reduce((sum, l) => sum + l.value, 0);
+                    resolutionRate = Math.round((resolvedFlow / totalFlow) * 200); // Approximation
+                }
+            }
+            
+            document.getElementById('total-flow').textContent = totalFlow.toLocaleString('fr-FR');
+            document.getElementById('nodes-count').textContent = nodesCount;
+            document.getElementById('main-flow').textContent = mainFlow.toLocaleString('fr-FR');
+            document.getElementById('resolution-rate').textContent = resolutionRate + '%';
+        }
+        
+        // Mise à jour du type de flux
+        function updateFlowType() {
+            currentFlowType = document.getElementById('flow-type').value;
+            drawSankey();
+            
+            if (document.getElementById('toggle-table').checked) {
+                updateDataTable();
+            }
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            const data = flowData[currentFlowType];
+            const totalFlow = data.links.reduce((sum, l) => sum + l.value, 0);
+            
+            tableBody.innerHTML = '';
+            
+            // Trier les liens par valeur décroissante
+            const sortedLinks = [...data.links].sort((a, b) => b.value - a.value);
+            
+            sortedLinks.forEach(link => {
+                const row = tableBody.insertRow();
+                const cellSource = row.insertCell(0);
+                const cellTarget = row.insertCell(1);
+                const cellValue = row.insertCell(2);
+                const cellPercent = row.insertCell(3);
+                
+                const sourceName = data.nodes.find(n => n.id === link.source).name;
+                const targetName = data.nodes.find(n => n.id === link.target).name;
+                
+                cellSource.textContent = sourceName;
+                cellTarget.textContent = targetName;
+                cellValue.textContent = link.value.toLocaleString('fr-FR');
+                cellPercent.textContent = ((link.value / totalFlow) * 100).toFixed(1) + '%';
+            });
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en SVG
+        function exportChartAsSVG() {
+            const svgElement = document.querySelector('#sankey-container svg');
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-sankey.svg';
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            const data = flowData[currentFlowType];
+            let csv = 'Source,Destination,Volume\n';
+            
+            data.links.forEach(link => {
+                const sourceName = data.nodes.find(n => n.id === link.source).name;
+                const targetName = data.nodes.find(n => n.id === link.target).name;
+                csv += `"${sourceName}","${targetName}",${link.value}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-sankey-data.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-sankey-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Initialisation
+        window.addEventListener('DOMContentLoaded', () => {
+            drawSankey();
+        });
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            drawSankey();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget calendrier heatmap DSFR - Intensité quotidienne des signalements SignalConso">
+    <title>Calendrier heatmap DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { 
+            position: relative; 
+            margin: 2rem 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+            width: 100% !important;
+        }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+            display: block !important;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        .export-buttons { margin-top: 1rem; }
+        
+        /* Calendar Heatmap Styles */
+        .calendar-heatmap {
+            font-size: 12px;
+        }
+        .month-label {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #161616;
+        }
+        .day-label {
+            font-size: 12px;
+            fill: #666666;
+        }
+        .year-label {
+            font-size: 16px;
+            font-weight: bold;
+            fill: #000091;
+        }
+        .legend-label {
+            font-size: 12px;
+            fill: #666666;
+        }
+        .day-cell {
+            stroke: #ffffff;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: stroke-width 0.2s;
+        }
+        .day-cell:hover {
+            stroke: #000091;
+            stroke-width: 3;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET CHART-CALENDAR-HEATMAP-001 -->
+    <div id="widget-chart-calendar-heatmap-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Activité quotidienne des signalements</h2>
+                        <p class="fr-text--sm">Intensité des signalements jour par jour sur l'année écoulée</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="year-select">Année</label>
+                                        <select class="fr-select" id="year-select" onchange="updateYear()">
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                            <option value="2022">2022</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container" id="calendar-container">
+                            <!-- Le calendrier D3.js sera inséré ici -->
+                        </div>
+                        
+                        <!-- Légende -->
+                        <div class="fr-mt-2w" id="legend-container">
+                            <!-- La légende sera générée ici -->
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsSVG()">
+                                Exporter en SVG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Statistiques -->
+                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Total annuel</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="total-year">45 230</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Moyenne par jour</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="avg-day">124</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Jour le plus actif</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="max-day">Lundi</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Pic mensuel</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="peak-month">Mars</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Activité quotidienne</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Date</th>
+                                                        <th scope="col">Jour</th>
+                                                        <th scope="col">Signalements</th>
+                                                        <th scope="col">Variation</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de cette visualisation</p>
+                            <p>Cette carte de chaleur montre l'intensité quotidienne des signalements sur SignalConso. 
+                            Les couleurs plus foncées indiquent des jours avec plus d'activité. 
+                            Les patterns hebdomadaires et saisonniers sont facilement identifiables.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-CALENDAR-HEATMAP-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            scale: [
+                '#f5f5fe', // Très faible
+                '#cacafb', // Faible
+                '#9a9af4', // Moyen-faible
+                '#6a6af4', // Moyen
+                '#000091', // Fort
+                '#000074'  // Très fort
+            ],
+            primary: '#000091',
+            grey: '#666666'
+        };
+        
+        let currentYear = 2024;
+        let calendarData = [];
+        
+        // Génération de données simulées pour une année
+        function generateYearData(year) {
+            const data = [];
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31);
+            
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                // Simulation avec variations hebdomadaires et saisonnières
+                const dayOfWeek = d.getDay();
+                const month = d.getMonth();
+                
+                // Base value avec variation saisonnière
+                let baseValue = 100 + Math.sin((month / 12) * Math.PI * 2) * 30;
+                
+                // Variation hebdomadaire (moins le weekend)
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    baseValue *= 0.6;
+                } else if (dayOfWeek === 1) {
+                    baseValue *= 1.3; // Pic le lundi
+                }
+                
+                // Ajout de bruit aléatoire
+                const value = Math.max(0, Math.round(baseValue + (Math.random() - 0.5) * 50));
+                
+                data.push({
+                    date: new Date(d),
+                    value: value,
+                    dateString: d.toISOString().split('T')[0]
+                });
+            }
+            
+            return data;
+        }
+        
+        // Fonction pour dessiner le calendrier heatmap
+        function drawCalendarHeatmap() {
+            // Clear previous chart
+            d3.select("#calendar-container").selectAll("*").remove();
+            
+            const data = calendarData;
+            
+            // Dimensions
+            const cellSize = 15;
+            const yearHeight = cellSize * 7 + 50;
+            const width = cellSize * 53 + 100;
+            const height = yearHeight + 100;
+            
+            // Créer le SVG
+            const svg = d3.select("#calendar-container")
+                .append("svg")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .style("width", "100%")
+                .style("height", "auto");
+            
+            // Échelle de couleur
+            const maxValue = d3.max(data, d => d.value);
+            const colorScale = d3.scaleQuantize()
+                .domain([0, maxValue])
+                .range(dsfrColors.scale);
+            
+            // Groupe principal
+            const g = svg.append("g")
+                .attr("transform", "translate(50, 50)");
+            
+            // Titre de l'année
+            g.append("text")
+                .attr("class", "year-label")
+                .attr("x", 0)
+                .attr("y", -20)
+                .text(currentYear);
+            
+            // Labels des jours
+            const dayLabels = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+            g.selectAll(".day-label")
+                .data(dayLabels)
+                .enter().append("text")
+                .attr("class", "day-label")
+                .attr("x", -10)
+                .attr("y", (d, i) => i * cellSize + cellSize)
+                .attr("text-anchor", "end")
+                .text(d => d);
+            
+            // Labels des mois
+            const monthLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 
+                                'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+            const monthPositions = [];
+            for (let i = 0; i < 12; i++) {
+                const firstDay = new Date(currentYear, i, 1);
+                const weekOfYear = d3.timeWeek.count(d3.timeYear(firstDay), firstDay);
+                monthPositions.push({ month: monthLabels[i], week: weekOfYear });
+            }
+            
+            g.selectAll(".month-label")
+                .data(monthPositions)
+                .enter().append("text")
+                .attr("class", "month-label")
+                .attr("x", d => d.week * cellSize + cellSize / 2)
+                .attr("y", -5)
+                .text(d => d.month);
+            
+            // Tooltip
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+            
+            // Cellules du calendrier
+            const cells = g.selectAll(".day-cell")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "day-cell")
+                .attr("width", cellSize - 2)
+                .attr("height", cellSize - 2)
+                .attr("x", d => d3.timeWeek.count(d3.timeYear(d.date), d.date) * cellSize)
+                .attr("y", d => d.date.getDay() * cellSize)
+                .attr("fill", d => colorScale(d.value))
+                .attr("rx", 2)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    
+                    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                    const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+                                       'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+                    
+                    tooltip.html(`<strong>${dayNames[d.date.getDay()]}</strong><br/>
+                                 ${d.date.getDate()} ${monthNames[d.date.getMonth()]} ${d.date.getFullYear()}<br/>
+                                 <strong>${d.value}</strong> signalements`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+            
+            // Créer la légende
+            drawLegend(maxValue);
+        }
+        
+        // Fonction pour dessiner la légende
+        function drawLegend(maxValue) {
+            const legendContainer = d3.select("#legend-container");
+            legendContainer.selectAll("*").remove();
+            
+            const legendWidth = 300;
+            const legendHeight = 40;
+            
+            const svg = legendContainer.append("svg")
+                .attr("width", legendWidth)
+                .attr("height", legendHeight);
+            
+            const g = svg.append("g")
+                .attr("transform", "translate(10, 10)");
+            
+            // Label moins
+            g.append("text")
+                .attr("class", "legend-label")
+                .attr("x", 0)
+                .attr("y", 10)
+                .text("Moins");
+            
+            // Carrés de couleur
+            const legendScale = d3.scaleQuantize()
+                .domain([0, maxValue])
+                .range(dsfrColors.scale);
+            
+            g.selectAll(".legend-cell")
+                .data(dsfrColors.scale)
+                .enter().append("rect")
+                .attr("x", (d, i) => 40 + i * 20)
+                .attr("y", 0)
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("fill", d => d)
+                .attr("stroke", "#ffffff")
+                .attr("stroke-width", 1)
+                .attr("rx", 2);
+            
+            // Label plus
+            g.append("text")
+                .attr("class", "legend-label")
+                .attr("x", 40 + dsfrColors.scale.length * 20 + 5)
+                .attr("y", 10)
+                .text("Plus");
+        }
+        
+        // Mise à jour des statistiques
+        function updateStatistics() {
+            const total = calendarData.reduce((sum, d) => sum + d.value, 0);
+            const avg = Math.round(total / calendarData.length);
+            
+            // Jour de la semaine avec le plus d'activité
+            const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+            const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+            calendarData.forEach(d => {
+                const day = d.date.getDay();
+                dayTotals[day] += d.value;
+                dayCounts[day]++;
+            });
+            
+            const dayAvgs = dayTotals.map((total, i) => total / dayCounts[i]);
+            const maxDayIndex = dayAvgs.indexOf(Math.max(...dayAvgs));
+            const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+            
+            // Mois avec le plus d'activité
+            const monthTotals = new Array(12).fill(0);
+            calendarData.forEach(d => {
+                monthTotals[d.date.getMonth()] += d.value;
+            });
+            const maxMonthIndex = monthTotals.indexOf(Math.max(...monthTotals));
+            const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                               'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+            
+            document.getElementById('total-year').textContent = total.toLocaleString('fr-FR');
+            document.getElementById('avg-day').textContent = avg.toLocaleString('fr-FR');
+            document.getElementById('max-day').textContent = dayNames[maxDayIndex];
+            document.getElementById('peak-month').textContent = monthNames[maxMonthIndex];
+        }
+        
+        // Mise à jour de l'année
+        function updateYear() {
+            currentYear = parseInt(document.getElementById('year-select').value);
+            calendarData = generateYearData(currentYear);
+            drawCalendarHeatmap();
+            updateStatistics();
+            
+            if (document.getElementById('toggle-table').checked) {
+                updateDataTable();
+            }
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            // Afficher seulement les 30 derniers jours pour ne pas surcharger
+            const last30Days = calendarData.slice(-30).reverse();
+            
+            last30Days.forEach((item, index) => {
+                const row = tableBody.insertRow();
+                const cellDate = row.insertCell(0);
+                const cellDay = row.insertCell(1);
+                const cellValue = row.insertCell(2);
+                const cellVariation = row.insertCell(3);
+                
+                const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                
+                cellDate.textContent = item.date.toLocaleDateString('fr-FR');
+                cellDay.textContent = dayNames[item.date.getDay()];
+                cellValue.textContent = item.value.toLocaleString('fr-FR');
+                
+                if (index < last30Days.length - 1) {
+                    const prevValue = last30Days[index + 1].value;
+                    const variation = ((item.value - prevValue) / prevValue * 100).toFixed(1);
+                    cellVariation.textContent = (variation > 0 ? '+' : '') + variation + '%';
+                    cellVariation.style.color = variation > 0 ? '#18753C' : '#CE0500';
+                } else {
+                    cellVariation.textContent = '-';
+                }
+            });
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en SVG
+        function exportChartAsSVG() {
+            const svgElement = document.querySelector('#calendar-container svg');
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-calendar-heatmap.svg';
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Date,Jour,Signalements\n';
+            calendarData.forEach(item => {
+                const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                csv += `${item.dateString},${dayNames[item.date.getDay()]},${item.value}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-calendar-data.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-calendar-heatmap-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Initialisation
+        window.addEventListener('DOMContentLoaded', () => {
+            calendarData = generateYearData(currentYear);
+            drawCalendarHeatmap();
+            updateStatistics();
+        });
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            drawCalendarHeatmap();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
