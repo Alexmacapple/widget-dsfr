@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
         .chart-container { position: relative; height: 450px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
         .data-table { 
@@ -156,7 +157,7 @@
                         
                         <!-- Tableau de données alternatif (accessibilité) -->
                         <div class="fr-mt-3w">
-                            <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" onclick="toggleDataTable()">
+                            <button class="fr-btn fr-btn--tertiary" id="toggle-table-btn" aria-expanded="false" onclick="toggleDataTable()">
                                 Afficher le tableau de données
                             </button>
                         </div>
@@ -492,17 +493,17 @@
         // Toggle du tableau de données
         function toggleDataTable() {
             const table = document.getElementById('data-table');
-            const button = event.target.closest('button');
+            const button = document.getElementById('toggle-table-btn');
             
             if (table.classList.contains('show')) {
                 table.classList.remove('show');
-                button.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm';
+                button.setAttribute('aria-expanded', 'false');
                 button.textContent = 'Afficher le tableau de données';
             } else {
                 table.classList.add('show');
-                updateDataTable();
-                button.className = 'fr-btn fr-btn--tertiary-no-outline fr-btn--sm';
+                button.setAttribute('aria-expanded', 'true');
                 button.textContent = 'Masquer le tableau de données';
+                updateDataTable();
             }
         }
         
