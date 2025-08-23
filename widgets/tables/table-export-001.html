@@ -217,6 +217,27 @@
             padding: 0.25rem 0;
         }
         
+        /* Amélioration de l'espacement des checkboxes */
+        .fr-checkbox-group {
+            margin-bottom: 1rem !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .fr-checkbox-group label {
+            padding-left: 0.5rem;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+        
+        #accordion-options .fr-checkbox-group:last-child {
+            margin-bottom: 0 !important;
+        }
+        
+        #accordion-options .fr-grid-row {
+            padding: 1rem;
+        }
+        
         .batch-export {
             background: #fef4e8;
             border: 1px solid #ff9940;
@@ -342,17 +363,17 @@
                             <div class="fr-collapse" id="accordion-options">
                                 <div class="fr-grid-row fr-grid-row--gutters">
                                     <div class="fr-col-12 fr-col-md-6">
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group fr-mb-2w">
                                             <input type="checkbox" id="include-headers" checked>
-                                            <label for="include-headers">Inclure les en-têtes</label>
+                                            <label for="include-headers" class="fr-label">Inclure les en-têtes</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group fr-mb-2w">
                                             <input type="checkbox" id="include-metadata">
-                                            <label for="include-metadata">Inclure les métadonnées</label>
+                                            <label for="include-metadata" class="fr-label">Inclure les métadonnées</label>
                                         </div>
-                                        <div class="fr-checkbox-group">
+                                        <div class="fr-checkbox-group fr-mb-2w">
                                             <input type="checkbox" id="compress-file">
-                                            <label for="compress-file">Compresser le fichier (ZIP)</label>
+                                            <label for="compress-file" class="fr-label">Compresser le fichier (ZIP)</label>
                                         </div>
                                     </div>
                                     <div class="fr-col-12 fr-col-md-6">
