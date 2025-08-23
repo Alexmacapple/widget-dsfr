@@ -483,11 +483,45 @@
                 const date = new Date();
                 date.setDate(date.getDate() - Math.floor(Math.random() * 90));
                 
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const descriptions = {
+                    'Téléphonie': [
+                        'Facturation excessive sur forfait mobile\nDemande de remboursement en cours',
+                        'Résiliation abusive du contrat\nLitige avec l\'opérateur',
+                        'Service internet défaillant\nPanne non résolue depuis plusieurs semaines'
+                    ],
+                    'Voyage': [
+                        'Vol annulé sans remboursement\nRéclamation auprès de la compagnie',
+                        'Séjour non conforme à la réservation\nDemande de dédommagement',
+                        'Bagages perdus lors du transport\nRecherche en cours'
+                    ],
+                    'Produits': [
+                        'Article défectueux à la livraison\nDemande d\'échange refusée',
+                        'Produit non conforme à la description\nRetour en attente',
+                        'Garantie non respectée par le vendeur\nMédiation nécessaire'
+                    ],
+                    'Voiture': [
+                        'Vice caché sur véhicule d\'occasion\nExpertise demandée',
+                        'Réparation mal effectuée au garage\nDevis contesté',
+                        'Contrat de location non respecté\nFrais supplémentaires injustifiés'
+                    ],
+                    'Services': [
+                        'Prestation incomplète ou bâclée\nDemande de reprise des travaux',
+                        'Devis dépassé sans autorisation\nContesté par le client',
+                        'Service non fourni après paiement\nDemande de remboursement'
+                    ]
+                };
+                
+                const categoryDescriptions = descriptions[category] || [
+                    `Problème concernant ${category.toLowerCase()}\nRéclamation en cours de traitement`
+                ];
+                const description = categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
+                
                 data.push({
                     id: `SIG-2024-${String(i).padStart(4, '0')}`,
                     date: date,
-                    category: categories[Math.floor(Math.random() * categories.length)],
-                    description: `Problème de ${categories[Math.floor(Math.random() * categories.length)].toLowerCase()}\nRéclamation client`,
+                    category: category,
+                    description: description,
                     amount: Math.floor(Math.random() * 5000) + 100,
                     priority: priorities[Math.floor(Math.random() * priorities.length)],
                     status: statuses[Math.floor(Math.random() * statuses.length)],

@@ -881,9 +881,18 @@
                 <div class="modal-info-card">
                     <h3 class="fr-h6">Description du signalement</h3>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                        Le consommateur signale un problème concernant ${item.category.toLowerCase()} 
-                        avec l'entreprise ${item.company}. Le dossier est actuellement ${item.status.toLowerCase()}.
+                        Le consommateur a signalé un problème concernant ${item.category.toLowerCase()} 
+                        avec l'entreprise ${item.company}. 
+                        ${item.category === 'Téléphonie' ? 'Le litige porte sur un contrat de téléphonie mobile avec des frais non justifiés.' :
+                          item.category === 'Voyage' ? 'La réclamation concerne une annulation de voyage ou un remboursement non effectué.' :
+                          item.category === 'Produits' ? 'Le signalement fait suite à un produit défectueux ou non conforme à la commande.' :
+                          item.category === 'Voiture' ? 'Le problème concerne un véhicule avec des défauts mécaniques ou un litige de garantie.' :
+                          item.category === 'Services' ? 'La plainte porte sur une prestation de service non conforme ou incomplète.' :
+                          item.category === 'Santé' ? 'Le signalement concerne un problème lié à des produits de santé ou des services médicaux.' :
+                          item.category === 'Travaux' ? 'Le litige porte sur des travaux mal exécutés ou non terminés.' :
+                          'Le consommateur demande une résolution rapide de ce litige.'}
+                        Le dossier est actuellement ${item.status.toLowerCase()} et fait l'objet d'un suivi attentif 
+                        par nos services.
                     </p>
                 </div>
                 
