@@ -21,26 +21,16 @@
             display: block !important;
         }
         /* Caption DSFR positionné correctement */
-        .fr-table caption,
-        .fr-table__content caption {
-            display: table-caption;
-            caption-side: top;
+        .fr-table__caption {
             padding: 1rem;
             margin: 0 0 1rem 0;
             background-color: #f6f6f6;
-            background-color: var(--background-contrast-grey, #f6f6f6);
             color: #161616;
-            color: var(--text-title-grey, #161616);
             font-weight: 700;
             font-size: 1rem;
             text-align: left;
             border: 1px solid #dddddd;
-            border: 1px solid var(--border-default-grey, #dddddd);
             border-bottom: 3px solid #000091;
-            border-bottom: 3px solid var(--border-plain-blue-france, #000091);
-            position: relative;
-            width: 100%;
-            box-sizing: border-box;
         }
         /* Structure DSFR pour tableaux */
         .fr-table {
@@ -64,22 +54,6 @@
             border-collapse: collapse;
             table-layout: auto;
             background: white;
-        }
-        .fr-table__content caption {
-            caption-side: top;
-            padding: 1rem;
-            margin-bottom: 0;
-            background-color: #f6f6f6;
-            background-color: var(--background-contrast-grey, #f6f6f6);
-            color: #161616;
-            color: var(--text-title-grey, #161616);
-            font-weight: 700;
-            font-size: 1rem;
-            text-align: left;
-            border: 1px solid #dddddd;
-            border: 1px solid var(--border-default-grey, #dddddd);
-            border-bottom: 3px solid #000091;
-            border-bottom: 3px solid var(--border-plain-blue-france, #000091);
         }
         .fr-table__content th,
         .fr-table__content td {
@@ -120,20 +94,6 @@
             width: 100%;
             table-layout: auto;
             border-collapse: collapse;
-        }
-        .data-table caption {
-            caption-side: top;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background-color: #f6f6f6;
-            background-color: var(--background-contrast-grey, #f6f6f6);
-            color: #161616;
-            color: var(--text-title-grey, #161616);
-            font-weight: 700;
-            font-size: 1.125rem;
-            text-align: left;
-            border-left: 3px solid #000091;
-            border-left: 3px solid var(--border-plain-blue-france, #000091);
         }
         .data-table th,
         .data-table td {
@@ -392,7 +352,7 @@
         
         // Initialisation du graphique
         const ctx = document.getElementById('barChart').getContext('2d');
-        const myChart = new Chart(ctx, config);
+        let myChart = new Chart(ctx, config);
         
         // Mise à jour des statistiques
         function updateStats() {
@@ -414,18 +374,81 @@
         function changeChartType() {
             const chartType = document.getElementById('chart-type').value;
             
+            // Détruire le graphique actuel
+            myChart.destroy();
+            
+            // Recréer la configuration avec le bon type
             if (chartType === 'horizontalBar') {
-                myChart.config.options.indexAxis = 'y';
-                // Ajuster les options pour les barres horizontales
-                myChart.config.options.scales.x.ticks.maxRotation = 0;
-                myChart.config.options.scales.x.ticks.minRotation = 0;
+                config.options.indexAxis = 'y';
+                config.options.scales.x.ticks.maxRotation = 0;
+                config.options.scales.x.ticks.minRotation = 0;
+                // Réinitialiser les échelles pour les barres horizontales
+                config.options.scales = {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                };
             } else {
-                myChart.config.options.indexAxis = 'x';
-                myChart.config.options.scales.x.ticks.maxRotation = 45;
-                myChart.config.options.scales.x.ticks.minRotation = 45;
+                config.options.indexAxis = 'x';
+                // Réinitialiser les échelles pour les barres verticales
+                config.options.scales = {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                };
             }
             
-            myChart.update();
+            // Recréer le graphique
+            const ctx = document.getElementById('barChart').getContext('2d');
+            myChart = new Chart(ctx, config);
         }
         
         // Tri des données
