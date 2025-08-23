@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget graphique treemap DSFR - Répartition hiérarchique des signalements SignalConso">
+    <meta name="description" content="Widget graphique treemap DSFR - Visualisation hiérarchique des données SignalConso">
     <title>Graphique treemap DSFR - SignalConso</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
     <style>
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .fr-card__body { padding-bottom: 2rem !important; }
@@ -20,6 +20,16 @@
         }
         .data-table.show { 
             display: block !important;
+            width: 100% !important;
+        }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+            display: block !important;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
         }
         /* Caption DSFR en dehors du tableau */
         .fr-table__caption {
@@ -35,32 +45,11 @@
             border-left: 3px solid #000091;
             border-left: 3px solid var(--border-plain-blue-france, #000091);
         }
-        /* Alignement des colonnes du tableau */
-        .fr-table th,
-        .fr-table td {
-            text-align: left;
-            padding: 0.75rem;
-        }
-        .fr-table th:last-child,
-        .fr-table td:last-child {
-            text-align: right;
-        }
         @media (max-width: 768px) {
             .chart-container { height: 400px; }
         }
         .export-buttons { margin-top: 1rem; }
-        .legend-item {
-            display: inline-block;
-            margin-right: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        .legend-color {
-            display: inline-block;
-            width: 20px;
-            height: 12px;
-            margin-right: 0.5rem;
-            vertical-align: middle;
-        }
+        .stat-cards { margin-top: 2rem; }
     </style>
 </head>
 <body>
@@ -70,27 +59,27 @@
             <div class="fr-col-12">
                 <div class="fr-card">
                     <div class="fr-card__body">
-                        <h2 class="fr-h4">Répartition hiérarchique des signalements par catégorie</h2>
-                        <p class="fr-text--sm">Vue d'ensemble de la distribution des signalements selon leur type et sous-catégorie</p>
+                        <h2 class="fr-h4">Répartition hiérarchique des signalements</h2>
+                        <p class="fr-text--sm">Visualisation proportionnelle des catégories et sous-catégories de signalements</p>
                         
                         <!-- Contrôles du graphique -->
                         <div class="chart-controls">
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-select-group">
-                                        <label class="fr-label" for="view-select">Mode d'affichage</label>
-                                        <select class="fr-select" id="view-select" onchange="updateView()">
-                                            <option value="volume">Volume (nombre de signalements)</option>
-                                            <option value="resolution">Taux de résolution (%)</option>
-                                            <option value="satisfaction">Satisfaction moyenne</option>
+                                        <label class="fr-label" for="data-level">Niveau de détail</label>
+                                        <select class="fr-select" id="data-level" onchange="updateDataLevel()">
+                                            <option value="categories">Catégories principales</option>
+                                            <option value="subcategories">Sous-catégories</option>
+                                            <option value="regions">Par région</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
-                                        <input type="checkbox" class="fr-toggle__input" id="toggle-labels" checked onchange="toggleLabels()">
-                                        <label class="fr-toggle__label" for="toggle-labels">
-                                            Afficher les étiquettes
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
                                         </label>
                                     </div>
                                 </div>
@@ -99,13 +88,7 @@
                         
                         <!-- Graphique -->
                         <div class="chart-container">
-                            <canvas id="treemapChart" role="img" aria-label="Graphique treemap montrant la répartition des signalements"></canvas>
-                        </div>
-                        
-                        <!-- Légende personnalisée -->
-                        <div class="fr-mt-2w" id="custom-legend">
-                            <p class="fr-text--sm fr-text--bold">Catégories principales :</p>
-                            <div id="legend-items"></div>
+                            <canvas id="treemapChart" role="img" aria-label="Graphique treemap montrant la répartition hiérarchique des signalements"></canvas>
                         </div>
                         
                         <!-- Boutons d'export -->
@@ -121,42 +104,75 @@
                             </button>
                         </div>
                         
-                        <!-- Tableau de données alternatif (accessibilité) -->
-                        <div class="fr-mt-3w">
-                            <button class="fr-btn fr-btn--tertiary" id="toggle-table-btn" aria-expanded="false">
-                                Afficher le tableau de données
-                            </button>
+                        <!-- Statistiques -->
+                        <div class="stat-cards">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Total signalements</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="total-count">130 000</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Catégories</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="categories-count">8</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Top catégorie</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="top-category">Téléphonie</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Part top 3</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="top3-share">55%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
+                        <!-- Tableau de données alternatif (accessibilité) -->
                         <div class="data-table" id="data-table">
                             <div class="fr-table fr-table--bordered">
-                                <div class="fr-table__caption">Données du graphique : Répartition des signalements</div>
+                                <div class="fr-table__caption">Données du graphique : Répartition hiérarchique</div>
                                 <div class="fr-table__wrapper">
                                     <div class="fr-table__container">
                                         <div class="fr-table__content">
                                             <table>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Catégorie</th>
-                                        <th scope="col">Sous-catégorie</th>
-                                        <th scope="col">Nombre</th>
-                                        <th scope="col" style="text-align: right;">%</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body">
-                                    <!-- Les données seront insérées ici -->
-                                </tbody>
-                            </table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Catégorie</th>
+                                                        <th scope="col">Sous-catégorie</th>
+                                                        <th scope="col">Nombre</th>
+                                                        <th scope="col">Pourcentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                         
                         <!-- Légende et informations -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">
-                            <p class="fr-alert__title">À propos de ces données</p>
-                            <p>Le treemap représente la hiérarchie des signalements. La taille de chaque rectangle est proportionnelle 
-                            au nombre de signalements dans cette catégorie. Les couleurs distinguent les catégories principales.</p>
+                            <p class="fr-alert__title">À propos de cette visualisation</p>
+                            <p>Le treemap permet de visualiser la répartition hiérarchique des signalements. 
+                            La taille de chaque rectangle est proportionnelle au nombre de signalements dans cette catégorie.</p>
                         </div>
                     </div>
                 </div>
@@ -168,90 +184,78 @@
     <script>
         // Configuration des couleurs DSFR
         const dsfrColors = {
-            primary: '#000091',
-            primaryLight: '#6A6AF4',
-            success: '#18753C',
-            successLight: '#B8FEC9',
-            error: '#CE0500',
-            errorLight: '#FFE9E9',
-            warning: '#B34000',
-            warningLight: '#FFE9E6',
-            info: '#0063CB',
-            infoLight: '#E8EDFF',
-            grey: '#666666'
+            palette: [
+                '#000091', // Bleu France
+                '#18753C', // Vert
+                '#CE0500', // Rouge
+                '#B34000', // Orange
+                '#0063CB', // Bleu clair
+                '#6A6AF4', // Violet
+                '#27A658', // Vert clair
+                '#E94539', // Rouge clair
+                '#FC5D00', // Orange vif
+                '#0088CE', // Cyan
+                '#313178', // Bleu foncé
+                '#2DB783'  // Vert menthe
+            ]
         };
         
-        // Palette de couleurs pour les catégories
-        const categoryColors = [
-            dsfrColors.primary,
-            dsfrColors.success,
-            dsfrColors.error,
-            dsfrColors.warning,
-            dsfrColors.info,
-            '#9C27B0',
-            '#00BCD4',
-            '#FF9800'
-        ];
-        
-        // Génération de données hiérarchiques
-        const generateTreemapData = () => {
-            const categories = {
-                'Commerce': {
-                    'E-commerce': 4500,
-                    'Magasins physiques': 3200,
-                    'Services après-vente': 2100,
-                    'Promotions trompeuses': 1800
-                },
-                'Services': {
-                    'Téléphonie': 3800,
-                    'Énergie': 2900,
-                    'Banque/Assurance': 3500,
-                    'Transport': 2200
-                },
-                'Alimentation': {
-                    'Restaurants': 2100,
-                    'Livraison': 1900,
-                    'Hygiène': 1500,
-                    'Étiquetage': 1200
-                },
-                'Immobilier': {
-                    'Location': 2800,
-                    'Vente': 1600,
-                    'Syndic': 1400,
-                    'Travaux': 900
-                },
-                'Santé': {
-                    'Pharmacie': 1100,
-                    'Optique': 900,
-                    'Cosmétiques': 1300,
-                    'Compléments': 800
-                }
-            };
-            
-            const data = [];
-            let colorIndex = 0;
-            
-            Object.entries(categories).forEach(([category, subcategories]) => {
-                const color = categoryColors[colorIndex % categoryColors.length];
-                colorIndex++;
-                
-                Object.entries(subcategories).forEach(([subcategory, value]) => {
-                    data.push({
-                        category: category,
-                        subcategory: subcategory,
-                        value: value,
-                        color: color,
-                        resolution: 60 + Math.random() * 35,
-                        satisfaction: 2.5 + Math.random() * 2.5
-                    });
-                });
-            });
-            
-            return data;
+        // Données simulées
+        const dataSets = {
+            categories: [
+                { name: 'Téléphonie - Internet - TV', value: 28500, parent: 'root' },
+                { name: 'Voyage - Loisirs', value: 24200, parent: 'root' },
+                { name: 'Produits - Objets', value: 18900, parent: 'root' },
+                { name: 'Voiture / Véhicule', value: 16500, parent: 'root' },
+                { name: 'Travaux - Rénovation', value: 14300, parent: 'root' },
+                { name: 'Santé - Beauté', value: 11200, parent: 'root' },
+                { name: 'Services aux particuliers', value: 8900, parent: 'root' },
+                { name: 'Autres', value: 7500, parent: 'root' }
+            ],
+            subcategories: [
+                // Téléphonie
+                { name: 'Téléphonie mobile', value: 12000, parent: 'Téléphonie' },
+                { name: 'Internet fixe', value: 8500, parent: 'Téléphonie' },
+                { name: 'TV et streaming', value: 8000, parent: 'Téléphonie' },
+                // Voyage
+                { name: 'Transport aérien', value: 10000, parent: 'Voyage' },
+                { name: 'Hébergement', value: 8200, parent: 'Voyage' },
+                { name: 'Location voiture', value: 6000, parent: 'Voyage' },
+                // Produits
+                { name: 'Électroménager', value: 7500, parent: 'Produits' },
+                { name: 'High-tech', value: 6400, parent: 'Produits' },
+                { name: 'Mobilier', value: 5000, parent: 'Produits' },
+                // Voiture
+                { name: 'Achat véhicule', value: 8000, parent: 'Voiture' },
+                { name: 'Réparation', value: 5500, parent: 'Voiture' },
+                { name: 'Assurance', value: 3000, parent: 'Voiture' },
+                // Travaux
+                { name: 'Rénovation', value: 7000, parent: 'Travaux' },
+                { name: 'Construction', value: 4300, parent: 'Travaux' },
+                { name: 'Dépannage', value: 3000, parent: 'Travaux' },
+                // Santé
+                { name: 'Cosmétiques', value: 5000, parent: 'Santé' },
+                { name: 'Soins médicaux', value: 3700, parent: 'Santé' },
+                { name: 'Bien-être', value: 2500, parent: 'Santé' },
+                // Services
+                { name: 'Déménagement', value: 4000, parent: 'Services' },
+                { name: 'Formation', value: 2900, parent: 'Services' },
+                { name: 'Aide à domicile', value: 2000, parent: 'Services' },
+                // Autres
+                { name: 'Divers', value: 7500, parent: 'Autres' }
+            ],
+            regions: [
+                { name: 'Île-de-France', value: 45000, parent: 'root' },
+                { name: 'Auvergne-Rhône-Alpes', value: 22000, parent: 'root' },
+                { name: 'Nouvelle-Aquitaine', value: 18000, parent: 'root' },
+                { name: 'Occitanie', value: 15000, parent: 'root' },
+                { name: 'Hauts-de-France', value: 12000, parent: 'root' },
+                { name: 'PACA', value: 10000, parent: 'root' },
+                { name: 'Grand Est', value: 8000, parent: 'root' }
+            ]
         };
         
-        // Données
-        let treemapData = generateTreemapData();
+        let currentDataLevel = 'categories';
         
         // Configuration du graphique
         const config = {
@@ -259,23 +263,33 @@
             data: {
                 datasets: [{
                     label: 'Signalements',
-                    tree: [],
+                    tree: dataSets[currentDataLevel],
                     key: 'value',
-                    groups: ['category', 'subcategory'],
-                    backgroundColor: [],  // Sera rempli avec un tableau de couleurs
-                    borderColor: [],  // Sera rempli avec un tableau de couleurs
+                    groups: ['parent', 'name'],
+                    backgroundColor: function(ctx) {
+                        if (ctx.type !== 'data') return 'transparent';
+                        const index = ctx.dataIndex % dsfrColors.palette.length;
+                        return dsfrColors.palette[index] + '90';
+                    },
+                    borderColor: function(ctx) {
+                        if (ctx.type !== 'data') return 'transparent';
+                        const index = ctx.dataIndex % dsfrColors.palette.length;
+                        return dsfrColors.palette[index];
+                    },
                     borderWidth: 2,
                     spacing: 1,
                     labels: {
                         display: true,
                         color: 'white',
                         font: {
-                            size: 11
+                            size: 14,
+                            weight: 'bold'
                         },
                         formatter: function(ctx) {
-                            if (!ctx.raw) return '';
-                            const value = ctx.raw.value || 0;
-                            return [ctx.raw.subcategory || '', value.toLocaleString('fr-FR')];
+                            const item = ctx.raw._data;
+                            const total = dataSets[currentDataLevel].reduce((sum, d) => sum + d.value, 0);
+                            const percentage = ((item.value / total) * 100).toFixed(1);
+                            return [item.name, item.value.toLocaleString('fr-FR'), percentage + '%'];
                         }
                     }
                 }]
@@ -292,23 +306,17 @@
                         padding: 12,
                         cornerRadius: 4,
                         callbacks: {
-                            title: function(items) {
-                                if (!items[0] || !items[0].raw) return '';
-                                const item = items[0].raw;
-                                return (item.category || '') + ' > ' + (item.subcategory || '');
+                            title: function(context) {
+                                return context[0].raw._data.name;
                             },
                             label: function(context) {
-                                if (!context.raw) return [];
-                                const item = context.raw;
-                                const result = [];
-                                result.push('Signalements: ' + (item._originalValue || item.value || 0).toLocaleString('fr-FR'));
-                                if (item._resolution !== undefined) {
-                                    result.push('Résolution: ' + item._resolution.toFixed(1) + '%');
-                                }
-                                if (item._satisfaction !== undefined) {
-                                    result.push('Satisfaction: ' + item._satisfaction.toFixed(1) + '/5');
-                                }
-                                return result;
+                                const item = context.raw._data;
+                                const total = dataSets[currentDataLevel].reduce((sum, d) => sum + d.value, 0);
+                                const percentage = ((item.value / total) * 100).toFixed(1);
+                                return [
+                                    'Nombre: ' + item.value.toLocaleString('fr-FR'),
+                                    'Part: ' + percentage + '%'
+                                ];
                             }
                         }
                     }
@@ -316,188 +324,103 @@
             }
         };
         
-        // Fonction pour préparer les données du treemap
-        function prepareTreemapData(mode = 'volume') {
-            const groupedData = [];
-            
-            treemapData.forEach(item => {
-                let value;
-                switch(mode) {
-                    case 'resolution':
-                        value = item.resolution;
-                        break;
-                    case 'satisfaction':
-                        value = item.satisfaction * 20; // Normalisation sur 100
-                        break;
-                    default:
-                        value = item.value;
-                }
-                
-                // Structure simple pour chartjs-chart-treemap
-                groupedData.push({
-                    category: item.category,
-                    subcategory: item.subcategory,
-                    value: value,
-                    _color: item.color,  // Couleur directe
-                    _originalValue: item.value,
-                    _resolution: item.resolution,
-                    _satisfaction: item.satisfaction
-                });
-            });
-            
-            return groupedData;
-        }
-        
-        // Préparer les couleurs comme tableaux
-        function prepareColors() {
-            const bgColors = [];
-            const borderColors = [];
-            treemapData.forEach(item => {
-                bgColors.push(item.color + '80');
-                borderColors.push(item.color);
-            });
-            return { bgColors, borderColors };
-        }
-        
         // Initialisation du graphique
         const ctx = document.getElementById('treemapChart').getContext('2d');
-        const treeDataInit = prepareTreemapData();
-        const colorsInit = prepareColors();
-        config.data.datasets[0].tree = treeDataInit;
-        config.data.datasets[0].backgroundColor = colorsInit.bgColors;
-        config.data.datasets[0].borderColor = colorsInit.borderColors;
-        const myChart = new Chart(ctx, config);
+        let myChart = new Chart(ctx, config);
         
-        // Création de la légende personnalisée
-        function createLegend() {
-            const legendContainer = document.getElementById('legend-items');
-            legendContainer.innerHTML = '';
+        // Mise à jour des statistiques
+        function updateStatistics() {
+            const data = dataSets[currentDataLevel];
+            const total = data.reduce((sum, d) => sum + d.value, 0);
+            const sorted = [...data].sort((a, b) => b.value - a.value);
+            const top3Sum = sorted.slice(0, 3).reduce((sum, d) => sum + d.value, 0);
             
-            const categories = [...new Set(treemapData.map(item => item.category))];
-            
-            categories.forEach((category, index) => {
-                const color = categoryColors[index % categoryColors.length];
-                const item = document.createElement('span');
-                item.className = 'legend-item';
-                item.innerHTML = `
-                    <span class="legend-color" style="background-color: ${color}"></span>
-                    ${category}
-                `;
-                legendContainer.appendChild(item);
-            });
+            document.getElementById('total-count').textContent = total.toLocaleString('fr-FR');
+            document.getElementById('categories-count').textContent = data.length;
+            document.getElementById('top-category').textContent = sorted[0].name.split(' ')[0];
+            document.getElementById('top3-share').textContent = ((top3Sum / total) * 100).toFixed(0) + '%';
         }
         
-        // Mise à jour de la vue
-        function updateView() {
-            const mode = document.getElementById('view-select').value;
-            const treeData = prepareTreemapData(mode);
-            const colors = prepareColors();
-            myChart.data.datasets[0].tree = treeData;
-            myChart.data.datasets[0].backgroundColor = colors.bgColors;
-            myChart.data.datasets[0].borderColor = colors.borderColors;
+        // Mise à jour du niveau de données
+        function updateDataLevel() {
+            currentDataLevel = document.getElementById('data-level').value;
             
-            // Mise à jour du formatter selon le mode
-            myChart.data.datasets[0].labels.formatter = function(ctx) {
-                if (!ctx.raw || !ctx.raw._data) return '';
-                const item = ctx.raw._data;
-                let value;
-                switch(mode) {
-                    case 'resolution':
-                        value = (item.resolution || 0).toFixed(1) + '%';
-                        break;
-                    case 'satisfaction':
-                        value = (item.satisfaction || 0).toFixed(1) + '/5';
-                        break;
-                    default:
-                        value = (item.value || 0).toLocaleString('fr-FR');
-                }
-                return [item.subcategory || '', value];
-            };
+            myChart.data.datasets[0].tree = dataSets[currentDataLevel];
+            myChart.update();
             
-            myChart.update();
-        }
-        
-        // Toggle des étiquettes
-        function toggleLabels() {
-            const showLabels = document.getElementById('toggle-labels').checked;
-            myChart.data.datasets[0].labels.display = showLabels;
-            myChart.update();
+            updateStatistics();
+            if (document.getElementById('toggle-table').checked) {
+                updateDataTable();
+            }
         }
         
         // Mise à jour du tableau de données
         function updateDataTable() {
             const tableBody = document.getElementById('table-body');
+            const data = dataSets[currentDataLevel];
+            const total = data.reduce((sum, d) => sum + d.value, 0);
+            
             tableBody.innerHTML = '';
             
-            // Calcul du total
-            const total = treemapData.reduce((sum, item) => sum + item.value, 0);
+            // Grouper par parent si nécessaire
+            const sorted = [...data].sort((a, b) => b.value - a.value);
             
-            // Tri par catégorie puis sous-catégorie
-            const sortedData = [...treemapData].sort((a, b) => {
-                if (a.category !== b.category) {
-                    return a.category.localeCompare(b.category);
-                }
-                return b.value - a.value;
-            });
-            
-            sortedData.forEach(item => {
+            sorted.forEach(item => {
                 const row = tableBody.insertRow();
                 const cellCategory = row.insertCell(0);
                 const cellSubcategory = row.insertCell(1);
                 const cellValue = row.insertCell(2);
                 const cellPercent = row.insertCell(3);
                 
-                cellCategory.textContent = item.category;
-                cellSubcategory.textContent = item.subcategory;
+                if (currentDataLevel === 'subcategories') {
+                    cellCategory.textContent = item.parent;
+                    cellSubcategory.textContent = item.name;
+                } else {
+                    cellCategory.textContent = item.name;
+                    cellSubcategory.textContent = '-';
+                }
+                
                 cellValue.textContent = item.value.toLocaleString('fr-FR');
                 cellPercent.textContent = ((item.value / total) * 100).toFixed(1) + '%';
             });
         }
         
-        // Toggle du tableau de données
+        // Afficher/masquer le tableau
         function toggleDataTable() {
             const table = document.getElementById('data-table');
-            const button = document.getElementById('toggle-table-btn');
+            const isChecked = document.getElementById('toggle-table').checked;
             
-            if (table.classList.contains('show')) {
-                table.classList.remove('show');
-                button.setAttribute('aria-expanded', 'false');
-                button.textContent = 'Afficher le tableau de données';
-            } else {
+            if (isChecked) {
                 table.classList.add('show');
                 updateDataTable();
-                button.setAttribute('aria-expanded', 'true');
-                button.textContent = 'Masquer le tableau de données';
+            } else {
+                table.classList.remove('show');
             }
         }
         
         // Export en PNG
         function exportChartAsPNG() {
             const link = document.createElement('a');
-            link.download = 'treemap-signalconso.png';
+            link.download = 'signalconso-treemap.png';
             link.href = myChart.toBase64Image();
             link.click();
         }
         
         // Export en CSV
         function exportDataAsCSV() {
-            let csv = 'Catégorie,Sous-catégorie,Nombre,Taux de résolution (%),Satisfaction (sur 5)\n';
+            const data = dataSets[currentDataLevel];
+            const total = data.reduce((sum, d) => sum + d.value, 0);
             
-            const sortedData = [...treemapData].sort((a, b) => {
-                if (a.category !== b.category) {
-                    return a.category.localeCompare(b.category);
-                }
-                return b.value - a.value;
-            });
-            
-            sortedData.forEach(item => {
-                csv += `"${item.category}","${item.subcategory}",${item.value},${item.resolution.toFixed(1)},${item.satisfaction.toFixed(1)}\n`;
+            let csv = 'Catégorie,Parent,Valeur,Pourcentage\n';
+            data.forEach(item => {
+                const percentage = ((item.value / total) * 100).toFixed(1);
+                csv += `"${item.name}","${item.parent}",${item.value},${percentage}%\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'treemap-signalconso.csv';
+            link.download = 'signalconso-treemap.csv';
             link.click();
         }
         
@@ -515,10 +438,7 @@
         }
         
         // Initialisation
-        createLegend();
-        
-        // Event listener pour le bouton
-        document.getElementById('toggle-table-btn').addEventListener('click', toggleDataTable);
+        updateStatistics();
         
         // Adaptation responsive
         window.addEventListener('resize', () => {

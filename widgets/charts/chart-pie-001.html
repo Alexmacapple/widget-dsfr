@@ -125,9 +125,12 @@
                         
                         <!-- Tableau de données alternatif (accessibilité) -->
                         <div class="fr-mt-3w">
-                            <button class="fr-btn fr-btn--tertiary" id="toggle-table-btn" aria-expanded="false" onclick="toggleDataTable()">
-                                Afficher le tableau de données
-                            </button>
+                            <div class="fr-toggle">
+                                <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                <label class="fr-toggle__label" for="toggle-table">
+                                    Afficher le tableau de données
+                                </label>
+                            </div>
                         </div>
                         
                         <div class="data-table" id="data-table">
@@ -343,17 +346,13 @@
         // Afficher/masquer le tableau
         function toggleDataTable() {
             const table = document.getElementById('data-table');
-            const button = document.getElementById('toggle-table-btn');
+            const isChecked = document.getElementById('toggle-table').checked;
             
-            if (table.classList.contains('show')) {
-                table.classList.remove('show');
-                button.setAttribute('aria-expanded', 'false');
-                button.textContent = 'Afficher le tableau de données';
-            } else {
+            if (isChecked) {
                 table.classList.add('show');
                 updateDataTable();
-                button.setAttribute('aria-expanded', 'true');
-                button.textContent = 'Masquer le tableau de données';
+            } else {
+                table.classList.remove('show');
             }
         }
         
