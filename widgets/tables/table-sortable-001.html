@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget tableau triable DSFR - Données SignalConso avec tri multi-colonnes">
+    <title>Tableau triable DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .table-container { 
+            margin: 2rem 0;
+            overflow: visible !important;
+        }
+        .fr-table {
+            width: 100% !important;
+        }
+        .fr-table table {
+            width: 100% !important;
+            min-width: 600px;
+            table-layout: auto;
+        }
+        .fr-table__wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+        .fr-table__container {
+            width: 100%;
+        }
+        .fr-table__content {
+            width: 100%;
+        }
+        .fr-table th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 2rem !important;
+        }
+        .fr-table th:hover {
+            background-color: #f5f5fe;
+        }
+        .sort-icon {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.875rem;
+            color: #666666;
+        }
+        .sort-icon.asc::after {
+            content: "▲";
+            color: #000091;
+        }
+        .sort-icon.desc::after {
+            content: "▼";
+            color: #000091;
+        }
+        .sort-icon.unsorted::after {
+            content: "⇅";
+            opacity: 0.3;
+        }
+        .stats-row {
+            background-color: #f5f5fe !important;
+            font-weight: bold;
+        }
+        .search-controls {
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 768px) {
+            .fr-table {
+                font-size: 0.875rem;
+            }
+        }
+        .highlight {
+            background-color: #fff4e6;
+        }
+        .row-number {
+            color: #666666;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET TABLE-SORTABLE-001 -->
+    <div id="widget-table-sortable-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Signalements par département - Tableau triable</h2>
+                        <p class="fr-text--sm">Cliquez sur les en-têtes de colonnes pour trier les données</p>
+                        
+                        <!-- Contrôles de recherche -->
+                        <div class="search-controls">
+                            <div class="fr-search-bar">
+                                <input class="fr-input" type="search" id="search-input" placeholder="Rechercher dans le tableau..." onkeyup="filterTable()">
+                                <button class="fr-btn" title="Rechercher">
+                                    Rechercher
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistiques -->
+                        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Total lignes</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="total-rows">20</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Lignes filtrées</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="filtered-rows">20</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Total signalements</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="total-signals">130 000</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-tile">
+                                    <div class="fr-tile__body">
+                                        <p class="fr-tile__title">Tri actuel</p>
+                                        <p class="fr-tile__desc fr-text--lg fr-text--bold" id="current-sort">Aucun</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tableau triable -->
+                        <div class="table-container">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table id="sortable-table">
+                                                <thead>
+                                        <tr>
+                                            <th scope="col" onclick="sortTable(0)" data-type="number">
+                                                #
+                                                <span class="sort-icon unsorted"></span>
+                                            </th>
+                                            <th scope="col" onclick="sortTable(1)" data-type="text">
+                                                Département
+                                                <span class="sort-icon unsorted"></span>
+                                            </th>
+                                            <th scope="col" onclick="sortTable(2)" data-type="text">
+                                                Région
+                                                <span class="sort-icon unsorted"></span>
+                                            </th>
+                                            <th scope="col" onclick="sortTable(3)" data-type="number">
+                                                Signalements
+                                                <span class="sort-icon unsorted"></span>
+                                            </th>
+                                            <th scope="col" onclick="sortTable(4)" data-type="number">
+                                                Résolution (%)
+                                                <span class="sort-icon unsorted"></span>
+                                            </th>
+                                            <th scope="col" onclick="sortTable(5)" data-type="text">
+                                                Statut
+                                                <span class="sort-icon unsorted"></span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+                                        <!-- Les données seront générées ici -->
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="stats-row">
+                                            <td colspan="3">Totaux / Moyennes</td>
+                                            <td id="total-col-signals">130 000</td>
+                                            <td id="avg-col-resolution">73%</td>
+                                            <td>-</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Boutons d'action -->
+                        <div class="fr-btns-group">
+                            <button class="fr-btn fr-btn--secondary" onclick="resetSort()">
+                                Réinitialiser le tri
+                            </button>
+                            <button class="fr-btn fr-btn--secondary" onclick="exportTableCSV()">
+                                Exporter en CSV
+                            </button>
+                            <button class="fr-btn fr-btn--secondary" onclick="printTable()">
+                                Imprimer
+                            </button>
+                        </div>
+                        
+                        <!-- Information -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">Fonctionnalités du tableau</p>
+                            <p>• Cliquez sur les en-têtes pour trier (ascendant/descendant)<br/>
+                            • Utilisez la barre de recherche pour filtrer les données<br/>
+                            • Les totaux sont recalculés automatiquement<br/>
+                            • Export CSV disponible avec tri appliqué</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET TABLE-SORTABLE-001 -->
+    
+    <script>
+        // Données agrégées depuis l'API SignalConso
+        let tableData = [];
+        
+        let currentSort = { column: -1, direction: 'asc' };
+        let filteredData = [];
+        
+        // Chargement et agrégation des données depuis l'API SignalConso
+        async function loadData() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&facet=companydepartment&facet=companyregion&facet=status');
+                const json = await response.json();
+                
+                // Agréger les données par département
+                const deptData = {};
+                
+                json.records.forEach(record => {
+                    const fields = record.fields;
+                    const dept = fields.companydepartment || 'Non renseigné';
+                    const region = fields.companyregion || 'Non renseigné';
+                    
+                    if (!deptData[dept]) {
+                        deptData[dept] = {
+                            dept: dept,
+                            region: region,
+                            signals: 0,
+                            resolved: 0,
+                            count: 0
+                        };
+                    }
+                    
+                    deptData[dept].signals++;
+                    if (fields.status === 'PromesseAction' || fields.status === 'Infonde') {
+                        deptData[dept].resolved++;
+                    }
+                    deptData[dept].count++;
+                });
+                
+                // Convertir en tableau et calculer les statistiques
+                tableData = Object.values(deptData)
+                    .filter(d => d.dept !== 'Non renseigné')
+                    .map(d => ({
+                        dept: d.dept,
+                        region: d.region,
+                        signals: d.signals,
+                        resolution: Math.round((d.resolved / d.signals) * 100),
+                        status: d.signals > 10 ? 'Actif' : 'En pause'
+                    }))
+                    .sort((a, b) => b.signals - a.signals)
+                    .slice(0, 20); // Top 20 départements
+                
+                filteredData = [...tableData];
+                return tableData;
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Retourner un tableau vide en cas d'erreur
+                return [];
+            }
+        }
+        
+        // Initialisation du tableau
+        async function initTable() {
+            // Afficher un message de chargement
+            document.getElementById('table-body').innerHTML = '<tr><td colspan="7" class="fr-text--center">Chargement des données...</td></tr>';
+            
+            // Charger les données
+            await loadData();
+            
+            // Afficher le tableau
+            renderTable(tableData);
+            updateStatistics();
+        }
+        
+        // Rendu du tableau
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            data.forEach((row, index) => {
+                const tr = tbody.insertRow();
+                
+                // Numéro de ligne
+                const cellNum = tr.insertCell(0);
+                cellNum.className = 'row-number';
+                cellNum.textContent = index + 1;
+                
+                // Données
+                tr.insertCell(1).textContent = row.dept;
+                tr.insertCell(2).textContent = row.region;
+                tr.insertCell(3).textContent = row.signals.toLocaleString('fr-FR');
+                tr.insertCell(4).textContent = row.resolution + '%';
+                
+                // Statut avec badge
+                const cellStatus = tr.insertCell(5);
+                const badge = document.createElement('span');
+                badge.className = row.status === 'Actif' ? 'fr-badge fr-badge--success' : 'fr-badge fr-badge--warning';
+                badge.textContent = row.status;
+                cellStatus.appendChild(badge);
+            });
+            
+            filteredData = data;
+            updateStatistics();
+        }
+        
+        // Fonction de tri
+        function sortTable(columnIndex) {
+            const headers = document.querySelectorAll('th');
+            const sortIcons = document.querySelectorAll('.sort-icon');
+            const header = headers[columnIndex];
+            const dataType = header.getAttribute('data-type');
+            
+            // Reset all icons
+            sortIcons.forEach(icon => {
+                icon.className = 'sort-icon unsorted';
+            });
+            
+            // Determine sort direction
+            let direction = 'asc';
+            if (currentSort.column === columnIndex && currentSort.direction === 'asc') {
+                direction = 'desc';
+            }
+            
+            // Update icon
+            const icon = sortIcons[columnIndex];
+            icon.className = `sort-icon ${direction}`;
+            
+            // Sort data
+            const sortedData = [...filteredData].sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(columnIndex) {
+                    case 0: // Row number
+                        return 0; // Don't sort by row number
+                    case 1: // Department
+                        aVal = a.dept;
+                        bVal = b.dept;
+                        break;
+                    case 2: // Region
+                        aVal = a.region;
+                        bVal = b.region;
+                        break;
+                    case 3: // Signals
+                        aVal = a.signals;
+                        bVal = b.signals;
+                        break;
+                    case 4: // Resolution
+                        aVal = a.resolution;
+                        bVal = b.resolution;
+                        break;
+                    case 5: // Status
+                        aVal = a.status;
+                        bVal = b.status;
+                        break;
+                }
+                
+                if (dataType === 'number') {
+                    return direction === 'asc' ? aVal - bVal : bVal - aVal;
+                } else {
+                    if (direction === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                }
+            });
+            
+            currentSort = { column: columnIndex, direction };
+            renderTable(sortedData);
+            
+            // Update current sort display
+            const columnNames = ['#', 'Département', 'Région', 'Signalements', 'Résolution', 'Temps moyen', 'Statut'];
+            document.getElementById('current-sort').textContent = 
+                `${columnNames[columnIndex]} (${direction === 'asc' ? '↑' : '↓'})`;
+        }
+        
+        // Fonction de filtre/recherche
+        function filterTable() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                renderTable(tableData);
+                return;
+            }
+            
+            const filtered = tableData.filter(row => {
+                return row.dept.toLowerCase().includes(searchTerm) ||
+                       row.region.toLowerCase().includes(searchTerm) ||
+                       row.status.toLowerCase().includes(searchTerm) ||
+                       row.signals.toString().includes(searchTerm);
+            });
+            
+            renderTable(filtered);
+            highlightSearchTerm(searchTerm);
+        }
+        
+        // Surligner les termes de recherche
+        function highlightSearchTerm(term) {
+            if (!term) return;
+            
+            const cells = document.querySelectorAll('#table-body td');
+            cells.forEach(cell => {
+                const text = cell.textContent;
+                if (text.toLowerCase().includes(term)) {
+                    const regex = new RegExp(`(${term})`, 'gi');
+                    cell.innerHTML = text.replace(regex, '<span class="highlight">$1</span>');
+                }
+            });
+        }
+        
+        // Mise à jour des statistiques
+        function updateStatistics() {
+            const totalRows = tableData.length;
+            const filteredRows = filteredData.length;
+            const totalSignals = filteredData.reduce((sum, row) => sum + row.signals, 0);
+            const avgResolution = Math.round(filteredData.reduce((sum, row) => sum + row.resolution, 0) / filteredRows);
+            
+            document.getElementById('total-rows').textContent = totalRows;
+            document.getElementById('filtered-rows').textContent = filteredRows;
+            document.getElementById('total-signals').textContent = totalSignals.toLocaleString('fr-FR');
+            
+            document.getElementById('total-col-signals').textContent = totalSignals.toLocaleString('fr-FR');
+            document.getElementById('avg-col-resolution').textContent = avgResolution + '%';
+        }
+        
+        // Réinitialiser le tri
+        function resetSort() {
+            currentSort = { column: -1, direction: 'asc' };
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.className = 'sort-icon unsorted';
+            });
+            document.getElementById('current-sort').textContent = 'Aucun';
+            renderTable(tableData);
+        }
+        
+        // Export CSV
+        function exportTableCSV() {
+            let csv = 'Numéro,Département,Région,Signalements,Résolution (%),Statut\n';
+            
+            filteredData.forEach((row, index) => {
+                csv += `${index + 1},"${row.dept}","${row.region}",${row.signals},${row.resolution},"${row.status}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalements-departements.csv';
+            link.click();
+        }
+        
+        // Impression
+        function printTable() {
+            window.print();
+        }
+        
+        // Initialisation au chargement
+        window.addEventListener('DOMContentLoaded', initTable);
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

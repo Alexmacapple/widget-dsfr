@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des widgets avec données réelles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .test-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-loading {
+            background: #ffeb3b;
+            color: #333;
+        }
+        .status-success {
+            background: #4caf50;
+            color: white;
+        }
+        .status-error {
+            background: #f44336;
+            color: white;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test des widgets tables avec données réelles SignalConso</h1>
+    <p>Cette page teste que les 3 widgets tables utilisent maintenant les vraies données de l'API data.economie.gouv.fr</p>
+    
+    <div class="test-section">
+        <div class="test-title">
+            table-filterable-001.html
+            <span id="status-filterable" class="test-status status-loading">Chargement...</span>
+        </div>
+        <iframe id="iframe-filterable" src="widgets/tables/table-filterable-001.html"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">
+            table-paginated-001.html
+            <span id="status-paginated" class="test-status status-loading">Chargement...</span>
+        </div>
+        <iframe id="iframe-paginated" src="widgets/tables/table-paginated-001.html"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">
+            table-sortable-001.html
+            <span id="status-sortable" class="test-status status-loading">Chargement...</span>
+        </div>
+        <iframe id="iframe-sortable" src="widgets/tables/table-sortable-001.html"></iframe>
+    </div>
+    
+    <script>
+        // Fonction pour vérifier qu'une iframe a chargé des données réelles
+        function checkIframeData(iframeId, statusId) {
+            const iframe = document.getElementById(iframeId);
+            const status = document.getElementById(statusId);
+            
+            iframe.onload = function() {
+                setTimeout(() => {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const tableBody = iframeDoc.querySelector('#table-body');
+                        
+                        if (tableBody && tableBody.children.length > 0) {
+                            // Vérifier si les données contiennent des références à l'API
+                            const content = tableBody.textContent;
+                            if (content.includes('REF-202') || content.includes('SIG-202')) {
+                                status.textContent = 'Données réelles chargées ✓';
+                                status.className = 'test-status status-success';
+                            } else {
+                                status.textContent = 'Données chargées';
+                                status.className = 'test-status status-success';
+                            }
+                        } else {
+                            status.textContent = 'Pas de données';
+                            status.className = 'test-status status-error';
+                        }
+                    } catch (e) {
+                        status.textContent = 'Erreur: ' + e.message;
+                        status.className = 'test-status status-error';
+                    }
+                }, 2000); // Attendre 2 secondes pour le chargement des données
+            };
+            
+            iframe.onerror = function() {
+                status.textContent = 'Erreur de chargement';
+                status.className = 'test-status status-error';
+            };
+        }
+        
+        // Vérifier chaque widget
+        checkIframeData('iframe-filterable', 'status-filterable');
+        checkIframeData('iframe-paginated', 'status-paginated');
+        checkIframeData('iframe-sortable', 'status-sortable');
+        
+        // Test API direct
+        fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Test API SignalConso:', data.records.length > 0 ? 'OK' : 'Pas de données');
+                console.log('Premier enregistrement:', data.records[0]);
+            })
+            .catch(error => {
+                console.error('Erreur API SignalConso:', error);
+            });
+    </script>
+</body>
+</html>

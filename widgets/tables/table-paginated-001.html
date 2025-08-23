@@ -478,45 +478,83 @@
     
     <script>
         // Configuration
-        const TOTAL_ITEMS = 500;
+        let TOTAL_ITEMS = 0;
         let currentPage = 1;
         let pageSize = 25;
-        let totalPages = Math.ceil(TOTAL_ITEMS / pageSize);
+        let totalPages = 0;
         let allData = [];
         let filteredData = [];
         let selectedItems = new Set();
         let loadStartTime = 0;
         
-        // Génération de données fictives
-        function generateMockData() {
-            const categories = ['Téléphonie', 'Voyage', 'Produits', 'Voiture', 'Services', 'Santé', 'Travaux'];
-            const departments = ['75', '13', '69', '59', '31', '33', '06', '44', '34', '67'];
-            const statuses = ['Résolu', 'En cours', 'Transmis', 'En attente'];
-            const companies = ['Orange', 'SFR', 'Bouygues', 'Free', 'EDF', 'Engie', 'Total', 'Carrefour', 'Leclerc', 'Amazon'];
-            
-            const data = [];
-            for (let i = 1; i <= TOTAL_ITEMS; i++) {
-                const date = new Date();
-                date.setDate(date.getDate() - Math.floor(Math.random() * 365));
+        // Chargement des données depuis l'API SignalConso
+        async function loadDataFromAPI() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=500&sort=-creationdate');
+                const json = await response.json();
                 
-                data.push({
-                    id: `REF-2024-${String(i).padStart(5, '0')}`,
-                    date: date,
-                    company: companies[Math.floor(Math.random() * companies.length)],
-                    category: categories[Math.floor(Math.random() * categories.length)],
-                    department: departments[Math.floor(Math.random() * departments.length)],
-                    status: statuses[Math.floor(Math.random() * statuses.length)]
+                TOTAL_ITEMS = json.records.length;
+                totalPages = Math.ceil(TOTAL_ITEMS / pageSize);
+                
+                allData = json.records.map((record, index) => {
+                    const fields = record.fields;
+                    const date = new Date(fields.creationdate);
+                    
+                    // Formater le statut pour l'affichage
+                    let displayStatus = 'En attente';
+                    if (fields.status === 'PromesseAction' || fields.status === 'Infonde') {
+                        displayStatus = 'Résolu';
+                    } else if (fields.status === 'Transmis') {
+                        displayStatus = 'Transmis';
+                    } else if (fields.status === 'NonConsulte') {
+                        displayStatus = 'Non consulté';
+                    } else {
+                        displayStatus = 'En cours';
+                    }
+                    
+                    return {
+                        id: `REF-${date.getFullYear()}-${String(index + 1).padStart(5, '0')}`,
+                        date: date,
+                        company: fields.companyname || 'Non renseigné',
+                        category: fields.category || 'Non catégorisé',
+                        subcategory: fields.subcategory || '',
+                        department: fields.companydepartment || 'Non renseigné',
+                        postalCode: fields.companypostalcode || '',
+                        region: fields.companyregion || '',
+                        status: displayStatus,
+                        originalStatus: fields.status,
+                        problem: fields.problem || 'Pas de description',
+                        siret: fields.companysiret || ''
+                    };
                 });
+                
+                return allData;
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Retourner un tableau vide en cas d'erreur
+                TOTAL_ITEMS = 0;
+                totalPages = 0;
+                return [];
             }
-            return data;
         }
         
         // Initialisation
-        function initTable() {
-            allData = generateMockData();
+        async function initTable() {
+            // Afficher un message de chargement
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('paginated-table').style.opacity = '0.5';
+            
+            // Charger les données
+            await loadDataFromAPI();
             filteredData = [...allData];
+            
+            // Afficher la première page
             loadPage(1);
             updatePaginationControls();
+            
+            // Masquer le chargement
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('paginated-table').style.opacity = '1';
         }
         
         // Chargement d'une page
@@ -826,23 +864,57 @@
                             </div>
                         </div>
                         <div class="modal-field-group">
-                            <div class="modal-field-label">Entreprise</div>
+                            <div class="modal-field-label">Catégorie</div>
                             <div class="modal-field-value">
-                                <span class="fr-badge fr-badge--info">${item.company}</span>
+                                <span class="fr-badge fr-badge--info">${item.category}</span>
+                                ${item.subcategory ? `<br/><small>${item.subcategory}</small>` : ''}
                             </div>
                         </div>
                         <div class="modal-field-group">
-                            <div class="modal-field-label">Catégorie</div>
+                            <div class="modal-field-label">Statut</div>
                             <div class="modal-field-value">
-                                <span class="fr-badge">${item.category}</span>
+                                <span class="fr-badge fr-badge--${item.status === 'Résolu' ? 'success' : item.status === 'Transmis' ? 'info' : 'warning'}">
+                                    ${item.originalStatus || item.status}
+                                </span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Informations entreprise -->
+                <div class="modal-info-card">
+                    <h3 class="fr-h6">Entreprise concernée</h3>
+                    <div class="modal-info-grid">
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Nom de l'entreprise</div>
+                            <div class="modal-field-value">
+                                <strong>${item.company}</strong>
+                            </div>
+                        </div>
+                        ${item.siret ? `
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">SIRET</div>
+                            <div class="modal-field-value">${item.siret}</div>
+                        </div>
+                        ` : ''}
+                        ${item.postalCode ? `
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Code postal</div>
+                            <div class="modal-field-value">${item.postalCode}</div>
+                        </div>
+                        ` : ''}
                         <div class="modal-field-group">
                             <div class="modal-field-label">Département</div>
                             <div class="modal-field-value">
                                 <strong>${item.department}</strong>
                             </div>
                         </div>
+                        ${item.region ? `
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Région</div>
+                            <div class="modal-field-value">${item.region}</div>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
                 
@@ -879,21 +951,8 @@
                 
                 <!-- Description -->
                 <div class="modal-info-card">
-                    <h3 class="fr-h6">Description du signalement</h3>
-                    <p>
-                        Le consommateur a signalé un problème concernant ${item.category.toLowerCase()} 
-                        avec l'entreprise ${item.company}. 
-                        ${item.category === 'Téléphonie' ? 'Le litige porte sur un contrat de téléphonie mobile avec des frais non justifiés.' :
-                          item.category === 'Voyage' ? 'La réclamation concerne une annulation de voyage ou un remboursement non effectué.' :
-                          item.category === 'Produits' ? 'Le signalement fait suite à un produit défectueux ou non conforme à la commande.' :
-                          item.category === 'Voiture' ? 'Le problème concerne un véhicule avec des défauts mécaniques ou un litige de garantie.' :
-                          item.category === 'Services' ? 'La plainte porte sur une prestation de service non conforme ou incomplète.' :
-                          item.category === 'Santé' ? 'Le signalement concerne un problème lié à des produits de santé ou des services médicaux.' :
-                          item.category === 'Travaux' ? 'Le litige porte sur des travaux mal exécutés ou non terminés.' :
-                          'Le consommateur demande une résolution rapide de ce litige.'}
-                        Le dossier est actuellement ${item.status.toLowerCase()} et fait l'objet d'un suivi attentif 
-                        par nos services.
-                    </p>
+                    <h3 class="fr-h6">Description du problème</h3>
+                    <p>${item.problem.replace(/\n/g, '<br/>')}</p>
                 </div>
                 
                 <!-- État du traitement -->

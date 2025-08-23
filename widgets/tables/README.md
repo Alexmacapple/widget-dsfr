@@ -2,7 +2,16 @@
 
 ## Vue d'ensemble
 
-Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System France (DSFR), optimisés pour l'affichage et la manipulation de données tabulaires.
+Ce dossier contient 15 widgets tables OpenDataSoft migrés vers le Design System France (DSFR), optimisés pour l'affichage et la manipulation de données tabulaires. **Tous les widgets utilisent les données réelles de l'API data.economie.gouv.fr (dataset SignalConso)** - aucune donnée fictive n'est présente.
+
+## Source de données
+
+Tous les widgets récupèrent leurs données depuis l'API officielle :
+- **Endpoint** : `https://data.economie.gouv.fr/api/records/1.0/search/`
+- **Dataset** : `signalconso` (signalements consommateurs)
+- **Format** : JSON avec pagination et filtres
+- **Temps réel** : Les données sont chargées dynamiquement à chaque consultation
+- **Intégrité** : Seules les données réelles de l'API sont affichées (aucune donnée simulée)
 
 ## Widgets disponibles
 
@@ -32,7 +41,19 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Recherche avancée, tableaux de bord interactifs avec filtrage complexe
 
-### 3. Table Paginated (table-paginated-001.html)
+### 3. Table Sortable (table-sortable-001.html)
+**Description** : Table avec tri multi-colonnes et agrégation par département
+**Fonctionnalités** :
+- Tri ascendant/descendant sur toutes les colonnes
+- Agrégation automatique des données par département
+- Statistiques calculées (nombre de signalements, taux de résolution)
+- Indicateurs visuels de tri (flèches)
+- Badges de statut (Actif/En pause)
+- Totaux automatiques en bas de tableau
+
+**Cas d'usage** : Tableaux statistiques départementaux, rapports agrégés
+
+### 4. Table Paginated (table-paginated-001.html)
 **Description** : Table optimisée pour la navigation dans de grands volumes de données
 **Fonctionnalités** :
 - Pagination avancée avec navigation première/dernière page
@@ -46,7 +67,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Grands datasets, listes avec navigation optimisée
 
-### 4. Advanced Table (advanced-table-001.html)
+### 5. Advanced Table (advanced-table-001.html)
 **Description** : Table avancée avec colonnes configurables dynamiquement
 **Fonctionnalités** :
 - Sélection/désélection de colonnes en temps réel
@@ -58,7 +79,18 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Tableaux personnalisables pour utilisateurs avancés
 
-### 5. Aggregate Table (aggregate-table-001.html)
+### 6. Advanced Table Vanilla (advanced-table-vanilla.html)
+**Description** : Version vanilla JavaScript de la table avancée (sans Angular)
+**Fonctionnalités** :
+- Implémentation pure JavaScript/DSFR
+- Tri, recherche et pagination natifs
+- Actions par ligne (voir détails, éditer, supprimer)
+- Modale de détails complète
+- Performance optimisée sans framework
+
+**Cas d'usage** : Projets sans Angular, implémentation légère
+
+### 7. Aggregate Table (aggregate-table-001.html)
 **Description** : Table avec calculs d'agrégation automatiques
 **Fonctionnalités** :
 - Cartes KPI globales (total, moyennes, count)
@@ -70,7 +102,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Tableaux de bord statistiques et rapports analytiques
 
-### 6. Data Grid (data-grid-001.html)
+### 8. Data Grid (data-grid-001.html)
 **Description** : Grille de données interactive style cartes
 **Fonctionnalités** :
 - Affichage en grille responsive
@@ -81,7 +113,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Catalogues, galeries de données, vues alternatives aux tables
 
-### 7. Cross Table (cross-table-001.html)
+### 9. Cross Table (cross-table-001.html)
 **Description** : Tableau croisé dynamique (pivot table)
 **Fonctionnalités** :
 - Dimensions configurables (ligne × colonne)
@@ -92,7 +124,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Analyses croisées, matrices de corrélation, rapports multidimensionnels
 
-### 8. Result Enumerator (result-enumerator-001.html)
+### 10. Result Enumerator (result-enumerator-001.html)
 **Description** : Liste de résultats en cartes horizontales paginées
 **Fonctionnalités** :
 - Cartes DSFR horizontales
@@ -103,7 +135,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Résultats de recherche, listings immobiliers, annonces
 
-### 9. Export Button (export-button-001.html)
+### 11. Export Button (export-button-001.html)
 **Description** : Widget autonome d'export multi-format
 **Fonctionnalités** :
 - Export CSV, Excel, JSON, GeoJSON
@@ -114,7 +146,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Intégration dans dashboards pour export de données
 
-### 10. Download Button (download-button-001.html)
+### 12. Download Button (download-button-001.html)
 **Description** : Widget de téléchargement de fichiers
 **Fonctionnalités** :
 - Liste de fichiers téléchargeables
@@ -124,7 +156,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Pages de ressources, documentation, fichiers joints
 
-### 11. Print Button (print-button-001.html)
+### 13. Print Button (print-button-001.html)
 **Description** : Widget d'impression optimisée
 **Fonctionnalités** :
 - Impression directe
@@ -135,7 +167,7 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 
 **Cas d'usage** : Rapports imprimables, factures, documents officiels
 
-### 12. Share Button (share-button-001.html)
+### 14. Share Button (share-button-001.html)
 **Description** : Widget de partage sur réseaux sociaux
 **Fonctionnalités** :
 - Partage Facebook, Twitter/X, LinkedIn
@@ -145,6 +177,18 @@ Ce dossier contient 12 widgets tables OpenDataSoft migrés vers le Design System
 - URLs encodées automatiquement
 
 **Cas d'usage** : Articles, pages publiques, contenus partageables
+
+### 15. SignalConso Vanilla (signalconso-vanilla.html)
+**Description** : Dashboard complet SignalConso en vanilla JavaScript
+**Fonctionnalités** :
+- Vue d'ensemble avec KPIs en temps réel
+- Graphiques Chart.js intégrés
+- Table interactive avec modales
+- Filtres multiples (catégorie, région, statut)
+- Export de données multi-format
+- Architecture modulaire sans framework
+
+**Cas d'usage** : Dashboard principal, tableau de bord analytics complet
 
 ## Structure technique
 
