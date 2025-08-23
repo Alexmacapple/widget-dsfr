@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget tableau filtrable DSFR - Filtres avancés multi-critères SignalConso">
+    <title>Tableau filtrable DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .filters-container {
+            background-color: #f5f5fe;
+            padding: 1.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 2rem;
+        }
+        .table-container { 
+            margin: 2rem 0;
+            overflow: visible !important;
+        }
+        .fr-table {
+            width: 100% !important;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        .fr-table th:nth-child(4),
+        .fr-table td:nth-child(4) {
+            width: 25%;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        .fr-table__wrapper {
+            width: 100%;
+            overflow: visible !important;
+        }
+        .fr-table__container {
+            width: 100%;
+            overflow: visible !important;
+            max-height: none !important;
+        }
+        .fr-table__content {
+            width: 100%;
+            overflow: visible !important;
+            max-height: none !important;
+        }
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            min-height: 2rem;
+        }
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #000091;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+        }
+        .filter-tag button {
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+        .status-resolved { background-color: #18753C; color: white; }
+        .status-pending { background-color: #B34000; color: white; }
+        .status-transmitted { background-color: #0063CB; color: white; }
+        .priority-high { color: #CE0500; font-weight: bold; }
+        .priority-medium { color: #B34000; }
+        .priority-low { color: #18753C; }
+        .highlight-row {
+            background-color: #fff4e6 !important;
+        }
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666666;
+        }
+        .fr-badge {
+            margin-top: 0.25rem;
+        }
+        @media (max-width: 768px) {
+            .filters-container {
+                padding: 1rem;
+            }
+        }
+        
+        /* Styles pour la modale */
+        dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            border: none;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            border-radius: 0.5rem;
+            box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
+        }
+        
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-wrapper {
+            background: white;
+            height: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .modal-header-content {
+            flex: 1;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #161616;
+        }
+        
+        .btn-close-modal {
+            background: white;
+            border: 2px solid #000091;
+            color: #000091;
+            border-radius: 0.25rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        
+        .btn-close-modal:hover {
+            background: #000091;
+            color: white;
+        }
+        
+        .btn-close-modal svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            max-height: calc(80vh - 100px);
+        }
+        
+        .modal-info-card {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f5f5fe;
+            border-radius: 0.25rem;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .modal-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .modal-field-label {
+            color: #666666;
+            font-size: 0.875rem;
+        }
+        
+        .modal-field-value {
+            color: #161616;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET TABLE-FILTERABLE-001 -->
+    <div id="widget-table-filterable-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Signalements détaillés - Filtres avancés</h2>
+                        <p class="fr-text--sm">Utilisez les filtres pour affiner votre recherche</p>
+                        
+                        <!-- Zone de filtres -->
+                        <div class="filters-container">
+                            <h3 class="fr-h6">Filtres de recherche</h3>
+                            
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <!-- Recherche globale -->
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-input-group">
+                                        <label class="fr-label" for="global-search">
+                                            Recherche globale
+                                        </label>
+                                        <input class="fr-input" type="text" id="global-search" placeholder="Rechercher..." onkeyup="applyFilters()">
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtre catégorie -->
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="filter-category">
+                                            Catégorie
+                                        </label>
+                                        <select class="fr-select" id="filter-category" onchange="applyFilters()">
+                                            <option value="">Toutes les catégories</option>
+                                            <option value="Téléphonie">Téléphonie</option>
+                                            <option value="Voyage">Voyage</option>
+                                            <option value="Produits">Produits</option>
+                                            <option value="Voiture">Voiture</option>
+                                            <option value="Services">Services</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtre statut -->
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="filter-status">
+                                            Statut
+                                        </label>
+                                        <select class="fr-select" id="filter-status" onchange="applyFilters()">
+                                            <option value="">Tous les statuts</option>
+                                            <option value="resolved">Résolu</option>
+                                            <option value="pending">En cours</option>
+                                            <option value="transmitted">Transmis</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtre priorité -->
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="filter-priority">
+                                            Priorité
+                                        </label>
+                                        <select class="fr-select" id="filter-priority" onchange="applyFilters()">
+                                            <option value="">Toutes les priorités</option>
+                                            <option value="high">Haute</option>
+                                            <option value="medium">Moyenne</option>
+                                            <option value="low">Basse</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtre période -->
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="filter-period">
+                                            Période
+                                        </label>
+                                        <select class="fr-select" id="filter-period" onchange="applyFilters()">
+                                            <option value="">Toutes les périodes</option>
+                                            <option value="today">Aujourd'hui</option>
+                                            <option value="week">Cette semaine</option>
+                                            <option value="month">Ce mois</option>
+                                            <option value="quarter">Ce trimestre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filtre par montant -->
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <label class="fr-label">Montant du litige</label>
+                                    <div class="fr-grid-row fr-grid-row--gutters">
+                                        <div class="fr-col-6">
+                                            <input class="fr-input" type="number" id="amount-min" placeholder="Min (€)" onchange="applyFilters()">
+                                        </div>
+                                        <div class="fr-col-6">
+                                            <input class="fr-input" type="number" id="amount-max" placeholder="Max (€)" onchange="applyFilters()">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Checkbox filters -->
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <fieldset class="fr-fieldset">
+                                        <legend class="fr-fieldset__legend fr-text--regular">Options</legend>
+                                        <div class="fr-fieldset__content">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="filter-urgent" onchange="applyFilters()">
+                                                <label class="fr-label" for="filter-urgent">
+                                                    Urgent uniquement
+                                                </label>
+                                            </div>
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="filter-unread" onchange="applyFilters()">
+                                                <label class="fr-label" for="filter-unread">
+                                                    Non lus uniquement
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="fr-btns-group fr-btns-group--inline fr-mt-2w">
+                                <button class="fr-btn fr-btn--secondary" onclick="resetFilters()">
+                                    Réinitialiser les filtres
+                                </button>
+                                <button class="fr-btn" onclick="saveFilters()">
+                                    Sauvegarder les filtres
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tags des filtres actifs -->
+                        <div class="filter-tags" id="active-filters">
+                            <!-- Les tags seront ajoutés ici -->
+                        </div>
+                        
+                        <!-- Statistiques -->
+                        <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+                            <div class="fr-col-6 fr-col-md-3">
+                                <p class="fr-text--sm fr-mb-0">Résultats : <strong id="results-count">50</strong> / <span id="total-count">50</span></p>
+                            </div>
+                            <div class="fr-col-6 fr-col-md-3">
+                                <p class="fr-text--sm fr-mb-0">Montant total : <strong id="total-amount">125 430 €</strong></p>
+                            </div>
+                            <div class="fr-col-6 fr-col-md-3">
+                                <p class="fr-text--sm fr-mb-0">Urgent : <strong id="urgent-count">12</strong></p>
+                            </div>
+                            <div class="fr-col-6 fr-col-md-3">
+                                <p class="fr-text--sm fr-mb-0">Non lus : <strong id="unread-count">8</strong></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Tableau filtrable -->
+                        <div class="table-container">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table id="filterable-table">
+                                                <thead>
+                                        <tr>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Catégorie</th>
+                                            <th scope="col">Description</th>
+                                            <th scope="col">Montant</th>
+                                            <th scope="col">Priorité</th>
+                                            <th scope="col">Statut</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+                                        <!-- Les données seront générées ici -->
+                                    </tbody>
+                                </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Message si aucun résultat -->
+                            <div id="no-results" class="no-results" style="display: none;">
+                                <p class="fr-text--lg">Aucun résultat trouvé</p>
+                                <p>Essayez de modifier vos critères de recherche</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Information -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">Aide sur les filtres</p>
+                            <p>• Combinez plusieurs filtres pour affiner votre recherche<br/>
+                            • Les filtres actifs apparaissent sous forme de tags<br/>
+                            • Cliquez sur la croix d'un tag pour le supprimer<br/>
+                            • Sauvegardez vos filtres favoris pour les réutiliser</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET TABLE-FILTERABLE-001 -->
+    
+    <!-- Modale pour les détails -->
+    <dialog id="modal-details" role="dialog" aria-labelledby="modal-details-title">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2 id="modal-details-title" class="modal-title">
+                        Détails du signalement
+                    </h2>
+                </div>
+                <button class="btn-close-modal" 
+                        type="button"
+                        title="Fermer" 
+                        aria-label="Fermer la fenêtre"
+                        onclick="closeModal()">
+                    <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 10.586L16.95 5.636L18.364 7.05L13.414 12L18.364 16.95L16.95 18.364L12 13.414L7.05 18.364L5.636 16.95L10.586 12L5.636 7.05L7.05 5.636L12 10.586Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-details-content">
+                    <!-- Le contenu sera injecté ici -->
+                </div>
+            </div>
+        </div>
+    </dialog>
+    
+    <script>
+        // Données simulées
+        const allData = generateMockData();
+        let filteredData = [...allData];
+        let activeFilters = {};
+        
+        // Génération de données fictives
+        function generateMockData() {
+            const categories = ['Téléphonie', 'Voyage', 'Produits', 'Voiture', 'Services'];
+            const statuses = ['resolved', 'pending', 'transmitted'];
+            const priorities = ['high', 'medium', 'low'];
+            const data = [];
+            
+            for (let i = 1; i <= 50; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * 90));
+                
+                data.push({
+                    id: `SIG-2024-${String(i).padStart(4, '0')}`,
+                    date: date,
+                    category: categories[Math.floor(Math.random() * categories.length)],
+                    description: `Problème de ${categories[Math.floor(Math.random() * categories.length)].toLowerCase()}\nRéclamation client`,
+                    amount: Math.floor(Math.random() * 5000) + 100,
+                    priority: priorities[Math.floor(Math.random() * priorities.length)],
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    urgent: Math.random() > 0.75,
+                    unread: Math.random() > 0.8
+                });
+            }
+            
+            return data;
+        }
+        
+        // Initialisation du tableau
+        function initTable() {
+            renderTable(allData);
+            updateStatistics();
+        }
+        
+        // Rendu du tableau
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            const noResults = document.getElementById('no-results');
+            
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                document.getElementById('filterable-table').style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            } else {
+                document.getElementById('filterable-table').style.display = 'table';
+                noResults.style.display = 'none';
+            }
+            
+            data.forEach(row => {
+                const tr = tbody.insertRow();
+                if (row.urgent) tr.classList.add('highlight-row');
+                
+                // ID avec indicateur non lu
+                const cellId = tr.insertCell(0);
+                if (row.unread) {
+                    cellId.innerHTML = `<strong>${row.id}</strong><br/><span class="fr-badge fr-badge--sm fr-badge--info">Nouveau</span>`;
+                } else {
+                    cellId.textContent = row.id;
+                }
+                
+                // Date
+                tr.insertCell(1).textContent = row.date.toLocaleDateString('fr-FR');
+                
+                // Catégorie
+                tr.insertCell(2).textContent = row.category;
+                
+                // Description
+                const cellDesc = tr.insertCell(3);
+                cellDesc.innerHTML = row.description.replace('\n', '<br/>');
+                
+                // Montant
+                tr.insertCell(4).textContent = row.amount.toLocaleString('fr-FR') + ' €';
+                
+                // Priorité
+                const cellPriority = tr.insertCell(5);
+                cellPriority.innerHTML = `<span class="priority-${row.priority}">${
+                    row.priority === 'high' ? 'Haute' : 
+                    row.priority === 'medium' ? 'Moyenne' : 'Basse'
+                }</span>`;
+                
+                // Statut
+                const cellStatus = tr.insertCell(6);
+                const statusText = row.status === 'resolved' ? 'Résolu' :
+                                  row.status === 'pending' ? 'En cours' : 'Transmis';
+                cellStatus.innerHTML = `<span class="status-badge status-${row.status}">${statusText}</span>`;
+                
+                // Actions
+                const cellActions = tr.insertCell(7);
+                cellActions.innerHTML = `
+                    <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm" onclick="openDetailModal('${row.id}')">
+                        Voir détails
+                    </button>
+                `;
+            });
+            
+            filteredData = data;
+            updateStatistics();
+        }
+        
+        // Application des filtres
+        function applyFilters() {
+            const search = document.getElementById('global-search').value.toLowerCase();
+            const category = document.getElementById('filter-category').value;
+            const status = document.getElementById('filter-status').value;
+            const priority = document.getElementById('filter-priority').value;
+            const period = document.getElementById('filter-period').value;
+            const amountMin = parseFloat(document.getElementById('amount-min').value) || 0;
+            const amountMax = parseFloat(document.getElementById('amount-max').value) || Infinity;
+            const urgentOnly = document.getElementById('filter-urgent').checked;
+            const unreadOnly = document.getElementById('filter-unread').checked;
+            
+            // Mise à jour des filtres actifs
+            activeFilters = {};
+            if (search) activeFilters.search = search;
+            if (category) activeFilters.category = category;
+            if (status) activeFilters.status = status;
+            if (priority) activeFilters.priority = priority;
+            if (period) activeFilters.period = period;
+            if (amountMin > 0) activeFilters.amountMin = amountMin;
+            if (amountMax < Infinity) activeFilters.amountMax = amountMax;
+            if (urgentOnly) activeFilters.urgent = true;
+            if (unreadOnly) activeFilters.unread = true;
+            
+            // Filtrage des données
+            let filtered = allData.filter(row => {
+                // Recherche globale
+                if (search && !row.id.toLowerCase().includes(search) &&
+                    !row.description.toLowerCase().includes(search) &&
+                    !row.category.toLowerCase().includes(search)) {
+                    return false;
+                }
+                
+                // Filtres spécifiques
+                if (category && row.category !== category) return false;
+                if (status && row.status !== status) return false;
+                if (priority && row.priority !== priority) return false;
+                if (urgentOnly && !row.urgent) return false;
+                if (unreadOnly && !row.unread) return false;
+                if (row.amount < amountMin || row.amount > amountMax) return false;
+                
+                // Filtre période
+                if (period) {
+                    const today = new Date();
+                    const rowDate = row.date;
+                    const daysDiff = Math.floor((today - rowDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (period === 'today' && daysDiff > 0) return false;
+                    if (period === 'week' && daysDiff > 7) return false;
+                    if (period === 'month' && daysDiff > 30) return false;
+                    if (period === 'quarter' && daysDiff > 90) return false;
+                }
+                
+                return true;
+            });
+            
+            renderTable(filtered);
+            updateFilterTags();
+        }
+        
+        // Mise à jour des tags de filtres
+        function updateFilterTags() {
+            const container = document.getElementById('active-filters');
+            container.innerHTML = '';
+            
+            Object.entries(activeFilters).forEach(([key, value]) => {
+                const tag = document.createElement('div');
+                tag.className = 'filter-tag';
+                
+                let label = '';
+                switch(key) {
+                    case 'search': label = `Recherche: ${value}`; break;
+                    case 'category': label = `Catégorie: ${value}`; break;
+                    case 'status': label = `Statut: ${value}`; break;
+                    case 'priority': label = `Priorité: ${value}`; break;
+                    case 'period': label = `Période: ${value}`; break;
+                    case 'amountMin': label = `Min: ${value}€`; break;
+                    case 'amountMax': label = `Max: ${value}€`; break;
+                    case 'urgent': label = 'Urgent'; break;
+                    case 'unread': label = 'Non lus'; break;
+                }
+                
+                tag.innerHTML = `
+                    ${label}
+                    <button onclick="removeFilter('${key}')">×</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+        
+        // Suppression d'un filtre
+        function removeFilter(key) {
+            switch(key) {
+                case 'search': document.getElementById('global-search').value = ''; break;
+                case 'category': document.getElementById('filter-category').value = ''; break;
+                case 'status': document.getElementById('filter-status').value = ''; break;
+                case 'priority': document.getElementById('filter-priority').value = ''; break;
+                case 'period': document.getElementById('filter-period').value = ''; break;
+                case 'amountMin': document.getElementById('amount-min').value = ''; break;
+                case 'amountMax': document.getElementById('amount-max').value = ''; break;
+                case 'urgent': document.getElementById('filter-urgent').checked = false; break;
+                case 'unread': document.getElementById('filter-unread').checked = false; break;
+            }
+            applyFilters();
+        }
+        
+        // Réinitialisation des filtres
+        function resetFilters() {
+            document.getElementById('global-search').value = '';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-priority').value = '';
+            document.getElementById('filter-period').value = '';
+            document.getElementById('amount-min').value = '';
+            document.getElementById('amount-max').value = '';
+            document.getElementById('filter-urgent').checked = false;
+            document.getElementById('filter-unread').checked = false;
+            
+            applyFilters();
+        }
+        
+        // Sauvegarde des filtres
+        function saveFilters() {
+            localStorage.setItem('savedFilters', JSON.stringify(activeFilters));
+            alert('Filtres sauvegardés !');
+        }
+        
+        // Mise à jour des statistiques
+        function updateStatistics() {
+            const totalAmount = filteredData.reduce((sum, row) => sum + row.amount, 0);
+            const urgentCount = filteredData.filter(row => row.urgent).length;
+            const unreadCount = filteredData.filter(row => row.unread).length;
+            
+            document.getElementById('results-count').textContent = filteredData.length;
+            document.getElementById('total-count').textContent = allData.length;
+            document.getElementById('total-amount').textContent = totalAmount.toLocaleString('fr-FR') + ' €';
+            document.getElementById('urgent-count').textContent = urgentCount;
+            document.getElementById('unread-count').textContent = unreadCount;
+        }
+        
+        // Fonction pour ouvrir la modale avec les détails
+        function openDetailModal(id) {
+            const modal = document.getElementById('modal-details');
+            const content = document.getElementById('modal-details-content');
+            const record = allData.find(row => row.id === id);
+            
+            if (!record) return;
+            
+            // Générer le contenu de la modale
+            content.innerHTML = `
+                <!-- Alert avec référence -->
+                <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                    <p class="fr-alert__title">Référence du signalement</p>
+                    <p><code>${record.id}</code></p>
+                </div>
+                
+                <!-- Informations principales -->
+                <div class="modal-info-card">
+                    <h3 class="fr-h6">Informations générales</h3>
+                    <div class="modal-info-grid">
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Date de création</div>
+                            <div class="modal-field-value">
+                                <strong>${record.date.toLocaleDateString('fr-FR', { 
+                                    day: 'numeric', 
+                                    month: 'long', 
+                                    year: 'numeric' 
+                                })}</strong>
+                            </div>
+                        </div>
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Catégorie</div>
+                            <div class="modal-field-value">
+                                <span class="fr-badge fr-badge--info">${record.category}</span>
+                            </div>
+                        </div>
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Statut actuel</div>
+                            <div class="modal-field-value">
+                                <span class="status-badge status-${record.status}">
+                                    ${record.status === 'resolved' ? 'Résolu' :
+                                      record.status === 'pending' ? 'En cours' : 'Transmis'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Priorité</div>
+                            <div class="modal-field-value">
+                                <span class="priority-${record.priority}">
+                                    ${record.priority === 'high' ? 'Haute' :
+                                      record.priority === 'medium' ? 'Moyenne' : 'Basse'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Détails financiers -->
+                <div class="modal-info-card">
+                    <h3 class="fr-h6">Détails financiers</h3>
+                    <div class="modal-info-grid">
+                        <div class="modal-field-group">
+                            <div class="modal-field-label">Montant du litige</div>
+                            <div class="modal-field-value">
+                                <strong>${record.amount.toLocaleString('fr-FR')} €</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="modal-info-card">
+                    <h3 class="fr-h6">Description</h3>
+                    <p>${record.description.replace('\n', '<br/>')}</p>
+                </div>
+                
+                <!-- État du signalement -->
+                <div class="fr-callout fr-callout--blue-ecume">
+                    <h3 class="fr-callout__title">État du traitement</h3>
+                    <ul class="fr-tags-group">
+                        <li>
+                            <p class="fr-tag ${record.status === 'transmitted' ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                ${record.status === 'transmitted' ? '✓' : '✗'} Transmis
+                            </p>
+                        </li>
+                        <li>
+                            <p class="fr-tag ${!record.unread ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                ${!record.unread ? '✓' : '✗'} Lu
+                            </p>
+                        </li>
+                        <li>
+                            <p class="fr-tag ${record.status === 'resolved' ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                ${record.status === 'resolved' ? '✓' : '✗'} Réponse
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+                
+                ${record.urgent ? `
+                <div class="fr-alert fr-alert--warning fr-mt-3w">
+                    <p class="fr-alert__title">Signalement urgent</p>
+                    <p>Ce signalement nécessite une attention prioritaire.</p>
+                </div>
+                ` : ''}
+            `;
+            
+            // Ouvrir la modale
+            if (typeof modal.showModal === 'function') {
+                modal.showModal();
+            } else {
+                modal.setAttribute('open', '');
+                modal.style.display = 'block';
+            }
+        }
+        
+        // Fonction pour fermer la modale
+        function closeModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                if (typeof modal.close === 'function') {
+                    modal.close();
+                } else {
+                    modal.removeAttribute('open');
+                    modal.style.display = 'none';
+                }
+            }
+        }
+        
+        // Fermer la modale avec Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // Initialisation au chargement
+        window.addEventListener('DOMContentLoaded', initTable);
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
