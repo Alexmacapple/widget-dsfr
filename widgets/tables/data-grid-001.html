@@ -42,6 +42,23 @@
             100% { background-position: -200% 0; }
         }
         
+        /* Focus visible renforcé pour accessibilité */
+        .fr-btn:focus-visible,
+        .fr-input:focus-visible,
+        .fr-select:focus-visible,
+        button:focus-visible,
+        .fr-card:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(0, 0, 145, 0.2);
+        }
+        
+        .btn-close-modal:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: -2px;
+        }
+        
         /* Styles pour la modale style DSFR */
         dialog {
             padding: 0;
@@ -712,8 +729,102 @@
             }
         });
         
-        // Charger les données au démarrage
-        loadData();
+        // Initialisation et support clavier amélioré
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données
+            loadData();
+            
+            // Support clavier pour bouton fermer modale
+            const closeBtn = document.querySelector('.btn-close-modal');
+            if (closeBtn) {
+                closeBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        closeModal();
+                    }
+                });
+            }
+            
+            // Gestion focus trap dans la modale
+            const modal = document.getElementById('detail-modal');
+            if (modal) {
+                modal.addEventListener('keydown', function(e) {
+                    if (!modal.hasAttribute('open')) return;
+                    
+                    const focusableElements = modal.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    
+                    const firstFocusable = focusableElements[0];
+                    const lastFocusable = focusableElements[focusableElements.length - 1];
+                    
+                    // Trap Tab navigation
+                    if (e.key === 'Tab') {
+                        if (e.shiftKey) { // Shift + Tab
+                            if (document.activeElement === firstFocusable) {
+                                e.preventDefault();
+                                lastFocusable.focus();
+                            }
+                        } else { // Tab
+                            if (document.activeElement === lastFocusable) {
+                                e.preventDefault();
+                                firstFocusable.focus();
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Support clavier pour cartes
+            setTimeout(function() {
+                const cards = document.querySelectorAll('.fr-card');
+                cards.forEach(card => {
+                    // Rendre les cartes focusables
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('role', 'article');
+                    
+                    // Support Enter pour ouvrir les détails
+                    card.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            const detailBtn = card.querySelector('.fr-btn');
+                            if (detailBtn) {
+                                e.preventDefault();
+                                detailBtn.click();
+                            }
+                        }
+                    });
+                });
+                
+                // Support clavier pour pagination
+                const paginationLinks = document.querySelectorAll('.fr-pagination__link');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.click();
+                        }
+                    });
+                });
+                
+                // Améliorer accessibilité des boutons
+                const allButtons = document.querySelectorAll('button');
+                allButtons.forEach(button => {
+                    if (!button.hasAttribute('aria-label') && button.textContent.trim()) {
+                        button.setAttribute('aria-label', button.textContent.trim());
+                    }
+                });
+            }, 1000); // Attendre que les données soient chargées
+            
+            // Fermer modale avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('detail-modal');
+                    if (modal && modal.hasAttribute('open')) {
+                        closeModal();
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>

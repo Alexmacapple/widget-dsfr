@@ -95,6 +95,24 @@
         .fr-badge--sm { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
         .status-badge { font-size: 0.75rem; display: inline-block; }
         
+        /* Focus visible renforcé pour accessibilité */
+        .fr-btn:focus-visible,
+        .fr-input:focus-visible,
+        .fr-select:focus-visible,
+        .fr-checkbox-group input:focus-visible,
+        button:focus-visible,
+        a:focus-visible,
+        .sort-arrow:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(0, 0, 145, 0.2);
+        }
+        
+        .btn-close-modal:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: -2px;
+        }
+        
         /* Responsive : masquer certaines colonnes sur mobile */
         @media (max-width: 768px) {
             .fr-table th:nth-child(7), .fr-table td:nth-child(7), /* Tags */
@@ -1135,8 +1153,12 @@
             }
         });
         
-        // Fermer la modale en cliquant en dehors
+        // Support clavier amélioré et initialisation
         document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données
+            loadData();
+            
+            // Fermer la modale en cliquant en dehors
             const modal = document.getElementById('modal-details');
             if (modal) {
                 modal.addEventListener('click', function(e) {
@@ -1144,16 +1166,103 @@
                         closeModal();
                     }
                 });
+                
+                // Gestion focus trap dans la modale
+                modal.addEventListener('keydown', function(e) {
+                    if (!modal.hasAttribute('open')) return;
+                    
+                    const focusableElements = modal.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    
+                    const firstFocusable = focusableElements[0];
+                    const lastFocusable = focusableElements[focusableElements.length - 1];
+                    
+                    // Trap Tab navigation
+                    if (e.key === 'Tab') {
+                        if (e.shiftKey) { // Shift + Tab
+                            if (document.activeElement === firstFocusable) {
+                                e.preventDefault();
+                                lastFocusable.focus();
+                            }
+                        } else { // Tab
+                            if (document.activeElement === lastFocusable) {
+                                e.preventDefault();
+                                firstFocusable.focus();
+                            }
+                        }
+                    }
+                });
             }
+            
+            // Support clavier pour bouton fermer modale
+            const closeBtn = document.querySelector('.btn-close-modal');
+            if (closeBtn) {
+                closeBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        closeModal();
+                    }
+                });
+            }
+            
+            // Support clavier pour colonnes triables
+            const sortHeaders = document.querySelectorAll('.sort-arrow');
+            sortHeaders.forEach(header => {
+                header.setAttribute('tabindex', '0');
+                header.setAttribute('role', 'button');
+                header.setAttribute('aria-label', 'Trier par ' + header.textContent);
+                
+                header.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+            
+            // Support clavier pour boutons de pagination
+            const paginationLinks = document.querySelectorAll('.fr-pagination__link');
+            paginationLinks.forEach(link => {
+                link.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+            
+            // Amélioration accessibilité des checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                // Ajouter un label si manquant
+                if (!checkbox.hasAttribute('aria-label') && !checkbox.id) {
+                    const index = Array.from(checkboxes).indexOf(checkbox);
+                    checkbox.setAttribute('aria-label', 'Sélectionner ligne ' + (index + 1));
+                }
+                
+                checkbox.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.checked = !this.checked;
+                        this.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+            
+            // Support clavier pour tous les boutons
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(button => {
+                if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+                    button.setAttribute('aria-label', 'Bouton action');
+                }
+            });
         });
         
         // Rendre les fonctions accessibles globalement
         window.viewDetails = viewDetails;
         window.openModal = openModal;
         window.closeModal = closeModal;
-        
-        // Charger les données au démarrage
-        loadData();
     </script>
 </body>
 </html>
