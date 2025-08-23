@@ -13,14 +13,18 @@
         .chart-container { position: relative; height: 400px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
         .data-table { display: none; }
-        .data-table.show { display: table; width: 100%; }
+        .data-table.show { 
+            display: block !important;
+            width: 100% !important;
+        }
         .fr-table {
             width: 100% !important;
             margin-top: 2rem;
+            display: block !important;
         }
         .fr-table table {
             width: 100% !important;
-            table-layout: auto;
+            table-layout: fixed;
         }
         /* Fix pour le chevauchement du caption */
         .fr-table caption {

@@ -12,12 +12,144 @@
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .chart-container { position: relative; height: 400px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
-        .data-table { display: none; }
-        .data-table.show { display: table; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        /* Caption DSFR positionné correctement */
+        .fr-table caption,
+        .fr-table__content caption {
+            display: table-caption;
+            caption-side: top;
+            padding: 1rem;
+            margin: 0 0 1rem 0;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+            border-bottom: 3px solid #000091;
+            border-bottom: 3px solid var(--border-plain-blue-france, #000091);
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /* Structure DSFR pour tableaux */
+        .fr-table {
+            width: 100%;
+            background: white;
+        }
+        .fr-table__wrapper {
+            position: relative;
+            overflow-x: auto;
+            width: 100%;
+        }
+        .fr-table__container {
+            min-width: 100%;
+        }
+        .fr-table__content {
+            display: block;
+            width: 100%;
+        }
+        .fr-table__content table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+            background: white;
+        }
+        .fr-table__content caption {
+            caption-side: top;
+            padding: 1rem;
+            margin-bottom: 0;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+            border-bottom: 3px solid #000091;
+            border-bottom: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        .fr-table__content th,
+        .fr-table__content td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+        }
+        .fr-table__content thead {
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        .fr-table__content thead th {
+            font-weight: 700;
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+        }
+        .fr-table__content tbody tr:hover {
+            background-color: #e5e5e5;
+            background-color: var(--background-contrast-grey-hover, #e5e5e5);
+        }
+        .fr-table__content tbody tr:nth-child(even) {
+            background-color: #fafafa;
+            background-color: var(--background-alt-grey, #fafafa);
+        }
+        /* Classe DSFR pour bordures */
+        .fr-table--bordered .fr-table__content table,
+        .fr-table--bordered .fr-table__content th,
+        .fr-table--bordered .fr-table__content td {
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+        }
+        /* Suppression du scroll si non nécessaire */
+        .fr-table__wrapper--no-scroll {
+            overflow-x: visible;
+        }
+        .data-table table {
+            width: 100%;
+            table-layout: auto;
+            border-collapse: collapse;
+        }
+        .data-table caption {
+            caption-side: top;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .data-table thead {
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        .data-table tbody tr:hover {
+            background-color: #e5e5e5;
+            background-color: var(--background-contrast-grey-hover, #e5e5e5);
+        }
         @media (max-width: 768px) {
             .chart-container { height: 500px; } /* Plus haut en mobile pour les labels */
         }
-        .fr-table { margin-top: 2rem; }
         .export-buttons { margin-top: 1rem; }
         .stats-cards { margin-top: 2rem; }
     </style>
@@ -108,8 +240,13 @@
                         </div>
                         
                         <!-- Tableau de données alternatif (accessibilité) -->
-                        <table class="fr-table data-table" id="data-table">
-                            <caption>Données du graphique : Répartition par région</caption>
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Répartition par région</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
                             <thead>
                                 <tr>
                                     <th scope="col">Région</th>
@@ -120,7 +257,11 @@
                             <tbody id="table-body">
                                 <!-- Les données seront insérées ici -->
                             </tbody>
-                        </table>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
                         
                         <!-- Légende et informations -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">

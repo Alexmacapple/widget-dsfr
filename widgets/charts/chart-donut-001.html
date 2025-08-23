@@ -35,26 +35,30 @@
             margin-top: 0.25rem;
         }
         .chart-controls { margin-bottom: 1rem; }
-        .data-table { display: none; }
-        .data-table.show { display: table; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
         @media (max-width: 768px) {
             .chart-container { height: 350px; }
             .chart-center-value { font-size: 2rem; }
         }
-        .fr-table { margin-top: 2rem; }
         .export-buttons { margin-top: 1rem; }
         .kpi-cards { margin-bottom: 2rem; }
     </style>
 </head>
 <body>
-    <!-- D�BUT ZONE WIDGET CHART-DONUT-001 -->
+    <!-- DÉBUT ZONE WIDGET CHART-DONUT-001 -->
     <div id="widget-chart-donut-001" class="fr-container fr-py-3w">
         <div class="fr-grid-row">
             <div class="fr-col-12">
                 <div class="fr-card">
                     <div class="fr-card__body">
-                        <h2 class="fr-h4">Taux de r�solution des signalements</h2>
-                        <p class="fr-text--sm">Analyse de l'efficacit� du traitement des signalements consommateurs</p>
+                        <h2 class="fr-h4">Taux de résolution des signalements</h2>
+                        <p class="fr-text--sm">Analyse de l'efficacité du traitement des signalements consommateurs</p>
                         
                         <!-- KPIs principaux -->
                         <div class="kpi-cards">
@@ -62,7 +66,7 @@
                                 <div class="fr-col-12 fr-col-md-3">
                                     <div class="fr-tile">
                                         <div class="fr-tile__body">
-                                            <p class="fr-tile__title">Taux de r�solution</p>
+                                            <p class="fr-tile__title">Taux de résolution</p>
                                             <p class="fr-tile__desc">
                                                 <span class="fr-text--lg fr-text--bold" id="kpi-resolution">72%</span>
                                             </p>
@@ -72,7 +76,7 @@
                                 <div class="fr-col-12 fr-col-md-3">
                                     <div class="fr-tile">
                                         <div class="fr-tile__body">
-                                            <p class="fr-tile__title">D�lai moyen</p>
+                                            <p class="fr-tile__title">Délai moyen</p>
                                             <p class="fr-tile__desc">
                                                 <span class="fr-text--lg fr-text--bold" id="kpi-delay">8 jours</span>
                                             </p>
@@ -94,7 +98,7 @@
                                         <div class="fr-tile__body">
                                             <p class="fr-tile__title">Tendance</p>
                                             <p class="fr-tile__desc">
-                                                <span class="fr-text--lg fr-text--bold" style="color: #18753C;" id="kpi-trend">� +5%</span>
+                                                <span class="fr-text--lg fr-text--bold" style="color: #18753C;" id="kpi-trend">↑ +5%</span>
                                             </p>
                                         </div>
                                     </div>
@@ -102,17 +106,17 @@
                             </div>
                         </div>
                         
-                        <!-- Contr�les du graphique -->
+                        <!-- Contrôles du graphique -->
                         <div class="chart-controls">
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-select-group">
-                                        <label class="fr-label" for="metric-select">M�trique � afficher</label>
+                                        <label class="fr-label" for="metric-select">Métrique à afficher</label>
                                         <select class="fr-select" id="metric-select" onchange="changeMetric()">
                                             <option value="status">Statut des signalements</option>
                                             <option value="satisfaction">Niveau de satisfaction</option>
-                                            <option value="delay">D�lais de traitement</option>
-                                            <option value="category">R�partition par type</option>
+                                            <option value="delay">Délais de traitement</option>
+                                            <option value="category">Répartition par type</option>
                                         </select>
                                     </div>
                                 </div>
@@ -120,7 +124,7 @@
                                     <div class="fr-toggle">
                                         <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
                                         <label class="fr-toggle__label" for="toggle-table">
-                                            Afficher le tableau de donn�es
+                                            Afficher le tableau de données
                                         </label>
                                     </div>
                                 </div>
@@ -132,7 +136,7 @@
                             <canvas id="donutChart" role="img" aria-label="Graphique donut avec KPI central"></canvas>
                             <div class="chart-center-text">
                                 <div class="chart-center-value" id="center-value">72%</div>
-                                <div class="chart-center-label" id="center-label">R�solu</div>
+                                <div class="chart-center-label" id="center-label">Résolu</div>
                             </div>
                         </div>
                         
@@ -142,33 +146,42 @@
                                 Exporter en PNG
                             </button>
                             <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
-                                Exporter les donn�es (CSV)
+                                Exporter les données (CSV)
                             </button>
                             <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
-                                Plein �cran
+                                Plein écran
                             </button>
                         </div>
                         
-                        <!-- Tableau de donn�es alternatif (accessibilit�) -->
-                        <table class="fr-table data-table" id="data-table">
-                            <caption>Donn�es du graphique : M�triques de performance</caption>
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Métriques de performance</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
                             <thead>
                                 <tr>
-                                    <th scope="col">Cat�gorie</th>
+                                    <th scope="col">Catégorie</th>
                                     <th scope="col">Valeur</th>
                                     <th scope="col">Pourcentage</th>
                                 </tr>
                             </thead>
                             <tbody id="table-body">
-                                <!-- Les donn�es seront ins�r�es ici -->
+                                <!-- Les données seront insérées ici -->
                             </tbody>
-                        </table>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
                         
-                        <!-- L�gende et informations -->
+                        <!-- Légende et informations -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">
                             <p class="fr-alert__title">Indicateurs de performance</p>
-                            <p>Ces m�triques mesurent l'efficacit� du traitement des signalements consommateurs. 
-                            Le KPI central repr�sente la valeur principale de la m�trique s�lectionn�e.</p>
+                            <p>Ces métriques mesurent l'efficacité du traitement des signalements consommateurs. 
+                            Le KPI central représente la valeur principale de la métrique sélectionnée.</p>
                         </div>
                     </div>
                 </div>
@@ -186,25 +199,25 @@
             info: '#0063CB',
             grey: '#666666',
             palette: [
-                '#18753C', // Vert (r�solu)
+                '#18753C', // Vert (résolu)
                 '#B34000', // Orange (en cours)
-                '#CE0500', // Rouge (non trait�)
+                '#CE0500', // Rouge (non traité)
                 '#0063CB', // Bleu (transmis)
                 '#666666'  // Gris (autre)
             ]
         };
         
-        // Donn�es par m�trique
+        // Données par métrique
         const metricsData = {
             status: {
-                labels: ['R�solu', 'En cours', 'Non trait�', 'Transmis'],
+                labels: ['Résolu', 'En cours', 'Non traité', 'Transmis'],
                 data: [72, 15, 8, 5],
                 colors: [dsfrColors.success, dsfrColors.warning, dsfrColors.error, dsfrColors.info],
                 centerValue: '72%',
-                centerLabel: 'R�solu'
+                centerLabel: 'Résolu'
             },
             satisfaction: {
-                labels: ['Tr�s satisfait', 'Satisfait', 'Neutre', 'Insatisfait', 'Tr�s insatisfait'],
+                labels: ['Très satisfait', 'Satisfait', 'Neutre', 'Insatisfait', 'Très insatisfait'],
                 data: [35, 40, 15, 7, 3],
                 colors: dsfrColors.palette,
                 centerValue: '4.2/5',
@@ -285,33 +298,33 @@
         const ctx = document.getElementById('donutChart').getContext('2d');
         const myChart = new Chart(ctx, config);
         
-        // Changement de m�trique
+        // Changement de métrique
         function changeMetric() {
             currentMetric = document.getElementById('metric-select').value;
             const metricData = metricsData[currentMetric];
             
-            // Mise � jour du graphique
+            // Mise à jour du graphique
             myChart.data.labels = metricData.labels;
             myChart.data.datasets[0].data = metricData.data;
             myChart.data.datasets[0].backgroundColor = metricData.colors;
             myChart.update();
             
-            // Mise � jour du KPI central
+            // Mise à jour du KPI central
             document.getElementById('center-value').textContent = metricData.centerValue;
             document.getElementById('center-label').textContent = metricData.centerLabel;
             
-            // Mise � jour des KPIs en fonction de la m�trique
+            // Mise à jour des KPIs en fonction de la métrique
             updateKPIs();
             updateDataTable();
         }
         
-        // Mise � jour des KPIs
+        // Mise à jour des KPIs
         function updateKPIs() {
             const kpiData = {
-                status: { resolution: '72%', delay: '8 jours', satisfaction: '4.2/5', trend: '� +5%' },
-                satisfaction: { resolution: '75%', delay: '7 jours', satisfaction: '4.2/5', trend: '� +3%' },
-                delay: { resolution: '70%', delay: '8 jours', satisfaction: '4.0/5', trend: '� 0%' },
-                category: { resolution: '72%', delay: '8 jours', satisfaction: '4.1/5', trend: '� +2%' }
+                status: { resolution: '72%', delay: '8 jours', satisfaction: '4.2/5', trend: '↑ +5%' },
+                satisfaction: { resolution: '75%', delay: '7 jours', satisfaction: '4.2/5', trend: '↑ +3%' },
+                delay: { resolution: '70%', delay: '8 jours', satisfaction: '4.0/5', trend: '→ 0%' },
+                category: { resolution: '72%', delay: '8 jours', satisfaction: '4.1/5', trend: '↑ +2%' }
             };
             
             const current = kpiData[currentMetric];
@@ -322,16 +335,16 @@
             
             // Couleur de la tendance
             const trendElement = document.getElementById('kpi-trend');
-            if (current.trend.includes('�')) {
+            if (current.trend.includes('↑')) {
                 trendElement.style.color = dsfrColors.success;
-            } else if (current.trend.includes('�')) {
+            } else if (current.trend.includes('↓')) {
                 trendElement.style.color = dsfrColors.error;
             } else {
                 trendElement.style.color = dsfrColors.grey;
             }
         }
         
-        // Mise � jour du tableau de donn�es
+        // Mise à jour du tableau de données
         function updateDataTable() {
             const tableBody = document.getElementById('table-body');
             const data = myChart.data.datasets[0].data;
@@ -377,7 +390,7 @@
                 link.href = myChart.toBase64Image();
                 link.click();
                 
-                // R�afficher le texte central
+                // Réafficher le texte central
                 centerText.style.display = 'block';
             }, 100);
         }
@@ -388,7 +401,7 @@
             const labels = myChart.data.labels;
             const total = data.reduce((a, b) => a + b, 0);
             
-            let csv = 'Cat�gorie,Valeur,Pourcentage\n';
+            let csv = 'Catégorie,Valeur,Pourcentage\n';
             labels.forEach((label, index) => {
                 const percentage = ((data[index] / total) * 100).toFixed(1);
                 csv += `"${label}",${data[index]}%,${percentage}%\n`;
@@ -401,13 +414,13 @@
             link.click();
         }
         
-        // Mode plein �cran
+        // Mode plein écran
         function toggleFullscreen() {
             const container = document.getElementById('widget-chart-donut-001');
             
             if (!document.fullscreenElement) {
                 container.requestFullscreen().catch(err => {
-                    console.error(`Erreur lors du passage en plein �cran: ${err.message}`);
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
                 });
             } else {
                 document.exitFullscreen();

@@ -12,22 +12,12 @@
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .chart-container { position: relative; height: 450px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
-        .data-table { display: none; }
-        .data-table.show { display: table; width: 100%; }
-        .fr-table {
-            width: 100% !important;
+        .data-table { 
+            display: none;
             margin-top: 2rem;
         }
-        .fr-table table {
-            width: 100% !important;
-            table-layout: auto;
-        }
-        /* Fix pour le chevauchement du caption */
-        .fr-table caption {
-            position: relative !important;
-            padding: 1rem;
-            background: #f5f5fe;
-            font-weight: bold;
+        .data-table.show { 
+            display: block !important;
         }
         @media (max-width: 768px) {
             .chart-container { height: 350px; }
@@ -171,9 +161,13 @@
                             </button>
                         </div>
                         
-                        <div class="fr-table data-table" id="data-table">
-                            <table>
-                                <caption>Données du graphique : Analyse multicritères</caption>
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Analyse multicritères</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
                                 <thead>
                                     <tr id="table-header">
                                         <th scope="col">Critère</th>

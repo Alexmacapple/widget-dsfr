@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget graphique en aires DSFR - �volution cumulative des signalements SignalConso">
+    <meta name="description" content="Widget graphique en aires DSFR - Évolution cumulative des signalements SignalConso">
     <title>Graphique en aires DSFR - SignalConso</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -12,33 +12,86 @@
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .chart-container { position: relative; height: 400px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
-        .data-table { display: none; }
-        .data-table.show { display: table; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        /* Structure DSFR pour tableau responsive */
+        .fr-table__wrapper {
+            position: relative;
+            overflow-x: auto;
+        }
+        .fr-table__container {
+            min-width: 100%;
+        }
+        .fr-table__content {
+            display: block;
+        }
+        .fr-table__content table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        .fr-table__content th,
+        .fr-table__content td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+        }
+        .fr-table__content thead {
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        .fr-table__content tbody tr:hover {
+            background-color: #e5e5e5;
+            background-color: var(--background-contrast-grey-hover, #e5e5e5);
+        }
+        /* Suppression du scroll si non nécessaire */
+        .fr-table__wrapper--no-scroll {
+            overflow-x: visible;
+        }
         @media (max-width: 768px) {
             .chart-container { height: 300px; }
         }
-        .fr-table { margin-top: 2rem; }
         .export-buttons { margin-top: 1rem; }
     </style>
 </head>
 <body>
-    <!-- D�BUT ZONE WIDGET CHART-AREA-001 -->
+    <!-- DÉBUT ZONE WIDGET CHART-AREA-001 -->
     <div id="widget-chart-area-001" class="fr-container fr-py-3w">
         <div class="fr-grid-row">
             <div class="fr-col-12">
                 <div class="fr-card">
                     <div class="fr-card__body">
-                        <h2 class="fr-h4">�volution cumulative par cat�gories</h2>
-                        <p class="fr-text--sm">Visualisation des tendances par cat�gorie sur 12 mois</p>
+                        <h2 class="fr-h4">Évolution cumulative par catégories</h2>
+                        <p class="fr-text--sm">Visualisation des tendances par catégorie sur 12 mois</p>
                         
-                        <!-- Contr�les du graphique -->
+                        <!-- Contrôles du graphique -->
                         <div class="chart-controls">
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
                                         <input type="checkbox" class="fr-toggle__input" id="toggle-stacked" checked onchange="toggleStacked()">
                                         <label class="fr-toggle__label" for="toggle-stacked">
-                                            Aires empil�es
+                                            Aires empilées
                                         </label>
                                     </div>
                                 </div>
@@ -55,7 +108,7 @@
                         
                         <!-- Graphique -->
                         <div class="chart-container">
-                            <canvas id="areaChart" role="img" aria-label="Graphique en aires montrant l'�volution cumulative"></canvas>
+                            <canvas id="areaChart" role="img" aria-label="Graphique en aires montrant l'évolution cumulative"></canvas>
                         </div>
                         
                         <!-- Boutons d'export -->
@@ -64,26 +117,36 @@
                                 Exporter en PNG
                             </button>
                             <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
-                                Exporter les donn�es (CSV)
+                                Exporter les données (CSV)
                             </button>
                         </div>
                         
-                        <!-- Tableau de donn�es alternatif (accessibilit�) -->
-                        <table class="fr-table data-table" id="data-table">
-                            <caption>Donn�es du graphique : �volution par cat�gories</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Mois</th>
-                                    <th scope="col">Commerce</th>
-                                    <th scope="col">Services</th>
-                                    <th scope="col">Transport</th>
-                                    <th scope="col">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <!-- Les donn�es seront ins�r�es ici -->
-                            </tbody>
-                        </table>
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Évolution par catégories</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Mois</th>
+                                                        <th scope="col">Commerce</th>
+                                                        <th scope="col">Services</th>
+                                                        <th scope="col">Transport</th>
+                                                        <th scope="col">Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -99,8 +162,8 @@
             warning: 'rgba(179, 64, 0, 0.6)'
         };
         
-        // Donn�es simul�es
-        const months = ['Jan', 'F�v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Ao�', 'Sep', 'Oct', 'Nov', 'D�c'];
+        // Données simulées
+        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
         const commerceData = [1200, 1400, 1100, 1600, 1800, 2000, 2200, 2100, 1900, 2300, 2500, 2700];
         const servicesData = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
         const transportData = [400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950];
@@ -186,14 +249,14 @@
         const ctx = document.getElementById('areaChart').getContext('2d');
         const myChart = new Chart(ctx, config);
         
-        // Basculer empil�/non empil�
+        // Basculer empilé/non empilé
         function toggleStacked() {
             const isStacked = document.getElementById('toggle-stacked').checked;
             myChart.options.scales.y.stacked = isStacked;
             myChart.update();
         }
         
-        // Mise � jour du tableau
+        // Mise à jour du tableau
         function updateDataTable() {
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';

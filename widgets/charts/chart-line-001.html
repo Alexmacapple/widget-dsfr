@@ -12,12 +12,16 @@
         body { margin: 0; font-family: Marianne, arial, sans-serif; }
         .chart-container { position: relative; height: 400px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
-        .data-table { display: none; }
-        .data-table.show { display: table; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
         @media (max-width: 768px) {
             .chart-container { height: 300px; }
         }
-        .fr-table { margin-top: 2rem; }
         .export-buttons { margin-top: 1rem; }
     </style>
 </head>
@@ -75,8 +79,13 @@
                         </div>
                         
                         <!-- Tableau de données alternatif (accessibilité) -->
-                        <table class="fr-table data-table" id="data-table">
-                            <caption>Données du graphique : Évolution mensuelle des signalements</caption>
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Évolution mensuelle des signalements</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
                             <thead>
                                 <tr>
                                     <th scope="col">Mois</th>
@@ -87,7 +96,11 @@
                             <tbody id="table-body">
                                 <!-- Les données seront insérées ici -->
                             </tbody>
-                        </table>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
                         
                         <!-- Légende et informations -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">
