@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Ce dossier contient 15 widgets tables OpenDataSoft migrés vers le Design System France (DSFR), optimisés pour l'affichage et la manipulation de données tabulaires. **Tous les widgets utilisent les données réelles de l'API data.economie.gouv.fr (dataset SignalConso)** - aucune donnée fictive n'est présente.
+Ce dossier contient 17 widgets tables OpenDataSoft migrés vers le Design System France (DSFR), optimisés pour l'affichage et la manipulation de données tabulaires. **Tous les widgets utilisent les données réelles de l'API data.economie.gouv.fr (dataset SignalConso)** - aucune donnée fictive n'est présente.
 
 ## Source de données
 
@@ -67,7 +67,7 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 
 **Cas d'usage** : Grands datasets, listes avec navigation optimisée
 
-### 5. Advanced Table (advanced-table-001.html)
+### 5. Table Advanced (table-advanced-001.html)
 **Description** : Table avancée avec colonnes configurables dynamiquement
 **Fonctionnalités** :
 - Sélection/désélection de colonnes en temps réel
@@ -79,7 +79,7 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 
 **Cas d'usage** : Tableaux personnalisables pour utilisateurs avancés
 
-### 6. Advanced Table Vanilla (advanced-table-vanilla.html)
+### 6. Table Advanced Vanilla (table-advanced-vanilla.html)
 **Description** : Version vanilla JavaScript de la table avancée (sans Angular)
 **Fonctionnalités** :
 - Implémentation pure JavaScript/DSFR
@@ -90,7 +90,7 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 
 **Cas d'usage** : Projets sans Angular, implémentation légère
 
-### 7. Aggregate Table (aggregate-table-001.html)
+### 7. Table Aggregate (table-aggregate-001.html)
 **Description** : Table avec calculs d'agrégation automatiques
 **Fonctionnalités** :
 - Cartes KPI globales (total, moyennes, count)
@@ -102,7 +102,7 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 
 **Cas d'usage** : Tableaux de bord statistiques et rapports analytiques
 
-### 8. Data Grid (data-grid-001.html)
+### 8. Table Grid (table-grid-001.html)
 **Description** : Grille de données interactive style cartes
 **Fonctionnalités** :
 - Affichage en grille responsive
@@ -113,7 +113,7 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 
 **Cas d'usage** : Catalogues, galeries de données, vues alternatives aux tables
 
-### 9. Cross Table (cross-table-001.html)
+### 9. Table Cross (table-cross-001.html)
 **Description** : Tableau croisé dynamique (pivot table)
 **Fonctionnalités** :
 - Dimensions configurables (ligne × colonne)
@@ -124,7 +124,7 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 
 **Cas d'usage** : Analyses croisées, matrices de corrélation, rapports multidimensionnels
 
-### 10. Result Enumerator (result-enumerator-001.html)
+### 10. Table Enumerator (result-enumerator-001.html)
 **Description** : Liste de résultats en cartes horizontales paginées
 **Fonctionnalités** :
 - Cartes DSFR horizontales
@@ -189,6 +189,36 @@ Tous les widgets récupèrent leurs données depuis l'API officielle :
 - Architecture modulaire sans framework
 
 **Cas d'usage** : Dashboard principal, tableau de bord analytics complet
+
+### 16. Table Editable (table-editable-001.html)
+**Description** : Table avec édition inline des données
+**Fonctionnalités** :
+- Double-clic pour éditer les cellules
+- Support des différents types d'input (text, select, textarea)
+- Validation et annulation d'édition (Enter/Escape)
+- Historique des modifications avec undo
+- Édition en masse sur sélection multiple
+- Indicateurs visuels des cellules modifiées
+- Sauvegarde groupée des modifications
+- Mode édition activable/désactivable
+
+**Cas d'usage** : Gestion de données, mise à jour en masse, interfaces d'administration
+
+### 17. Table Export (table-export-001.html)
+**Description** : Table avec export multi-format avancé
+**Fonctionnalités** :
+- Export CSV, Excel (XLSX), JSON, PDF, XML
+- Sélection des colonnes à exporter
+- Aperçu avant export
+- Options d'encodage et séparateurs personnalisables
+- Export de sélection ou données complètes
+- Historique des exports
+- Export programmé et en masse
+- Métadonnées incluses optionnellement
+- Compression ZIP disponible
+- Indicateur de progression
+
+**Cas d'usage** : Rapports, extraction de données, intégration avec d'autres systèmes
 
 ## Structure technique
 

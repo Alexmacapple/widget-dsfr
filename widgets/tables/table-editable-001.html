@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Éditable - Widget DSFR</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/utility/icons/icons.min.css">
+    <style>
+        body {
+            font-family: 'Marianne', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5fe;
+        }
+        
+        .editable-cell {
+            cursor: pointer;
+            position: relative;
+            padding: 0.5rem !important;
+            transition: background-color 0.2s;
+        }
+        
+        .editable-cell:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .editable-cell.editing {
+            background-color: #e3e3fd;
+            padding: 0 !important;
+        }
+        
+        .editable-cell input,
+        .editable-cell select,
+        .editable-cell textarea {
+            width: 100%;
+            border: 2px solid #000091;
+            padding: 0.5rem;
+            font-family: inherit;
+            font-size: inherit;
+            background: white;
+        }
+        
+        .editable-cell textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .edit-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            color: #666;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .edit-indicator::before {
+            font-size: 0.75rem;
+        }
+        
+        .editable-cell:hover .edit-indicator {
+            opacity: 1;
+        }
+        
+        .cell-modified {
+            background-color: #fffbf0 !important;
+            border-left: 3px solid #ff9940;
+        }
+        
+        .cell-saving {
+            background-color: #e3e3fd !important;
+            position: relative;
+        }
+        
+        .cell-saved {
+            background-color: #d1f7d1 !important;
+            transition: background-color 1s;
+        }
+        
+        .cell-error {
+            background-color: #ffe4e4 !important;
+            border-left: 3px solid #ce0500;
+        }
+        
+        .save-indicator {
+            display: inline-block;
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .save-pending { color: #ff9940; }
+        .save-saving { color: #000091; }
+        .save-saved { color: #18753c; }
+        .save-error { color: #ce0500; }
+        
+        .edit-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.25rem;
+        }
+        
+        .changes-counter {
+            padding: 0.25rem 0.75rem;
+            background: #f0f0f0;
+            border-radius: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .changes-counter.has-changes {
+            background: #fffbf0;
+            color: #ff9940;
+        }
+        
+        .inline-buttons {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+        
+        .inline-buttons button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        tr.row-selected {
+            background-color: #e3e3fd;
+        }
+        
+        .bulk-edit-toolbar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .bulk-edit-toolbar.active {
+            display: block;
+        }
+        
+        .history-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+            transition: right 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        
+        .history-panel.open {
+            right: 0;
+        }
+        
+        .history-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .history-item:hover {
+            background: #f5f5fe;
+        }
+        
+        .undo-available {
+            color: #000091;
+            cursor: pointer;
+        }
+        
+        .undo-available:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET TABLE-EDITABLE-001 -->
+    <div id="widget-table-editable-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Table Éditable - SignalConso</h2>
+                        <p class="fr-text--sm">Double-cliquez sur une cellule pour l'éditer. Les modifications sont sauvegardées automatiquement.</p>
+                        
+                        <!-- Contrôles d'édition -->
+                        <div class="edit-controls">
+                            <div>
+                                <div class="fr-toggle">
+                                    <input type="checkbox" class="fr-toggle__input" id="edit-mode" checked>
+                                    <label class="fr-toggle__label" for="edit-mode">Mode édition</label>
+                                </div>
+                            </div>
+                            
+                            <div class="changes-counter" id="changes-counter">
+                                <span id="changes-count">0</span> modification(s) non sauvegardée(s)
+                            </div>
+                            
+                            <div>
+                                <button class="fr-btn fr-btn--sm fr-btn--secondary fr-btn--icon-left" onclick="undoLastChange()" id="undo-btn" disabled>
+                                    <span class="fr-icon-arrow-go-back-line" aria-hidden="true"></span>
+                                    Annuler
+                                </button>
+                                <button class="fr-btn fr-btn--sm fr-btn--secondary fr-btn--icon-left" onclick="toggleHistory()">
+                                    <span class="fr-icon-time-line" aria-hidden="true"></span>
+                                    Historique
+                                </button>
+                                <button class="fr-btn fr-btn--sm fr-btn--icon-left" onclick="saveAllChanges()" id="save-all-btn" disabled>
+                                    <span class="fr-icon-save-line" aria-hidden="true"></span>
+                                    Sauvegarder tout
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Alerte modifications -->
+                        <div class="fr-alert fr-alert--warning fr-alert--sm" id="unsaved-alert" style="display: none;">
+                            <p class="fr-alert__title">Modifications non sauvegardées</p>
+                            <p>Vous avez des modifications en attente. Cliquez sur "Sauvegarder tout" pour les enregistrer.</p>
+                        </div>
+                        
+                        <!-- Table éditable -->
+                        <div class="fr-table fr-table--bordered">
+                            <div class="fr-table__wrapper">
+                                <div class="fr-table__container">
+                                    <div class="fr-table__content">
+                                        <table id="editable-table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">
+                                                        <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                                                    </th>
+                                                    <th scope="col">ID</th>
+                                                    <th scope="col">Entreprise</th>
+                                                    <th scope="col">Catégorie</th>
+                                                    <th scope="col">Statut</th>
+                                                    <th scope="col">Région</th>
+                                                    <th scope="col">Description</th>
+                                                    <th scope="col">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-body">
+                                                <!-- Les données seront chargées ici -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Indicateur de chargement -->
+                        <div id="loading" style="display: none; text-align: center; padding: 2rem;">
+                            <div class="fr-loader"></div>
+                            <p>Chargement des données...</p>
+                        </div>
+                        
+                        <!-- Info -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">Guide d'utilisation</p>
+                            <ul>
+                                <li><strong>Double-clic</strong> : Éditer une cellule</li>
+                                <li><strong>Entrée</strong> : Valider la modification</li>
+                                <li><strong>Échap</strong> : Annuler l'édition</li>
+                                <li><strong>Tab</strong> : Passer à la cellule suivante</li>
+                                <li><strong>Ctrl+Z</strong> : Annuler la dernière modification</li>
+                                <li><strong>Ctrl+S</strong> : Sauvegarder toutes les modifications</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toolbar édition en masse -->
+    <div class="bulk-edit-toolbar" id="bulk-toolbar">
+        <h3 class="fr-h6">Édition en masse</h3>
+        <p><span id="selected-count">0</span> ligne(s) sélectionnée(s)</p>
+        <div class="fr-btns-group fr-btns-group--sm">
+            <button class="fr-btn fr-btn--secondary" onclick="bulkEdit('status')">
+                Modifier statut
+            </button>
+            <button class="fr-btn fr-btn--secondary" onclick="bulkEdit('category')">
+                Modifier catégorie
+            </button>
+            <button class="fr-btn fr-btn--tertiary" onclick="bulkDelete()">
+                Supprimer
+            </button>
+        </div>
+    </div>
+    
+    <!-- Panel historique -->
+    <div class="history-panel" id="history-panel">
+        <div class="fr-p-2w">
+            <div class="fr-grid-row fr-grid-row--middle">
+                <div class="fr-col">
+                    <h3 class="fr-h5">Historique des modifications</h3>
+                </div>
+                <div class="fr-col-auto">
+                    <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--icon-only fr-btn--sm" onclick="toggleHistory()" aria-label="Fermer">
+                        <span class="fr-icon-close-line" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+            <div id="history-list">
+                <!-- L'historique sera affiché ici -->
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET TABLE-EDITABLE-001 -->
+    
+    <script>
+        // État de l'application
+        let tableData = [];
+        let originalData = {};
+        let modifiedCells = new Map();
+        let editHistory = [];
+        let selectedRows = new Set();
+        let currentEditCell = null;
+        let editModeEnabled = true;
+        
+        // Chargement des données depuis l'API SignalConso
+        async function loadData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('editable-table').style.opacity = '0.5';
+            
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=20&sort=-creationdate');
+                const json = await response.json();
+                
+                tableData = json.records.map((record, index) => {
+                    const fields = record.fields;
+                    return {
+                        id: `SIG-${new Date(fields.creationdate).getFullYear()}-${String(index + 1).padStart(4, '0')}`,
+                        company: fields.companyname || 'Non renseigné',
+                        category: fields.category || 'Non catégorisé',
+                        status: fields.status || 'En attente',
+                        region: fields.companyregion || 'Non renseigné',
+                        description: fields.problem || 'Pas de description',
+                        originalData: { ...fields }
+                    };
+                });
+                
+                // Sauvegarder les données originales
+                tableData.forEach(row => {
+                    originalData[row.id] = { ...row };
+                });
+                
+                renderTable();
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('editable-table').style.opacity = '1';
+            }
+        }
+        
+        // Rendu de la table
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            tableData.forEach((row, index) => {
+                const tr = tbody.insertRow();
+                tr.dataset.rowId = row.id;
+                
+                // Checkbox
+                const cellCheckbox = tr.insertCell(0);
+                cellCheckbox.innerHTML = `<input type="checkbox" data-row-id="${row.id}" onchange="toggleRowSelection('${row.id}')">`;
+                
+                // ID (non éditable)
+                tr.insertCell(1).textContent = row.id;
+                
+                // Entreprise (éditable)
+                const cellCompany = tr.insertCell(2);
+                cellCompany.className = 'editable-cell';
+                cellCompany.dataset.field = 'company';
+                cellCompany.innerHTML = `${row.company}<span class="edit-indicator fr-icon-edit-line fr-icon--sm"></span>`;
+                cellCompany.ondblclick = () => startEdit(cellCompany, row.id, 'company');
+                
+                // Catégorie (éditable avec select)
+                const cellCategory = tr.insertCell(3);
+                cellCategory.className = 'editable-cell';
+                cellCategory.dataset.field = 'category';
+                cellCategory.innerHTML = `${row.category}<span class="edit-indicator fr-icon-edit-line fr-icon--sm"></span>`;
+                cellCategory.ondblclick = () => startEdit(cellCategory, row.id, 'category', 'select');
+                
+                // Statut (éditable avec select)
+                const cellStatus = tr.insertCell(4);
+                cellStatus.className = 'editable-cell';
+                cellStatus.dataset.field = 'status';
+                cellStatus.innerHTML = `<span class="fr-badge fr-badge--${getStatusColor(row.status)}">${row.status}</span><span class="edit-indicator fr-icon-edit-line fr-icon--sm"></span>`;
+                cellStatus.ondblclick = () => startEdit(cellStatus, row.id, 'status', 'select');
+                
+                // Région (éditable)
+                const cellRegion = tr.insertCell(5);
+                cellRegion.className = 'editable-cell';
+                cellRegion.dataset.field = 'region';
+                cellRegion.innerHTML = `${row.region}<span class="edit-indicator fr-icon-edit-line fr-icon--sm"></span>`;
+                cellRegion.ondblclick = () => startEdit(cellRegion, row.id, 'region');
+                
+                // Description (éditable avec textarea)
+                const cellDescription = tr.insertCell(6);
+                cellDescription.className = 'editable-cell';
+                cellDescription.dataset.field = 'description';
+                const shortDesc = row.description.length > 50 ? row.description.substring(0, 50) + '...' : row.description;
+                cellDescription.innerHTML = `${shortDesc}<span class="edit-indicator fr-icon-edit-line fr-icon--sm"></span>`;
+                cellDescription.ondblclick = () => startEdit(cellDescription, row.id, 'description', 'textarea');
+                
+                // Actions
+                const cellActions = tr.insertCell(7);
+                cellActions.innerHTML = `
+                    <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--icon-left fr-btn--sm" onclick="resetRow('${row.id}')">
+                        <span class="fr-icon-refresh-line" aria-hidden="true"></span>
+                        Réinitialiser
+                    </button>
+                `;
+                
+                // Marquer les cellules modifiées
+                if (modifiedCells.has(`${row.id}-company`)) cellCompany.classList.add('cell-modified');
+                if (modifiedCells.has(`${row.id}-category`)) cellCategory.classList.add('cell-modified');
+                if (modifiedCells.has(`${row.id}-status`)) cellStatus.classList.add('cell-modified');
+                if (modifiedCells.has(`${row.id}-region`)) cellRegion.classList.add('cell-modified');
+                if (modifiedCells.has(`${row.id}-description`)) cellDescription.classList.add('cell-modified');
+            });
+            
+            updateChangesCounter();
+        }
+        
+        // Démarrer l'édition d'une cellule
+        function startEdit(cell, rowId, field, inputType = 'text') {
+            if (!editModeEnabled) return;
+            if (currentEditCell) return; // Une seule cellule éditable à la fois
+            
+            const row = tableData.find(r => r.id === rowId);
+            const currentValue = row[field];
+            
+            cell.classList.add('editing');
+            currentEditCell = { cell, rowId, field };
+            
+            let input;
+            
+            if (inputType === 'select') {
+                input = document.createElement('select');
+                input.className = 'fr-select';
+                
+                if (field === 'category') {
+                    const categories = ['Téléphonie', 'Voyage', 'Produits', 'Voiture', 'Services', 'Santé', 'Travaux'];
+                    categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat;
+                        option.textContent = cat;
+                        option.selected = cat === currentValue;
+                        input.appendChild(option);
+                    });
+                } else if (field === 'status') {
+                    const statuses = ['En attente', 'En cours', 'Transmis', 'Résolu', 'Rejeté'];
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status;
+                        option.selected = status === currentValue;
+                        input.appendChild(option);
+                    });
+                }
+            } else if (inputType === 'textarea') {
+                input = document.createElement('textarea');
+                input.className = 'fr-input';
+                input.value = currentValue;
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'fr-input';
+                input.value = currentValue;
+            }
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            
+            // Ajouter les boutons inline
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'inline-buttons';
+            buttonsDiv.innerHTML = `
+                <button class="fr-btn fr-btn--sm fr-btn--icon-only" onclick="confirmEdit()" aria-label="Valider">
+                    <span class="fr-icon-check-line" aria-hidden="true"></span>
+                </button>
+                <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-only" onclick="cancelEdit()" aria-label="Annuler">
+                    <span class="fr-icon-close-line" aria-hidden="true"></span>
+                </button>
+            `;
+            cell.appendChild(buttonsDiv);
+            
+            input.focus();
+            if (input.select) input.select();
+            
+            // Gestion des événements
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter' && inputType !== 'textarea') {
+                    e.preventDefault();
+                    confirmEdit();
+                } else if (e.key === 'Escape') {
+                    cancelEdit();
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    confirmEdit();
+                    // Passer à la cellule suivante
+                    const nextCell = cell.nextElementSibling;
+                    if (nextCell && nextCell.classList.contains('editable-cell')) {
+                        nextCell.ondblclick();
+                    }
+                }
+            };
+        }
+        
+        // Confirmer l'édition
+        function confirmEdit() {
+            if (!currentEditCell) return;
+            
+            const { cell, rowId, field } = currentEditCell;
+            const input = cell.querySelector('input, select, textarea');
+            const newValue = input.value;
+            const row = tableData.find(r => r.id === rowId);
+            const oldValue = row[field];
+            
+            if (newValue !== oldValue) {
+                // Ajouter à l'historique
+                editHistory.push({
+                    timestamp: new Date(),
+                    rowId,
+                    field,
+                    oldValue,
+                    newValue
+                });
+                
+                // Mettre à jour les données
+                row[field] = newValue;
+                
+                // Marquer comme modifié
+                modifiedCells.set(`${rowId}-${field}`, newValue);
+                
+                // Animation de sauvegarde
+                cell.classList.add('cell-saving');
+                setTimeout(() => {
+                    cell.classList.remove('cell-saving');
+                    cell.classList.add('cell-saved');
+                    setTimeout(() => {
+                        cell.classList.remove('cell-saved');
+                        cell.classList.add('cell-modified');
+                    }, 1000);
+                }, 500);
+            }
+            
+            cell.classList.remove('editing');
+            currentEditCell = null;
+            
+            // Re-render la cellule
+            if (field === 'status') {
+                cell.innerHTML = `<span class="fr-badge fr-badge--${getStatusColor(newValue)}">${newValue}</span><span class="edit-indicator fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span>`;
+            } else if (field === 'description') {
+                const shortDesc = newValue.length > 50 ? newValue.substring(0, 50) + '...' : newValue;
+                cell.innerHTML = `${shortDesc}<span class="edit-indicator fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span>`;
+            } else {
+                cell.innerHTML = `${newValue}<span class="edit-indicator fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span>`;
+            }
+            
+            updateChangesCounter();
+            updateHistory();
+        }
+        
+        // Annuler l'édition
+        function cancelEdit() {
+            if (!currentEditCell) return;
+            
+            const { cell, rowId, field } = currentEditCell;
+            const row = tableData.find(r => r.id === rowId);
+            
+            cell.classList.remove('editing');
+            currentEditCell = null;
+            
+            // Restaurer le contenu original
+            if (field === 'status') {
+                cell.innerHTML = `<span class="fr-badge fr-badge--${getStatusColor(row[field])}">${row[field]}</span><span class="edit-indicator fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span>`;
+            } else if (field === 'description') {
+                const shortDesc = row[field].length > 50 ? row[field].substring(0, 50) + '...' : row[field];
+                cell.innerHTML = `${shortDesc}<span class="edit-indicator fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span>`;
+            } else {
+                cell.innerHTML = `${row[field]}<span class="edit-indicator fr-icon-edit-line fr-icon--sm" aria-hidden="true"></span>`;
+            }
+        }
+        
+        // Couleur du badge de statut
+        function getStatusColor(status) {
+            const colors = {
+                'En attente': 'warning',
+                'En cours': 'info',
+                'Transmis': 'new',
+                'Résolu': 'success',
+                'Rejeté': 'error'
+            };
+            return colors[status] || 'grey';
+        }
+        
+        // Mettre à jour le compteur de modifications
+        function updateChangesCounter() {
+            const count = modifiedCells.size;
+            document.getElementById('changes-count').textContent = count;
+            
+            const counter = document.getElementById('changes-counter');
+            const saveBtn = document.getElementById('save-all-btn');
+            const undoBtn = document.getElementById('undo-btn');
+            const alert = document.getElementById('unsaved-alert');
+            
+            if (count > 0) {
+                counter.classList.add('has-changes');
+                saveBtn.disabled = false;
+                undoBtn.disabled = false;
+                alert.style.display = 'block';
+            } else {
+                counter.classList.remove('has-changes');
+                saveBtn.disabled = true;
+                undoBtn.disabled = true;
+                alert.style.display = 'none';
+            }
+        }
+        
+        // Sauvegarder toutes les modifications
+        async function saveAllChanges() {
+            const saveBtn = document.getElementById('save-all-btn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="fr-icon-loader-4-line fr-icon--sm" aria-hidden="true"></span> Sauvegarde...';
+            
+            // Simulation d'une sauvegarde API
+            setTimeout(() => {
+                // Marquer toutes les cellules comme sauvegardées
+                document.querySelectorAll('.cell-modified').forEach(cell => {
+                    cell.classList.remove('cell-modified');
+                    cell.classList.add('cell-saved');
+                    setTimeout(() => {
+                        cell.classList.remove('cell-saved');
+                    }, 2000);
+                });
+                
+                // Mettre à jour les données originales
+                tableData.forEach(row => {
+                    originalData[row.id] = { ...row };
+                });
+                
+                // Vider les modifications
+                modifiedCells.clear();
+                
+                saveBtn.innerHTML = '<span class="fr-icon-check-line fr-icon--sm" aria-hidden="true"></span> Sauvegardé';
+                setTimeout(() => {
+                    saveBtn.innerHTML = '<span class="fr-icon-save-line" aria-hidden="true"></span> Sauvegarder tout';
+                    updateChangesCounter();
+                }, 2000);
+            }, 1000);
+        }
+        
+        // Annuler la dernière modification
+        function undoLastChange() {
+            if (editHistory.length === 0) return;
+            
+            const lastEdit = editHistory.pop();
+            const row = tableData.find(r => r.id === lastEdit.rowId);
+            
+            // Restaurer l'ancienne valeur
+            row[lastEdit.field] = lastEdit.oldValue;
+            
+            // Retirer de la liste des modifications si c'est la valeur originale
+            const originalValue = originalData[lastEdit.rowId][lastEdit.field];
+            if (lastEdit.oldValue === originalValue) {
+                modifiedCells.delete(`${lastEdit.rowId}-${lastEdit.field}`);
+            } else {
+                modifiedCells.set(`${lastEdit.rowId}-${lastEdit.field}`, lastEdit.oldValue);
+            }
+            
+            renderTable();
+            updateHistory();
+        }
+        
+        // Réinitialiser une ligne
+        function resetRow(rowId) {
+            const row = tableData.find(r => r.id === rowId);
+            const original = originalData[rowId];
+            
+            // Restaurer toutes les valeurs originales
+            Object.keys(original).forEach(key => {
+                if (key !== 'originalData') {
+                    row[key] = original[key];
+                    modifiedCells.delete(`${rowId}-${key}`);
+                }
+            });
+            
+            renderTable();
+        }
+        
+        // Toggle historique
+        function toggleHistory() {
+            const panel = document.getElementById('history-panel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                updateHistory();
+            }
+        }
+        
+        // Mettre à jour l'historique
+        function updateHistory() {
+            const historyList = document.getElementById('history-list');
+            
+            if (editHistory.length === 0) {
+                historyList.innerHTML = '<p class="fr-text--sm">Aucune modification</p>';
+                return;
+            }
+            
+            historyList.innerHTML = editHistory.slice(-10).reverse().map((edit, index) => `
+                <div class="history-item">
+                    <div class="fr-text--sm fr-text--bold">${edit.field}</div>
+                    <div class="fr-text--xs">ID: ${edit.rowId}</div>
+                    <div class="fr-text--xs">
+                        <span style="color: #ce0500;">${edit.oldValue}</span> → 
+                        <span style="color: #18753c;">${edit.newValue}</span>
+                    </div>
+                    <div class="fr-text--xs" style="color: #666;">
+                        ${edit.timestamp.toLocaleTimeString('fr-FR')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Sélection de lignes
+        function toggleRowSelection(rowId) {
+            if (selectedRows.has(rowId)) {
+                selectedRows.delete(rowId);
+                document.querySelector(`tr[data-row-id="${rowId}"]`).classList.remove('row-selected');
+            } else {
+                selectedRows.add(rowId);
+                document.querySelector(`tr[data-row-id="${rowId}"]`).classList.add('row-selected');
+            }
+            
+            updateBulkToolbar();
+        }
+        
+        // Sélectionner tout
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+                const rowId = cb.dataset.rowId;
+                if (selectAll.checked) {
+                    selectedRows.add(rowId);
+                    document.querySelector(`tr[data-row-id="${rowId}"]`).classList.add('row-selected');
+                } else {
+                    selectedRows.delete(rowId);
+                    document.querySelector(`tr[data-row-id="${rowId}"]`).classList.remove('row-selected');
+                }
+            });
+            
+            updateBulkToolbar();
+        }
+        
+        // Mettre à jour la toolbar d'édition en masse
+        function updateBulkToolbar() {
+            const toolbar = document.getElementById('bulk-toolbar');
+            const count = document.getElementById('selected-count');
+            
+            if (selectedRows.size > 0) {
+                toolbar.classList.add('active');
+                count.textContent = selectedRows.size;
+            } else {
+                toolbar.classList.remove('active');
+            }
+        }
+        
+        // Édition en masse
+        function bulkEdit(field) {
+            const value = prompt(`Nouvelle valeur pour ${field}:`);
+            if (!value) return;
+            
+            selectedRows.forEach(rowId => {
+                const row = tableData.find(r => r.id === rowId);
+                const oldValue = row[field];
+                
+                editHistory.push({
+                    timestamp: new Date(),
+                    rowId,
+                    field,
+                    oldValue,
+                    newValue: value
+                });
+                
+                row[field] = value;
+                modifiedCells.set(`${rowId}-${field}`, value);
+            });
+            
+            selectedRows.clear();
+            document.getElementById('select-all').checked = false;
+            renderTable();
+            updateBulkToolbar();
+        }
+        
+        // Toggle mode édition
+        document.getElementById('edit-mode').addEventListener('change', (e) => {
+            editModeEnabled = e.target.checked;
+            document.querySelectorAll('.editable-cell').forEach(cell => {
+                cell.style.cursor = editModeEnabled ? 'pointer' : 'default';
+                cell.querySelector('.edit-indicator').style.display = editModeEnabled ? 'block' : 'none';
+            });
+        });
+        
+        // Raccourcis clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    if (!document.getElementById('save-all-btn').disabled) {
+                        saveAllChanges();
+                    }
+                } else if (e.key === 'z') {
+                    e.preventDefault();
+                    undoLastChange();
+                }
+            }
+        });
+        
+        // Avertissement avant de quitter si modifications non sauvegardées
+        window.addEventListener('beforeunload', (e) => {
+            if (modifiedCells.size > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
