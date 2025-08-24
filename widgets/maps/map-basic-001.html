@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
     <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
     <link rel="shortcut icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.ico" type="image/x-icon">
-    <link rel="manifest" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/manifest.webmanifest" crossorigin="use-credentials">
+    <!-- Manifest retiré pour éviter erreur CORS en local -->
     
     <!-- CSS - Ordre important : ODS puis DSFR -->
     <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
@@ -81,25 +81,53 @@
             position: relative;
         }
         
-        .map-container.fullscreen {
+        /* Mode plein écran avec API Fullscreen native */
+        #widget-map-basic-001:fullscreen,
+        #widget-map-basic-001:-webkit-full-screen,
+        #widget-map-basic-001:-moz-full-screen,
+        #widget-map-basic-001:-ms-fullscreen {
+            background: white;
+            padding: 2rem;
+            overflow: auto;
+            width: 100vw !important;
+            height: 100vh !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
             z-index: 9999 !important;
-            min-height: 100vh !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
         }
         
-        .map-container.fullscreen .odswidget-map,
-        .map-container.fullscreen .leaflet-container {
-            height: 100vh !important;
-            width: 100vw !important;
+        #widget-map-basic-001:fullscreen .map-container,
+        #widget-map-basic-001:-webkit-full-screen .map-container,
+        #widget-map-basic-001:-moz-full-screen .map-container,
+        #widget-map-basic-001:-ms-fullscreen .map-container {
+            height: calc(100vh - 200px) !important;
+            width: calc(100vw - 4rem) !important;
+            max-width: none !important;
+        }
+        
+        #widget-map-basic-001:fullscreen .odswidget-map,
+        #widget-map-basic-001:fullscreen .leaflet-container,
+        #widget-map-basic-001:-webkit-full-screen .odswidget-map,
+        #widget-map-basic-001:-webkit-full-screen .leaflet-container {
+            height: 100% !important;
+            width: 100% !important;
+        }
+        
+        /* Bouton de sortie flottant en plein écran */
+        #widget-map-basic-001:fullscreen #toggle-fullscreen,
+        #widget-map-basic-001:-webkit-full-screen #toggle-fullscreen {
+            position: fixed !important;
+            top: 1rem !important;
+            right: 1rem !important;
+            z-index: 10000 !important;
+            background: var(--background-contrast-red-marianne) !important;
+            color: white !important;
+        }
+        
+        #widget-map-basic-001:fullscreen #toggle-fullscreen:hover,
+        #widget-map-basic-001:-webkit-full-screen #toggle-fullscreen:hover {
+            background: var(--background-contrast-red-marianne-hover) !important;
         }
         
         .map-legend {
@@ -212,13 +240,19 @@
                                 <ods-dataset-context 
                                     context="dgfip"
                                     dgfip-domain="data.economie.gouv.fr"
-                                    dgfip-dataset="coordonnees-des-structures-dgfip">
+                                    dgfip-dataset="coordonnees-des-structures-dgfip"
+                                    dgfip-parameters="{'rows': 100}">
                                     
-                                    <!-- Info box DSFR -->
-                                    <div class="fr-callout fr-callout--blue-france fr-mb-3w" role="region" aria-label="Informations sur les services">
-                                        <h3 class="fr-callout__title">Services disponibles</h3>
-                                        <p class="fr-callout__text"> 
-                                        {{ dgfip.nhits || 0 | number }} structures DGFIP localisées sur la carte
+                                    <!-- Info box DSFR avec compteur ODS -->
+                                    <div ods-results="items" 
+                                         ods-results-context="dgfip" 
+                                         ods-results-max="0">
+                                        <div class="fr-callout fr-callout--blue-france fr-mb-3w" role="region" aria-label="Informations sur les services">
+                                            <h3 class="fr-callout__title">Services disponibles</h3>
+                                            <p class="fr-callout__text"> 
+                                                {{ dgfip.nhits | number }} structures DGFIP localisées sur la carte
+                                            </p>
+                                        </div>
                                     </div>
                                     
                                     <!-- Contrôles de la carte avec composants DSFR améliorés -->
@@ -251,7 +285,7 @@
                                                 <div class="fr-collapse" id="map-filters">
                                                     <div class="fr-accordion__inner">
                                                         <div class="fr-grid-row fr-grid-row--gutters">
-                                                            <div class="fr-col-12 fr-col-md-4">
+                                                            <div class="fr-col-12 fr-col-md-6">
                                                                 <div class="fr-select-group">
                                                                     <label class="fr-label" for="type-select-map">
                                                                         Type de service
@@ -269,25 +303,30 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                            <div class="fr-col-12 fr-col-md-4">
-                                                                <div class="fr-select-group">
-                                                                    <label class="fr-label" for="dept-select-map">
-                                                                        Département
-                                                                        <span class="fr-hint-text">Filtrer par département</span>
+                                                            <div class="fr-col-12">
+                                                                <div class="fr-form-group">
+                                                                    <label class="fr-label">
+                                                                        Filtrer par département
+                                                                        <span class="fr-hint-text">Cliquez sur un département pour filtrer (101 départements disponibles)</span>
                                                                     </label>
-                                                                    <select class="fr-select" id="dept-select-map"
-                                                                            ng-model="dgfip.parameters['refine.departement']"
-                                                                            aria-describedby="dept-select-map-hint">
-                                                                        <option value="">Tous les départements</option>
-                                                                        <option value="75">75 - Paris</option>
-                                                                        <option value="92">92 - Hauts-de-Seine</option>
-                                                                        <option value="93">93 - Seine-Saint-Denis</option>
-                                                                        <option value="94">94 - Val-de-Marne</option>
-                                                                        <option value="69">69 - Rhône</option>
-                                                                    </select>
+                                                                    <div style="padding: 0.5rem; border: 1px solid var(--border-default-grey); border-radius: 0.25rem; background: var(--background-default-grey);">
+                                                                        <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                                                                            <button class="fr-btn fr-btn--sm" 
+                                                                                    ng-class="{'fr-btn--secondary': selectedDept !== '', 'fr-btn--tertiary-no-outline': selectedDept === ''}"
+                                                                                    ng-click="selectedDept = ''; dgfip.parameters['refine.departement'] = ''">
+                                                                                Tous
+                                                                            </button>
+                                                                            <button ng-repeat="dept in departments" 
+                                                                                    class="fr-btn fr-btn--sm" 
+                                                                                    ng-class="{'fr-btn--secondary': selectedDept !== dept.code, 'fr-btn--tertiary-no-outline': selectedDept === dept.code}"
+                                                                                    ng-click="selectDepartment(dept.code)">
+                                                                                {{ dept.code }} - {{ dept.name }}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="fr-col-12 fr-col-md-4">
+                                                            <div class="fr-col-12 fr-col-md-6">
                                                                 <div class="fr-select-group">
                                                                     <label class="fr-label" for="display-select-map">
                                                                         Mode d'affichage
@@ -338,11 +377,12 @@
                                             <button class="fr-btn fr-btn--secondary" ng-click="resetMap()">
                                                 Réinitialiser la carte
                                             </button>
-                                            <button class="fr-btn fr-btn--secondary" ng-click="exportMap()">
-                                                Exporter la carte
-                                            </button>
-                                            <button class="fr-btn fr-btn--secondary" ng-click="toggleFullscreen()">
-                                                Plein écran
+                                            <button class="fr-btn fr-btn--secondary" 
+                                                    ng-click="toggleFullscreen()"
+                                                    id="toggle-fullscreen"
+                                                    aria-label="{{ fullscreenEnabled ? 'Quitter le mode plein écran' : 'Activer le mode plein écran' }}">
+                                                <span ng-if="!fullscreenEnabled">Plein écran</span>
+                                                <span ng-if="fullscreenEnabled">Quitter plein écran</span>
                                             </button>
                                         </div>
                                     </div>
@@ -369,7 +409,6 @@
                                                 display="auto"
                                                 show-marker="true"
                                                 clustered="true"
-                                                caption="Type: {{ fields.type_de_service }}&lt;br&gt;Adresse: {{ fields.adresse }}&lt;br&gt;{{ fields.code_postal }} {{ fields.commune }}&lt;br&gt;Tél: {{ fields.telephone }}"
                                                 title="{{ fields.nom_de_la_structure || fields.type_de_service }}"
                                                 size="4">
                                             </ods-map-layer>
@@ -392,94 +431,74 @@
                                         </div>
                                         <div class="fr-grid-row fr-grid-row--gutters">
                                             <div class="fr-col-12 fr-col-md-6">
-                                                <p><strong>Couleurs par catégorie :</strong></p>
+                                                <p><strong>Types de services :</strong></p>
                                                 <ul class="fr-tags-group">
                                                     <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #000091; color: white;">
+                                                            Centre des Finances Publiques
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #161616; color: white;">
+                                                            Trésorerie
+                                                        </span>
+                                                    </li>
+                                                    <li>
                                                         <span class="fr-tag fr-tag--sm" style="background-color: #0063cb; color: white;">
-                                                            Téléphonie/Internet
+                                                            Service des Impôts
                                                         </span>
                                                     </li>
                                                     <li>
                                                         <span class="fr-tag fr-tag--sm" style="background-color: #18753c; color: white;">
-                                                            Voyage/Loisirs
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <span class="fr-tag fr-tag--sm" style="background-color: #fc5d00; color: white;">
-                                                            Travaux/Rénovation
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <span class="fr-tag fr-tag--sm" style="background-color: #ce0500; color: white;">
-                                                            Produits/Objets
-                                                        </span>
-                                                    </li>
-                                                    <li>
-                                                        <span class="fr-tag fr-tag--sm" style="background-color: #a558a0; color: white;">
-                                                            Voiture/Véhicule
+                                                            Accueil de proximité
                                                         </span>
                                                     </li>
                                                 </ul>
                                             </div>
                                             <div class="fr-col-12 fr-col-md-6">
                                                 <p><strong>Interactions disponibles :</strong></p>
-                                                <div class="fr-grid-row fr-grid-row--gutters">
-                                                    <div class="fr-col-6">
-                                                        • Cliquez pour voir les détails
-                                                    </div>
-                                                    <div class="fr-col-6">
-                                                        • Utilisez la molette pour zoomer
-                                                    </div>
-                                                    <div class="fr-col-6">
-                                                        • Groupement automatique
-                                                    </div>
-                                                    <div class="fr-col-6">
-                                                        • Recherche par ville
-                                                    </div>
-                                                </div>
+                                                <ul class="fr-text--sm">
+                                                    <li>Cliquez sur un marqueur pour voir les détails</li>
+                                                    <li>Utilisez la molette pour zoomer</li>
+                                                    <li>Glissez pour déplacer la carte</li>
+                                                    <li>Groupement automatique des points proches</li>
+                                                    <li>Recherche par ville dans la barre de recherche</li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <!-- Statistiques géographiques -->
                                     <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-                                        <div class="fr-col-12 fr-col-md-3">
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-3">
                                             <div class="fr-callout fr-callout--blue-france">
-                                                <h3 class="fr-callout__title">Total signalements</h3>
+                                                <h3 class="fr-callout__title">Total services</h3>
                                                 <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        {{ (signalconso.nhits || 0) | number }}
-                                                    </span>
+                                                    <span class="fr-text--lg fr-text--bold">{{ dgfip.nhits | number }}</span>
                                                 </p>
                                             </div>
                                         </div>
-                                        <div class="fr-col-12 fr-col-md-3">
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-4">
                                             <div class="fr-callout fr-callout--green-tilleul-verveine">
                                                 <h3 class="fr-callout__title">Départements</h3>
                                                 <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        101
-                                                    </span>
+                                                    <span class="fr-text--lg fr-text--bold">101</span>
                                                 </p>
                                             </div>
                                         </div>
-                                        <div class="fr-col-12 fr-col-md-3">
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-2">
                                             <div class="fr-callout fr-callout--orange-terre-battue">
                                                 <h3 class="fr-callout__title">Villes</h3>
                                                 <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        {{ getUniqueVilles() | number }}
-                                                    </span>
+                                                    <span class="fr-text--lg fr-text--bold">{{ getUniqueVilles() | number }}</span>
                                                 </p>
                                             </div>
                                         </div>
-                                        <div class="fr-col-12 fr-col-md-3">
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-3">
                                             <div class="fr-callout fr-callout--purple-glycine">
                                                 <h3 class="fr-callout__title">Région principale</h3>
                                                 <p class="fr-callout__text">
-                                                    <span class="fr-text--bold">
-                                                        Île-de-France
-                                                    </span>
+                                                    <span class="fr-text--bold">Île-de-France</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -571,26 +590,153 @@
     
     <!-- Controller Angular pour la carte améliorée -->
     <script>
-        angular.module('ods-widgets').controller('MapBasicController', ['$scope', '$timeout', function($scope, $timeout) {
+        angular.module('ods-widgets').controller('MapBasicController', ['$scope', '$timeout', '$interval', function($scope, $timeout, $interval) {
             // Variables d'état
             $scope.mapSearch = '';
             $scope.mapDisplayMode = 'auto';
             $scope.animateMarkers = false;
             $scope.fullscreenEnabled = false;
             $scope.showLegend = true; // Légende visible par défaut
+            $scope.selectedDept = ''; // Département sélectionné
+            
+            // Liste complète des départements français
+            $scope.departments = [
+                {code: '01', name: 'Ain'},
+                {code: '02', name: 'Aisne'},
+                {code: '03', name: 'Allier'},
+                {code: '04', name: 'Alpes-de-Haute-Provence'},
+                {code: '05', name: 'Hautes-Alpes'},
+                {code: '06', name: 'Alpes-Maritimes'},
+                {code: '07', name: 'Ardèche'},
+                {code: '08', name: 'Ardennes'},
+                {code: '09', name: 'Ariège'},
+                {code: '10', name: 'Aube'},
+                {code: '11', name: 'Aude'},
+                {code: '12', name: 'Aveyron'},
+                {code: '13', name: 'Bouches-du-Rhône'},
+                {code: '14', name: 'Calvados'},
+                {code: '15', name: 'Cantal'},
+                {code: '16', name: 'Charente'},
+                {code: '17', name: 'Charente-Maritime'},
+                {code: '18', name: 'Cher'},
+                {code: '19', name: 'Corrèze'},
+                {code: '2A', name: 'Corse-du-Sud'},
+                {code: '2B', name: 'Haute-Corse'},
+                {code: '21', name: 'Côte-d\'Or'},
+                {code: '22', name: 'Côtes-d\'Armor'},
+                {code: '23', name: 'Creuse'},
+                {code: '24', name: 'Dordogne'},
+                {code: '25', name: 'Doubs'},
+                {code: '26', name: 'Drôme'},
+                {code: '27', name: 'Eure'},
+                {code: '28', name: 'Eure-et-Loir'},
+                {code: '29', name: 'Finistère'},
+                {code: '30', name: 'Gard'},
+                {code: '31', name: 'Haute-Garonne'},
+                {code: '32', name: 'Gers'},
+                {code: '33', name: 'Gironde'},
+                {code: '34', name: 'Hérault'},
+                {code: '35', name: 'Ille-et-Vilaine'},
+                {code: '36', name: 'Indre'},
+                {code: '37', name: 'Indre-et-Loire'},
+                {code: '38', name: 'Isère'},
+                {code: '39', name: 'Jura'},
+                {code: '40', name: 'Landes'},
+                {code: '41', name: 'Loir-et-Cher'},
+                {code: '42', name: 'Loire'},
+                {code: '43', name: 'Haute-Loire'},
+                {code: '44', name: 'Loire-Atlantique'},
+                {code: '45', name: 'Loiret'},
+                {code: '46', name: 'Lot'},
+                {code: '47', name: 'Lot-et-Garonne'},
+                {code: '48', name: 'Lozère'},
+                {code: '49', name: 'Maine-et-Loire'},
+                {code: '50', name: 'Manche'},
+                {code: '51', name: 'Marne'},
+                {code: '52', name: 'Haute-Marne'},
+                {code: '53', name: 'Mayenne'},
+                {code: '54', name: 'Meurthe-et-Moselle'},
+                {code: '55', name: 'Meuse'},
+                {code: '56', name: 'Morbihan'},
+                {code: '57', name: 'Moselle'},
+                {code: '58', name: 'Nièvre'},
+                {code: '59', name: 'Nord'},
+                {code: '60', name: 'Oise'},
+                {code: '61', name: 'Orne'},
+                {code: '62', name: 'Pas-de-Calais'},
+                {code: '63', name: 'Puy-de-Dôme'},
+                {code: '64', name: 'Pyrénées-Atlantiques'},
+                {code: '65', name: 'Hautes-Pyrénées'},
+                {code: '66', name: 'Pyrénées-Orientales'},
+                {code: '67', name: 'Bas-Rhin'},
+                {code: '68', name: 'Haut-Rhin'},
+                {code: '69', name: 'Rhône'},
+                {code: '70', name: 'Haute-Saône'},
+                {code: '71', name: 'Saône-et-Loire'},
+                {code: '72', name: 'Sarthe'},
+                {code: '73', name: 'Savoie'},
+                {code: '74', name: 'Haute-Savoie'},
+                {code: '75', name: 'Paris'},
+                {code: '76', name: 'Seine-Maritime'},
+                {code: '77', name: 'Seine-et-Marne'},
+                {code: '78', name: 'Yvelines'},
+                {code: '79', name: 'Deux-Sèvres'},
+                {code: '80', name: 'Somme'},
+                {code: '81', name: 'Tarn'},
+                {code: '82', name: 'Tarn-et-Garonne'},
+                {code: '83', name: 'Var'},
+                {code: '84', name: 'Vaucluse'},
+                {code: '85', name: 'Vendée'},
+                {code: '86', name: 'Vienne'},
+                {code: '87', name: 'Haute-Vienne'},
+                {code: '88', name: 'Vosges'},
+                {code: '89', name: 'Yonne'},
+                {code: '90', name: 'Territoire de Belfort'},
+                {code: '91', name: 'Essonne'},
+                {code: '92', name: 'Hauts-de-Seine'},
+                {code: '93', name: 'Seine-Saint-Denis'},
+                {code: '94', name: 'Val-de-Marne'},
+                {code: '95', name: 'Val-d\'Oise'}
+            ];
+            
+            // Fonction pour sélectionner un département
+            $scope.selectDepartment = function(code) {
+                $scope.selectedDept = code;
+                if ($scope.dgfip) {
+                    $scope.dgfip.parameters['refine.departement'] = code;
+                }
+            };
             
             // Initialisation du contexte
-            $scope.$watch('signalconso', function(newVal) {
+            $scope.$watch('dgfip', function(newVal) {
                 if (newVal) {
+                    console.log('Contexte DGFIP chargé:', newVal);
+                    console.log('Nombre de résultats:', newVal.nhits);
                     if (!newVal.parameters) {
                         newVal.parameters = {};
                     }
-                    // Forcer le chargement initial des données
-                    $timeout(function() {
-                        if (newVal.search && typeof newVal.search === 'function') {
-                            newVal.search();
-                        }
-                    }, 1000);
+                }
+            }, true);
+            
+            // Observer les changements de nhits
+            $scope.$watch('dgfip.nhits', function(newVal) {
+                if (newVal !== undefined) {
+                    console.log('Mise à jour nhits:', newVal);
+                }
+            });
+            
+            // Vérifier périodiquement si le contexte est chargé
+            var checkContext = $interval(function() {
+                if ($scope.dgfip && $scope.dgfip.nhits > 0) {
+                    console.log('Contexte DGFIP actif avec', $scope.dgfip.nhits, 'résultats');
+                    $interval.cancel(checkContext);
+                }
+            }, 500);
+            
+            // Nettoyer l'intervalle quand le scope est détruit
+            $scope.$on('$destroy', function() {
+                if (checkContext) {
+                    $interval.cancel(checkContext);
                 }
             });
             
@@ -599,31 +745,31 @@
                 if ($scope.mapSearch) {
                     // Utiliser l'API de géocodage pour trouver la localisation
                     // Ici on simule avec une recherche dans les données
-                    $scope.signalconso.parameters['q'] = $scope.mapSearch;
+                    $scope.dgfip.parameters['q'] = $scope.mapSearch;
                 }
             };
             
             // Vérifier si des filtres sont actifs
             $scope.hasActiveFilters = function() {
-                if (!$scope.signalconso || !$scope.signalconso.parameters) return false;
+                if (!$scope.dgfip || !$scope.dgfip.parameters) return false;
                 
-                return Object.keys($scope.signalconso.parameters).some(key => 
-                    key.startsWith('refine.') && $scope.signalconso.parameters[key]
+                return Object.keys($scope.dgfip.parameters).some(key => 
+                    key.startsWith('refine.') && $scope.dgfip.parameters[key]
                 );
             };
             
             // Compter les filtres actifs
             $scope.countActiveFilters = function() {
-                if (!$scope.signalconso || !$scope.signalconso.parameters) return 0;
+                if (!$scope.dgfip || !$scope.dgfip.parameters) return 0;
                 
-                return Object.keys($scope.signalconso.parameters).filter(key => 
-                    key.startsWith('refine.') && $scope.signalconso.parameters[key]
+                return Object.keys($scope.dgfip.parameters).filter(key => 
+                    key.startsWith('refine.') && $scope.dgfip.parameters[key]
                 ).length;
             };
             
             // Réinitialiser la carte
             $scope.resetMap = function() {
-                $scope.signalconso.parameters = {};
+                $scope.dgfip.parameters = {};
                 $scope.mapSearch = '';
                 $scope.mapDisplayMode = 'auto';
                 $scope.animateMarkers = false;
@@ -636,69 +782,86 @@
                 }
             };
             
-            // Exporter la carte
-            $scope.exportMap = function() {
-                // Capture de la carte comme image
-                var mapContainer = document.querySelector('.map-container');
-                if (mapContainer && window.html2canvas) {
-                    window.html2canvas(mapContainer).then(function(canvas) {
-                        var link = document.createElement('a');
-                        link.download = 'carte-signalconso-' + Date.now() + '.png';
-                        link.href = canvas.toDataURL();
-                        link.click();
-                    });
-                } else {
-                    // Alternative : exporter les données
-                    var exportData = {
-                        filters: $scope.signalconso.parameters,
-                        displayMode: $scope.mapDisplayMode,
-                        timestamp: new Date().toISOString()
-                    };
+            // Toggle plein écran avec accessibilité améliorée
+            $scope.toggleFullscreen = function() {
+                var container = document.getElementById('widget-map-basic-001');
+                
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                    !document.mozFullScreenElement && !document.msFullscreenElement) {
+                    // Entrer en mode plein écran
+                    $scope.fullscreenEnabled = true;
                     
-                    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
-                    var downloadAnchorNode = document.createElement('a');
-                    downloadAnchorNode.setAttribute("href", dataStr);
-                    downloadAnchorNode.setAttribute("download", "carte-config-" + Date.now() + ".json");
-                    document.body.appendChild(downloadAnchorNode);
-                    downloadAnchorNode.click();
-                    downloadAnchorNode.remove();
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.mozRequestFullScreen) {
+                        container.mozRequestFullScreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    }
+                    
+                    // Forcer le redimensionnement de la carte après activation
+                    $timeout(function() {
+                        window.dispatchEvent(new Event('resize'));
+                        if (window.L && window.L.Map) {
+                            var leafletContainer = document.querySelector('.leaflet-container');
+                            if (leafletContainer && leafletContainer._leaflet_map) {
+                                leafletContainer._leaflet_map.invalidateSize();
+                            }
+                        }
+                        // Annoncer le changement aux lecteurs d'écran
+                        $scope.announceMode('Mode plein écran activé. Appuyez sur Échap pour quitter.');
+                    }, 100);
+                } else {
+                    // Sortir du mode plein écran
+                    $scope.fullscreenEnabled = false;
+                    
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    
+                    // Forcer le redimensionnement de la carte après désactivation
+                    $timeout(function() {
+                        window.dispatchEvent(new Event('resize'));
+                        if (window.L && window.L.Map) {
+                            var leafletContainer = document.querySelector('.leaflet-container');
+                            if (leafletContainer && leafletContainer._leaflet_map) {
+                                leafletContainer._leaflet_map.invalidateSize();
+                            }
+                        }
+                        $scope.announceMode('Mode plein écran désactivé');
+                    }, 100);
                 }
             };
             
-            // Toggle plein écran
-            $scope.toggleFullscreen = function() {
-                $scope.fullscreenEnabled = !$scope.fullscreenEnabled;
-                var mapContainer = document.querySelector('#widget-map-basic-001 .map-container');
-                
-                if (mapContainer) {
-                    if ($scope.fullscreenEnabled) {
-                        mapContainer.classList.add('fullscreen');
-                        document.body.style.overflow = 'hidden';
-                        // Forcer le redimensionnement de la carte
-                        $timeout(function() {
-                            window.dispatchEvent(new Event('resize'));
-                            if (window.L && window.L.Map) {
-                                var leafletMap = document.querySelector('.leaflet-container')._leaflet_map;
-                                if (leafletMap) {
-                                    leafletMap.invalidateSize();
-                                }
-                            }
-                        }, 100);
-                    } else {
-                        mapContainer.classList.remove('fullscreen');
-                        document.body.style.overflow = '';
-                        $timeout(function() {
-                            window.dispatchEvent(new Event('resize'));
-                            if (window.L && window.L.Map) {
-                                var leafletMap = document.querySelector('.leaflet-container')._leaflet_map;
-                                if (leafletMap) {
-                                    leafletMap.invalidateSize();
-                                }
-                            }
-                        }, 100);
-                    }
+            // Écouter les changements de fullscreen
+            document.addEventListener('fullscreenchange', function() {
+                $scope.$apply(function() {
+                    $scope.fullscreenEnabled = !!document.fullscreenElement;
+                });
+            });
+            
+            document.addEventListener('webkitfullscreenchange', function() {
+                $scope.$apply(function() {
+                    $scope.fullscreenEnabled = !!document.webkitFullscreenElement;
+                });
+            });
+            
+            // Écouter la touche Échap pour sortir du plein écran
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && $scope.fullscreenEnabled) {
+                    $scope.$apply(function() {
+                        $scope.toggleFullscreen();
+                    });
                 }
-            };
+            });
             
             // Écouter les changements de mode d'affichage
             $scope.$watch('mapDisplayMode', function(newVal, oldVal) {
@@ -757,28 +920,57 @@
             $scope.getUniqueVilles = function() {
                 // Cette valeur devrait idéalement venir des données réelles
                 // Pour l'instant on retourne une estimation basée sur le nombre de résultats
-                if ($scope.signalconso && $scope.signalconso.nhits && $scope.signalconso.nhits > 0) {
+                if ($scope.dgfip && $scope.dgfip.nhits && $scope.dgfip.nhits > 0) {
                     // Estimation : environ 1 ville pour 10 signalements
-                    return Math.min(Math.floor($scope.signalconso.nhits / 10), 36000);
+                    return Math.min(Math.floor($scope.dgfip.nhits / 10), 36000);
                 }
                 return 1234; // Valeur par défaut réaliste
+            };
+            
+            // Fonction pour annoncer les changements aux lecteurs d'écran
+            $scope.announceMode = function(message) {
+                var announcement = document.getElementById('aria-announcement');
+                if (!announcement) {
+                    announcement = document.createElement('div');
+                    announcement.id = 'aria-announcement';
+                    announcement.setAttribute('role', 'status');
+                    announcement.setAttribute('aria-live', 'polite');
+                    announcement.className = 'fr-sr-only';
+                    document.body.appendChild(announcement);
+                }
+                announcement.textContent = message;
+                
+                // Nettoyer après 3 secondes
+                $timeout(function() {
+                    announcement.textContent = '';
+                }, 3000);
             };
             
             // Échap pour quitter le plein écran
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && $scope.fullscreenEnabled) {
-                    $scope.toggleFullscreen();
-                    $scope.$apply();
+                    $scope.$apply(function() {
+                        $scope.toggleFullscreen();
+                    });
+                }
+            });
+            
+            // Gestion de l'API Fullscreen native si disponible
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement && $scope.fullscreenEnabled) {
+                    $scope.$apply(function() {
+                        $scope.fullscreenEnabled = false;
+                    });
                 }
             });
             
             // Initialiser le contexte si nécessaire
-            $scope.$watch('signalconso', function(newVal) {
+            $scope.$watch('dgfip', function(newVal) {
                 if (newVal && !newVal.nhits) {
                     // Forcer le rafraîchissement du contexte
                     $timeout(function() {
-                        if ($scope.signalconso && $scope.signalconso.search) {
-                            $scope.signalconso.search();
+                        if ($scope.dgfip && $scope.dgfip.search) {
+                            $scope.dgfip.search();
                         }
                     }, 100);
                 }
