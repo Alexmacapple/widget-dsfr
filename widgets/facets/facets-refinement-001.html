@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Facets Refinement - Filtres avancés avec raffinement pour données SignalConso">
-    <title>Widget DSFR - Facets Refinement</title>
+    <meta name="description" content="Widget de recherche avancée pour données SignalConso">
+    <title>Recherche avancée - SignalConso</title>
     
     <!-- Favicon DSFR -->
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
@@ -105,16 +105,45 @@
             visibility: visible !important;
         }
         
-        /* Enlever les barres de scroll */
+        /* Enlever les barres de scroll et forcer l'affichage complet */
         .odswidget-table__wrapper {
             display: block !important;
             overflow: visible !important;
             height: auto !important;
+            min-height: 400px;
         }
         
         .odswidget-table__records {
             height: auto !important;
+            min-height: 400px !important;
             overflow: visible !important;
+        }
+        
+        /* S'assurer que la pagination est visible */
+        .odswidget-pagination,
+        ods-pagination {
+            display: block !important;
+            margin-top: 1rem;
+        }
+        
+        /* Styles pour la pagination ODS */
+        .odswidget-pagination__button {
+            background: var(--background-action-low-blue-france);
+            color: var(--text-action-high-blue-france);
+            border: 1px solid var(--border-action-high-blue-france);
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            cursor: pointer;
+        }
+        
+        .odswidget-pagination__button:hover {
+            background: var(--background-action-high-blue-france);
+            color: white;
+        }
+        
+        .odswidget-pagination__button--active {
+            background: var(--background-action-high-blue-france);
+            color: white;
         }
         
         .odswidget-table table {
@@ -246,11 +275,6 @@
             line-height: 1;
         }
         
-        .refinement-level {
-            margin-left: 1rem;
-            border-left: 2px solid var(--border-default-grey);
-            padding-left: 1rem;
-        }
         
         .facet-section {
             margin-bottom: 2rem;
@@ -298,12 +322,12 @@
                             </div>
                         </div>
                         <div class="fr-header__service">
-                            <a href="/" title="Accueil - Widget DSFR">
+                            <a href="/" title="Accueil - SignalConso">
                                 <p class="fr-header__service-title">
-                                    Widget Facets Refinement
+                                    SignalConso
                                 </p>
                             </a>
-                            <p class="fr-header__service-tagline">Filtres avancés - data.economie.gouv.fr</p>
+                            <p class="fr-header__service-tagline">Recherche avancée - data.economie.gouv.fr</p>
                         </div>
                     </div>
                 </div>
@@ -332,8 +356,8 @@
             <!-- Titre principal -->
             <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
                 <div class="fr-col-12">
-                    <h1>Filtres avancés avec raffinement - SignalConso</h1>
-                    <p class="fr-text--lead">Interface de filtrage sophistiquée avec raffinements progressifs</p>
+                    <h1>Explorer les signalements</h1>
+                    <p class="fr-text--lead">Base de données SignalConso - Signalements consommateurs</p>
                 </div>
             </div>
 
@@ -343,7 +367,7 @@
                     <div class="fr-card">
                         <div class="fr-card__body">
                             <div class="fr-card__content">
-                                <h2 class="fr-card__title">Filtrage avancé des signalements</h2>
+                                <h2 class="fr-card__title">Recherche multicritères</h2>
                                 <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
                             </div>
                         </div>
@@ -355,15 +379,15 @@
                                     signalconso-domain="data.economie.gouv.fr"
                                     signalconso-dataset="signalconso">
                                     
-                                    <!-- Résumé des raffinements actifs -->
+                                    <!-- Résumé des filtres actifs -->
                                     <div class="refinement-summary" ng-if="signalconso.parameters">
-                                        <h3>Raffinements actifs</h3>
+                                        <h3>Critères sélectionnés</h3>
                                         <div class="active-refinements">
                                             <div class="active-refinement" ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')">
                                                 <span>{{key.replace('refine.', '') | titlecase}} : {{value}}</span>
                                                 <button type="button" class="refinement-remove" 
                                                         ng-click="signalconso.parameters[key] = undefined"
-                                                        title="Supprimer ce raffinement">
+                                                        title="Supprimer ce filtre">
                                                     ×
                                                 </button>
                                             </div>
@@ -378,15 +402,15 @@
                                                 <button class="fr-btn fr-btn--secondary fr-btn--sm" 
                                                         ng-click="signalconso.clearAllParameters()"
                                                         ng-if="Object.keys(signalconso.parameters).length > 0">
-                                                    Effacer tous les raffinements
+                                                    Effacer tous les filtres
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Interface de raffinement -->
+                                    <!-- Interface de filtrage -->
                                     <div class="fr-grid-row fr-grid-row--gutters">
-                                        <!-- Panneau de raffinement -->
+                                        <!-- Panneau de filtres -->
                                         <div class="fr-col-12">
                                             <div class="refinement-container">
                                                 <h3>Affiner la recherche</h3>
@@ -527,7 +551,7 @@
                                                         </div>
                                                         <div class="facet-section-content">
                                                             <ods-facet 
-                                                                name="statuspromise"
+                                                                name="status"
                                                                 disjunctive="true"
                                                                 sort="count">
                                                             </ods-facet>
@@ -538,15 +562,15 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Résultats raffinés -->
+                                    <!-- Résultats filtrés -->
                                     <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
                                         <div class="fr-col-12">
                                             <div class="fr-card">
                                                 <div class="fr-card__body">
                                                     <div class="fr-card__content">
-                                                        <h3 class="fr-card__title">Résultats raffinés</h3>
+                                                        <h3 class="fr-card__title">Résultats</h3>
                                                         <p class="fr-card__desc">
-                                                            <strong>{{signalconso.nhits | number}}</strong> signalements après raffinement
+                                                            <strong>{{signalconso.nhits | number}}</strong> signalements trouvés
                                                         </p>
                                                     </div>
                                                 </div>
@@ -588,34 +612,63 @@
                                                     <!-- Tableau des résultats -->
                                                     <div data-fr-js-table-wrapper="false">
                                                         <ods-table 
-                                                            context="signalconso"
-                                                            displayed-fields="['creationdate','establishmentname','category','subcategory','city','dep_name','statuspromise']">
+                                                            context="signalconso">
                                                         </ods-table>
                                                     </div>
                                                     
-                                                    <!-- Pagination -->
-                                                    <nav class="fr-pagination fr-mt-3w" aria-label="Pagination des résultats">
-                                                        <ods-pager 
-                                                            context="signalconso" 
-                                                            page-size="{{pageSize}}">
-                                                        </ods-pager>
-                                                    </nav>
+                                                    <!-- Contrôles de pagination manuels -->
+                                                    <div class="fr-mt-3w">
+                                                        <nav role="navigation" aria-label="Pagination">
+                                                            <ul class="fr-pagination__list">
+                                                                <li>
+                                                                    <button class="fr-pagination__link fr-pagination__link--prev" 
+                                                                            ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (pageSize || 50))"
+                                                                            ng-disabled="!signalconso.parameters.start || signalconso.parameters.start === 0"
+                                                                            aria-label="Page précédente">
+                                                                        Précédent
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <span class="fr-pagination__link" aria-current="page">
+                                                                        {{((signalconso.parameters.start || 0) / (pageSize || 50)) + 1 | number:0}} / 
+                                                                        {{Math.ceil(signalconso.nhits / (pageSize || 50)) | number:0}}
+                                                                    </span>
+                                                                </li>
+                                                                <li>
+                                                                    <button class="fr-pagination__link fr-pagination__link--next" 
+                                                                            ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + (pageSize || 50)"
+                                                                            ng-disabled="(signalconso.parameters.start || 0) + (pageSize || 50) >= signalconso.nhits"
+                                                                            aria-label="Page suivante">
+                                                                        Suivant
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </nav>
+                                                        
+                                                        <!-- Info sur les résultats affichés -->
+                                                        <p class="fr-text--sm fr-mt-2w">
+                                                            Affichage de 
+                                                            <strong>{{(signalconso.parameters.start || 0) + 1}}</strong> à 
+                                                            <strong>{{Math.min((signalconso.parameters.start || 0) + (pageSize || 50), signalconso.nhits)}}</strong> 
+                                                            sur <strong>{{signalconso.nhits | number}}</strong> résultats
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Statistiques de raffinement -->
+                                    <!-- Statistiques de filtrage -->
                                     <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
                                         <div class="fr-col-12 fr-col-md-3">
                                             <div class="fr-callout fr-callout--blue-france">
-                                                <h3 class="fr-callout__title">Résultats raffinés</h3>
+                                                <h3 class="fr-callout__title">Total</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
                                                         {{signalconso.nhits | number}}
                                                     </span>
                                                     <br>
-                                                    <span class="fr-text--sm">signalements après raffinement</span>
+                                                    <span class="fr-text--sm">signalements</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -732,8 +785,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
     <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
     
-    <!-- Script pour éviter les conflits DSFR/ODS -->
+    <!-- Script pour éviter les conflits DSFR/ODS et ajouter Math au scope Angular -->
     <script>
+        // Ajouter Math au scope Angular pour les calculs de pagination
+        angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
+            $rootScope.Math = Math;
+        }]);
+        
         // Empêcher DSFR d'initialiser les tables ODS
         document.addEventListener('DOMContentLoaded', function() {
             // Supprimer tous les attributs DSFR des tables ODS avant l'initialisation
