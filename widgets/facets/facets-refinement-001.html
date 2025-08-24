@@ -135,211 +135,180 @@
             overflow: visible !important;
         }
         
-        /* Wrapper de pagination */
-        .pagination-wrapper {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-default-grey);
-            display: block !important;
-            visibility: visible !important;
+        /* Ajustements pour la pagination DSFR officielle */
+        .fr-pagination {
+            margin-top: 1rem;
+            padding-bottom: 1rem;
         }
         
-        /* Styles pour la pagination DSFR */
-        .fr-pagination__list {
-            display: flex !important;
+        /* Centrage de la pagination */
+        .fr-pagination--center .fr-pagination__list,
+        .fr-pagination .fr-pagination__list {
+            display: flex;
             justify-content: center;
             align-items: center;
-            gap: 0.25rem;
             flex-wrap: wrap;
-            list-style: none;
+            gap: 0.25rem;
+        }
+        
+        .fr-text--center {
+            text-align: center;
+        }
+        
+        /* Classe pour l'accessibilité - lecteurs d'écran */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
             padding: 0;
-            margin: 0;
-        }
-        
-        .fr-pagination__link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 2.5rem;
-            min-height: 2.5rem;
-            padding: 0.5rem 0.75rem;
-            background: white;
-            color: var(--text-action-high-blue-france);
-            border: 1px solid var(--border-default-grey);
-            text-decoration: none;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
             white-space: nowrap;
-            overflow: visible;
-        }
-        
-        .fr-pagination__link--prev,
-        .fr-pagination__link--next {
-            min-width: 150px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 500;
-            text-align: center;
-        }
-        
-        .fr-pagination__link--prev span,
-        .fr-pagination__link--next span {
-            font-size: 1.25rem;
-            line-height: 1;
-            vertical-align: middle;
-            margin: 0 0.25rem;
-        }
-        
-        .fr-pagination__link:hover:not(.fr-pagination__link--disabled) {
-            background: var(--background-action-low-blue-france);
-            border-color: var(--border-action-high-blue-france);
-            text-decoration: none;
-        }
-        
-        .fr-pagination__link--active {
-            background: var(--background-action-high-blue-france) !important;
-            color: white !important;
-            border-color: var(--background-action-high-blue-france) !important;
-            font-weight: 700;
-        }
-        
-        .fr-pagination__link--disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: var(--background-disabled-grey);
-            color: var(--text-disabled-grey);
-            border-color: var(--border-disabled-grey);
-            pointer-events: none;
+            border: 0;
         }
         
         
-        .text-center {
-            text-align: center;
-        }
-        
-        
-        /* Styles pour les tables ODS */
-        .odswidget-table {
+        /* Intégration ODS Table avec styles DSFR */
+        .fr-table .odswidget-table {
             width: 100%;
-            font-family: var(--font-family-base);
-            box-sizing: border-box;
+            font-family: inherit;
+            min-height: 400px;
+            display: block;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-in-out forwards;
         }
         
-        .odswidget-table * {
-            box-sizing: border-box;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        .odswidget-table table {
+        .fr-table .odswidget-table table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
+            border-collapse: collapse;
             table-layout: fixed;
-            background: white;
         }
         
-        .odswidget-table thead {
-            background-color: var(--background-contrast-grey);
+        .fr-table .odswidget-table thead {
+            border-bottom: 2px solid var(--border-default-grey);
+        }
+        
+        .fr-table .odswidget-table th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 700;
+            background: var(--background-alt-grey);
+            border-bottom: 2px solid var(--border-default-grey);
             position: sticky;
             top: 0;
             z-index: 10;
         }
         
-        .odswidget-table th,
-        .odswidget-table td {
+        .fr-table .odswidget-table td {
             padding: 0.75rem;
-            text-align: left;
+            border-bottom: 1px solid var(--border-default-grey);
+            vertical-align: top;
+        }
+        
+        .fr-table .odswidget-table tbody tr:hover {
+            background: var(--background-contrast-info);
+        }
+        
+        /* Espacement après le tableau */
+        .fr-table .odswidget-table {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Hauteur uniforme pour toutes les lignes */
+        .fr-table .odswidget-table tbody tr {
+            height: auto;
+        }
+        
+        .fr-table .odswidget-table tbody tr td {
+            padding: 0.75rem;
+            height: auto;
+        }
+        
+        .fr-table--bordered .odswidget-table th,
+        .fr-table--bordered .odswidget-table td {
             border: 1px solid var(--border-default-grey);
-            vertical-align: middle;
-            line-height: 1.5;
         }
         
-        .odswidget-table th {
-            background-color: var(--background-contrast-grey);
-            font-weight: 700;
-            color: var(--text-default-grey);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Accessibilité : Focus visible sur les lignes */
+        .fr-table .odswidget-table tbody tr:focus-within {
+            outline: 2px solid var(--border-action-high-blue-france);
+            outline-offset: -2px;
         }
         
-        .odswidget-table td {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            background: white;
+        /* Largeurs des colonnes DSFR - proportionnelles et flexibles */
+        /* Colonne N° - plus étroite et centrée */
+        .fr-table .odswidget-table th:nth-child(1),
+        .fr-table .odswidget-table td:nth-child(1) {
+            width: 5%;
+            min-width: 50px;
+            text-align: center;
         }
         
-        .odswidget-table tbody tr:hover {
-            background-color: var(--background-alt-grey);
-        }
-        
-        .odswidget-table tbody tr:nth-child(even) {
-            background-color: var(--background-alt-grey-light, #fafafa);
-        }
-        
-        /* Reset des styles ODS par défaut */
-        .odswidget-table .odswidget-table__table {
-            display: table !important;
-            width: 100% !important;
-        }
-        
-        /* Largeurs spécifiques des colonnes - utiliser les mêmes valeurs pour th et td */
-        .odswidget-table th:nth-child(1),
-        .odswidget-table td:nth-child(1) {
-            width: 12% !important;
+        /* Date de création */
+        .fr-table .odswidget-table th:nth-child(2),
+        .fr-table .odswidget-table td:nth-child(2) {
+            width: 12%;
             min-width: 100px;
-            max-width: 120px;
         }
         
-        .odswidget-table th:nth-child(2),
-        .odswidget-table td:nth-child(2) {
-            width: 18% !important;
+        /* Établissement */
+        .fr-table .odswidget-table th:nth-child(3),
+        .fr-table .odswidget-table td:nth-child(3) {
+            width: 20%;
             min-width: 150px;
-            max-width: 200px;
         }
         
-        .odswidget-table th:nth-child(3),
-        .odswidget-table td:nth-child(3) {
-            width: 12% !important;
+        /* Ville */
+        .fr-table .odswidget-table th:nth-child(4),
+        .fr-table .odswidget-table td:nth-child(4) {
+            width: 12%;
             min-width: 100px;
-            max-width: 150px;
         }
         
-        .odswidget-table th:nth-child(4),
-        .odswidget-table td:nth-child(4) {
-            width: 14% !important;
-            min-width: 120px;
-            max-width: 180px;
+        /* Département */
+        .fr-table .odswidget-table th:nth-child(5),
+        .fr-table .odswidget-table td:nth-child(5) {
+            width: 13%;
+            min-width: 110px;
         }
         
-        .odswidget-table th:nth-child(5),
-        .odswidget-table td:nth-child(5) {
-            width: 17% !important;
+        /* Catégorie */
+        .fr-table .odswidget-table th:nth-child(6),
+        .fr-table .odswidget-table td:nth-child(6) {
+            width: 18%;
             min-width: 140px;
-            max-width: 200px;
         }
         
-        .odswidget-table th:nth-child(6),
-        .odswidget-table td:nth-child(6) {
-            width: 17% !important;
+        /* Sous-catégorie */
+        .fr-table .odswidget-table th:nth-child(7),
+        .fr-table .odswidget-table td:nth-child(7) {
+            width: 18%;
             min-width: 140px;
-            max-width: 200px;
         }
         
-        .odswidget-table th:nth-child(7),
-        .odswidget-table td:nth-child(7) {
-            width: 10% !important;
+        /* Statut */
+        .fr-table .odswidget-table th:nth-child(8),
+        .fr-table .odswidget-table td:nth-child(8) {
+            width: 10%;
             min-width: 90px;
-            max-width: 120px;
         }
         
-        /* Table responsive */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 1rem;
-            background: white;
-            border: 1px solid var(--border-default-grey);
-            border-radius: 0.25rem;
+        /* Styles responsive DSFR */
+        @media (max-width: 48em) {
+            .fr-table__wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .fr-table .odswidget-table {
+                min-width: 700px;
+            }
         }
         
         @media (max-width: 768px) {
@@ -749,65 +718,76 @@
                                                         </div>
                                                     </div>
                                                     
-                                                    <!-- Tableau des résultats avec ODS Table standard -->
-                                                    <div class="table-responsive" data-fr-js-table="false">
-                                                        <ods-table 
-                                                            context="signalconso"
-                                                            displayed-fields="creationdate,establishmentname,city,dep_name,category,subcategory,status">
-                                                        </ods-table>
+                                                    <!-- Tableau DSFR avec données ODS -->
+                                                    <div class="fr-table fr-table--bordered" data-fr-js-table="false">
+                                                        <div class="fr-table__wrapper">
+                                                            <div class="fr-table__container">
+                                                                <div class="fr-table__content" role="region" aria-label="Tableau des signalements">
+                                                                    <!-- Indicateur de chargement -->
+                                                                    <div class="fr-py-3w fr-text--center" ng-if="!signalconso.nhits && !signalconso.error">
+                                                                        <span class="fr-text--sm">Chargement des données...</span>
+                                                                    </div>
+                                                                    
+                                                                    <!-- Message d'erreur -->
+                                                                    <div class="fr-alert fr-alert--error fr-my-2w" ng-if="signalconso.error">
+                                                                        <p>Erreur lors du chargement des données</p>
+                                                                    </div>
+                                                                    
+                                                                    <!-- Tableau ODS -->
+                                                                    <div ng-if="signalconso.nhits > 0">
+                                                                        <ods-table 
+                                                                            context="signalconso"
+                                                                            displayed-fields="creationdate,establishmentname,city,dep_name,category,subcategory,status"
+                                                                            aria-describedby="table-caption">
+                                                                        </ods-table>
+                                                                    </div>
+                                                                    
+                                                                    <span id="table-caption" class="sr-only">
+                                                                        Tableau listant les signalements consommateurs avec date, établissement, localisation, catégorie et statut
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     
-                                                    <!-- Pagination manuelle avec style DSFR -->
-                                                    <div class="pagination-wrapper fr-mt-3w" ng-if="signalconso.nhits > 0">
-                                                        <nav role="navigation" aria-label="Pagination">
-                                                            <ul class="fr-pagination__list">
-                                                                <!-- Bouton Précédent -->
-                                                                <li>
-                                                                    <a class="fr-pagination__link fr-pagination__link--prev" 
-                                                                       ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (signalconso.parameters.rows || 20))"
-                                                                       ng-disabled="!signalconso.parameters.start || signalconso.parameters.start === 0"
-                                                                       ng-class="{'fr-pagination__link--disabled': !signalconso.parameters.start || signalconso.parameters.start === 0}"
-                                                                       href=""
-                                                                       onclick="return false;"
-                                                                       aria-label="Page précédente"
-                                                                       title="Aller à la page précédente">
-                                                                        <span aria-hidden="true">‹</span> Page précédente
-                                                                    </a>
-                                                                </li>
-                                                                
-                                                                <!-- Numéros de page -->
-                                                                <li ng-repeat="pageIndex in generatePageArray(signalconso.nhits, signalconso.parameters.rows || 20, signalconso.parameters.start || 0) track by $index">
-                                                                    <a class="fr-pagination__link" 
-                                                                       ng-click="signalconso.parameters.start = pageIndex * (signalconso.parameters.rows || 20)"
-                                                                       ng-class="{'fr-pagination__link--active': (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20)}"
-                                                                       href=""
-                                                                       onclick="return false;"
-                                                                       ng-attr-aria-current="{{ (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20) ? 'page' : undefined }}"
-                                                                       title="Page {{pageIndex + 1}}">
-                                                                        {{pageIndex + 1}}
-                                                                    </a>
-                                                                </li>
-                                                                
-                                                                <!-- Bouton Suivant -->
-                                                                <li>
-                                                                    <a class="fr-pagination__link fr-pagination__link--next" 
-                                                                       ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20)"
-                                                                       ng-disabled="(signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20) >= signalconso.nhits"
-                                                                       ng-class="{'fr-pagination__link--disabled': (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20) >= signalconso.nhits}"
-                                                                       href=""
-                                                                       onclick="return false;"
-                                                                       aria-label="Page suivante"
-                                                                       title="Aller à la page suivante">
-                                                                        Page suivante <span aria-hidden="true">›</span>
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
-                                                        </nav>
-                                                        
-                                                        <!-- Information sur la pagination -->
-                                                        <div class="fr-mt-2w fr-text--sm text-center">
-                                                            Affichage de {{(signalconso.parameters.start || 0) + 1}} à {{Math.min((signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20), signalconso.nhits)}} sur {{signalconso.nhits}} résultats
-                                                        </div>
+                                                    <!-- Pagination DSFR officielle minimaliste -->
+                                                    <nav role="navigation" class="fr-pagination fr-pagination--center" aria-label="Pagination" ng-if="signalconso.nhits > (signalconso.parameters.rows || 20)">
+                                                        <ul class="fr-pagination__list">
+                                                            <!-- Page précédente -->
+                                                            <li ng-if="signalconso.parameters.start > 0">
+                                                                <button class="fr-pagination__link fr-pagination__link--prev" 
+                                                                        ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (signalconso.parameters.rows || 20))"
+                                                                        type="button">
+                                                                    Précédente
+                                                                </button>
+                                                            </li>
+                                                            
+                                                            <!-- Numéros de page -->
+                                                            <li ng-repeat="pageIndex in generatePageArray(signalconso.nhits, signalconso.parameters.rows || 20, signalconso.parameters.start || 0) track by $index">
+                                                                <button class="fr-pagination__link" 
+                                                                        ng-click="signalconso.parameters.start = pageIndex * (signalconso.parameters.rows || 20)"
+                                                                        ng-class="{'fr-pagination__link--active': (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20)}"
+                                                                        type="button"
+                                                                        ng-attr-aria-current="{{ (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20) ? 'page' : undefined }}"
+                                                                        title="Page {{pageIndex + 1}}">
+                                                                    {{pageIndex + 1}}
+                                                                </button>
+                                                            </li>
+                                                            
+                                                            <!-- Page suivante -->
+                                                            <li ng-if="(signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20) < signalconso.nhits">
+                                                                <button class="fr-pagination__link fr-pagination__link--next" 
+                                                                        ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20)"
+                                                                        type="button">
+                                                                    Suivante
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </nav>
+                                                    
+                                                    <!-- Information sur la pagination -->
+                                                    <div class="fr-mt-2w fr-text--sm fr-text--center">
+                                                        Affichage de {{(signalconso.parameters.start || 0) + 1}} à {{Math.min((signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20), signalconso.nhits)}} sur {{signalconso.nhits}} résultats
                                                     </div>
                                                 </div>
                                             </div>
@@ -816,7 +796,7 @@
                                     
                                     <!-- Statistiques de filtrage -->
                                     <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
-                                        <div class="fr-col-12 fr-col-md-3">
+                                        <div class="fr-col-12 fr-col-md-6">
                                             <div class="fr-callout fr-callout--blue-france">
                                                 <h3 class="fr-callout__title">Total</h3>
                                                 <p class="fr-callout__text">
@@ -828,33 +808,20 @@
                                                 </p>
                                             </div>
                                         </div>
-                                        <div class="fr-col-12 fr-col-md-3">
-                                            <div class="fr-callout fr-callout--green-tilleul-verveine">
-                                                <h3 class="fr-callout__title">Précision</h3>
-                                                <p class="fr-callout__text">
-                                                    {{(signalconso.nhits / signalconso.dataset.metas.records_count * 100) | number:1}}%
-                                                    <br><small>du total</small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="fr-col-12 fr-col-md-3">
+                                        <div class="fr-col-12 fr-col-md-6">
                                             <div class="fr-callout fr-callout--orange-terre-battue">
-                                                <h3 class="fr-callout__title">Raffinements</h3>
-                                                <p class="fr-callout__text">
-                                                    {{(signalconso.parameters | json).split('refine.').length - 1}}
-                                                    <br><small>filtres actifs</small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="fr-col-12 fr-col-md-3">
-                                            <div class="fr-callout fr-callout--purple-glycine">
-                                                <h3 class="fr-callout__title">Couverture</h3>
-                                                <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.facets.reg_name.values.length || 0 }}
-                                                    </span>
-                                                    régions
-                                                </p>
+                                                <h3 class="fr-callout__title">Filtres actifs</h3>
+                                                <div class="fr-callout__text">
+                                                    <span ng-if="(signalconso.parameters | json).split('refine.').length - 1 === 0">Aucun</span>
+                                                    <div ng-if="(signalconso.parameters | json).split('refine.').length - 1 > 0">
+                                                        <strong>{{(signalconso.parameters | json).split('refine.').length - 1}}</strong> filtre(s)
+                                                        <ul class="fr-text--xs fr-mt-1v" style="list-style: none; padding: 0;">
+                                                            <li ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                                • {{value | limitTo:15}}{{value.length > 15 ? '...' : ''}}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -986,6 +953,61 @@
         
         // Observer pour les changements dynamiques d'ODS
         document.addEventListener('DOMContentLoaded', function() {
+            // Fonction pour améliorer les intitulés de colonnes
+            function improveTableHeaders() {
+                const headerMappings = {
+                    'creationdate': 'Date de création',
+                    'establishmentname': 'Établissement',
+                    'city': 'Ville',
+                    'dep_name': 'Département',
+                    'category': 'Catégorie',
+                    'subcategory': 'Sous-catégorie',
+                    'status': 'Statut'
+                };
+                
+                // Fonction pour remplacer les intitulés
+                function replaceHeaders() {
+                    const tableHeaders = document.querySelectorAll('.odswidget-table th');
+                    if (tableHeaders.length > 0) {
+                        // Ajouter "N°" pour la première colonne si elle contient des numéros
+                        const firstHeader = tableHeaders[0];
+                        if (firstHeader && (firstHeader.textContent.trim() === '' || !isNaN(firstHeader.textContent.trim()))) {
+                            firstHeader.textContent = 'N°';
+                            firstHeader.setAttribute('scope', 'col');
+                            firstHeader.setAttribute('aria-label', 'Numéro de ligne');
+                            firstHeader.style.textAlign = 'center';
+                        }
+                        
+                        // Remplacer les autres intitulés
+                        tableHeaders.forEach(function(th, index) {
+                            if (index > 0) { // Ignorer la première colonne déjà traitée
+                                const text = th.textContent.trim().toLowerCase();
+                                if (headerMappings[text]) {
+                                    th.textContent = headerMappings[text];
+                                    th.setAttribute('scope', 'col');
+                                    th.setAttribute('aria-label', headerMappings[text]);
+                                }
+                            }
+                        });
+                        return true;
+                    }
+                    return false;
+                }
+                
+                // Essayer plusieurs fois avec des intervalles croissants
+                let attempts = 0;
+                const maxAttempts = 5;
+                const tryReplace = function() {
+                    if (replaceHeaders() || attempts >= maxAttempts) {
+                        return;
+                    }
+                    attempts++;
+                    setTimeout(tryReplace, 200 * attempts);
+                };
+                
+                tryReplace();
+            }
+            
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     mutation.addedNodes.forEach(function(node) {
@@ -997,6 +1019,8 @@
                                     table.setAttribute('data-fr-js-table', 'false');
                                     table.setAttribute('data-fr-js-table-element', 'false');
                                 });
+                                // Améliorer les intitulés quand une table est ajoutée
+                                improveTableHeaders();
                             }
                         }
                     });
@@ -1010,6 +1034,8 @@
                     childList: true,
                     subtree: true
                 });
+                // Améliorer les intitulés au chargement initial
+                improveTableHeaders();
             }
         });
     </script>
