@@ -10,6 +10,9 @@
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
     <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
     
+    <!-- Material Icons pour les flèches de pagination -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <!-- CSS - Ordre important : ODS puis DSFR -->
     <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
@@ -84,6 +87,25 @@
             border: 1px solid var(--border-default-grey);
             border-radius: 0.25rem;
             padding: 1.5rem;
+            overflow-x: auto;
+        }
+        
+        /* Container du tableau responsive */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .odswidget-table {
+                font-size: 0.8125rem;
+            }
+            
+            .odswidget-table th,
+            .odswidget-table td {
+                padding: 0.5rem 0.25rem;
+            }
         }
         
         /* Support du mode sombre */
@@ -119,101 +141,214 @@
             overflow: visible !important;
         }
         
-        /* S'assurer que la pagination est visible */
-        .odswidget-pagination,
-        ods-pagination {
-            display: block !important;
-            margin-top: 1rem;
+        /* Wrapper de pagination */
+        .pagination-wrapper {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-default-grey);
         }
         
-        /* Styles pour la pagination ODS */
-        .odswidget-pagination__button {
-            background: var(--background-action-low-blue-france);
+        /* Styles pour la pagination ODS avec apparence DSFR */
+        .odswidget-pagination {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Tous les éléments de pagination ODS */
+        .odswidget-pagination a,
+        .odswidget-pagination span,
+        .odswidget-pagination button,
+        .odswidget-pagination li {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+            padding: 0.5rem 0.75rem;
+            background: white;
             color: var(--text-action-high-blue-france);
-            border: 1px solid var(--border-action-high-blue-france);
-            padding: 0.5rem 1rem;
-            margin: 0 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            text-decoration: none;
+            font-size: 0.875rem;
+            line-height: 1.5;
             cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0 0.125rem;
         }
         
-        .odswidget-pagination__button:hover {
-            background: var(--background-action-high-blue-france);
-            color: white;
+        /* Hover sur les liens */
+        .odswidget-pagination a:hover:not(.disabled):not(.active) {
+            background: var(--background-action-low-blue-france);
+            border-color: var(--border-action-high-blue-france);
+            text-decoration: none;
         }
         
-        .odswidget-pagination__button--active {
-            background: var(--background-action-high-blue-france);
-            color: white;
+        /* Page active */
+        .odswidget-pagination .active,
+        .odswidget-pagination .current,
+        .odswidget-pagination a.active {
+            background: var(--background-action-high-blue-france) !important;
+            color: white !important;
+            border-color: var(--background-action-high-blue-france) !important;
+            font-weight: 700;
+            cursor: default;
+        }
+        
+        /* Liens désactivés */
+        .odswidget-pagination .disabled,
+        .odswidget-pagination a.disabled,
+        .odswidget-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--background-disabled-grey);
+            color: var(--text-disabled-grey);
+            border-color: var(--border-disabled-grey);
+            pointer-events: none;
+        }
+        
+        /* Ellipses */
+        .odswidget-pagination .ellipsis {
+            border: none;
+            background: transparent;
+            color: var(--text-mention-grey);
+            cursor: default;
+            pointer-events: none;
+        }
+        
+        /* Navigation précédent/suivant */
+        .odswidget-pagination .prev::before {
+            content: "‹ ";
+            font-size: 1.25rem;
+        }
+        
+        .odswidget-pagination .next::after {
+            content: " ›";
+            font-size: 1.25rem;
+        }
+        
+        /* Masquer les puces de liste ODS */
+        .odswidget-pagination ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .odswidget-pagination li {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            min-width: auto;
+            min-height: auto;
         }
         
         .odswidget-table table {
             width: 100%;
             border-collapse: collapse;
             display: table !important;
+            min-width: 900px;
         }
         
         .odswidget-table th,
         .odswidget-table td {
-            padding: 0.75rem;
+            padding: 0.75rem 0.5rem;
             text-align: left;
             border: 1px solid var(--border-default-grey);
             word-wrap: break-word;
-            word-break: break-word;
+            word-break: normal;
             white-space: normal !important;
-            max-width: 200px;
             overflow-wrap: break-word;
+            vertical-align: top;
+            line-height: 1.4;
         }
         
         .odswidget-table th {
             background-color: var(--background-contrast-grey);
             font-weight: 700;
             white-space: normal !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         .odswidget-table tr:hover {
             background-color: var(--background-alt-grey);
         }
         
-        /* Forcer la largeur du tableau à 100% */
+        /* Table responsive DSFR */
+        .fr-table__wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Forcer la largeur du tableau */
+        .odswidget-table,
+        .odswidget-table table,
         .odswidget-table__table {
             width: 100% !important;
             table-layout: fixed !important;
         }
         
-        /* Ajuster les largeurs de colonnes pour un meilleur affichage */
-        .odswidget-table td:first-child,
-        .odswidget-table th:first-child {
-            width: 15%;
+        /* Colonnes avec largeurs fixes et retour à la ligne */
+        .odswidget-table th,
+        .odswidget-table td {
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
         }
         
-        .odswidget-table td:nth-child(2),
-        .odswidget-table th:nth-child(2) {
-            width: 20%;
+        /* Date - 10% */
+        .odswidget-table th:nth-child(1),
+        .odswidget-table td:nth-child(1) {
+            width: 10% !important;
+            max-width: 100px !important;
         }
         
-        .odswidget-table td:nth-child(3),
-        .odswidget-table th:nth-child(3) {
-            width: 15%;
+        /* Établissement - 15% */
+        .odswidget-table th:nth-child(2),
+        .odswidget-table td:nth-child(2) {
+            width: 15% !important;
+            max-width: 150px !important;
         }
         
-        .odswidget-table td:nth-child(4),
-        .odswidget-table th:nth-child(4) {
-            width: 15%;
+        /* Ville - 10% */
+        .odswidget-table th:nth-child(3),
+        .odswidget-table td:nth-child(3) {
+            width: 10% !important;
+            max-width: 100px !important;
         }
         
-        .odswidget-table td:nth-child(5),
-        .odswidget-table th:nth-child(5) {
-            width: 15%;
+        /* Département - 12% */
+        .odswidget-table th:nth-child(4),
+        .odswidget-table td:nth-child(4) {
+            width: 12% !important;
+            max-width: 120px !important;
         }
         
-        .odswidget-table td:nth-child(6),
-        .odswidget-table th:nth-child(6) {
-            width: 10%;
+        /* Catégorie - 20% */
+        .odswidget-table th:nth-child(5),
+        .odswidget-table td:nth-child(5) {
+            width: 20% !important;
+            max-width: 200px !important;
         }
         
-        .odswidget-table td:last-child,
-        .odswidget-table th:last-child {
-            width: 10%;
+        /* Sous-catégorie - 20% */
+        .odswidget-table th:nth-child(6),
+        .odswidget-table td:nth-child(6) {
+            width: 20% !important;
+            max-width: 200px !important;
+        }
+        
+        /* Statut - 13% */
+        .odswidget-table th:nth-child(7),
+        .odswidget-table td:nth-child(7) {
+            width: 13% !important;
+            max-width: 130px !important;
         }
         
         /* S'assurer que le contenu ODS est visible */
@@ -378,6 +513,9 @@
                                     context="signalconso"
                                     signalconso-domain="data.economie.gouv.fr"
                                     signalconso-dataset="signalconso">
+                                    
+                                    <!-- Initialisation des paramètres -->
+                                    <div ng-init="signalconso.parameters['start'] = signalconso.parameters['start'] || 0"></div>
                                     
                                     <!-- Résumé des filtres actifs -->
                                     <div class="refinement-summary" ng-if="signalconso.parameters">
@@ -598,8 +736,9 @@
                                                                     Résultats par page
                                                                 </label>
                                                                 <select class="fr-select" id="pagesize-select" 
-                                                                        ng-model="pageSize" 
-                                                                        ng-init="pageSize='50'">
+                                                                        ng-model="signalconso.parameters['rows']" 
+                                                                        ng-init="signalconso.parameters['rows'] = 20; pageSize = 20"
+                                                                        ng-change="pageSize = signalconso.parameters['rows']; signalconso.parameters['start'] = 0">
                                                                     <option value="10">10</option>
                                                                     <option value="20">20</option>
                                                                     <option value="50">50</option>
@@ -609,49 +748,26 @@
                                                         </div>
                                                     </div>
                                                     
-                                                    <!-- Tableau des résultats -->
-                                                    <div data-fr-js-table-wrapper="false">
-                                                        <ods-table 
-                                                            context="signalconso">
-                                                        </ods-table>
+                                                    <!-- Tableau des résultats avec ODS Table standard -->
+                                                    <div class="fr-table" data-fr-js-table="false">
+                                                        <div class="fr-table__wrapper">
+                                                            <div class="fr-table__container">
+                                                                <div class="fr-table__content">
+                                                                    <ods-table 
+                                                                        context="signalconso"
+                                                                        displayed-fields="creationdate,establishmentname,city,dep_name,category,subcategory,status">
+                                                                    </ods-table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     
-                                                    <!-- Contrôles de pagination manuels -->
-                                                    <div class="fr-mt-3w">
-                                                        <nav role="navigation" aria-label="Pagination">
-                                                            <ul class="fr-pagination__list">
-                                                                <li>
-                                                                    <button class="fr-pagination__link fr-pagination__link--prev" 
-                                                                            ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (pageSize || 50))"
-                                                                            ng-disabled="!signalconso.parameters.start || signalconso.parameters.start === 0"
-                                                                            aria-label="Page précédente">
-                                                                        Précédent
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <span class="fr-pagination__link" aria-current="page">
-                                                                        {{((signalconso.parameters.start || 0) / (pageSize || 50)) + 1 | number:0}} / 
-                                                                        {{Math.ceil(signalconso.nhits / (pageSize || 50)) | number:0}}
-                                                                    </span>
-                                                                </li>
-                                                                <li>
-                                                                    <button class="fr-pagination__link fr-pagination__link--next" 
-                                                                            ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + (pageSize || 50)"
-                                                                            ng-disabled="(signalconso.parameters.start || 0) + (pageSize || 50) >= signalconso.nhits"
-                                                                            aria-label="Page suivante">
-                                                                        Suivant
-                                                                    </button>
-                                                                </li>
-                                                            </ul>
-                                                        </nav>
-                                                        
-                                                        <!-- Info sur les résultats affichés -->
-                                                        <p class="fr-text--sm fr-mt-2w">
-                                                            Affichage de 
-                                                            <strong>{{(signalconso.parameters.start || 0) + 1}}</strong> à 
-                                                            <strong>{{Math.min((signalconso.parameters.start || 0) + (pageSize || 50), signalconso.nhits)}}</strong> 
-                                                            sur <strong>{{signalconso.nhits | number}}</strong> résultats
-                                                        </p>
+                                                    <!-- Pagination ODS Native avec style DSFR -->
+                                                    <div class="pagination-wrapper fr-mt-3w">
+                                                        <ods-pagination 
+                                                            context="signalconso"
+                                                            per-page="pageSize">
+                                                        </ods-pagination>
                                                     </div>
                                                 </div>
                                             </div>
@@ -785,11 +901,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
     <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
     
-    <!-- Script pour éviter les conflits DSFR/ODS et ajouter Math au scope Angular -->
+    <!-- Script pour éviter les conflits DSFR/ODS et initialiser la pagination -->
     <script>
-        // Ajouter Math au scope Angular pour les calculs de pagination
+        // Configuration Angular pour la pagination
         angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
-            $rootScope.Math = Math;
+            // Rendre Math disponible dans le scope Angular
+            $rootScope.Math = window.Math;
+            
+            // Initialiser les paramètres de pagination
+            $rootScope.pageSize = 20;
         }]);
         
         // Empêcher DSFR d'initialiser les tables ODS
