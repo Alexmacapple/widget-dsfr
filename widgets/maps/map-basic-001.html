@@ -241,7 +241,10 @@
                                     context="dgfip"
                                     dgfip-domain="data.economie.gouv.fr"
                                     dgfip-dataset="coordonnees-des-structures-dgfip"
-                                    dgfip-parameters="contextParameters">
+                                    dgfip-parameters="{'rows': 1000}"
+                                    dgfip-refine.type_de_service="{{ selectedType }}"
+                                    dgfip-refine.departement="{{ selectedDept }}"
+                                    dgfip-q="{{ mapSearchQuery }}">
                                     
                                     <!-- Info box DSFR avec compteur ODS -->
                                     <div ods-results="items" 
@@ -622,11 +625,6 @@
             $scope.selectedDept = ''; // Département sélectionné
             $scope.selectedType = ''; // Type de service sélectionné
             
-            // Paramètres du contexte ODS
-            $scope.contextParameters = {
-                'rows': 1000  // Augmenter pour voir plus de points
-            };
-            
             // Liste complète des départements français
             $scope.departments = [
                 {code: '01', name: 'Ain'},
@@ -729,91 +727,25 @@
             
             // Fonction pour mettre à jour les filtres
             $scope.updateFilters = function() {
-                // Créer un nouvel objet de paramètres
-                var newParams = {
-                    'rows': 1000
-                };
+                // Les filtres sont maintenant directement liés via les attributs dgfip-*
+                // Cette fonction peut juste logger les changements
+                console.log('Mise à jour des filtres:');
+                console.log('- Type de service:', $scope.selectedType || 'Tous');
+                console.log('- Département:', $scope.selectedDept || 'Tous');
+                console.log('- Recherche:', $scope.mapSearchQuery || 'Aucune');
                 
-                // Filtre par type de service
-                if ($scope.selectedType && $scope.selectedType !== '') {
-                    newParams['refine.type_de_service'] = $scope.selectedType;
+                // Forcer un rafraîchissement si nécessaire
+                if ($scope.dgfip) {
+                    console.log('Nombre de résultats après filtre:', $scope.dgfip.nhits);
                 }
-                
-                // Filtre par département
-                if ($scope.selectedDept && $scope.selectedDept !== '') {
-                    newParams['refine.departement'] = $scope.selectedDept;
-                }
-                
-                // Filtre de recherche
-                if ($scope.mapSearchQuery && $scope.mapSearchQuery !== '') {
-                    // Si c'est un code postal
-                    if (/^\d{5}$/.test($scope.mapSearchQuery)) {
-                        newParams['refine.code_postal'] = $scope.mapSearchQuery;
-                    }
-                    // Si c'est un département
-                    else if (/^(2[AB]|\d{2})$/i.test($scope.mapSearchQuery)) {
-                        newParams['refine.departement'] = $scope.mapSearchQuery.toUpperCase();
-                    }
-                    // Sinon recherche textuelle
-                    else {
-                        newParams['q'] = $scope.mapSearchQuery;
-                    }
-                }
-                
-                // Mettre à jour contextParameters pour déclencher le watcher
-                $scope.contextParameters = newParams;
-                
-                // Forcer la mise à jour immédiate du contexte dgfip
-                if ($scope.dgfip && $scope.dgfip.parameters) {
-                    // Nettoyer les anciens paramètres
-                    Object.keys($scope.dgfip.parameters).forEach(function(key) {
-                        if (key.startsWith('refine.') || key === 'q') {
-                            delete $scope.dgfip.parameters[key];
-                        }
-                    });
-                    
-                    // Appliquer les nouveaux paramètres
-                    angular.extend($scope.dgfip.parameters, newParams);
-                    
-                    // Forcer le rafraîchissement avec un digest cycle
-                    $scope.$applyAsync();
-                }
-                
-                console.log('Filtres appliqués:', newParams);
-                console.log('Contexte DGFIP:', $scope.dgfip);
             };
             
             // Initialisation du contexte
             $scope.$watch('dgfip', function(newVal) {
                 if (newVal) {
-                    console.log('Contexte DGFIP chargé:', newVal);
-                    console.log('Nombre de résultats:', newVal.nhits);
-                    if (!newVal.parameters) {
-                        newVal.parameters = {};
-                    }
-                    // Copier les paramètres initiaux
-                    angular.extend(newVal.parameters, $scope.contextParameters);
-                    
-                    // Appliquer les filtres initiaux
-                    $timeout(function() {
-                        $scope.updateFilters();
-                    }, 100);
+                    console.log('Contexte DGFIP chargé avec', newVal.nhits, 'résultats');
                 }
-            }, true);
-            
-            // Synchroniser les changements de contextParameters avec dgfip.parameters
-            $scope.$watch('contextParameters', function(newVal, oldVal) {
-                if (newVal !== oldVal && $scope.dgfip && $scope.dgfip.parameters) {
-                    // Merger les nouveaux paramètres
-                    angular.extend($scope.dgfip.parameters, newVal);
-                    console.log('Paramètres mis à jour:', $scope.dgfip.parameters);
-                    
-                    // Forcer le rafraîchissement de la carte
-                    if ($scope.dgfip.forceReload) {
-                        $scope.dgfip.forceReload();
-                    }
-                }
-            }, true);
+            });
             
             // Observer les changements de nhits
             $scope.$watch('dgfip.nhits', function(newVal) {
@@ -868,22 +800,11 @@
                 $scope.selectedDept = '';
                 $scope.selectedType = '';
                 
-                // Réinitialiser les paramètres de contexte
-                $scope.contextParameters = {
-                    'rows': 1000
-                };
+                console.log('Carte réinitialisée');
                 
-                // Forcer la mise à jour du contexte dgfip
-                if ($scope.dgfip) {
-                    $scope.dgfip.parameters = angular.copy($scope.contextParameters);
-                    $scope.$evalAsync();
-                }
-                
-                // Réinitialiser le zoom et la position
-                var mapElement = document.querySelector('#widget-map-basic-001 .odswidget-map');
-                if (mapElement) {
-                    // Trigger un événement de réinitialisation
-                    angular.element(mapElement).trigger('reset');
+                // Forcer un rafraîchissement
+                if (!$scope.$$phase) {
+                    $scope.$apply();
                 }
             };
             
