@@ -83,16 +83,75 @@
         /* Hauteur du tableau ODS */
         .odswidget-table {
             width: 100%;
+            min-height: 400px;
+        }
+        
+        /* S'assurer que le widget table est visible */
+        ods-table {
+            display: block;
+            width: 100%;
+        }
+        
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
         }
         
         .ods-widget .odswidget-table table {
             width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .ods-widget .odswidget-table th {
+            background-color: var(--background-contrast-grey);
+            color: var(--text-default-grey);
+            font-weight: 700;
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .ods-widget .odswidget-table td {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-default-grey);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-table tr:hover {
+            background-color: var(--background-alt-grey);
         }
         
         /* Enlever les barres de scroll sur le tableau */
         .odswidget-table__records {
             height: auto !important;
             overflow: visible !important;
+        }
+        
+        /* Pagination du tableau */
+        .odswidget-table__pagination {
+            margin-top: 1rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-default-grey);
+        }
+        
+        .odswidget-table__pagination button {
+            background: var(--background-action-low-blue-france);
+            color: var(--text-action-high-blue-france);
+            border: 1px solid var(--border-action-high-blue-france);
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        
+        .odswidget-table__pagination button:hover {
+            background: var(--background-action-high-blue-france);
+            color: white;
+        }
+        
+        .odswidget-table__pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         /* Support du mode sombre */
@@ -129,6 +188,22 @@
             border-radius: 0.25rem;
             font-size: 0.875rem;
             border: 1px solid var(--border-action-high-blue-france);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .active-filter button {
+            padding: 0.125rem;
+            min-height: auto;
+            background: transparent;
+            border: none;
+            color: var(--text-action-high-blue-france);
+        }
+        
+        .active-filter button:hover {
+            background: var(--background-action-high-blue-france);
+            color: white;
         }
     </style>
 </head>
@@ -213,23 +288,60 @@
                                 <ods-dataset-context 
                                     context="signalconso"
                                     signalconso-domain="data.economie.gouv.fr"
-                                    signalconso-dataset="signalconso">
+                                    signalconso-dataset="signalconso"
+                                    signalconso-facet="category"
+                                    signalconso-facet="reg_name"
+                                    signalconso-facet="dep_name"
+                                    signalconso-facet="status"
+                                    signalconso-facet="creationdate">
                                     
                                     <!-- Résumé des filtres actifs -->
-                                    <div class="filters-summary" ng-if="signalconso.parameters">
+                                    <div class="filters-summary" ng-show="signalconso.parameters['refine.category'] || signalconso.parameters['refine.reg_name'] || signalconso.parameters['refine.dep_name'] || signalconso.parameters['refine.status'] || signalconso.parameters['refine.creationdate'] || signalconso.parameters['q']">
                                         <h3>Filtres actifs</h3>
                                         <div class="active-filters">
-                                            <div class="active-filter" ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')">
-                                                {{key.replace('refine.', '') | titlecase}} : {{value}}
-                                                <button type="button" class="fr-btn--close fr-btn--sm" 
-                                                        ng-click="signalconso.parameters[key] = undefined"
-                                                        title="Supprimer ce filtre">
-                                                    Supprimer
+                                            <span class="active-filter" ng-show="signalconso.parameters['refine.category']">
+                                                Catégorie : {{signalconso.parameters['refine.category']}}
+                                                <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-close-line" 
+                                                        ng-click="signalconso.parameters['refine.category'] = undefined"
+                                                        aria-label="Supprimer le filtre catégorie">
+                                                    <span class="fr-sr-only">Supprimer</span>
                                                 </button>
-                                            </div>
+                                            </span>
+                                            <span class="active-filter" ng-show="signalconso.parameters['refine.reg_name']">
+                                                Région : {{signalconso.parameters['refine.reg_name']}}
+                                                <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-close-line" 
+                                                        ng-click="signalconso.parameters['refine.reg_name'] = undefined"
+                                                        aria-label="Supprimer le filtre région">
+                                                    <span class="fr-sr-only">Supprimer</span>
+                                                </button>
+                                            </span>
+                                            <span class="active-filter" ng-show="signalconso.parameters['refine.dep_name']">
+                                                Département : {{signalconso.parameters['refine.dep_name']}}
+                                                <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-close-line" 
+                                                        ng-click="signalconso.parameters['refine.dep_name'] = undefined"
+                                                        aria-label="Supprimer le filtre département">
+                                                    <span class="fr-sr-only">Supprimer</span>
+                                                </button>
+                                            </span>
+                                            <span class="active-filter" ng-show="signalconso.parameters['refine.status']">
+                                                Statut : {{signalconso.parameters['refine.status']}}
+                                                <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-close-line" 
+                                                        ng-click="signalconso.parameters['refine.status'] = undefined"
+                                                        aria-label="Supprimer le filtre statut">
+                                                    <span class="fr-sr-only">Supprimer</span>
+                                                </button>
+                                            </span>
+                                            <span class="active-filter" ng-show="signalconso.parameters['q']">
+                                                Recherche : {{signalconso.parameters['q']}}
+                                                <button type="button" class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-close-line" 
+                                                        ng-click="signalconso.parameters['q'] = undefined"
+                                                        aria-label="Supprimer la recherche">
+                                                    <span class="fr-sr-only">Supprimer</span>
+                                                </button>
+                                            </span>
                                             <button class="fr-btn fr-btn--secondary fr-btn--sm" 
-                                                    ng-click="signalconso.clearAllParameters()"
-                                                    ng-if="Object.keys(signalconso.parameters).length > 0">
+                                                    ng-click="signalconso.parameters = {}"
+                                                    ng-show="signalconso.parameters['refine.category'] || signalconso.parameters['refine.reg_name'] || signalconso.parameters['refine.dep_name'] || signalconso.parameters['refine.status'] || signalconso.parameters['q']">
                                                 Effacer tous les filtres
                                             </button>
                                         </div>
@@ -246,7 +358,7 @@
                                                 <h3>Filtrer les données</h3>
                                                 
                                                 <!-- Recherche textuelle -->
-                                                <div class="fr-search-bar fr-mb-3w">
+                                                <div class="fr-search-bar fr-mb-3w" role="search">
                                                     <label class="fr-label" for="search-facets">
                                                         Recherche textuelle
                                                     </label>
@@ -256,8 +368,9 @@
                                                         id="search-facets"
                                                         ng-model="signalconso.parameters['q']"
                                                         ng-model-options="{ debounce: 300 }"
-                                                        placeholder="Nom, ville, description...">
-                                                    <button class="fr-btn" title="Rechercher">
+                                                        placeholder="Nom, ville, description..."
+                                                        aria-label="Rechercher dans les données">
+                                                    <button class="fr-btn" title="Rechercher" type="submit">
                                                         Rechercher
                                                     </button>
                                                 </div>
@@ -265,8 +378,8 @@
                                                 <!-- Facettes -->
                                                 <ods-facets context="signalconso">
                                                     <!-- Catégorie -->
-                                                    <div class="fr-mb-3w">
-                                                        <h4>Par catégorie</h4>
+                                                    <div class="fr-mb-3w" role="region" aria-labelledby="facet-category-label">
+                                                        <h4 id="facet-category-label">Par catégorie</h4>
                                                         <ods-facet 
                                                             name="category"
                                                             disjunctive="true"
@@ -276,8 +389,8 @@
                                                     </div>
                                                     
                                                     <!-- Région -->
-                                                    <div class="fr-mb-3w">
-                                                        <h4>Par région</h4>
+                                                    <div class="fr-mb-3w" role="region" aria-labelledby="facet-region-label">
+                                                        <h4 id="facet-region-label">Par région</h4>
                                                         <ods-facet 
                                                             name="reg_name"
                                                             disjunctive="true"
@@ -287,8 +400,8 @@
                                                     </div>
                                                     
                                                     <!-- Département -->
-                                                    <div class="fr-mb-3w">
-                                                        <h4>Par département</h4>
+                                                    <div class="fr-mb-3w" role="region" aria-labelledby="facet-department-label">
+                                                        <h4 id="facet-department-label">Par département</h4>
                                                         <ods-facet 
                                                             name="dep_name"
                                                             disjunctive="true"
@@ -298,8 +411,8 @@
                                                     </div>
                                                     
                                                     <!-- Statut promesse -->
-                                                    <div class="fr-mb-3w">
-                                                        <h4>Par statut</h4>
+                                                    <div class="fr-mb-3w" role="region" aria-labelledby="facet-status-label">
+                                                        <h4 id="facet-status-label">Par statut</h4>
                                                         <ods-facet 
                                                             name="status"
                                                             disjunctive="true"
@@ -308,12 +421,12 @@
                                                     </div>
                                                     
                                                     <!-- Année -->
-                                                    <div class="fr-mb-3w">
-                                                        <h4>Par année</h4>
+                                                    <div class="fr-mb-3w" role="region" aria-labelledby="facet-year-label">
+                                                        <h4 id="facet-year-label">Par année</h4>
                                                         <ods-facet 
                                                             name="creationdate"
                                                             disjunctive="true"
-                                                            sort="count"
+                                                            sort="-alphanum"
                                                             date-format="year">
                                                         </ods-facet>
                                                     </div>
@@ -332,9 +445,13 @@
                                                         </p>
                                                         
                                                         <!-- Tableau des résultats -->
-                                                        <ods-table 
-                                                            context="signalconso">
-                                                        </ods-table>
+                                                        <div class="table-container">
+                                                            <ods-table 
+                                                                context="signalconso"
+                                                                displayed-fields="creationdate,category,subcategories,dep_name,reg_name,status"
+                                                                sort="-creationdate">
+                                                            </ods-table>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -355,32 +472,42 @@
                                         </div>
                                         <div class="fr-col-12 fr-col-md-3">
                                             <div class="fr-callout fr-callout--green-tilleul-verveine">
-                                                <h3 class="fr-callout__title">Catégories actives</h3>
+                                                <h3 class="fr-callout__title">Filtres actifs</h3>
                                                 <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        {{ 20 }}
+                                                    <span class="fr-text--lg fr-text--bold" ng-init="activeFilters = 0">
+                                                        <span ng-show="signalconso.parameters['refine.category']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.reg_name']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.dep_name']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.status']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.creationdate']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['q']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        {{ (signalconso.parameters['refine.category'] ? 1 : 0) + 
+                                                           (signalconso.parameters['refine.reg_name'] ? 1 : 0) + 
+                                                           (signalconso.parameters['refine.dep_name'] ? 1 : 0) + 
+                                                           (signalconso.parameters['refine.status'] ? 1 : 0) +
+                                                           (signalconso.parameters['refine.creationdate'] ? 1 : 0) +
+                                                           (signalconso.parameters['q'] ? 1 : 0) }}
                                                     </span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="fr-col-12 fr-col-md-3">
                                             <div class="fr-callout fr-callout--orange-terre-battue">
-                                                <h3 class="fr-callout__title">Régions représentées</h3>
+                                                <h3 class="fr-callout__title">Données totales</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
-                                                        {{ 18 }}
+                                                        {{ signalconso.dataset.metas.records_count | number }}
                                                     </span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="fr-col-12 fr-col-md-3">
                                             <div class="fr-callout fr-callout--purple-glycine">
-                                                <h3 class="fr-callout__title">Période couverte</h3>
+                                                <h3 class="fr-callout__title">Dernière mise à jour</h3>
                                                 <p class="fr-callout__text">
-                                                    <span class="fr-text--lg fr-text--bold">
-                                                        5
+                                                    <span class="fr-text--sm">
+                                                        {{ signalconso.dataset.metas.modified | date:'dd/MM/yyyy' }}
                                                     </span>
-                                                    années
                                                 </p>
                                             </div>
                                         </div>
@@ -490,20 +617,31 @@
             
             // Traduire les titres de colonnes du tableau
             document.querySelectorAll('.odswidget-table th').forEach(function(element) {
-                switch(element.textContent.trim()) {
-                    case 'Category':
+                const text = element.textContent.trim().toLowerCase();
+                switch(text) {
+                    case 'category':
                         element.textContent = 'Catégorie';
                         break;
-                    case 'Date':
-                        element.textContent = 'Date';
+                    case 'creationdate':
+                    case 'creation date':
+                    case 'date':
+                        element.textContent = 'Date de création';
                         break;
-                    case 'Status':
+                    case 'subcategories':
+                    case 'sub categories':
+                        element.textContent = 'Sous-catégories';
+                        break;
+                    case 'status':
                         element.textContent = 'Statut';
                         break;
-                    case 'Region':
+                    case 'reg_name':
+                    case 'region':
                         element.textContent = 'Région';
                         break;
-                    case 'Department':
+                    case 'dep_code':
+                    case 'dep_name':
+                    case 'dep name':
+                    case 'department':
                         element.textContent = 'Département';
                         break;
                 }
