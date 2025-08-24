@@ -58,9 +58,14 @@
             border-color: var(--border-default-grey);
         }
         
-        /* Amélioration pour les cartes */
+        /* Amélioration pour les cartes avec composants DSFR */
         .map-controls {
             margin-bottom: 1.5rem;
+        }
+        
+        .map-controls .fr-accordion {
+            background: white;
+            border: 1px solid var(--border-default-grey);
         }
         
         .map-container {
@@ -69,6 +74,18 @@
             border-radius: 0.25rem;
             border: 1px solid var(--border-default-grey);
             overflow: hidden;
+            position: relative;
+        }
+        
+        .map-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            min-height: 100vh;
+            border-radius: 0;
         }
         
         .map-legend {
@@ -76,6 +93,27 @@
             padding: 1rem;
             border-radius: 0.25rem;
             margin-top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+        
+        .map-legend .fr-tags-group {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        /* Boutons de zoom personnalisés */
+        .map-zoom-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+        
+        .map-zoom-controls .fr-btns-group--column {
+            gap: 0.25rem;
         }
     </style>
 </head>
@@ -156,59 +194,131 @@
                         </div>
                         <div class="fr-card__body">
                             <!-- DÉBUT ZONE WIDGET MAP-BASIC-001 -->
-                            <div id="widget-map-basic-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
+                            <div id="widget-map-basic-001" class="widget-container" ng-app="ods-widgets" ng-controller="MapBasicController" ng-cloak>
                                 <ods-dataset-context 
                                     context="signalconso"
                                     signalconso-domain="data.economie.gouv.fr"
                                     signalconso-dataset="signalconso">
                                     
-                                    <!-- Contrôles de la carte -->
+                                    <!-- Contrôles de la carte avec composants DSFR améliorés -->
                                     <div class="map-controls">
-                                        <div class="fr-grid-row fr-grid-row--gutters">
-                                            <div class="fr-col-12 fr-col-md-4">
-                                                <div class="fr-select-group">
-                                                    <label class="fr-label" for="period-select-map">
-                                                        Période d'analyse
-                                                    </label>
-                                                    <select class="fr-select" id="period-select-map" 
-                                                            ng-model="signalconso.parameters['refine.date_creation']">
-                                                        <option value="">Toutes périodes</option>
-                                                        <option value="[2024-01-01 TO 2024-12-31]">2024</option>
-                                                        <option value="[2023-01-01 TO 2023-12-31]">2023</option>
-                                                        <option value="[NOW-1YEAR TO NOW]">12 derniers mois</option>
-                                                        <option value="[NOW-6MONTHS TO NOW]">6 derniers mois</option>
-                                                        <option value="[NOW-3MONTHS TO NOW]">3 derniers mois</option>
-                                                    </select>
+                                        <!-- Barre de recherche DSFR -->
+                                        <div class="fr-search-bar fr-mb-3w" role="search">
+                                            <label class="fr-label" for="map-search">
+                                                Rechercher une adresse ou une ville
+                                            </label>
+                                            <input class="fr-input" type="search" id="map-search" 
+                                                   ng-model="mapSearch"
+                                                   ng-change="searchLocation()"
+                                                   placeholder="Ex: Paris, 75001">
+                                            <button class="fr-btn" title="Rechercher" ng-click="searchLocation()">
+                                                Rechercher
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Panneau de filtres repliable -->
+                                        <div class="fr-accordion fr-mb-3w">
+                                            <section class="fr-accordion__item">
+                                                <h3 class="fr-accordion__title">
+                                                    <button class="fr-accordion__btn" aria-expanded="true" aria-controls="map-filters">
+                                                        Filtres de la carte
+                                                        <span class="fr-badge fr-badge--sm fr-badge--info fr-ml-1w" ng-if="hasActiveFilters()">
+                                                            {{countActiveFilters()}}
+                                                        </span>
+                                                    </button>
+                                                </h3>
+                                                <div class="fr-collapse" id="map-filters">
+                                                    <div class="fr-accordion__inner">
+                                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-select-group">
+                                                                    <label class="fr-label" for="period-select-map">
+                                                                        Période d'analyse
+                                                                    </label>
+                                                                    <select class="fr-select" id="period-select-map" 
+                                                                            ng-model="signalconso.parameters['refine.date_creation']">
+                                                                        <option value="">Toutes périodes</option>
+                                                                        <option value="[2024-01-01 TO 2024-12-31]">2024</option>
+                                                                        <option value="[2023-01-01 TO 2023-12-31]">2023</option>
+                                                                        <option value="[NOW-1YEAR TO NOW]">12 derniers mois</option>
+                                                                        <option value="[NOW-6MONTHS TO NOW]">6 derniers mois</option>
+                                                                        <option value="[NOW-3MONTHS TO NOW]">3 derniers mois</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-select-group">
+                                                                    <label class="fr-label" for="category-select-map">
+                                                                        Catégorie
+                                                                    </label>
+                                                                    <select class="fr-select" id="category-select-map"
+                                                                            ng-model="signalconso.parameters['refine.categorie']">
+                                                                        <option value="">Toutes catégories</option>
+                                                                        <option value="Téléphonie - Internet - TV">Téléphonie - Internet - TV</option>
+                                                                        <option value="Voyage - Loisirs">Voyage - Loisirs</option>
+                                                                        <option value="Travaux - Rénovation">Travaux - Rénovation</option>
+                                                                        <option value="Produits - Objets">Produits - Objets</option>
+                                                                        <option value="Voiture / Véhicule">Voiture / Véhicule</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-select-group">
+                                                                    <label class="fr-label" for="display-select-map">
+                                                                        Mode d'affichage
+                                                                    </label>
+                                                                    <select class="fr-select" id="display-select-map" ng-model="mapDisplayMode">
+                                                                        <option value="clustered">Points groupés</option>
+                                                                        <option value="raw">Points individuels</option>
+                                                                        <option value="heatmap">Carte de chaleur</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Options supplémentaires avec toggles DSFR -->
+                                                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-toggle">
+                                                                    <input type="checkbox" class="fr-toggle__input" id="toggle-animation" ng-model="animateMarkers">
+                                                                    <label class="fr-toggle__label" for="toggle-animation">
+                                                                        Animation des marqueurs
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-toggle">
+                                                                    <input type="checkbox" class="fr-toggle__input" id="toggle-legend" ng-model="showLegend" ng-init="showLegend=true">
+                                                                    <label class="fr-toggle__label" for="toggle-legend">
+                                                                        Afficher la légende
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-toggle">
+                                                                    <input type="checkbox" class="fr-toggle__input" id="toggle-fullscreen" ng-model="fullscreenEnabled">
+                                                                    <label class="fr-toggle__label" for="toggle-fullscreen">
+                                                                        Mode plein écran
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="fr-col-12 fr-col-md-4">
-                                                <div class="fr-select-group">
-                                                    <label class="fr-label" for="category-select-map">
-                                                        Catégorie
-                                                    </label>
-                                                    <select class="fr-select" id="category-select-map"
-                                                            ng-model="signalconso.parameters['refine.categorie']">
-                                                        <option value="">Toutes catégories</option>
-                                                        <option value="Téléphonie - Internet - TV">Téléphonie - Internet - TV</option>
-                                                        <option value="Voyage - Loisirs">Voyage - Loisirs</option>
-                                                        <option value="Travaux - Rénovation">Travaux - Rénovation</option>
-                                                        <option value="Produits - Objets">Produits - Objets</option>
-                                                        <option value="Voiture / Véhicule">Voiture / Véhicule</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="fr-col-12 fr-col-md-4">
-                                                <div class="fr-select-group">
-                                                    <label class="fr-label" for="display-select-map">
-                                                        Mode d'affichage
-                                                    </label>
-                                                    <select class="fr-select" id="display-select-map">
-                                                        <option value="clustered">Points groupés</option>
-                                                        <option value="raw">Points individuels</option>
-                                                        <option value="aggregated">Agrégation</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            </section>
+                                        </div>
+                                        
+                                        <!-- Boutons de contrôle rapide -->
+                                        <div class="fr-btns-group fr-btns-group--inline fr-mb-2w">
+                                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-refresh-line" ng-click="resetMap()">
+                                                Réinitialiser la carte
+                                            </button>
+                                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line" ng-click="exportMap()">
+                                                Exporter la carte
+                                            </button>
+                                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-fullscreen-line" ng-click="toggleFullscreen()">
+                                                Plein écran
+                                            </button>
                                         </div>
                                     </div>
                                     
@@ -251,28 +361,66 @@
                                         </ods-map>
                                     </div>
                                     
-                                    <!-- Légende de la carte -->
-                                    <div class="map-legend">
-                                        <h3>Légende</h3>
+                                    <!-- Légende améliorée avec badges DSFR -->
+                                    <div class="map-legend" ng-show="showLegend">
+                                        <div class="fr-grid-row fr-grid-row--middle fr-mb-2w">
+                                            <div class="fr-col">
+                                                <h3>Légende</h3>
+                                            </div>
+                                            <div class="fr-col-auto">
+                                                <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-close-line"
+                                                        ng-click="showLegend = false"
+                                                        aria-label="Masquer la légende">
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="fr-grid-row fr-grid-row--gutters">
                                             <div class="fr-col-12 fr-col-md-6">
                                                 <p><strong>Couleurs par catégorie :</strong></p>
-                                                <ul class="fr-text--sm">
-                                                    <li>Téléphonie/Internet : Bleu</li>
-                                                    <li>Voyage/Loisirs : Vert</li>
-                                                    <li>Travaux/Rénovation : Orange</li>
-                                                    <li>Produits/Objets : Rouge</li>
-                                                    <li>Voiture/Véhicule : Violet</li>
+                                                <ul class="fr-tags-group">
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #0063cb; color: white;">
+                                                            Téléphonie/Internet
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #18753c; color: white;">
+                                                            Voyage/Loisirs
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #fc5d00; color: white;">
+                                                            Travaux/Rénovation
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #ce0500; color: white;">
+                                                            Produits/Objets
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #a558a0; color: white;">
+                                                            Voiture/Véhicule
+                                                        </span>
+                                                    </li>
                                                 </ul>
                                             </div>
                                             <div class="fr-col-12 fr-col-md-6">
-                                                <p><strong>Interactions :</strong></p>
-                                                <ul class="fr-text--sm">
-                                                    <li>Cliquez sur un point pour voir les détails</li>
-                                                    <li>Utilisez la molette pour zoomer</li>
-                                                    <li>Groupement automatique selon le zoom</li>
-                                                    <li>Recherche par ville disponible</li>
-                                                </ul>
+                                                <p><strong>Interactions disponibles :</strong></p>
+                                                <div class="fr-grid-row fr-grid-row--gutters">
+                                                    <div class="fr-col-6">
+                                                        <span class="fr-icon-cursor-line" aria-hidden="true"></span> Clic pour détails
+                                                    </div>
+                                                    <div class="fr-col-6">
+                                                        <span class="fr-icon-zoom-in-line" aria-hidden="true"></span> Molette pour zoom
+                                                    </div>
+                                                    <div class="fr-col-6">
+                                                        <span class="fr-icon-group-line" aria-hidden="true"></span> Groupement auto
+                                                    </div>
+                                                    <div class="fr-col-6">
+                                                        <span class="fr-icon-search-line" aria-hidden="true"></span> Recherche ville
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -404,5 +552,169 @@
     <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Controller Angular pour la carte améliorée -->
+    <script>
+        angular.module('ods-widgets').controller('MapBasicController', ['$scope', '$timeout', function($scope, $timeout) {
+            // Variables d'état
+            $scope.mapSearch = '';
+            $scope.mapDisplayMode = 'clustered';
+            $scope.animateMarkers = false;
+            $scope.fullscreenEnabled = false;
+            
+            // Recherche de localisation
+            $scope.searchLocation = function() {
+                if ($scope.mapSearch) {
+                    // Utiliser l'API de géocodage pour trouver la localisation
+                    // Ici on simule avec une recherche dans les données
+                    $scope.signalconso.parameters['q'] = $scope.mapSearch;
+                }
+            };
+            
+            // Vérifier si des filtres sont actifs
+            $scope.hasActiveFilters = function() {
+                if (!$scope.signalconso || !$scope.signalconso.parameters) return false;
+                
+                return Object.keys($scope.signalconso.parameters).some(key => 
+                    key.startsWith('refine.') && $scope.signalconso.parameters[key]
+                );
+            };
+            
+            // Compter les filtres actifs
+            $scope.countActiveFilters = function() {
+                if (!$scope.signalconso || !$scope.signalconso.parameters) return 0;
+                
+                return Object.keys($scope.signalconso.parameters).filter(key => 
+                    key.startsWith('refine.') && $scope.signalconso.parameters[key]
+                ).length;
+            };
+            
+            // Réinitialiser la carte
+            $scope.resetMap = function() {
+                $scope.signalconso.parameters = {};
+                $scope.mapSearch = '';
+                $scope.mapDisplayMode = 'clustered';
+                $scope.animateMarkers = false;
+                
+                // Réinitialiser le zoom et la position
+                var mapElement = document.querySelector('#widget-map-basic-001 .odswidget-map');
+                if (mapElement) {
+                    // Trigger un événement de réinitialisation
+                    angular.element(mapElement).trigger('reset');
+                }
+            };
+            
+            // Exporter la carte
+            $scope.exportMap = function() {
+                // Capture de la carte comme image
+                var mapContainer = document.querySelector('.map-container');
+                if (mapContainer && window.html2canvas) {
+                    window.html2canvas(mapContainer).then(function(canvas) {
+                        var link = document.createElement('a');
+                        link.download = 'carte-signalconso-' + Date.now() + '.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    });
+                } else {
+                    // Alternative : exporter les données
+                    var exportData = {
+                        filters: $scope.signalconso.parameters,
+                        displayMode: $scope.mapDisplayMode,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+                    var downloadAnchorNode = document.createElement('a');
+                    downloadAnchorNode.setAttribute("href", dataStr);
+                    downloadAnchorNode.setAttribute("download", "carte-config-" + Date.now() + ".json");
+                    document.body.appendChild(downloadAnchorNode);
+                    downloadAnchorNode.click();
+                    downloadAnchorNode.remove();
+                }
+            };
+            
+            // Toggle plein écran
+            $scope.toggleFullscreen = function() {
+                $scope.fullscreenEnabled = !$scope.fullscreenEnabled;
+                var mapContainer = document.querySelector('.map-container');
+                
+                if (mapContainer) {
+                    if ($scope.fullscreenEnabled) {
+                        mapContainer.classList.add('fullscreen');
+                        // Forcer le redimensionnement de la carte
+                        $timeout(function() {
+                            window.dispatchEvent(new Event('resize'));
+                        }, 100);
+                    } else {
+                        mapContainer.classList.remove('fullscreen');
+                        $timeout(function() {
+                            window.dispatchEvent(new Event('resize'));
+                        }, 100);
+                    }
+                }
+            };
+            
+            // Écouter les changements de mode d'affichage
+            $scope.$watch('mapDisplayMode', function(newVal, oldVal) {
+                if (newVal !== oldVal && newVal) {
+                    // Mettre à jour le mode d'affichage de la carte
+                    var mapLayer = document.querySelector('ods-map-layer');
+                    if (mapLayer) {
+                        if (newVal === 'heatmap') {
+                            mapLayer.setAttribute('display', 'heatmap');
+                            mapLayer.setAttribute('clustered', 'false');
+                        } else if (newVal === 'clustered') {
+                            mapLayer.setAttribute('display', 'clustered');
+                            mapLayer.setAttribute('clustered', 'true');
+                        } else {
+                            mapLayer.setAttribute('display', 'raw');
+                            mapLayer.setAttribute('clustered', 'false');
+                        }
+                    }
+                }
+            });
+            
+            // Gérer l'animation des marqueurs
+            $scope.$watch('animateMarkers', function(newVal) {
+                if (newVal) {
+                    // Ajouter l'animation CSS aux marqueurs
+                    $timeout(function() {
+                        var markers = document.querySelectorAll('.leaflet-marker-icon');
+                        markers.forEach(function(marker) {
+                            marker.style.animation = 'pulse 2s infinite';
+                        });
+                    }, 500);
+                } else {
+                    // Retirer l'animation
+                    var markers = document.querySelectorAll('.leaflet-marker-icon');
+                    markers.forEach(function(marker) {
+                        marker.style.animation = '';
+                    });
+                }
+            });
+            
+            // Ajouter l'animation CSS au document
+            if (!document.querySelector('#map-animations')) {
+                var style = document.createElement('style');
+                style.id = 'map-animations';
+                style.innerHTML = `
+                    @keyframes pulse {
+                        0% { transform: scale(1); opacity: 1; }
+                        50% { transform: scale(1.1); opacity: 0.8; }
+                        100% { transform: scale(1); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Échap pour quitter le plein écran
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && $scope.fullscreenEnabled) {
+                    $scope.toggleFullscreen();
+                    $scope.$apply();
+                }
+            });
+        }]);
+    </script>
 </body>
 </html>

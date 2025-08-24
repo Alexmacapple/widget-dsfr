@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget de filtres avancés avec plages pour données SignalConso">
+    <title>Widget DSFR - Facets Advanced avec Plages</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 600px;
+            background-color: var(--background-alt-grey);
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+        }
+        
+        /* Styles pour les filtres avancés */
+        .advanced-filters-container {
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            padding: 1.5rem;
+        }
+        
+        /* Stepper pour navigation entre groupes de filtres */
+        .fr-stepper {
+            margin-bottom: 2rem;
+        }
+        
+        .fr-stepper__steps {
+            counter-reset: step-counter;
+        }
+        
+        .fr-stepper__step {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .fr-stepper__step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            background: var(--background-contrast-grey);
+            border-radius: 50%;
+            margin-right: 1rem;
+            font-weight: 700;
+        }
+        
+        .fr-stepper__step--current::before {
+            background: var(--background-action-high-blue-france);
+            color: white;
+        }
+        
+        .fr-stepper__step--completed::before {
+            background: var(--background-valid-green-tilleul-verveine);
+            color: var(--text-default-grey);
+            content: "✓";
+        }
+        
+        /* Styles pour les plages de dates */
+        .date-range-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .date-range-separator {
+            padding-bottom: 0.75rem;
+            color: var(--text-mention-grey);
+        }
+        
+        /* Styles pour les sliders de plage */
+        .range-slider-container {
+            margin: 2rem 0;
+        }
+        
+        .range-slider-track {
+            height: 0.5rem;
+            background: var(--background-contrast-grey);
+            border-radius: 0.25rem;
+            position: relative;
+            margin: 1rem 0;
+        }
+        
+        .range-slider-fill {
+            height: 100%;
+            background: var(--background-action-high-blue-france);
+            border-radius: 0.25rem;
+            position: absolute;
+        }
+        
+        .range-slider-thumb {
+            width: 1.5rem;
+            height: 1.5rem;
+            background: white;
+            border: 2px solid var(--border-action-high-blue-france);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+        }
+        
+        .range-slider-thumb:active {
+            cursor: grabbing;
+            box-shadow: 0 0 0 0.25rem rgba(0, 0, 145, 0.25);
+        }
+        
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+        
+        .range-value {
+            font-weight: 700;
+            color: var(--text-action-high-blue-france);
+        }
+        
+        /* Validation en temps réel */
+        .fr-input-group--valid .fr-input {
+            border-color: var(--border-plain-success);
+        }
+        
+        .fr-input-group--error .fr-input {
+            border-color: var(--border-plain-error);
+        }
+        
+        .validation-message {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .validation-message--success {
+            color: var(--text-default-success);
+        }
+        
+        .validation-message--error {
+            color: var(--text-default-error);
+        }
+        
+        /* Filtres groupés par tabs */
+        .filter-tabs {
+            margin-bottom: 2rem;
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .widget-container {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        [data-fr-theme="dark"] .advanced-filters-container {
+            background-color: var(--background-elevated-grey);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .date-range-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-range-separator {
+                text-align: center;
+                padding: 0.5rem 0;
+            }
+        }
+        
+        /* Animation des transitions */
+        .filter-section {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .filter-section.hidden {
+            opacity: 0;
+            transform: translateY(-1rem);
+            display: none;
+        }
+        
+        /* Tags de filtres actifs améliorés */
+        .fr-tags-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .fr-tag--range {
+            background: var(--background-contrast-purple-glycine);
+            color: var(--text-default-grey);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Widget DSFR">
+                                <p class="fr-header__service-title">
+                                    Widget Facets Advanced
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Filtres avancés avec plages - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Facets Advanced</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Recherche avancée avec filtres par plages</h1>
+                    <p class="fr-text--lead">Interface de filtrage avancée pour les données SignalConso</p>
+                </div>
+            </div>
+
+            <!-- Widget -->
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <h2 class="fr-card__title">Filtres multicritères avancés</h2>
+                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__body">
+                            <!-- DÉBUT ZONE WIDGET FACETS-ADVANCED-002 -->
+                            <div id="widget-facets-advanced-002" class="widget-container" ng-app="ods-widgets" ng-controller="AdvancedFacetsController" ng-cloak>
+                                <ods-dataset-context 
+                                    context="signalconso"
+                                    signalconso-domain="data.economie.gouv.fr"
+                                    signalconso-dataset="signalconso">
+                                    
+                                    <!-- Stepper de navigation -->
+                                    <nav class="fr-stepper" role="navigation" aria-label="Étapes de filtrage">
+                                        <ol class="fr-stepper__steps">
+                                            <li class="fr-stepper__step" 
+                                                ng-class="{'fr-stepper__step--current': currentStep === 1, 'fr-stepper__step--completed': currentStep > 1}"
+                                                ng-click="setStep(1)">
+                                                <span>Période et localisation</span>
+                                            </li>
+                                            <li class="fr-stepper__step" 
+                                                ng-class="{'fr-stepper__step--current': currentStep === 2, 'fr-stepper__step--completed': currentStep > 2}"
+                                                ng-click="setStep(2)">
+                                                <span>Catégories et types</span>
+                                            </li>
+                                            <li class="fr-stepper__step" 
+                                                ng-class="{'fr-stepper__step--current': currentStep === 3, 'fr-stepper__step--completed': currentStep > 3}"
+                                                ng-click="setStep(3)">
+                                                <span>Critères avancés</span>
+                                            </li>
+                                        </ol>
+                                    </nav>
+                                    
+                                    <!-- Résumé des filtres actifs -->
+                                    <div class="fr-alert fr-alert--info fr-mb-3w" ng-if="hasActiveFilters()" aria-live="polite">
+                                        <h3 class="fr-alert__title">Filtres actifs</h3>
+                                        <ul class="fr-tags-group">
+                                            <li ng-if="dateRange.start && dateRange.end">
+                                                <button class="fr-tag fr-tag--dismiss fr-tag--range" 
+                                                        ng-click="clearDateRange()"
+                                                        aria-label="Supprimer la plage de dates">
+                                                    Période : {{dateRange.start | date:'dd/MM/yyyy'}} - {{dateRange.end | date:'dd/MM/yyyy'}}
+                                                </button>
+                                            </li>
+                                            <li ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters[key] = undefined"
+                                                        aria-label="Supprimer le filtre {{key.replace('refine.', '')}}">
+                                                    {{key.replace('refine.', '') | titlecase}} : {{value}}
+                                                </button>
+                                            </li>
+                                        </ul>
+                                        <p class="fr-text--sm fr-mt-2w">
+                                            <strong>{{signalconso.nhits | number}}</strong> résultats correspondent à vos critères
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Container des filtres avancés -->
+                                    <div class="advanced-filters-container">
+                                        
+                                        <!-- Étape 1 : Période et localisation -->
+                                        <div class="filter-section" ng-show="currentStep === 1">
+                                            <h3>Période et localisation</h3>
+                                            
+                                            <!-- Plage de dates avec inputs DSFR -->
+                                            <fieldset class="fr-fieldset fr-mb-3w">
+                                                <legend class="fr-fieldset__legend">
+                                                    <span class="fr-fieldset__legend-text">Sélectionner une période</span>
+                                                </legend>
+                                                <div class="fr-fieldset__content">
+                                                    <div class="date-range-container">
+                                                        <div class="fr-input-group">
+                                                            <label class="fr-label" for="date-start">
+                                                                Date de début
+                                                            </label>
+                                                            <input class="fr-input" type="date" id="date-start" 
+                                                                   ng-model="dateRange.start"
+                                                                   ng-change="validateDateRange()"
+                                                                   max="{{today}}">
+                                                            <span class="validation-message validation-message--error" ng-if="dateError">
+                                                                {{dateError}}
+                                                            </span>
+                                                        </div>
+                                                        <span class="date-range-separator">à</span>
+                                                        <div class="fr-input-group">
+                                                            <label class="fr-label" for="date-end">
+                                                                Date de fin
+                                                            </label>
+                                                            <input class="fr-input" type="date" id="date-end"
+                                                                   ng-model="dateRange.end"
+                                                                   ng-change="validateDateRange()"
+                                                                   min="{{dateRange.start}}"
+                                                                   max="{{today}}">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Boutons de sélection rapide -->
+                                                    <div class="fr-btns-group fr-btns-group--inline fr-mt-2w">
+                                                        <button class="fr-btn fr-btn--secondary fr-btn--sm" ng-click="setQuickDateRange('week')">
+                                                            7 derniers jours
+                                                        </button>
+                                                        <button class="fr-btn fr-btn--secondary fr-btn--sm" ng-click="setQuickDateRange('month')">
+                                                            30 derniers jours
+                                                        </button>
+                                                        <button class="fr-btn fr-btn--secondary fr-btn--sm" ng-click="setQuickDateRange('quarter')">
+                                                            3 derniers mois
+                                                        </button>
+                                                        <button class="fr-btn fr-btn--secondary fr-btn--sm" ng-click="setQuickDateRange('year')">
+                                                            Année en cours
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                            
+                                            <!-- Sélection multiple pour les régions -->
+                                            <fieldset class="fr-fieldset">
+                                                <legend class="fr-fieldset__legend">
+                                                    <span class="fr-fieldset__legend-text">Régions (sélection multiple)</span>
+                                                </legend>
+                                                <div class="fr-fieldset__content">
+                                                    <div class="fr-select-group">
+                                                        <label class="fr-label" for="regions-select">
+                                                            Sélectionner une ou plusieurs régions
+                                                        </label>
+                                                        <select class="fr-select" id="regions-select" multiple
+                                                                ng-model="selectedRegions"
+                                                                ng-options="region for region in availableRegions">
+                                                        </select>
+                                                        <span class="fr-hint-text">
+                                                            Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs régions
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                            
+                                            <div class="fr-grid-row fr-grid-row--right fr-mt-3w">
+                                                <div class="fr-col-auto">
+                                                    <button class="fr-btn fr-btn--icon-right fr-icon-arrow-right-line" ng-click="nextStep()">
+                                                        Suivant
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Étape 2 : Catégories et types -->
+                                        <div class="filter-section" ng-show="currentStep === 2">
+                                            <h3>Catégories et types</h3>
+                                            
+                                            <!-- Tabs pour organiser les filtres -->
+                                            <div class="fr-tabs">
+                                                <ul class="fr-tabs__list" role="tablist">
+                                                    <li role="presentation">
+                                                        <button class="fr-tabs__tab" 
+                                                                id="tab-categories" 
+                                                                role="tab" 
+                                                                aria-selected="true" 
+                                                                aria-controls="panel-categories"
+                                                                ng-click="setActiveTab('categories')">
+                                                            Catégories principales
+                                                        </button>
+                                                    </li>
+                                                    <li role="presentation">
+                                                        <button class="fr-tabs__tab" 
+                                                                id="tab-subcategories" 
+                                                                role="tab" 
+                                                                aria-selected="false" 
+                                                                aria-controls="panel-subcategories"
+                                                                ng-click="setActiveTab('subcategories')">
+                                                            Sous-catégories
+                                                        </button>
+                                                    </li>
+                                                    <li role="presentation">
+                                                        <button class="fr-tabs__tab" 
+                                                                id="tab-status" 
+                                                                role="tab" 
+                                                                aria-selected="false" 
+                                                                aria-controls="panel-status"
+                                                                ng-click="setActiveTab('status')">
+                                                            Statuts
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                                
+                                                <div id="panel-categories" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel">
+                                                    <ods-facets context="signalconso">
+                                                        <ods-facet name="category" disjunctive="true" sort="count"></ods-facet>
+                                                    </ods-facets>
+                                                </div>
+                                                
+                                                <div id="panel-subcategories" class="fr-tabs__panel" role="tabpanel">
+                                                    <ods-facets context="signalconso">
+                                                        <ods-facet name="subcategories" disjunctive="true" sort="count"></ods-facet>
+                                                    </ods-facets>
+                                                </div>
+                                                
+                                                <div id="panel-status" class="fr-tabs__panel" role="tabpanel">
+                                                    <ods-facets context="signalconso">
+                                                        <ods-facet name="status" disjunctive="true" sort="count"></ods-facet>
+                                                    </ods-facets>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                                <div class="fr-col-auto">
+                                                    <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-arrow-left-line" ng-click="previousStep()">
+                                                        Précédent
+                                                    </button>
+                                                </div>
+                                                <div class="fr-col-auto">
+                                                    <button class="fr-btn fr-btn--icon-right fr-icon-arrow-right-line" ng-click="nextStep()">
+                                                        Suivant
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Étape 3 : Critères avancés -->
+                                        <div class="filter-section" ng-show="currentStep === 3">
+                                            <h3>Critères avancés</h3>
+                                            
+                                            <!-- Recherche textuelle avec validation -->
+                                            <div class="fr-input-group fr-mb-3w" ng-class="{'fr-input-group--valid': searchValid, 'fr-input-group--error': searchError}">
+                                                <label class="fr-label" for="advanced-search">
+                                                    Recherche textuelle avancée
+                                                    <span class="fr-hint-text">Utilisez les opérateurs AND, OR, NOT pour affiner votre recherche</span>
+                                                </label>
+                                                <input class="fr-input" 
+                                                       type="text" 
+                                                       id="advanced-search"
+                                                       ng-model="advancedSearch"
+                                                       ng-change="validateSearch()"
+                                                       placeholder="Ex: (restaurant OR café) AND paris NOT \"fast food\"">
+                                                <span class="validation-message" ng-class="{'validation-message--success': searchValid, 'validation-message--error': searchError}">
+                                                    {{searchMessage}}
+                                                </span>
+                                            </div>
+                                            
+                                            <!-- Toggle pour options supplémentaires -->
+                                            <div class="fr-toggle fr-mb-3w">
+                                                <input type="checkbox" class="fr-toggle__input" id="toggle-exact" ng-model="exactMatch">
+                                                <label class="fr-toggle__label" for="toggle-exact">
+                                                    Correspondance exacte uniquement
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="fr-toggle fr-mb-3w">
+                                                <input type="checkbox" class="fr-toggle__input" id="toggle-recent" ng-model="recentOnly">
+                                                <label class="fr-toggle__label" for="toggle-recent">
+                                                    Signalements récents uniquement (< 30 jours)
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="fr-toggle fr-mb-3w">
+                                                <input type="checkbox" class="fr-toggle__input" id="toggle-resolved" ng-model="resolvedOnly">
+                                                <label class="fr-toggle__label" for="toggle-resolved">
+                                                    Uniquement les signalements résolus
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                                <div class="fr-col-auto">
+                                                    <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-arrow-left-line" ng-click="previousStep()">
+                                                        Précédent
+                                                    </button>
+                                                </div>
+                                                <div class="fr-col-auto">
+                                                    <button class="fr-btn fr-btn--icon-right fr-icon-check-line" ng-click="applyFilters()">
+                                                        Appliquer les filtres
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Résultats filtrés -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12">
+                                            <div class="fr-card">
+                                                <div class="fr-card__body">
+                                                    <div class="fr-card__content">
+                                                        <h3 class="fr-card__title">Résultats filtrés</h3>
+                                                        <p class="fr-card__desc">
+                                                            <strong>{{signalconso.nhits | number}}</strong> signalements correspondent à vos critères avancés
+                                                        </p>
+                                                        
+                                                        <!-- Tableau des résultats -->
+                                                        <div class="table-container">
+                                                            <ods-table 
+                                                                context="signalconso"
+                                                                displayed-fields="creationdate,category,subcategories,dep_name,reg_name,status"
+                                                                sort="-creationdate">
+                                                            </ods-table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Actions globales -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-refresh-line" ng-click="resetAllFilters()">
+                                                Réinitialiser tous les filtres
+                                            </button>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line" ng-click="exportFilters()">
+                                                Exporter les critères
+                                            </button>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-save-line" ng-click="saveFilters()">
+                                                Sauvegarder la recherche
+                                            </button>
+                                        </div>
+                                    </div>
+                                </ods-dataset-context>
+                            </div>
+                            <!-- FIN ZONE WIDGET FACETS-ADVANCED-002 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de filtrage avancé avec plages et critères multiples. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Controller Angular pour les fonctionnalités avancées -->
+    <script>
+        angular.module('ods-widgets').controller('AdvancedFacetsController', ['$scope', '$timeout', function($scope, $timeout) {
+            // État du stepper
+            $scope.currentStep = 1;
+            
+            // Plage de dates
+            $scope.dateRange = {
+                start: null,
+                end: null
+            };
+            $scope.today = new Date().toISOString().split('T')[0];
+            
+            // Régions disponibles (à charger depuis l'API)
+            $scope.availableRegions = [
+                'Île-de-France',
+                'Auvergne-Rhône-Alpes',
+                'Nouvelle-Aquitaine',
+                'Occitanie',
+                'Hauts-de-France',
+                'Provence-Alpes-Côte d\'Azur',
+                'Grand Est',
+                'Pays de la Loire',
+                'Bretagne',
+                'Normandie',
+                'Bourgogne-Franche-Comté',
+                'Centre-Val de Loire',
+                'Corse'
+            ];
+            $scope.selectedRegions = [];
+            
+            // Recherche avancée
+            $scope.advancedSearch = '';
+            $scope.exactMatch = false;
+            $scope.recentOnly = false;
+            $scope.resolvedOnly = false;
+            
+            // Navigation dans le stepper
+            $scope.setStep = function(step) {
+                $scope.currentStep = step;
+            };
+            
+            $scope.nextStep = function() {
+                if ($scope.currentStep < 3) {
+                    $scope.currentStep++;
+                }
+            };
+            
+            $scope.previousStep = function() {
+                if ($scope.currentStep > 1) {
+                    $scope.currentStep--;
+                }
+            };
+            
+            // Validation de la plage de dates
+            $scope.validateDateRange = function() {
+                $scope.dateError = null;
+                
+                if ($scope.dateRange.start && $scope.dateRange.end) {
+                    var start = new Date($scope.dateRange.start);
+                    var end = new Date($scope.dateRange.end);
+                    
+                    if (start > end) {
+                        $scope.dateError = 'La date de début doit être antérieure à la date de fin';
+                    } else {
+                        // Appliquer le filtre de date
+                        var dateFilter = $scope.dateRange.start + ' TO ' + $scope.dateRange.end;
+                        $scope.signalconso.parameters['refine.creationdate'] = dateFilter;
+                    }
+                }
+            };
+            
+            // Sélection rapide de plage de dates
+            $scope.setQuickDateRange = function(range) {
+                var end = new Date();
+                var start = new Date();
+                
+                switch(range) {
+                    case 'week':
+                        start.setDate(end.getDate() - 7);
+                        break;
+                    case 'month':
+                        start.setDate(end.getDate() - 30);
+                        break;
+                    case 'quarter':
+                        start.setMonth(end.getMonth() - 3);
+                        break;
+                    case 'year':
+                        start.setMonth(0);
+                        start.setDate(1);
+                        break;
+                }
+                
+                $scope.dateRange.start = start.toISOString().split('T')[0];
+                $scope.dateRange.end = end.toISOString().split('T')[0];
+                $scope.validateDateRange();
+            };
+            
+            // Effacer la plage de dates
+            $scope.clearDateRange = function() {
+                $scope.dateRange.start = null;
+                $scope.dateRange.end = null;
+                delete $scope.signalconso.parameters['refine.creationdate'];
+            };
+            
+            // Validation de la recherche avancée
+            $scope.validateSearch = function() {
+                $scope.searchValid = false;
+                $scope.searchError = false;
+                $scope.searchMessage = '';
+                
+                if ($scope.advancedSearch) {
+                    // Vérifier la syntaxe des opérateurs
+                    var operators = ['AND', 'OR', 'NOT'];
+                    var hasOperator = operators.some(op => $scope.advancedSearch.includes(op));
+                    
+                    if (hasOperator) {
+                        // Vérifier les parenthèses
+                        var openParens = ($scope.advancedSearch.match(/\(/g) || []).length;
+                        var closeParens = ($scope.advancedSearch.match(/\)/g) || []).length;
+                        
+                        if (openParens !== closeParens) {
+                            $scope.searchError = true;
+                            $scope.searchMessage = 'Erreur : parenthèses non équilibrées';
+                        } else {
+                            $scope.searchValid = true;
+                            $scope.searchMessage = 'Syntaxe valide';
+                        }
+                    } else {
+                        $scope.searchValid = true;
+                        $scope.searchMessage = 'Recherche simple';
+                    }
+                }
+            };
+            
+            // Vérifier si des filtres sont actifs
+            $scope.hasActiveFilters = function() {
+                return ($scope.dateRange.start && $scope.dateRange.end) ||
+                       Object.keys($scope.signalconso.parameters || {}).some(key => key.startsWith('refine.')) ||
+                       $scope.advancedSearch;
+            };
+            
+            // Appliquer tous les filtres
+            $scope.applyFilters = function() {
+                // Appliquer la recherche avancée
+                if ($scope.advancedSearch) {
+                    $scope.signalconso.parameters['q'] = $scope.advancedSearch;
+                }
+                
+                // Appliquer les régions sélectionnées
+                if ($scope.selectedRegions.length > 0) {
+                    $scope.signalconso.parameters['refine.reg_name'] = $scope.selectedRegions;
+                }
+                
+                // Appliquer les toggles
+                if ($scope.recentOnly) {
+                    var recentDate = new Date();
+                    recentDate.setDate(recentDate.getDate() - 30);
+                    $scope.signalconso.parameters['refine.creationdate'] = recentDate.toISOString().split('T')[0] + ' TO ' + $scope.today;
+                }
+                
+                if ($scope.resolvedOnly) {
+                    $scope.signalconso.parameters['refine.status'] = 'Résolu';
+                }
+                
+                // Message de confirmation
+                $timeout(function() {
+                    console.log('Filtres appliqués avec succès');
+                }, 100);
+            };
+            
+            // Réinitialiser tous les filtres
+            $scope.resetAllFilters = function() {
+                $scope.signalconso.parameters = {};
+                $scope.dateRange = { start: null, end: null };
+                $scope.selectedRegions = [];
+                $scope.advancedSearch = '';
+                $scope.exactMatch = false;
+                $scope.recentOnly = false;
+                $scope.resolvedOnly = false;
+                $scope.currentStep = 1;
+            };
+            
+            // Exporter les critères de recherche
+            $scope.exportFilters = function() {
+                var filters = {
+                    dateRange: $scope.dateRange,
+                    regions: $scope.selectedRegions,
+                    search: $scope.advancedSearch,
+                    options: {
+                        exactMatch: $scope.exactMatch,
+                        recentOnly: $scope.recentOnly,
+                        resolvedOnly: $scope.resolvedOnly
+                    },
+                    parameters: $scope.signalconso.parameters
+                };
+                
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filters, null, 2));
+                var downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "filtres-signalconso-" + Date.now() + ".json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            };
+            
+            // Sauvegarder les filtres en localStorage
+            $scope.saveFilters = function() {
+                var filters = {
+                    dateRange: $scope.dateRange,
+                    regions: $scope.selectedRegions,
+                    search: $scope.advancedSearch,
+                    options: {
+                        exactMatch: $scope.exactMatch,
+                        recentOnly: $scope.recentOnly,
+                        resolvedOnly: $scope.resolvedOnly
+                    }
+                };
+                
+                localStorage.setItem('signalconso-advanced-filters', JSON.stringify(filters));
+                alert('Filtres sauvegardés avec succès');
+            };
+            
+            // Charger les filtres sauvegardés au démarrage
+            $scope.$on('$viewContentLoaded', function() {
+                var savedFilters = localStorage.getItem('signalconso-advanced-filters');
+                if (savedFilters) {
+                    var filters = JSON.parse(savedFilters);
+                    $scope.dateRange = filters.dateRange || { start: null, end: null };
+                    $scope.selectedRegions = filters.regions || [];
+                    $scope.advancedSearch = filters.search || '';
+                    if (filters.options) {
+                        $scope.exactMatch = filters.options.exactMatch || false;
+                        $scope.recentOnly = filters.options.recentOnly || false;
+                        $scope.resolvedOnly = filters.options.resolvedOnly || false;
+                    }
+                }
+            });
+            
+            // Gestion des tabs
+            $scope.setActiveTab = function(tabName) {
+                // Mise à jour des attributs ARIA
+                document.querySelectorAll('.fr-tabs__tab').forEach(function(tab) {
+                    tab.setAttribute('aria-selected', 'false');
+                });
+                document.querySelector('#tab-' + tabName).setAttribute('aria-selected', 'true');
+                
+                // Affichage du panneau correspondant
+                document.querySelectorAll('.fr-tabs__panel').forEach(function(panel) {
+                    panel.classList.remove('fr-tabs__panel--selected');
+                });
+                document.querySelector('#panel-' + tabName).classList.add('fr-tabs__panel--selected');
+            };
+        }]);
+    </script>
+</body>
+</html>
