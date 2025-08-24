@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Widget DSFR - Visualisation SignalConso par Département</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        .widget-container {
+            min-height: 400px;
+            padding: 20px;
+        }
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: var(--background-alt-grey);
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-title-grey);
+        }
+        .stat-label {
+            color: var(--text-mention-grey);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container fr-py-6w" ng-app="ods-widgets">
+        <h1>Analyse des signalements SignalConso</h1>
+        
+        <div id="widget-signalconso" class="widget-container">
+            <ods-dataset-context 
+                context="ctx"
+                ctx-domain="data.economie.gouv.fr"
+                ctx-dataset="signalconso"
+                ctx-parameters="{'rows': 20}">
+                
+                <!-- Utilisation de ods-results pour obtenir les données -->
+                <div ods-results="items" ods-results-context="ctx" ods-results-max="20" ng-show="false">
+                    {{ items.length }}
+                </div>
+                
+                <div class="fr-callout fr-mb-3w">
+                    <h3 class="fr-callout__title">Statistiques générales</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">1,325,182</div>
+                            <div class="stat-label">Total signalements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">101</div>
+                            <div class="stat-label">Départements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">Catégories principales</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Test simple de table pour vérifier les données -->
+                <div class="fr-card fr-mb-3w">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Aperçu des données (10 premières lignes)</h3>
+                        <ods-table context="ctx" displayed-fields="dep_name,category,creationdate,status"></ods-table>
+                    </div>
+                </div>
+                
+                <!-- Graphique par département -->
+                <div class="fr-card fr-mb-3w">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Top 10 des départements avec le plus de signalements</h3>
+                        <div class="chart-container">
+                            <ods-chart>
+                                <ods-chart-query context="ctx" field-x="dep_name" maxpoints="10">
+                                    <ods-chart-serie func-y="COUNT" color="#0063cb">
+                                    </ods-chart-serie>
+                                </ods-chart-query>
+                            </ods-chart>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Graphique par catégorie -->
+                <div class="fr-card fr-mb-3w">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Répartition par catégorie</h3>
+                        <div class="chart-container">
+                            <ods-chart>
+                                <ods-chart-query context="ctx" field-x="category" maxpoints="8">
+                                    <ods-chart-serie func-y="COUNT" chart-type="pie">
+                                    </ods-chart-serie>
+                                </ods-chart-query>
+                            </ods-chart>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evolution temporelle -->
+                <div class="fr-card fr-mb-3w">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Evolution temporelle des signalements</h3>
+                        <div class="chart-container">
+                            <ods-chart timescale="month">
+                                <ods-chart-query context="ctx" field-x="creationdate" timescale="month">
+                                    <ods-chart-serie func-y="COUNT" color="#0063cb" chart-type="spline">
+                                    </ods-chart-serie>
+                                </ods-chart-query>
+                            </ods-chart>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tableau détaillé -->
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Détail des signalements par département</h3>
+                        <p class="fr-text--sm fr-mb-2w">Affichage des 20 derniers signalements</p>
+                        <ods-table context="ctx"></ods-table>
+                    </div>
+                </div>
+            </ods-dataset-context>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

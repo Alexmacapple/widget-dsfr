@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test Champs SignalConso</title>
+    
+    <!-- ODS Widgets CSS -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        .field-info {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: white;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div ng-app="ods-widgets">
+        <h1>Test des champs du dataset SignalConso</h1>
+        
+        <ods-dataset-context 
+            context="ctx"
+            ctx-domain="data.economie.gouv.fr"
+            ctx-dataset="signalconso"
+            ctx-parameters="{'rows': 5}">
+            
+            <div class="field-info">
+                <h2>Informations sur le dataset</h2>
+                <p><strong>Nombre total de résultats :</strong> {{ ctx.nhits | number }}</p>
+                <p><strong>Dataset :</strong> {{ ctx.dataset.datasetid }}</p>
+            </div>
+            
+            <!-- Afficher les métadonnées du dataset -->
+            <div class="field-info">
+                <h2>Métadonnées du dataset</h2>
+                <pre>{{ ctx.dataset | json }}</pre>
+            </div>
+            
+            <!-- Table pour voir les champs -->
+            <div class="field-info">
+                <h2>Exemples de données (5 premiers enregistrements)</h2>
+                <ods-table context="ctx"></ods-table>
+            </div>
+            
+            <!-- Test de différents champs géographiques possibles -->
+            <div class="field-info">
+                <h2>Tests de cartes avec différents champs</h2>
+                
+                <h3>Test 1: Sans champ location (auto-détection)</h3>
+                <ods-map style="height: 300px;">
+                    <ods-map-layer context="ctx"></ods-map-layer>
+                </ods-map>
+                
+                <h3>Test 2: location="geo_point_2d"</h3>
+                <ods-map style="height: 300px;">
+                    <ods-map-layer context="ctx" location="geo_point_2d"></ods-map-layer>
+                </ods-map>
+                
+                <h3>Test 3: location="geopoint"</h3>
+                <ods-map style="height: 300px;">
+                    <ods-map-layer context="ctx" location="geopoint"></ods-map-layer>
+                </ods-map>
+                
+                <h3>Test 4: location="coordonnees_geo"</h3>
+                <ods-map style="height: 300px;">
+                    <ods-map-layer context="ctx" location="coordonnees_geo"></ods-map-layer>
+                </ods-map>
+            </div>
+            
+            <!-- Afficher un enregistrement complet -->
+            <div class="field-info" ng-if="ctx.records">
+                <h2>Premier enregistrement complet (pour voir tous les champs)</h2>
+                <pre>{{ ctx.records[0] | json }}</pre>
+            </div>
+        </ods-dataset-context>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+</body>
+</html>

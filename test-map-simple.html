@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test Map Simple</title>
+    
+    <!-- ODS Widgets CSS -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div ng-app="ods-widgets">
+        <h1>Test Carte Simple SignalConso</h1>
+        
+        <!-- Test 1: Contexte simple -->
+        <ods-dataset-context 
+            context="ctx"
+            ctx-domain="data.economie.gouv.fr"
+            ctx-dataset="signalconso">
+            
+            <p>Nombre de résultats : {{ ctx.nhits }}</p>
+            
+            <!-- Carte très simple -->
+            <ods-map style="height: 400px;">
+                <ods-map-layer context="ctx"></ods-map-layer>
+            </ods-map>
+            
+            <!-- Table pour voir les données -->
+            <h2>Données (10 premiers)</h2>
+            <ods-table context="ctx"></ods-table>
+        </ods-dataset-context>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+</body>
+</html>

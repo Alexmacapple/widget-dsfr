@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Test Simple Données SignalConso</title>
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div ng-app="ods-widgets" ng-controller="TestController">
+        <h1>Test Simple SignalConso</h1>
+        
+        <ods-dataset-context 
+            context="ctx"
+            ctx-domain="data.economie.gouv.fr"
+            ctx-dataset="signalconso"
+            ctx-parameters="{'rows': 10}">
+            
+            <div style="background: #f0f0f0; padding: 20px; margin: 20px;">
+                <h2>Informations de base</h2>
+                <p><strong>Nombre de résultats :</strong> {{ ctx.nhits || 'chargement...' }}</p>
+                <p><strong>Dataset ID :</strong> {{ ctx.dataset.datasetid || 'chargement...' }}</p>
+                <p><strong>Paramètres :</strong> {{ ctx.parameters | json }}</p>
+            </div>
+            
+            <h2>Table simple</h2>
+            <ods-table context="ctx"></ods-table>
+            
+            <h2>Graphique simple par département</h2>
+            <ods-chart>
+                <ods-chart-query context="ctx" field-x="dep_name" maxpoints="5">
+                    <ods-chart-serie func-y="COUNT" color="blue">
+                    </ods-chart-serie>
+                </ods-chart-query>
+            </ods-chart>
+            
+            <h2>Graphique simple par catégorie</h2>
+            <ods-chart>
+                <ods-chart-query context="ctx" field-x="category" maxpoints="5">
+                    <ods-chart-serie func-y="COUNT" chart-type="pie">
+                    </ods-chart-serie>
+                </ods-chart-query>
+            </ods-chart>
+        </ods-dataset-context>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    
+    <script>
+        angular.module('ods-widgets').controller('TestController', ['$scope', '$timeout', function($scope, $timeout) {
+            console.log('Controller initialized');
+            
+            // Surveiller le contexte
+            $scope.$watch('ctx', function(newVal) {
+                if (newVal) {
+                    console.log('Context loaded:', newVal);
+                    console.log('nhits:', newVal.nhits);
+                    console.log('dataset:', newVal.dataset);
+                }
+            });
+            
+            // Forcer le rafraîchissement après un délai
+            $timeout(function() {
+                if ($scope.ctx && !$scope.ctx.nhits) {
+                    console.log('Forcing context refresh...');
+                    // Le contexte devrait se charger automatiquement
+                }
+            }, 2000);
+        }]);
+    </script>
+</body>
+</html>
