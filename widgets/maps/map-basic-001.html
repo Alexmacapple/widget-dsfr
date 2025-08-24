@@ -385,6 +385,27 @@
                                                 <span ng-if="fullscreenEnabled">Quitter plein écran</span>
                                             </button>
                                         </div>
+                                        
+                                        <!-- Barre de recherche DSFR au-dessus de la carte -->
+                                        <div class="fr-search-bar fr-mb-3w" role="search">
+                                            <label class="fr-label" for="map-search-input">
+                                                Rechercher une localisation
+                                            </label>
+                                            <input class="fr-input" 
+                                                   type="search" 
+                                                   id="map-search-input"
+                                                   ng-model="mapSearchQuery" 
+                                                   ng-change="searchLocation()"
+                                                   ng-keypress="($event.which === 13) && searchLocation()"
+                                                   placeholder="Rechercher une ville, adresse ou code postal..."
+                                                   aria-label="Rechercher une localisation sur la carte">
+                                            <button class="fr-btn" 
+                                                    type="submit"
+                                                    ng-click="searchLocation()"
+                                                    aria-label="Lancer la recherche">
+                                                Rechercher
+                                            </button>
+                                        </div>
                                     </div>
                                     
                                     <!-- Carte interactive avec accessibilité améliorée -->
@@ -395,7 +416,7 @@
                                             location="6,46.5,2.5"
                                             basemap="jawg.streets"
                                             scroll-wheel-zoom="false"
-                                            search-box="true"
+                                            search-box="false"
                                             toolbar-fullscreen="true"
                                             toolbar-drawing="false"
                                             aria-label="Carte des services DGFIP">
@@ -592,7 +613,7 @@
     <script>
         angular.module('ods-widgets').controller('MapBasicController', ['$scope', '$timeout', '$interval', function($scope, $timeout, $interval) {
             // Variables d'état
-            $scope.mapSearch = '';
+            $scope.mapSearchQuery = ''; // Recherche de localisation
             $scope.mapDisplayMode = 'auto';
             $scope.animateMarkers = false;
             $scope.fullscreenEnabled = false;
@@ -742,10 +763,23 @@
             
             // Recherche de localisation
             $scope.searchLocation = function() {
-                if ($scope.mapSearch) {
-                    // Utiliser l'API de géocodage pour trouver la localisation
-                    // Ici on simule avec une recherche dans les données
-                    $scope.dgfip.parameters['q'] = $scope.mapSearch;
+                if ($scope.mapSearchQuery) {
+                    // Recherche dans les données DGFIP
+                    if (!$scope.dgfip.parameters) {
+                        $scope.dgfip.parameters = {};
+                    }
+                    $scope.dgfip.parameters['q'] = $scope.mapSearchQuery;
+                    
+                    // Si c'est un code postal (5 chiffres), rechercher par code postal
+                    if (/^\d{5}$/.test($scope.mapSearchQuery)) {
+                        $scope.dgfip.parameters['refine.code_postal'] = $scope.mapSearchQuery;
+                        delete $scope.dgfip.parameters['q'];
+                    }
+                    // Si c'est un numéro de département (2 ou 3 caractères)
+                    else if (/^(2[AB]|\d{2})$/i.test($scope.mapSearchQuery)) {
+                        $scope.dgfip.parameters['refine.departement'] = $scope.mapSearchQuery.toUpperCase();
+                        delete $scope.dgfip.parameters['q'];
+                    }
                 }
             };
             
@@ -770,9 +804,10 @@
             // Réinitialiser la carte
             $scope.resetMap = function() {
                 $scope.dgfip.parameters = {};
-                $scope.mapSearch = '';
+                $scope.mapSearchQuery = '';
                 $scope.mapDisplayMode = 'auto';
                 $scope.animateMarkers = false;
+                $scope.selectedDept = '';
                 
                 // Réinitialiser le zoom et la position
                 var mapElement = document.querySelector('#widget-map-basic-001 .odswidget-map');
