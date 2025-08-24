@@ -169,8 +169,22 @@
         }
         
         
+        /* Styles DSFR pour le wrapper de table personnalisé */
+        .dsfr-table-wrapper {
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            overflow-x: auto;
+            background: white;
+        }
+        
+        .table-container {
+            padding: 0;
+            min-height: 400px;
+        }
+        
         /* Intégration ODS Table avec styles DSFR */
-        .fr-table .odswidget-table {
+        .dsfr-table-wrapper .odswidget-table,
+        .table-container .odswidget-table {
             width: 100%;
             font-family: inherit;
             min-height: 400px;
@@ -184,17 +198,18 @@
             to { opacity: 1; }
         }
         
-        .fr-table .odswidget-table table {
+        .dsfr-table-wrapper .odswidget-table table,
+        .table-container .odswidget-table table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
         
-        .fr-table .odswidget-table thead {
+        .odswidget-table thead {
             border-bottom: 2px solid var(--border-default-grey);
         }
         
-        .fr-table .odswidget-table th {
+        .odswidget-table th {
             padding: 0.75rem;
             text-align: left;
             font-weight: 700;
@@ -205,98 +220,104 @@
             z-index: 10;
         }
         
-        .fr-table .odswidget-table td {
+        .odswidget-table td {
             padding: 0.75rem;
             border-bottom: 1px solid var(--border-default-grey);
             vertical-align: top;
         }
         
-        .fr-table .odswidget-table tbody tr:hover {
+        .odswidget-table tbody tr:hover {
             background: var(--background-contrast-info);
         }
         
         /* Espacement après le tableau */
-        .fr-table .odswidget-table {
+        .dsfr-table-wrapper {
             margin-bottom: 1.5rem;
         }
         
         /* Hauteur uniforme pour toutes les lignes */
-        .fr-table .odswidget-table tbody tr {
+        .odswidget-table tbody tr {
             height: auto;
         }
         
-        .fr-table .odswidget-table tbody tr td {
+        .odswidget-table tbody tr td {
             padding: 0.75rem;
             height: auto;
         }
         
-        .fr-table--bordered .odswidget-table th,
-        .fr-table--bordered .odswidget-table td {
+        /* Assurer que la dernière ligne a la même hauteur */
+        .odswidget-table tbody tr:last-child td {
+            padding-bottom: 0.75rem;
+        }
+        
+        .dsfr-table-wrapper .odswidget-table th,
+        .dsfr-table-wrapper .odswidget-table td {
             border: 1px solid var(--border-default-grey);
         }
         
         /* Accessibilité : Focus visible sur les lignes */
-        .fr-table .odswidget-table tbody tr:focus-within {
+        .odswidget-table tbody tr:focus-within {
             outline: 2px solid var(--border-action-high-blue-france);
             outline-offset: -2px;
         }
         
-        /* Largeurs des colonnes DSFR - proportionnelles et flexibles */
+        /* Largeurs des colonnes - proportionnelles et flexibles */
         /* Colonne N° - plus étroite et centrée */
-        .fr-table .odswidget-table th:nth-child(1),
-        .fr-table .odswidget-table td:nth-child(1) {
+        .odswidget-table th:nth-child(1),
+        .odswidget-table td:nth-child(1) {
             width: 5%;
-            min-width: 50px;
+            min-width: 40px;
             text-align: center;
         }
         
-        /* Date de création */
-        .fr-table .odswidget-table th:nth-child(2),
-        .fr-table .odswidget-table td:nth-child(2) {
-            width: 12%;
-            min-width: 100px;
+        /* Date */
+        .odswidget-table th:nth-child(2),
+        .odswidget-table td:nth-child(2) {
+            width: 10%;
+            min-width: 90px;
         }
         
         /* Établissement */
-        .fr-table .odswidget-table th:nth-child(3),
-        .fr-table .odswidget-table td:nth-child(3) {
+        .odswidget-table th:nth-child(3),
+        .odswidget-table td:nth-child(3) {
             width: 20%;
             min-width: 150px;
         }
         
         /* Ville */
-        .fr-table .odswidget-table th:nth-child(4),
-        .fr-table .odswidget-table td:nth-child(4) {
-            width: 12%;
+        .odswidget-table th:nth-child(4),
+        .odswidget-table td:nth-child(4) {
+            width: 15%;
             min-width: 100px;
         }
         
         /* Département */
-        .fr-table .odswidget-table th:nth-child(5),
-        .fr-table .odswidget-table td:nth-child(5) {
-            width: 13%;
+        .odswidget-table th:nth-child(5),
+        .odswidget-table td:nth-child(5) {
+            width: 15%;
             min-width: 110px;
         }
         
         /* Catégorie */
-        .fr-table .odswidget-table th:nth-child(6),
-        .fr-table .odswidget-table td:nth-child(6) {
-            width: 18%;
-            min-width: 140px;
-        }
-        
-        /* Sous-catégorie */
-        .fr-table .odswidget-table th:nth-child(7),
-        .fr-table .odswidget-table td:nth-child(7) {
-            width: 18%;
-            min-width: 140px;
+        .odswidget-table th:nth-child(6),
+        .odswidget-table td:nth-child(6) {
+            width: 15%;
+            min-width: 120px;
         }
         
         /* Statut */
-        .fr-table .odswidget-table th:nth-child(8),
-        .fr-table .odswidget-table td:nth-child(8) {
-            width: 10%;
-            min-width: 90px;
+        .odswidget-table th:nth-child(7),
+        .odswidget-table td:nth-child(7) {
+            width: 12%;
+            min-width: 80px;
+        }
+        
+        /* Action */
+        .odswidget-table th:nth-child(8),
+        .odswidget-table td:nth-child(8) {
+            width: 8%;
+            min-width: 60px;
+            text-align: center;
         }
         
         /* Styles responsive DSFR */
@@ -379,6 +400,36 @@
             cursor: pointer;
             font-size: 1rem;
             line-height: 1;
+        }
+        
+        /* Styles pour le bouton d'action minimaliste */
+        .fr-btn--tertiary-no-outline {
+            padding: 0.25rem;
+            min-height: auto;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-action-high-blue-france);
+        }
+        
+        .fr-btn--tertiary-no-outline:hover {
+            background: var(--background-action-low-blue-france);
+            border-color: var(--border-action-high-blue-france);
+        }
+        
+        /* Style pour la modale */
+        #details-modal .fr-modal__content dl {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0.5rem 1rem;
+        }
+        
+        #details-modal .fr-modal__content dt {
+            text-align: right;
+            color: var(--text-mention-grey);
+        }
+        
+        #details-modal .fr-modal__content dd {
+            margin: 0;
         }
         
         
@@ -485,8 +536,6 @@
                                     signalconso-domain="data.economie.gouv.fr"
                                     signalconso-dataset="signalconso">
                                     
-                                    <!-- Initialisation des paramètres -->
-                                    <div ng-init="signalconso.parameters['start'] = signalconso.parameters['start'] || 0; signalconso.parameters['rows'] = signalconso.parameters['rows'] || 20"></div>
                                     
                                     <!-- Résumé des filtres actifs -->
                                     <div class="refinement-summary" ng-if="signalconso.parameters">
@@ -686,7 +735,7 @@
                                                 <div class="fr-card__body">
                                                     <!-- Options d'affichage -->
                                                     <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
-                                                        <div class="fr-col-12 fr-col-md-6">
+                                                        <div class="fr-col-12">
                                                             <div class="fr-select-group">
                                                                 <label class="fr-label" for="sort-select">
                                                                     Trier par
@@ -701,28 +750,11 @@
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                        <div class="fr-col-12 fr-col-md-6">
-                                                            <div class="fr-select-group">
-                                                                <label class="fr-label" for="pagesize-select">
-                                                                    Résultats par page
-                                                                </label>
-                                                                <select class="fr-select" id="pagesize-select" 
-                                                                        ng-model="signalconso.parameters['rows']" 
-                                                                        ng-change="signalconso.parameters['start'] = 0">
-                                                                    <option value="10">10</option>
-                                                                    <option value="20">20</option>
-                                                                    <option value="50">50</option>
-                                                                    <option value="100">100</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                     
-                                                    <!-- Tableau DSFR avec données ODS -->
-                                                    <div class="fr-table fr-table--bordered" data-fr-js-table="false">
-                                                        <div class="fr-table__wrapper">
-                                                            <div class="fr-table__container">
-                                                                <div class="fr-table__content" role="region" aria-label="Tableau des signalements">
+                                                    <!-- Tableau avec styles DSFR mais sans classes DSFR pour éviter les erreurs JS -->
+                                                    <div class="dsfr-table-wrapper" data-fr-js-table="false" data-fr-js-table-element="false">
+                                                        <div class="table-container" role="region" aria-label="Tableau des signalements">
                                                                     <!-- Indicateur de chargement -->
                                                                     <div class="fr-py-3w fr-text--center" ng-if="!signalconso.nhits && !signalconso.error">
                                                                         <span class="fr-text--sm">Chargement des données...</span>
@@ -737,7 +769,7 @@
                                                                     <div ng-if="signalconso.nhits > 0">
                                                                         <ods-table 
                                                                             context="signalconso"
-                                                                            displayed-fields="creationdate,establishmentname,city,dep_name,category,subcategory,status"
+                                                                            displayed-fields="creationdate,establishmentname,city,dep_name,category,status"
                                                                             aria-describedby="table-caption">
                                                                         </ods-table>
                                                                     </div>
@@ -745,39 +777,37 @@
                                                                     <span id="table-caption" class="sr-only">
                                                                         Tableau listant les signalements consommateurs avec date, établissement, localisation, catégorie et statut
                                                                     </span>
-                                                                </div>
-                                                            </div>
                                                         </div>
                                                     </div>
                                                     
-                                                    <!-- Pagination DSFR officielle minimaliste -->
-                                                    <nav role="navigation" class="fr-pagination fr-pagination--center" aria-label="Pagination" ng-if="signalconso.nhits > (signalconso.parameters.rows || 20)">
+                                                    <!-- Pagination DSFR minimaliste -->
+                                                    <nav role="navigation" class="fr-pagination fr-pagination--center" aria-label="Pagination" ng-if="signalconso.nhits > 10">
                                                         <ul class="fr-pagination__list">
                                                             <!-- Page précédente -->
-                                                            <li ng-if="signalconso.parameters.start > 0">
+                                                            <li ng-if="(signalconso.parameters.start || 0) > 0">
                                                                 <button class="fr-pagination__link fr-pagination__link--prev" 
-                                                                        ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (signalconso.parameters.rows || 20))"
+                                                                        ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - 10)"
                                                                         type="button">
                                                                     Précédente
                                                                 </button>
                                                             </li>
                                                             
                                                             <!-- Numéros de page -->
-                                                            <li ng-repeat="pageIndex in generatePageArray(signalconso.nhits, signalconso.parameters.rows || 20, signalconso.parameters.start || 0) track by $index">
+                                                            <li ng-repeat="pageIndex in generatePageArray(signalconso.nhits, 10, signalconso.parameters.start || 0) track by $index">
                                                                 <button class="fr-pagination__link" 
-                                                                        ng-click="signalconso.parameters.start = pageIndex * (signalconso.parameters.rows || 20)"
-                                                                        ng-class="{'fr-pagination__link--active': (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20)}"
+                                                                        ng-click="signalconso.parameters.start = pageIndex * 10"
+                                                                        ng-class="{'fr-pagination__link--active': (signalconso.parameters.start || 0) === pageIndex * 10}"
                                                                         type="button"
-                                                                        ng-attr-aria-current="{{ (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20) ? 'page' : undefined }}"
+                                                                        ng-attr-aria-current="{{ (signalconso.parameters.start || 0) === pageIndex * 10 ? 'page' : undefined }}"
                                                                         title="Page {{pageIndex + 1}}">
                                                                     {{pageIndex + 1}}
                                                                 </button>
                                                             </li>
                                                             
                                                             <!-- Page suivante -->
-                                                            <li ng-if="(signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20) < signalconso.nhits">
+                                                            <li ng-if="(signalconso.parameters.start || 0) + 10 < signalconso.nhits">
                                                                 <button class="fr-pagination__link fr-pagination__link--next" 
-                                                                        ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20)"
+                                                                        ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + 10"
                                                                         type="button">
                                                                     Suivante
                                                                 </button>
@@ -786,8 +816,8 @@
                                                     </nav>
                                                     
                                                     <!-- Information sur la pagination -->
-                                                    <div class="fr-mt-2w fr-text--sm fr-text--center">
-                                                        Affichage de {{(signalconso.parameters.start || 0) + 1}} à {{Math.min((signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20), signalconso.nhits)}} sur {{signalconso.nhits}} résultats
+                                                    <div class="fr-mt-2w fr-text--sm fr-text--center" ng-if="signalconso.nhits > 0">
+                                                        Affichage de {{(signalconso.parameters.start || 0) + 1}} à {{Math.min((signalconso.parameters.start || 0) + 10, signalconso.nhits)}} sur {{signalconso.nhits}} résultats
                                                     </div>
                                                 </div>
                                             </div>
@@ -902,6 +932,31 @@
             </div>
         </div>
     </dialog>
+    
+    <!-- Modal détails fiche -->
+    <dialog id="details-modal" class="fr-modal" role="dialog" aria-labelledby="details-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" onclick="document.getElementById('details-modal').close()" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="details-modal-title" class="fr-modal__title">
+                                Détails du signalement
+                            </h1>
+                            <div id="modal-content-body">
+                                <!-- Le contenu sera injecté ici dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
 
     <!-- JS - Ordre important -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
@@ -921,7 +976,7 @@
             });
         });
         
-        // Configuration Angular pour la pagination
+        // Configuration Angular pour la pagination et détails
         angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
             // Rendre Math disponible dans le scope Angular
             $rootScope.Math = window.Math;
@@ -949,14 +1004,67 @@
                 
                 return pages;
             };
+            
+            // Fonction pour afficher les détails
+            $rootScope.showDetails = function(record) {
+                var modal = document.getElementById('details-modal');
+                var contentBody = document.getElementById('modal-content-body');
+                
+                // Construire le contenu HTML minimaliste
+                var content = '<dl class="fr-mb-0">';
+                
+                // Informations principales
+                if (record.fields.creationdate) {
+                    content += '<dt class="fr-text--bold">Date</dt>';
+                    content += '<dd>' + new Date(record.fields.creationdate).toLocaleDateString('fr-FR') + '</dd>';
+                }
+                
+                if (record.fields.establishmentname) {
+                    content += '<dt class="fr-text--bold">Établissement</dt>';
+                    content += '<dd>' + record.fields.establishmentname + '</dd>';
+                }
+                
+                if (record.fields.city || record.fields.dep_name) {
+                    content += '<dt class="fr-text--bold">Localisation</dt>';
+                    content += '<dd>' + (record.fields.city || '') + ' - ' + (record.fields.dep_name || '') + '</dd>';
+                }
+                
+                if (record.fields.category) {
+                    content += '<dt class="fr-text--bold">Catégorie</dt>';
+                    content += '<dd>' + record.fields.category + '</dd>';
+                }
+                
+                if (record.fields.subcategory) {
+                    content += '<dt class="fr-text--bold">Sous-catégorie</dt>';
+                    content += '<dd>' + record.fields.subcategory + '</dd>';
+                }
+                
+                if (record.fields.status) {
+                    content += '<dt class="fr-text--bold">Statut</dt>';
+                    content += '<dd>' + record.fields.status + '</dd>';
+                }
+                
+                // Afficher tous les autres champs disponibles
+                for (var key in record.fields) {
+                    if (!['creationdate', 'establishmentname', 'city', 'dep_name', 'category', 'subcategory', 'status', 'dep_code', 'reg_code'].includes(key)) {
+                        content += '<dt class="fr-text--bold">' + key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ') + '</dt>';
+                        content += '<dd>' + (record.fields[key] || '-') + '</dd>';
+                    }
+                }
+                
+                content += '</dl>';
+                
+                contentBody.innerHTML = content;
+                modal.showModal();
+            };
         }]);
         
         // Observer pour les changements dynamiques d'ODS
         document.addEventListener('DOMContentLoaded', function() {
-            // Fonction pour améliorer les intitulés de colonnes
-            function improveTableHeaders() {
+            // Fonction pour améliorer les intitulés et ajouter la colonne action
+            function improveTable() {
                 const headerMappings = {
-                    'creationdate': 'Date de création',
+                    'creationdate': 'Date',
                     'establishmentname': 'Établissement',
                     'city': 'Ville',
                     'dep_name': 'Département',
@@ -965,47 +1073,55 @@
                     'status': 'Statut'
                 };
                 
-                // Fonction pour remplacer les intitulés
-                function replaceHeaders() {
-                    const tableHeaders = document.querySelectorAll('.odswidget-table th');
-                    if (tableHeaders.length > 0) {
-                        // Ajouter "N°" pour la première colonne si elle contient des numéros
-                        const firstHeader = tableHeaders[0];
-                        if (firstHeader && (firstHeader.textContent.trim() === '' || !isNaN(firstHeader.textContent.trim()))) {
-                            firstHeader.textContent = 'N°';
-                            firstHeader.setAttribute('scope', 'col');
-                            firstHeader.setAttribute('aria-label', 'Numéro de ligne');
-                            firstHeader.style.textAlign = 'center';
+                setTimeout(function() {
+                    const table = document.querySelector('.odswidget-table table');
+                    if (!table) return;
+                    
+                    // Améliorer les entêtes
+                    const headers = table.querySelectorAll('thead th');
+                    if (headers.length > 0) {
+                        // N° pour la première colonne
+                        if (headers[0]) {
+                            headers[0].textContent = 'N°';
+                            headers[0].style.textAlign = 'center';
+                            headers[0].style.width = '5%';
                         }
                         
-                        // Remplacer les autres intitulés
-                        tableHeaders.forEach(function(th, index) {
-                            if (index > 0) { // Ignorer la première colonne déjà traitée
-                                const text = th.textContent.trim().toLowerCase();
-                                if (headerMappings[text]) {
-                                    th.textContent = headerMappings[text];
-                                    th.setAttribute('scope', 'col');
-                                    th.setAttribute('aria-label', headerMappings[text]);
-                                }
+                        // Remplacer les autres entêtes
+                        headers.forEach(function(th) {
+                            const text = th.textContent.trim().toLowerCase();
+                            if (headerMappings[text]) {
+                                th.textContent = headerMappings[text];
                             }
                         });
-                        return true;
+                        
+                        // Ajouter colonne Action si pas déjà présente
+                        const lastHeader = headers[headers.length - 1];
+                        if (lastHeader && lastHeader.textContent !== 'Action') {
+                            const actionHeader = document.createElement('th');
+                            actionHeader.textContent = 'Action';
+                            actionHeader.style.width = '8%';
+                            actionHeader.style.textAlign = 'center';
+                            actionHeader.setAttribute('scope', 'col');
+                            lastHeader.parentNode.appendChild(actionHeader);
+                        }
                     }
-                    return false;
-                }
-                
-                // Essayer plusieurs fois avec des intervalles croissants
-                let attempts = 0;
-                const maxAttempts = 5;
-                const tryReplace = function() {
-                    if (replaceHeaders() || attempts >= maxAttempts) {
-                        return;
-                    }
-                    attempts++;
-                    setTimeout(tryReplace, 200 * attempts);
-                };
-                
-                tryReplace();
+                    
+                    // Ajouter boutons action dans chaque ligne
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(function(row, index) {
+                        // Vérifier si la colonne action existe déjà
+                        const cells = row.querySelectorAll('td');
+                        const lastCell = cells[cells.length - 1];
+                        
+                        if (lastCell && !lastCell.querySelector('button')) {
+                            const actionCell = document.createElement('td');
+                            actionCell.style.textAlign = 'center';
+                            actionCell.innerHTML = '<button class="fr-btn fr-btn--sm fr-btn--tertiary-no-outline" type="button" onclick="showDetailsFromTable(' + index + ')" title="Voir détails"><span class="fr-icon-eye-line" aria-hidden="true"></span></button>';
+                            row.appendChild(actionCell);
+                        }
+                    });
+                }, 500);
             }
             
             const observer = new MutationObserver(function(mutations) {
@@ -1019,8 +1135,7 @@
                                     table.setAttribute('data-fr-js-table', 'false');
                                     table.setAttribute('data-fr-js-table-element', 'false');
                                 });
-                                // Améliorer les intitulés quand une table est ajoutée
-                                improveTableHeaders();
+                                improveTable();
                             }
                         }
                     });
@@ -1034,10 +1149,39 @@
                     childList: true,
                     subtree: true
                 });
-                // Améliorer les intitulés au chargement initial
-                improveTableHeaders();
+                setTimeout(improveTable, 1000);
             }
         });
+        
+        // Fonction globale pour afficher les détails depuis le tableau
+        function showDetailsFromTable(rowIndex) {
+            // Récupérer les données de la ligne
+            const table = document.querySelector('.odswidget-table table');
+            if (!table) return;
+            
+            const row = table.querySelectorAll('tbody tr')[rowIndex];
+            if (!row) return;
+            
+            const cells = row.querySelectorAll('td');
+            const modal = document.getElementById('details-modal');
+            const contentBody = document.getElementById('modal-content-body');
+            
+            // Construire le contenu depuis les cellules
+            var content = '<dl class="fr-mb-0">';
+            const headers = ['N°', 'Date', 'Établissement', 'Ville', 'Département', 'Catégorie', 'Statut'];
+            
+            cells.forEach(function(cell, index) {
+                if (index < headers.length && cell.textContent.trim()) {
+                    content += '<dt class="fr-text--bold">' + headers[index] + '</dt>';
+                    content += '<dd>' + cell.textContent.trim() + '</dd>';
+                }
+            });
+            
+            content += '</dl>';
+            
+            contentBody.innerHTML = content;
+            modal.showModal();
+        }
     </script>
     
     <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
