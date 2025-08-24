@@ -90,12 +90,6 @@
             overflow-x: auto;
         }
         
-        /* Container du tableau responsive */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 1rem;
-        }
         
         @media (max-width: 768px) {
             .odswidget-table {
@@ -146,22 +140,23 @@
             margin-top: 2rem;
             padding-top: 1rem;
             border-top: 1px solid var(--border-default-grey);
+            display: block !important;
+            visibility: visible !important;
         }
         
-        /* Styles pour la pagination ODS avec apparence DSFR */
-        .odswidget-pagination {
+        /* Styles pour la pagination DSFR */
+        .fr-pagination__list {
             display: flex !important;
             justify-content: center;
             align-items: center;
             gap: 0.25rem;
             flex-wrap: wrap;
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
         
-        /* Tous les éléments de pagination ODS */
-        .odswidget-pagination a,
-        .odswidget-pagination span,
-        .odswidget-pagination button,
-        .odswidget-pagination li {
+        .fr-pagination__link {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -173,34 +168,42 @@
             border: 1px solid var(--border-default-grey);
             text-decoration: none;
             font-size: 0.875rem;
-            line-height: 1.5;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin: 0 0.125rem;
+            white-space: nowrap;
+            overflow: visible;
         }
         
-        /* Hover sur les liens */
-        .odswidget-pagination a:hover:not(.disabled):not(.active) {
+        .fr-pagination__link--prev,
+        .fr-pagination__link--next {
+            min-width: 150px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .fr-pagination__link--prev span,
+        .fr-pagination__link--next span {
+            font-size: 1.25rem;
+            line-height: 1;
+            vertical-align: middle;
+            margin: 0 0.25rem;
+        }
+        
+        .fr-pagination__link:hover:not(.fr-pagination__link--disabled) {
             background: var(--background-action-low-blue-france);
             border-color: var(--border-action-high-blue-france);
             text-decoration: none;
         }
         
-        /* Page active */
-        .odswidget-pagination .active,
-        .odswidget-pagination .current,
-        .odswidget-pagination a.active {
+        .fr-pagination__link--active {
             background: var(--background-action-high-blue-france) !important;
             color: white !important;
             border-color: var(--background-action-high-blue-france) !important;
             font-weight: 700;
-            cursor: default;
         }
         
-        /* Liens désactivés */
-        .odswidget-pagination .disabled,
-        .odswidget-pagination a.disabled,
-        .odswidget-pagination button:disabled {
+        .fr-pagination__link--disabled {
             opacity: 0.5;
             cursor: not-allowed;
             background: var(--background-disabled-grey);
@@ -209,146 +212,145 @@
             pointer-events: none;
         }
         
-        /* Ellipses */
-        .odswidget-pagination .ellipsis {
-            border: none;
-            background: transparent;
-            color: var(--text-mention-grey);
-            cursor: default;
-            pointer-events: none;
+        
+        .text-center {
+            text-align: center;
         }
         
-        /* Navigation précédent/suivant */
-        .odswidget-pagination .prev::before {
-            content: "‹ ";
-            font-size: 1.25rem;
+        
+        /* Styles pour les tables ODS */
+        .odswidget-table {
+            width: 100%;
+            font-family: var(--font-family-base);
+            box-sizing: border-box;
         }
         
-        .odswidget-pagination .next::after {
-            content: " ›";
-            font-size: 1.25rem;
-        }
-        
-        /* Masquer les puces de liste ODS */
-        .odswidget-pagination ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 0.25rem;
-        }
-        
-        .odswidget-pagination li {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
-            border: none;
-            background: none;
-            min-width: auto;
-            min-height: auto;
+        .odswidget-table * {
+            box-sizing: border-box;
         }
         
         .odswidget-table table {
             width: 100%;
-            border-collapse: collapse;
-            display: table !important;
-            min-width: 900px;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+            background: white;
         }
         
-        .odswidget-table th,
-        .odswidget-table td {
-            padding: 0.75rem 0.5rem;
-            text-align: left;
-            border: 1px solid var(--border-default-grey);
-            word-wrap: break-word;
-            word-break: normal;
-            white-space: normal !important;
-            overflow-wrap: break-word;
-            vertical-align: top;
-            line-height: 1.4;
-        }
-        
-        .odswidget-table th {
+        .odswidget-table thead {
             background-color: var(--background-contrast-grey);
-            font-weight: 700;
-            white-space: normal !important;
             position: sticky;
             top: 0;
             z-index: 10;
         }
         
-        .odswidget-table tr:hover {
+        .odswidget-table th,
+        .odswidget-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-default-grey);
+            vertical-align: middle;
+            line-height: 1.5;
+        }
+        
+        .odswidget-table th {
+            background-color: var(--background-contrast-grey);
+            font-weight: 700;
+            color: var(--text-default-grey);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .odswidget-table td {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            background: white;
+        }
+        
+        .odswidget-table tbody tr:hover {
             background-color: var(--background-alt-grey);
         }
         
-        /* Table responsive DSFR */
-        .fr-table__wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+        .odswidget-table tbody tr:nth-child(even) {
+            background-color: var(--background-alt-grey-light, #fafafa);
         }
         
-        /* Forcer la largeur du tableau */
-        .odswidget-table,
-        .odswidget-table table,
-        .odswidget-table__table {
+        /* Reset des styles ODS par défaut */
+        .odswidget-table .odswidget-table__table {
+            display: table !important;
             width: 100% !important;
-            table-layout: fixed !important;
         }
         
-        /* Colonnes avec largeurs fixes et retour à la ligne */
-        .odswidget-table th,
-        .odswidget-table td {
-            overflow-wrap: break-word !important;
-            word-break: break-word !important;
-        }
-        
-        /* Date - 10% */
+        /* Largeurs spécifiques des colonnes - utiliser les mêmes valeurs pour th et td */
         .odswidget-table th:nth-child(1),
         .odswidget-table td:nth-child(1) {
-            width: 10% !important;
-            max-width: 100px !important;
+            width: 12% !important;
+            min-width: 100px;
+            max-width: 120px;
         }
         
-        /* Établissement - 15% */
         .odswidget-table th:nth-child(2),
         .odswidget-table td:nth-child(2) {
-            width: 15% !important;
-            max-width: 150px !important;
+            width: 18% !important;
+            min-width: 150px;
+            max-width: 200px;
         }
         
-        /* Ville - 10% */
         .odswidget-table th:nth-child(3),
         .odswidget-table td:nth-child(3) {
-            width: 10% !important;
-            max-width: 100px !important;
+            width: 12% !important;
+            min-width: 100px;
+            max-width: 150px;
         }
         
-        /* Département - 12% */
         .odswidget-table th:nth-child(4),
         .odswidget-table td:nth-child(4) {
-            width: 12% !important;
-            max-width: 120px !important;
+            width: 14% !important;
+            min-width: 120px;
+            max-width: 180px;
         }
         
-        /* Catégorie - 20% */
         .odswidget-table th:nth-child(5),
         .odswidget-table td:nth-child(5) {
-            width: 20% !important;
-            max-width: 200px !important;
+            width: 17% !important;
+            min-width: 140px;
+            max-width: 200px;
         }
         
-        /* Sous-catégorie - 20% */
         .odswidget-table th:nth-child(6),
         .odswidget-table td:nth-child(6) {
-            width: 20% !important;
-            max-width: 200px !important;
+            width: 17% !important;
+            min-width: 140px;
+            max-width: 200px;
         }
         
-        /* Statut - 13% */
         .odswidget-table th:nth-child(7),
         .odswidget-table td:nth-child(7) {
-            width: 13% !important;
-            max-width: 130px !important;
+            width: 10% !important;
+            min-width: 90px;
+            max-width: 120px;
+        }
+        
+        /* Table responsive */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            .odswidget-table {
+                font-size: 0.8125rem;
+            }
+            
+            .odswidget-table th,
+            .odswidget-table td {
+                padding: 0.5rem;
+            }
         }
         
         /* S'assurer que le contenu ODS est visible */
@@ -515,7 +517,7 @@
                                     signalconso-dataset="signalconso">
                                     
                                     <!-- Initialisation des paramètres -->
-                                    <div ng-init="signalconso.parameters['start'] = signalconso.parameters['start'] || 0"></div>
+                                    <div ng-init="signalconso.parameters['start'] = signalconso.parameters['start'] || 0; signalconso.parameters['rows'] = signalconso.parameters['rows'] || 20"></div>
                                     
                                     <!-- Résumé des filtres actifs -->
                                     <div class="refinement-summary" ng-if="signalconso.parameters">
@@ -737,8 +739,7 @@
                                                                 </label>
                                                                 <select class="fr-select" id="pagesize-select" 
                                                                         ng-model="signalconso.parameters['rows']" 
-                                                                        ng-init="signalconso.parameters['rows'] = 20; pageSize = 20"
-                                                                        ng-change="pageSize = signalconso.parameters['rows']; signalconso.parameters['start'] = 0">
+                                                                        ng-change="signalconso.parameters['start'] = 0">
                                                                     <option value="10">10</option>
                                                                     <option value="20">20</option>
                                                                     <option value="50">50</option>
@@ -749,25 +750,64 @@
                                                     </div>
                                                     
                                                     <!-- Tableau des résultats avec ODS Table standard -->
-                                                    <div class="fr-table" data-fr-js-table="false">
-                                                        <div class="fr-table__wrapper">
-                                                            <div class="fr-table__container">
-                                                                <div class="fr-table__content">
-                                                                    <ods-table 
-                                                                        context="signalconso"
-                                                                        displayed-fields="creationdate,establishmentname,city,dep_name,category,subcategory,status">
-                                                                    </ods-table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                    <div class="table-responsive" data-fr-js-table="false">
+                                                        <ods-table 
+                                                            context="signalconso"
+                                                            displayed-fields="creationdate,establishmentname,city,dep_name,category,subcategory,status">
+                                                        </ods-table>
                                                     </div>
                                                     
-                                                    <!-- Pagination ODS Native avec style DSFR -->
-                                                    <div class="pagination-wrapper fr-mt-3w">
-                                                        <ods-pagination 
-                                                            context="signalconso"
-                                                            per-page="pageSize">
-                                                        </ods-pagination>
+                                                    <!-- Pagination manuelle avec style DSFR -->
+                                                    <div class="pagination-wrapper fr-mt-3w" ng-if="signalconso.nhits > 0">
+                                                        <nav role="navigation" aria-label="Pagination">
+                                                            <ul class="fr-pagination__list">
+                                                                <!-- Bouton Précédent -->
+                                                                <li>
+                                                                    <a class="fr-pagination__link fr-pagination__link--prev" 
+                                                                       ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (signalconso.parameters.rows || 20))"
+                                                                       ng-disabled="!signalconso.parameters.start || signalconso.parameters.start === 0"
+                                                                       ng-class="{'fr-pagination__link--disabled': !signalconso.parameters.start || signalconso.parameters.start === 0}"
+                                                                       href=""
+                                                                       onclick="return false;"
+                                                                       aria-label="Page précédente"
+                                                                       title="Aller à la page précédente">
+                                                                        <span aria-hidden="true">‹</span> Page précédente
+                                                                    </a>
+                                                                </li>
+                                                                
+                                                                <!-- Numéros de page -->
+                                                                <li ng-repeat="pageIndex in generatePageArray(signalconso.nhits, signalconso.parameters.rows || 20, signalconso.parameters.start || 0) track by $index">
+                                                                    <a class="fr-pagination__link" 
+                                                                       ng-click="signalconso.parameters.start = pageIndex * (signalconso.parameters.rows || 20)"
+                                                                       ng-class="{'fr-pagination__link--active': (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20)}"
+                                                                       href=""
+                                                                       onclick="return false;"
+                                                                       ng-attr-aria-current="{{ (signalconso.parameters.start || 0) === pageIndex * (signalconso.parameters.rows || 20) ? 'page' : undefined }}"
+                                                                       title="Page {{pageIndex + 1}}">
+                                                                        {{pageIndex + 1}}
+                                                                    </a>
+                                                                </li>
+                                                                
+                                                                <!-- Bouton Suivant -->
+                                                                <li>
+                                                                    <a class="fr-pagination__link fr-pagination__link--next" 
+                                                                       ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20)"
+                                                                       ng-disabled="(signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20) >= signalconso.nhits"
+                                                                       ng-class="{'fr-pagination__link--disabled': (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20) >= signalconso.nhits}"
+                                                                       href=""
+                                                                       onclick="return false;"
+                                                                       aria-label="Page suivante"
+                                                                       title="Aller à la page suivante">
+                                                                        Page suivante <span aria-hidden="true">›</span>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </nav>
+                                                        
+                                                        <!-- Information sur la pagination -->
+                                                        <div class="fr-mt-2w fr-text--sm text-center">
+                                                            Affichage de {{(signalconso.parameters.start || 0) + 1}} à {{Math.min((signalconso.parameters.start || 0) + (signalconso.parameters.rows || 20), signalconso.nhits)}} sur {{signalconso.nhits}} résultats
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -903,47 +943,63 @@
     
     <!-- Script pour éviter les conflits DSFR/ODS et initialiser la pagination -->
     <script>
+        // Empêcher DSFR de traiter les tables AVANT son chargement
+        window.addEventListener('load', function() {
+            // Marquer toutes les tables comme non-DSFR avant l'initialisation
+            document.querySelectorAll('.fr-table, .fr-table__wrapper, table').forEach(function(elem) {
+                if (elem.closest('#widget-facets-refinement-001')) {
+                    elem.setAttribute('data-fr-js-table', 'false');
+                    elem.setAttribute('data-fr-js-table-element', 'false');
+                }
+            });
+        });
+        
         // Configuration Angular pour la pagination
         angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
             // Rendre Math disponible dans le scope Angular
             $rootScope.Math = window.Math;
             
-            // Initialiser les paramètres de pagination
-            $rootScope.pageSize = 20;
-        }]);
-        
-        // Empêcher DSFR d'initialiser les tables ODS
-        document.addEventListener('DOMContentLoaded', function() {
-            // Supprimer tous les attributs DSFR des tables ODS avant l'initialisation
-            const odsTables = document.querySelectorAll('.odswidget-table, .odswidget-table table, .ods-widget table, .no-dsfr-table');
-            odsTables.forEach(function(element) {
-                // Supprimer tous les attributs data-fr-* sauf ceux qu'on a mis volontairement
-                const attributes = element.attributes;
-                const toRemove = [];
-                for (let i = 0; i < attributes.length; i++) {
-                    if (attributes[i].name.startsWith('data-fr-js-table')) {
-                        element.setAttribute('data-fr-js-table', 'false');
-                    }
+            // Fonction pour générer un tableau de pages
+            $rootScope.generatePageArray = function(nhits, rowsPerPage, currentStart) {
+                if (!nhits || nhits <= 0) return [];
+                
+                var totalPages = Math.ceil(nhits / rowsPerPage);
+                var currentPage = Math.floor((currentStart || 0) / rowsPerPage);
+                var pages = [];
+                
+                // Logique pour afficher les pages autour de la page courante
+                var startPage = Math.max(0, currentPage - 2);
+                var endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                // Ajuster le début si on est proche de la fin
+                if (endPage - startPage < 4 && startPage > 0) {
+                    startPage = Math.max(0, endPage - 4);
                 }
                 
-                // Supprimer les classes DSFR des tables
-                element.classList.remove('fr-table');
-                element.classList.remove('fr-table__wrapper');
-                element.classList.remove('fr-table__container');
-                element.classList.remove('fr-table__content');
-            });
-            
-            // Observer pour les changements dynamiques d'ODS
+                for (var i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+                
+                return pages;
+            };
+        }]);
+        
+        // Observer pour les changements dynamiques d'ODS
+        document.addEventListener('DOMContentLoaded', function() {
             const observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    if (mutation.type === 'childList') {
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1 && (node.classList?.contains('odswidget-table') || node.tagName === 'TABLE')) {
-                                node.setAttribute('data-fr-js-table', 'false');
-                                node.classList.remove('fr-table');
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            // Marquer toutes les nouvelles tables comme non-DSFR
+                            if (node.tagName === 'TABLE' || node.querySelector && node.querySelector('table')) {
+                                const tables = node.tagName === 'TABLE' ? [node] : node.querySelectorAll('table');
+                                tables.forEach(function(table) {
+                                    table.setAttribute('data-fr-js-table', 'false');
+                                    table.setAttribute('data-fr-js-table-element', 'false');
+                                });
                             }
-                        });
-                    }
+                        }
+                    });
                 });
             });
             
