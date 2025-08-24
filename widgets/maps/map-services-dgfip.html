@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Carte interactive des services DGFIP - Centres des impôts et trésoreries">
+    <title>Services DGFIP - Carte Interactive</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        .widget-container {
+            min-height: 600px;
+            background-color: #f6f6f6;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .map-container {
+            height: 600px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .filter-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            border-left: 4px solid #000091;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000091;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Style pour les marqueurs */
+        .leaflet-marker-icon.service-marker {
+            background-color: #000091;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        /* Légende personnalisée */
+        .map-legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil">
+                                <p class="fr-header__service-title">
+                                    Services DGFIP
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Localisation des centres des impôts et trésoreries</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+                <div class="fr-col-12">
+                    <h1>Carte des services DGFIP</h1>
+                    <p class="fr-text--lead">Trouvez les centres des impôts, trésoreries et points d'accueil près de chez vous</p>
+                </div>
+            </div>
+
+            <!-- Widget Container -->
+            <div class="widget-container" ng-app="ods-widgets" ng-controller="DGFIPMapController">
+                <ods-dataset-context 
+                    context="dgfip"
+                    dgfip-domain="data.economie.gouv.fr"
+                    dgfip-dataset="coordonnees-des-structures-dgfip"
+                    dgfip-parameters="params">
+                    
+                    <!-- Statistiques -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ getServiceCount() || '...' }}</div>
+                            <div class="stat-label">Services disponibles</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ getDepartmentCount() || '...' }}</div>
+                            <div class="stat-label">Départements couverts</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ getSelectedType() || 'Tous' }}</div>
+                            <div class="stat-label">Type sélectionné</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">{{ activeFilters || 0 }}</div>
+                            <div class="stat-label">Filtres actifs</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Panneau de filtres -->
+                    <div class="filter-panel">
+                        <h2 class="fr-h4">Filtres de recherche</h2>
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                            
+                            <!-- Filtre par type de service -->
+                            <div class="fr-col-12 fr-col-md-4">
+                                <div class="fr-select-group">
+                                    <label class="fr-label" for="type-select">
+                                        Type de service
+                                        <span class="fr-hint-text">Sélectionnez le type d'établissement</span>
+                                    </label>
+                                    <select class="fr-select" id="type-select" 
+                                            ng-model="selectedType" 
+                                            ng-change="updateFilters()">
+                                        <option value="">Tous les services</option>
+                                        <option value="Centre des Finances Publiques">Centre des Finances Publiques</option>
+                                        <option value="Trésorerie">Trésorerie</option>
+                                        <option value="Service des Impôts des Particuliers">Service des Impôts des Particuliers</option>
+                                        <option value="Service des Impôts des Entreprises">Service des Impôts des Entreprises</option>
+                                        <option value="Accueil de proximité">Accueil de proximité</option>
+                                        <option value="Permanences finances publiques">Permanences finances publiques</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Filtre par département -->
+                            <div class="fr-col-12 fr-col-md-4">
+                                <div class="fr-input-group">
+                                    <label class="fr-label" for="dept-input">
+                                        Département (code)
+                                        <span class="fr-hint-text">Entrez le numéro du département</span>
+                                    </label>
+                                    <input class="fr-input" type="text" id="dept-input" 
+                                           ng-model="selectedDept" 
+                                           ng-change="updateFilters()"
+                                           placeholder="Ex: 75, 92, 13"
+                                           aria-describedby="dept-input-hint">
+                                </div>
+                            </div>
+                            
+                            <!-- Recherche par ville -->
+                            <div class="fr-col-12 fr-col-md-4">
+                                <div class="fr-input-group">
+                                    <label class="fr-label" for="city-search">
+                                        Rechercher une ville
+                                    </label>
+                                    <input class="fr-input" type="text" id="city-search" 
+                                           ng-model="citySearch" 
+                                           ng-change="updateFilters()"
+                                           placeholder="Ex: Paris, Lyon, Marseille">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bouton de réinitialisation -->
+                        <div class="fr-mt-3w">
+                            <button class="fr-btn fr-btn--secondary" ng-click="resetFilters()">
+                                Réinitialiser les filtres
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Carte interactive -->
+                    <div class="map-container" role="region" aria-label="Carte interactive des services DGFIP" aria-describedby="map-help">
+                        <div id="map-help" class="fr-sr-only">Carte interactive affichant les centres des finances publiques. Utilisez la souris ou les contrôles tactiles pour naviguer.</div>
+                        <ods-map 
+                            location="6,46.5,2.5"
+                            basemap="jawg.streets"
+                            scroll-wheel-zoom="true"
+                            search-box="false"
+                            toolbar-fullscreen="true"
+                            toolbar-drawing="false">
+                            
+                            <!-- Couche des services DGFIP avec coordonnées GPS -->
+                            <ods-map-layer 
+                                context="dgfip"
+                                location="geocodage"
+                                color="#000091"
+                                picto="dot"
+                                display="auto"
+                                show-marker="true"
+                                clustered="true"
+                                cluster-mode="polygon"
+                                caption="{{ fields.type_de_service }}&lt;br&gt;{{ fields.adresse }}&lt;br&gt;{{ fields.code_postal }} {{ fields.commune }}"
+                                title="{{ fields.nom_de_la_structure || fields.type_de_service }}"
+                                size="4">
+                            </ods-map-layer>
+                        </ods-map>
+                    </div>
+                    
+                    <!-- Légende -->
+                    <div class="map-legend">
+                        <h3 class="fr-h5">Légende</h3>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #000091;"></div>
+                            <span>Services DGFIP</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #91b3d0;"></div>
+                            <span>Zones de regroupement (clusters)</span>
+                        </div>
+                        <p class="fr-text--sm fr-mt-2w">
+                            <strong>Astuce :</strong> Zoomez pour voir plus de détails et cliquez sur les marqueurs pour obtenir les informations de contact.
+                        </p>
+                    </div>
+                    
+                    <!-- Table des résultats -->
+                    <div class="fr-mt-4w">
+                        <div class="fr-card">
+                            <div class="fr-card__header">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title fr-h4">Liste des services</h3>
+                                </div>
+                            </div>
+                            <div class="fr-card__body">
+                                <p class="fr-text--sm fr-mb-2w">Résultats filtrés (limité à 50 entrées)</p>
+                                <ods-table 
+                                    context="dgfip"
+                                    displayed-fields="nom_de_la_structure,type_de_service,adresse,code_postal,commune,departement,telephone"
+                                    sort="commune">
+                                </ods-table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </ods-dataset-context>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Carte interactive des services de la Direction Générale des Finances Publiques
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr">
+                                data.economie.gouv.fr
+                            </a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://www.impots.gouv.fr">
+                                impots.gouv.fr
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <!-- Controller Angular -->
+    <script>
+        angular.module('ods-widgets').controller('DGFIPMapController', ['$scope', '$timeout', function($scope, $timeout) {
+            // Initialisation
+            $scope.selectedType = '';
+            $scope.selectedDept = '';
+            $scope.citySearch = '';
+            $scope.activeFilters = 0;
+            $scope.params = {};
+            
+            // Mise à jour des filtres
+            $scope.updateFilters = function() {
+                $scope.params = {};
+                $scope.activeFilters = 0;
+                
+                if ($scope.selectedType) {
+                    $scope.params['refine.type_de_service'] = $scope.selectedType;
+                    $scope.activeFilters++;
+                }
+                
+                if ($scope.selectedDept) {
+                    $scope.params['refine.departement'] = $scope.selectedDept;
+                    $scope.activeFilters++;
+                }
+                
+                if ($scope.citySearch) {
+                    $scope.params['q'] = $scope.citySearch;
+                    $scope.activeFilters++;
+                }
+                
+                // Forcer la mise à jour du contexte
+                if ($scope.dgfip) {
+                    $scope.dgfip.parameters = $scope.params;
+                }
+            };
+            
+            // Réinitialiser les filtres
+            $scope.resetFilters = function() {
+                $scope.selectedType = '';
+                $scope.selectedDept = '';
+                $scope.citySearch = '';
+                $scope.updateFilters();
+            };
+            
+            // Obtenir le nombre de services
+            $scope.getServiceCount = function() {
+                if ($scope.dgfip && $scope.dgfip.nhits) {
+                    return $scope.dgfip.nhits;
+                }
+                return '3000+';
+            };
+            
+            // Obtenir le nombre de départements
+            $scope.getDepartmentCount = function() {
+                return '101';
+            };
+            
+            // Obtenir le type sélectionné pour l'affichage
+            $scope.getSelectedType = function() {
+                if ($scope.selectedType) {
+                    return $scope.selectedType.split(' ')[0] + '...';
+                }
+                return 'Tous';
+            };
+            
+            // Log pour debug
+            $scope.$watch('dgfip', function(newVal) {
+                if (newVal) {
+                    console.log('Contexte DGFIP chargé:', newVal.nhits, 'services');
+                }
+            });
+        }]);
+    </script>
+</body>
+</html>

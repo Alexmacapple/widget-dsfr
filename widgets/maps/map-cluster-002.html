@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Map Cluster - Carte avec clustering intelligent pour données SignalConso">
-    <title>Widget DSFR - Map Cluster</title>
+    <meta name="description" content="Widget Map Cluster - Carte avec clustering intelligent pour services DGFIP">
+    <title>Services DGFIP - Carte avec clustering</title>
     
     <!-- Favicon DSFR -->
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
@@ -201,7 +201,7 @@
                                     Widget Map Cluster
                                 </p>
                             </a>
-                            <p class="fr-header__service-tagline">Carte avec clustering intelligent - data.economie.gouv.fr</p>
+                            <p class="fr-header__service-tagline">Clustering des services DGFIP - data.economie.gouv.fr</p>
                         </div>
                     </div>
                 </div>
@@ -230,17 +230,17 @@
             <!-- Titre principal -->
             <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
                 <div class="fr-col-12">
-                    <h1>Carte avec clustering intelligent</h1>
-                    <p class="fr-text--lead">Visualisation optimisée des signalements par regroupement dynamique</p>
+                    <h1>Carte avec clustering intelligent - Services DGFIP</h1>
+                    <p class="fr-text--lead">Visualisation optimisée des centres des finances publiques par regroupement dynamique</p>
                 </div>
             </div>
 
             <!-- DÉBUT ZONE WIDGET MAP-CLUSTER-002 -->
             <div id="widget-map-cluster-002" class="widget-container" ng-app="ods-widgets" ng-controller="MapClusterController" ng-cloak>
                 <ods-dataset-context 
-                    context="signalconso"
-                    signalconso-domain="data.economie.gouv.fr"
-                    signalconso-dataset="signalconso">
+                    context="dgfip"
+                    dgfip-domain="data.economie.gouv.fr"
+                    dgfip-dataset="coordonnees-des-structures-dgfip">
                     
                     <!-- Contrôles de clustering -->
                     <div class="cluster-controls">
@@ -410,7 +410,7 @@
                         
                         <!-- Carte ODS avec clustering -->
                         <ods-map 
-                            context="signalconso"
+                            context="dgfip"
                             location="6,46.5,2.5"
                             basemap="france"
                             scroll-wheel-zoom="true"
@@ -419,7 +419,7 @@
                             toolbar-drawing="false">
                             
                             <ods-map-layer 
-                                context="signalconso"
+                                context="dgfip"
                                 color-categories="true"
                                 color-by-field="category"
                                 color-categories-other="false"
@@ -438,8 +438,8 @@
                                 cluster-radius="{{clusterRadius}}"
                                 display="clustered"
                                 tooltip-sort="-date_creation"
-                                title="{{fields.nom_etablissement || 'Signalement'}}"
-                                caption="Catégorie: {{fields.categorie}}<br>Date: {{fields.date_creation | date}}<br>Ville: {{fields.ville}}<br>Département: {{fields.dep}}"
+                                title="{{fields.nom_de_la_structure || fields.type_de_service}}"
+                                caption="Type: {{fields.type_de_service}}<br>Adresse: {{fields.adresse}}<br>{{fields.code_postal}} {{fields.commune}}<br>Tél: {{fields.telephone}}"
                                 show-zoom-max="18"
                                 show-zoom-min="1">
                             </ods-map-layer>
@@ -606,9 +606,9 @@
                 if ($scope.categories.voiture) activeCategories.push('Voiture / Véhicule');
                 
                 if (activeCategories.length > 0 && activeCategories.length < 5) {
-                    $scope.signalconso.parameters['refine.category'] = activeCategories.join(' OR ');
+                    $scope.dgfip.parameters['refine.type_de_service'] = activeCategories.join(' OR ');
                 } else {
-                    delete $scope.signalconso.parameters['refine.category'];
+                    delete $scope.dgfip.parameters['refine.type_de_service'];
                 }
             };
             
@@ -630,7 +630,7 @@
             // Mettre à jour les statistiques de clustering
             $scope.updateClusterStats = function() {
                 // Simuler le calcul des statistiques (en production, ces données viendraient de l'API)
-                $scope.totalPoints = $scope.signalconso ? $scope.signalconso.nhits : 0;
+                $scope.totalPoints = $scope.dgfip ? $scope.dgfip.nhits : 0;
                 $scope.totalClusters = Math.floor($scope.totalPoints / ($scope.clusterThreshold * 5));
                 $scope.avgPointsPerCluster = $scope.totalClusters > 0 ? $scope.totalPoints / $scope.totalClusters : 0;
                 $scope.maxClusterSize = Math.floor($scope.avgPointsPerCluster * 2.5);
@@ -714,7 +714,7 @@
             }, 1000);
             
             // Initialiser les statistiques
-            $scope.$watch('signalconso.nhits', function(newVal) {
+            $scope.$watch('dgfip.nhits', function(newVal) {
                 if (newVal) {
                     $scope.updateClusterStats();
                 }

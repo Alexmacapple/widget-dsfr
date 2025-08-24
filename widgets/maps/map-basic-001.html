@@ -2,13 +2,17 @@
 <html lang="fr" data-fr-theme="light">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Map Basic - Carte géographique basique pour données SignalConso">
-    <title>Widget DSFR - Map Basic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Carte interactive des services de la Direction Générale des Finances Publiques en France">
+    <meta name="author" content="Ministère de l'Économie, des Finances et de la Souveraineté industrielle et numérique">
+    <meta name="keywords" content="DGFIP, finances publiques, impôts, carte, services publics">
+    <title>Carte des services DGFIP - Localisation interactive</title>
     
     <!-- Favicon DSFR -->
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
     <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/manifest.webmanifest" crossorigin="use-credentials">
     
     <!-- CSS - Ordre important : ODS puis DSFR -->
     <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
@@ -153,12 +157,12 @@
                             </div>
                         </div>
                         <div class="fr-header__service">
-                            <a href="/" title="Accueil - Widget DSFR">
+                            <a href="/" title="Accueil - Services DGFIP">
                                 <p class="fr-header__service-title">
-                                    Widget Map Basic
+                                    Services DGFIP
                                 </p>
                             </a>
-                            <p class="fr-header__service-tagline">Carte géographique - data.economie.gouv.fr</p>
+                            <p class="fr-header__service-tagline">Localisation des centres des finances publiques</p>
                         </div>
                     </div>
                 </div>
@@ -187,8 +191,8 @@
             <!-- Titre principal -->
             <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
                 <div class="fr-col-12">
-                    <h1>Carte géographique - SignalConso</h1>
-                    <p class="fr-text--lead">Localisation géographique des signalements consommateurs</p>
+                    <h1>Carte interactive des services DGFIP</h1>
+                    <p class="fr-text--lead">Trouvez les centres des impôts et trésoreries près de chez vous</p>
                 </div>
             </div>
 
@@ -198,24 +202,23 @@
                     <div class="fr-card">
                         <div class="fr-card__body">
                             <div class="fr-card__content">
-                                <h2 class="fr-card__title">Répartition géographique des signalements</h2>
-                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
+                                <h2 class="fr-card__title">Localisation des services</h2>
+                                <p class="fr-card__desc">Plus de 3000 points d'accueil en France - Source : data.economie.gouv.fr</p>
                             </div>
                         </div>
                         <div class="fr-card__body">
                             <!-- DÉBUT ZONE WIDGET MAP-BASIC-001 -->
                             <div id="widget-map-basic-001" class="widget-container" ng-app="ods-widgets" ng-controller="MapBasicController" ng-cloak>
                                 <ods-dataset-context 
-                                    context="signalconso"
-                                    signalconso-domain="data.economie.gouv.fr"
-                                    signalconso-dataset="signalconso">
+                                    context="dgfip"
+                                    dgfip-domain="data.economie.gouv.fr"
+                                    dgfip-dataset="coordonnees-des-structures-dgfip">
                                     
-                                    <!-- Debug info -->
-                                    <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px;">
-                                        <strong>Debug:</strong> 
-                                        Résultats: {{ signalconso.nhits || 'chargement...' }} |
-                                        Contexte: {{ signalconso ? 'OK' : 'NON' }} |
-                                        Dataset: {{ signalconso.dataset.datasetid || 'chargement...' }}
+                                    <!-- Info box DSFR -->
+                                    <div class="fr-callout fr-callout--blue-france fr-mb-3w" role="region" aria-label="Informations sur les services">
+                                        <h3 class="fr-callout__title">Services disponibles</h3>
+                                        <p class="fr-callout__text"> 
+                                        {{ dgfip.nhits || 0 | number }} structures DGFIP localisées sur la carte
                                     </div>
                                     
                                     <!-- Contrôles de la carte avec composants DSFR améliorés -->
@@ -250,33 +253,37 @@
                                                         <div class="fr-grid-row fr-grid-row--gutters">
                                                             <div class="fr-col-12 fr-col-md-4">
                                                                 <div class="fr-select-group">
-                                                                    <label class="fr-label" for="period-select-map">
-                                                                        Période d'analyse
+                                                                    <label class="fr-label" for="type-select-map">
+                                                                        Type de service
+                                                                        <span class="fr-hint-text">Filtrer par type d'établissement</span>
                                                                     </label>
-                                                                    <select class="fr-select" id="period-select-map" 
-                                                                            ng-model="signalconso.parameters['refine.date_creation']">
-                                                                        <option value="">Toutes périodes</option>
-                                                                        <option value="[2024-01-01 TO 2024-12-31]">2024</option>
-                                                                        <option value="[2023-01-01 TO 2023-12-31]">2023</option>
-                                                                        <option value="[NOW-1YEAR TO NOW]">12 derniers mois</option>
-                                                                        <option value="[NOW-6MONTHS TO NOW]">6 derniers mois</option>
-                                                                        <option value="[NOW-3MONTHS TO NOW]">3 derniers mois</option>
+                                                                    <select class="fr-select" id="type-select-map" 
+                                                                            ng-model="dgfip.parameters['refine.type_de_service']"
+                                                                            aria-describedby="type-select-map-hint">
+                                                                        <option value="">Tous les services</option>
+                                                                        <option value="Centre des Finances Publiques">Centre des Finances Publiques</option>
+                                                                        <option value="Trésorerie">Trésorerie</option>
+                                                                        <option value="Service des Impôts des Particuliers">Service des Impôts des Particuliers</option>
+                                                                        <option value="Service des Impôts des Entreprises">Service des Impôts des Entreprises</option>
+                                                                        <option value="Accueil de proximité">Accueil de proximité</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
                                                             <div class="fr-col-12 fr-col-md-4">
                                                                 <div class="fr-select-group">
-                                                                    <label class="fr-label" for="category-select-map">
-                                                                        Catégorie
+                                                                    <label class="fr-label" for="dept-select-map">
+                                                                        Département
+                                                                        <span class="fr-hint-text">Filtrer par département</span>
                                                                     </label>
-                                                                    <select class="fr-select" id="category-select-map"
-                                                                            ng-model="signalconso.parameters['refine.categorie']">
-                                                                        <option value="">Toutes catégories</option>
-                                                                        <option value="Téléphonie - Internet - TV">Téléphonie - Internet - TV</option>
-                                                                        <option value="Voyage - Loisirs">Voyage - Loisirs</option>
-                                                                        <option value="Travaux - Rénovation">Travaux - Rénovation</option>
-                                                                        <option value="Produits - Objets">Produits - Objets</option>
-                                                                        <option value="Voiture / Véhicule">Voiture / Véhicule</option>
+                                                                    <select class="fr-select" id="dept-select-map"
+                                                                            ng-model="dgfip.parameters['refine.departement']"
+                                                                            aria-describedby="dept-select-map-hint">
+                                                                        <option value="">Tous les départements</option>
+                                                                        <option value="75">75 - Paris</option>
+                                                                        <option value="92">92 - Hauts-de-Seine</option>
+                                                                        <option value="93">93 - Seine-Saint-Denis</option>
+                                                                        <option value="94">94 - Val-de-Marne</option>
+                                                                        <option value="69">69 - Rhône</option>
                                                                     </select>
                                                                 </div>
                                                             </div>
@@ -340,20 +347,31 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Carte interactive -->
-                                    <div class="map-container">
+                                    <!-- Carte interactive avec accessibilité améliorée -->
+                                    <div class="map-container" role="region" aria-label="Carte interactive des services DGFIP" aria-describedby="map-description">
+                                        <div id="map-description" class="fr-sr-only">Carte interactive permettant de localiser les centres des finances publiques en France. Utilisez les contrôles pour zoomer et naviguer.</div>
                                         <ods-map 
-                                            context="signalconso"
+                                            context="dgfip"
                                             location="6,46.5,2.5"
-                                            basemap="france"
+                                            basemap="jawg.streets"
                                             scroll-wheel-zoom="false"
                                             search-box="true"
                                             toolbar-fullscreen="true"
-                                            toolbar-drawing="false">
+                                            toolbar-drawing="false"
+                                            aria-label="Carte des services DGFIP">
                                             
-                                            <!-- Couche principale des signalements -->
+                                            <!-- Couche principale des services DGFIP avec GPS -->
                                             <ods-map-layer 
-                                                context="signalconso">
+                                                context="dgfip"
+                                                location="geocodage"
+                                                color="#000091"
+                                                picto="dot"
+                                                display="auto"
+                                                show-marker="true"
+                                                clustered="true"
+                                                caption="Type: {{ fields.type_de_service }}&lt;br&gt;Adresse: {{ fields.adresse }}&lt;br&gt;{{ fields.code_postal }} {{ fields.commune }}&lt;br&gt;Tél: {{ fields.telephone }}"
+                                                title="{{ fields.nom_de_la_structure || fields.type_de_service }}"
+                                                size="4">
                                             </ods-map-layer>
                                         </ods-map>
                                     </div>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Widget Map Heatmap - Carte de densité pour données SignalConso">
-    <title>Widget DSFR - Map Heatmap</title>
+    <meta name="description" content="Widget Map Heatmap - Carte de densité des services douaniers">
+    <title>Services Douaniers - Carte de densité</title>
     
     <!-- Favicon DSFR -->
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
@@ -115,7 +115,7 @@
                                     Widget Map Heatmap
                                 </p>
                             </a>
-                            <p class="fr-header__service-tagline">Carte de densité - data.economie.gouv.fr</p>
+                            <p class="fr-header__service-tagline">Densité des services douaniers - data.economie.gouv.fr</p>
                         </div>
                     </div>
                 </div>
@@ -144,8 +144,8 @@
             <!-- Titre principal -->
             <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
                 <div class="fr-col-12">
-                    <h1>Carte de densité - SignalConso</h1>
-                    <p class="fr-text--lead">Analyse de la densité géographique des signalements</p>
+                    <h1>Carte de densité - Services Douaniers</h1>
+                    <p class="fr-text--lead">Analyse de la densité géographique des bureaux de douane ouverts au public</p>
                 </div>
             </div>
 
@@ -155,7 +155,7 @@
                     <div class="fr-card">
                         <div class="fr-card__body">
                             <div class="fr-card__content">
-                                <h2 class="fr-card__title">Densité géographique des signalements</h2>
+                                <h2 class="fr-card__title">Densité géographique des services douaniers</h2>
                                 <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
                             </div>
                         </div>
@@ -163,9 +163,9 @@
                             <!-- DÉBUT ZONE WIDGET MAP-HEATMAP-001 -->
                             <div id="widget-map-heatmap-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
                                 <ods-dataset-context 
-                                    context="signalconso"
-                                    signalconso-domain="data.economie.gouv.fr"
-                                    signalconso-dataset="signalconso">
+                                    context="douanes"
+                                    douanes-domain="data.economie.gouv.fr"
+                                    douanes-dataset="adresses-des-services-douaniers-ouverts-au-public0">
                                     
                                     <!-- Contrôles de la carte -->
                                     <div class="map-controls">
@@ -173,32 +173,32 @@
                                             <div class="fr-col-12 fr-col-md-4">
                                                 <div class="fr-select-group">
                                                     <label class="fr-label" for="period-select-heatmap">
-                                                        Période d'analyse
+                                                        Région
                                                     </label>
                                                     <select class="fr-select" id="period-select-heatmap" 
-                                                            ng-model="signalconso.parameters['refine.date_creation']">
-                                                        <option value="">Toutes périodes</option>
-                                                        <option value="[2024-01-01 TO 2024-12-31]">2024</option>
-                                                        <option value="[2023-01-01 TO 2023-12-31]">2023</option>
-                                                        <option value="[NOW-1YEAR TO NOW]">12 derniers mois</option>
-                                                        <option value="[NOW-6MONTHS TO NOW]">6 derniers mois</option>
-                                                        <option value="[NOW-3MONTHS TO NOW]">3 derniers mois</option>
+                                                            ng-model="douanes.parameters['refine.region']">
+                                                        <option value="">Toutes régions</option>
+                                                        <option value="Île-de-France">Île-de-France</option>
+                                                        <option value="Nouvelle-Aquitaine">Nouvelle-Aquitaine</option>
+                                                        <option value="Hauts-de-France">Hauts-de-France</option>
+                                                        <option value="Grand Est">Grand Est</option>
+                                                        <option value="Bretagne">Bretagne</option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="fr-col-12 fr-col-md-4">
                                                 <div class="fr-select-group">
                                                     <label class="fr-label" for="category-select-heatmap">
-                                                        Catégorie
+                                                        Type de service
                                                     </label>
                                                     <select class="fr-select" id="category-select-heatmap"
-                                                            ng-model="signalconso.parameters['refine.categorie']">
-                                                        <option value="">Toutes catégories</option>
-                                                        <option value="Téléphonie - Internet - TV">Téléphonie - Internet - TV</option>
-                                                        <option value="Voyage - Loisirs">Voyage - Loisirs</option>
-                                                        <option value="Travaux - Rénovation">Travaux - Rénovation</option>
-                                                        <option value="Produits - Objets">Produits - Objets</option>
-                                                        <option value="Voiture / Véhicule">Voiture / Véhicule</option>
+                                                            ng-model="douanes.parameters['refine.type_bureau']">
+                                                        <option value="">Tous types</option>
+                                                        <option value="Bureau de douane">Bureau de douane</option>
+                                                        <option value="Recette régionale">Recette régionale</option>
+                                                        <option value="Direction régionale">Direction régionale</option>
+                                                        <option value="Centre de dédouanement">Centre de dédouanement</option>
+                                                        <option value="Brigade">Brigade</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -221,17 +221,18 @@
                                     <!-- Carte heatmap -->
                                     <div class="map-container">
                                         <ods-map 
-                                            context="signalconso"
+                                            context="douanes"
                                             location="6,46.5,2.5"
-                                            basemap="france"
+                                            basemap="jawg.streets"
                                             scroll-wheel-zoom="false"
                                             search-box="true"
                                             toolbar-fullscreen="true"
                                             toolbar-drawing="false">
                                             
-                                            <!-- Couche heatmap -->
+                                            <!-- Couche heatmap avec GPS -->
                                             <ods-map-layer 
-                                                context="signalconso"
+                                                context="douanes"
+                                                location="geolocalisation_latitude_longitude"
                                                 display="heatmap"
                                                 color="#FF6B35"
                                                 point-opacity="0.6"
@@ -242,9 +243,10 @@
                                                 show-zoom-min="1">
                                             </ods-map-layer>
                                             
-                                            <!-- Couche de points pour interaction -->
+                                            <!-- Couche de points pour interaction avec GPS -->
                                             <ods-map-layer 
-                                                context="signalconso"
+                                                context="douanes"
+                                                location="geolocalisation_latitude_longitude"
                                                 display="clustered"
                                                 color="#0063cb"
                                                 border-color="#ffffff"
@@ -256,8 +258,8 @@
                                                 cluster-mode="automatic"
                                                 show-zoom-min="10"
                                                 show-zoom-max="18"
-                                                title="{{fields.nom_etablissement}}"
-                                                caption="Catégorie: {{fields.categorie}}<br>Date: {{fields.date_creation | date}}<br>Ville: {{fields.ville}}<br>Département: {{fields.dep}}">
+                                                title="{{fields.nom_du_service}}"
+                                                caption="Type: {{fields.type_bureau}}<br>Adresse: {{fields.adresse}}<br>{{fields.code_postal}} {{fields.commune}}<br>Horaires: {{fields.horaires_d_ouverture}}">
                                             </ods-map-layer>
                                         </ods-map>
                                     </div>
@@ -306,7 +308,7 @@
                                                     </thead>
                                                     <tbody>
                                                         <ods-analysis 
-                                                            context="signalconso"
+                                                            context="douanes"
                                                             max="10"
                                                             sort="-count">
                                                             <ods-analysis-serie 
@@ -327,7 +329,7 @@
                                                 <h3 class="fr-callout__title">Total points</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.nhits | number }}
+                                                        {{ douanes.nhits | number }}
                                                     </span>
                                                 </p>
                                             </div>
@@ -358,7 +360,7 @@
                                                 <h3 class="fr-callout__title">Couverture</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.nhits > 0 ? '1000+' : '0' }}
+                                                        {{ douanes.nhits > 0 ? '250+' : '0' }}
                                                     </span>
                                                     villes
                                                 </p>
@@ -389,7 +391,7 @@
                 </div>
                 <div class="fr-footer__content">
                     <p class="fr-footer__content-desc">
-                        Widget de carte de densité des données SignalConso. 
+                        Widget de carte de densité des services douaniers. 
                         Données issues de data.economie.gouv.fr
                     </p>
                     <ul class="fr-footer__content-list">
