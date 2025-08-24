@@ -227,8 +227,8 @@
                         <!-- Légende et informations -->
                         <div class="fr-alert fr-alert--info fr-mt-3w">
                             <p class="fr-alert__title">À propos de ces données</p>
-                            <p>Répartition géographique des signalements SignalConso par région administrative. 
-                            Les données sont agrégées sur les 12 derniers mois et mises à jour quotidiennement.</p>
+                            <p>Répartition géographique des signalements SignalConso par région. 
+                            Les données sont récupérées en temps réel depuis l'API officielle data.economie.gouv.fr.</p>
                         </div>
                     </div>
                 </div>
@@ -255,26 +255,66 @@
             ]
         };
         
-        // Données des régions françaises (simulées)
-        const regionData = {
-            'Île-de-France': 45000,
-            'Auvergne-Rhône-Alpes': 32000,
-            'Nouvelle-Aquitaine': 28000,
-            'Occitanie': 26000,
-            'Hauts-de-France': 24000,
-            'Provence-Alpes-Côte d\'Azur': 23000,
-            'Grand Est': 21000,
-            'Pays de la Loire': 19000,
-            'Bretagne': 18000,
-            'Normandie': 16000,
-            'Bourgogne-Franche-Comté': 14000,
-            'Centre-Val de Loire': 12000,
-            'Corse': 3000
-        };
+        // Variables globales pour les données
+        let chartLabels = [];
+        let chartValues = [];
+        let myChart = null;
         
-        // Préparation des données initiales
-        let chartLabels = Object.keys(regionData);
-        let chartValues = Object.values(regionData);
+        // Chargement des données depuis l'API SignalConso
+        async function loadDataFromAPI() {
+            try {
+                // Afficher un indicateur de chargement
+                document.getElementById('barChart').style.opacity = '0.5';
+                
+                // Récupérer les données depuis l'API
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&facet=prenom_region');
+                const data = await response.json();
+                
+                // Agréger les données par région
+                const regionData = {};
+                
+                // Utiliser les facettes pour obtenir le compte par région
+                if (data.facet_groups && data.facet_groups.length > 0) {
+                    const regionFacet = data.facet_groups.find(fg => fg.name === 'prenom_region');
+                    if (regionFacet && regionFacet.facets) {
+                        regionFacet.facets.forEach(facet => {
+                            if (facet.name && facet.count > 0) {
+                                regionData[facet.name] = facet.count;
+                            }
+                        });
+                    }
+                }
+                
+                // Si pas de facettes, agréger manuellement
+                if (Object.keys(regionData).length === 0) {
+                    data.records.forEach(record => {
+                        const region = record.fields.prenom_region || 'Non spécifié';
+                        regionData[region] = (regionData[region] || 0) + 1;
+                    });
+                }
+                
+                // Trier par nombre de signalements décroissant
+                const sortedRegions = Object.entries(regionData)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 15); // Limiter aux 15 premières régions
+                
+                chartLabels = sortedRegions.map(r => r[0]);
+                chartValues = sortedRegions.map(r => r[1]);
+                
+                // Restaurer l'opacité
+                document.getElementById('barChart').style.opacity = '1';
+                
+                // Initialiser le graphique avec les données réelles
+                initChart();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Afficher un message d'erreur
+                document.getElementById('barChart').style.opacity = '1';
+                alert('Erreur lors du chargement des données. Veuillez réessayer.');
+            }
+        }
         
         // Configuration du graphique
         const config = {
@@ -350,9 +390,20 @@
             }
         };
         
-        // Initialisation du graphique
-        const ctx = document.getElementById('barChart').getContext('2d');
-        let myChart = new Chart(ctx, config);
+        // Fonction d'initialisation du graphique
+        function initChart() {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            // Mise à jour de la configuration avec les nouvelles données
+            config.data.labels = chartLabels;
+            config.data.datasets[0].data = chartValues;
+            
+            myChart = new Chart(ctx, config);
+        }
         
         // Mise à jour des statistiques
         function updateStats() {
@@ -373,6 +424,8 @@
         // Changement de type de graphique
         function changeChartType() {
             const chartType = document.getElementById('chart-type').value;
+            
+            if (!myChart) return;
             
             // Détruire le graphique actuel
             myChart.destroy();
@@ -550,12 +603,16 @@
             }
         }
         
-        // Initialisation
-        updateStats();
+        // Chargement initial des données au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromAPI();
+        });
         
         // Adaptation responsive
         window.addEventListener('resize', () => {
-            myChart.resize();
+            if (myChart) {
+                myChart.resize();
+            }
         });
     </script>
     

@@ -163,11 +163,122 @@
             warning: 'rgba(179, 64, 0, 0.6)'
         };
         
-        // Données simulées
-        const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
-        const commerceData = [1200, 1400, 1100, 1600, 1800, 2000, 2200, 2100, 1900, 2300, 2500, 2700];
-        const servicesData = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
-        const transportData = [400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950];
+        // Variables globales pour les données
+        let months = [];
+        let commerceData = [];
+        let servicesData = [];
+        let transportData = [];
+        let myChart = null;
+        
+        // Chargement des données depuis l'API SignalConso
+        async function loadDataFromAPI() {
+            try {
+                // Afficher un indicateur de chargement
+                document.getElementById('areaChart').style.opacity = '0.5';
+                
+                // Récupérer les données depuis l'API avec facettes par catégorie et date
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&facet=categoriedeprobleme&facet=creationdate');
+                const data = await response.json();
+                
+                // Initialiser les structures de données
+                const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+                const currentYear = new Date().getFullYear();
+                const monthlyData = {};
+                
+                // Agréger les données par mois et catégorie
+                data.records.forEach(record => {
+                    if (record.fields.creationdate && record.fields.categoriedeprobleme) {
+                        const date = new Date(record.fields.creationdate);
+                        const monthIndex = date.getMonth();
+                        const year = date.getFullYear();
+                        
+                        // Ne prendre que les données de l'année courante
+                        if (year === currentYear) {
+                            const monthKey = monthNames[monthIndex];
+                            const category = record.fields.categoriedeprobleme;
+                            
+                            if (!monthlyData[monthKey]) {
+                                monthlyData[monthKey] = {
+                                    commerce: 0,
+                                    services: 0,
+                                    transport: 0
+                                };
+                            }
+                            
+                            // Catégoriser selon le type de problème
+                            if (category.toLowerCase().includes('commerce') || 
+                                category.toLowerCase().includes('achat') ||
+                                category.toLowerCase().includes('produit')) {
+                                monthlyData[monthKey].commerce++;
+                            } else if (category.toLowerCase().includes('service') ||
+                                       category.toLowerCase().includes('prestation')) {
+                                monthlyData[monthKey].services++;
+                            } else if (category.toLowerCase().includes('transport') ||
+                                       category.toLowerCase().includes('voyage')) {
+                                monthlyData[monthKey].transport++;
+                            } else {
+                                // Par défaut, classer dans services
+                                monthlyData[monthKey].services++;
+                            }
+                        }
+                    }
+                });
+                
+                // Remplir les tableaux avec les données agrégées
+                months = [];
+                commerceData = [];
+                servicesData = [];
+                transportData = [];
+                
+                monthNames.forEach(month => {
+                    if (monthlyData[month]) {
+                        months.push(month);
+                        commerceData.push(monthlyData[month].commerce);
+                        servicesData.push(monthlyData[month].services);
+                        transportData.push(monthlyData[month].transport);
+                    }
+                });
+                
+                // Si pas assez de données, utiliser les 12 derniers mois
+                if (months.length < 6) {
+                    months = monthNames;
+                    commerceData = new Array(12).fill(0);
+                    servicesData = new Array(12).fill(0);
+                    transportData = new Array(12).fill(0);
+                    
+                    // Répartir les données sur les 12 mois
+                    data.records.forEach(record => {
+                        if (record.fields.creationdate) {
+                            const date = new Date(record.fields.creationdate);
+                            const monthIndex = date.getMonth();
+                            const category = record.fields.categoriedeprobleme || '';
+                            
+                            if (category.toLowerCase().includes('commerce') || 
+                                category.toLowerCase().includes('achat')) {
+                                commerceData[monthIndex]++;
+                            } else if (category.toLowerCase().includes('service')) {
+                                servicesData[monthIndex]++;
+                            } else if (category.toLowerCase().includes('transport')) {
+                                transportData[monthIndex]++;
+                            } else {
+                                servicesData[monthIndex]++;
+                            }
+                        }
+                    });
+                }
+                
+                // Restaurer l'opacité
+                document.getElementById('areaChart').style.opacity = '1';
+                
+                // Initialiser le graphique avec les données réelles
+                initChart();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                document.getElementById('areaChart').style.opacity = '1';
+                alert('Erreur lors du chargement des données. Veuillez réessayer.');
+            }
+        }
         
         // Configuration du graphique
         const config = {
@@ -246,9 +357,22 @@
             }
         };
         
-        // Initialisation du graphique
-        const ctx = document.getElementById('areaChart').getContext('2d');
-        const myChart = new Chart(ctx, config);
+        // Fonction d'initialisation du graphique
+        function initChart() {
+            const ctx = document.getElementById('areaChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            // Mise à jour de la configuration avec les nouvelles données
+            config.data.labels = months;
+            config.data.datasets[0].data = commerceData;
+            config.data.datasets[1].data = servicesData;
+            config.data.datasets[2].data = transportData;
+            
+            myChart = new Chart(ctx, config);
+        }
         
         // Basculer empilé/non empilé
         function toggleStacked() {
@@ -308,6 +432,11 @@
             link.download = 'signalconso-area.csv';
             link.click();
         }
+        
+        // Chargement initial des données au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromAPI();
+        });
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
