@@ -108,33 +108,6 @@
             border-color: var(--border-default-grey);
         }
         
-        /* Empêcher DSFR de traiter les tables ODS */
-        /* Exclure du traitement JavaScript DSFR */
-        [data-fr-js-table-wrapper="false"] {
-            display: block;
-        }
-        
-        /* Styles pour les tables ODS */
-        .odswidget-table {
-            width: 100%;
-            display: block !important;
-            visibility: visible !important;
-        }
-        
-        /* Enlever les barres de scroll et forcer l'affichage complet */
-        .odswidget-table__wrapper {
-            display: block !important;
-            overflow: visible !important;
-            height: auto !important;
-            min-height: 400px;
-        }
-        
-        .odswidget-table__records {
-            height: auto !important;
-            min-height: 400px !important;
-            overflow: visible !important;
-        }
-        
         /* Ajustements pour la pagination DSFR officielle */
         .fr-pagination {
             margin-top: 1rem;
@@ -169,156 +142,7 @@
         }
         
         
-        /* Styles DSFR pour le wrapper de table personnalisé */
-        .dsfr-table-wrapper {
-            border: 1px solid var(--border-default-grey);
-            border-radius: 0.25rem;
-            overflow-x: auto;
-            background: white;
-        }
         
-        .table-container {
-            padding: 0;
-            min-height: 400px;
-        }
-        
-        /* Intégration ODS Table avec styles DSFR */
-        .dsfr-table-wrapper .odswidget-table,
-        .table-container .odswidget-table {
-            width: 100%;
-            font-family: inherit;
-            min-height: 400px;
-            display: block;
-            opacity: 0;
-            animation: fadeIn 0.3s ease-in-out forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .dsfr-table-wrapper .odswidget-table table,
-        .table-container .odswidget-table table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        
-        .odswidget-table thead {
-            border-bottom: 2px solid var(--border-default-grey);
-        }
-        
-        .odswidget-table th {
-            padding: 0.75rem;
-            text-align: left;
-            font-weight: 700;
-            background: var(--background-alt-grey);
-            border-bottom: 2px solid var(--border-default-grey);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .odswidget-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-default-grey);
-            vertical-align: top;
-        }
-        
-        .odswidget-table tbody tr:hover {
-            background: var(--background-contrast-info);
-        }
-        
-        /* Espacement après le tableau */
-        .dsfr-table-wrapper {
-            margin-bottom: 1.5rem;
-        }
-        
-        /* Hauteur uniforme pour toutes les lignes */
-        .odswidget-table tbody tr {
-            height: auto;
-        }
-        
-        .odswidget-table tbody tr td {
-            padding: 0.75rem;
-            height: auto;
-        }
-        
-        /* Assurer que la dernière ligne a la même hauteur */
-        .odswidget-table tbody tr:last-child td {
-            padding-bottom: 0.75rem;
-        }
-        
-        .dsfr-table-wrapper .odswidget-table th,
-        .dsfr-table-wrapper .odswidget-table td {
-            border: 1px solid var(--border-default-grey);
-        }
-        
-        /* Accessibilité : Focus visible sur les lignes */
-        .odswidget-table tbody tr:focus-within {
-            outline: 2px solid var(--border-action-high-blue-france);
-            outline-offset: -2px;
-        }
-        
-        /* Largeurs des colonnes - proportionnelles et flexibles */
-        /* Colonne N° - plus étroite et centrée */
-        .odswidget-table th:nth-child(1),
-        .odswidget-table td:nth-child(1) {
-            width: 5%;
-            min-width: 40px;
-            text-align: center;
-        }
-        
-        /* Date */
-        .odswidget-table th:nth-child(2),
-        .odswidget-table td:nth-child(2) {
-            width: 10%;
-            min-width: 90px;
-        }
-        
-        /* Établissement */
-        .odswidget-table th:nth-child(3),
-        .odswidget-table td:nth-child(3) {
-            width: 20%;
-            min-width: 150px;
-        }
-        
-        /* Ville */
-        .odswidget-table th:nth-child(4),
-        .odswidget-table td:nth-child(4) {
-            width: 15%;
-            min-width: 100px;
-        }
-        
-        /* Département */
-        .odswidget-table th:nth-child(5),
-        .odswidget-table td:nth-child(5) {
-            width: 15%;
-            min-width: 110px;
-        }
-        
-        /* Catégorie */
-        .odswidget-table th:nth-child(6),
-        .odswidget-table td:nth-child(6) {
-            width: 15%;
-            min-width: 120px;
-        }
-        
-        /* Statut */
-        .odswidget-table th:nth-child(7),
-        .odswidget-table td:nth-child(7) {
-            width: 12%;
-            min-width: 80px;
-        }
-        
-        /* Action */
-        .odswidget-table th:nth-child(8),
-        .odswidget-table td:nth-child(8) {
-            width: 8%;
-            min-width: 60px;
-            text-align: center;
-        }
         
         /* Styles responsive DSFR */
         @media (max-width: 48em) {
@@ -450,6 +274,46 @@
         .facet-section-content {
             padding: 1rem;
             background: white;
+        }
+        
+        /* Styles pour la modale DSFR */
+        .fr-modal {
+            display: none;
+        }
+        
+        .fr-modal[aria-modal="true"] {
+            display: flex;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .modal-field-group {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .modal-field-label {
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .modal-field-value {
+            font-size: 1rem;
+        }
+        
+        .modal-info-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Style pour le bouton dans le tableau */
+        .btn-details {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
         }
     </style>
 </head>
@@ -742,83 +606,26 @@
                                                                 </label>
                                                                 <select class="fr-select" id="sort-select" 
                                                                         ng-model="signalconso.parameters['sort']">
-                                                                    <option value="-creationdate">Plus récents</option>
-                                                                    <option value="creationdate">Plus anciens</option>
-                                                                    <option value="establishmentname">Établissement A-Z</option>
-                                                                    <option value="-establishmentname">Établissement Z-A</option>
-                                                                    <option value="city">Ville A-Z</option>
+                                                                    <option value="creationdate">Date (plus récent)</option>
+                                                                    <option value="-creationdate">Date (plus ancien)</option>
+                                                                    <option value="category">Catégorie (A-Z)</option>
+                                                                    <option value="-category">Catégorie (Z-A)</option>
+                                                                    <option value="city">Ville (A-Z)</option>
+                                                                    <option value="-city">Ville (Z-A)</option>
+                                                                    <option value="status">Statut (A-Z)</option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     
-                                                    <!-- Tableau avec styles DSFR mais sans classes DSFR pour éviter les erreurs JS -->
-                                                    <div class="dsfr-table-wrapper" data-fr-js-table="false" data-fr-js-table-element="false">
-                                                        <div class="table-container" role="region" aria-label="Tableau des signalements">
-                                                                    <!-- Indicateur de chargement -->
-                                                                    <div class="fr-py-3w fr-text--center" ng-if="!signalconso.nhits && !signalconso.error">
-                                                                        <span class="fr-text--sm">Chargement des données...</span>
-                                                                    </div>
-                                                                    
-                                                                    <!-- Message d'erreur -->
-                                                                    <div class="fr-alert fr-alert--error fr-my-2w" ng-if="signalconso.error">
-                                                                        <p>Erreur lors du chargement des données</p>
-                                                                    </div>
-                                                                    
-                                                                    <!-- Tableau ODS -->
-                                                                    <div ng-if="signalconso.nhits > 0">
-                                                                        <ods-table 
-                                                                            context="signalconso"
-                                                                            displayed-fields="creationdate,establishmentname,city,dep_name,category,status"
-                                                                            aria-describedby="table-caption">
-                                                                        </ods-table>
-                                                                    </div>
-                                                                    
-                                                                    <span id="table-caption" class="sr-only">
-                                                                        Tableau listant les signalements consommateurs avec date, établissement, localisation, catégorie et statut
-                                                                    </span>
-                                                        </div>
+                                                    <!-- Tableau ODS simple avec colonne actions -->
+                                                    <div ng-if="signalconso.nhits > 0" class="fr-table--no-scroll">
+                                                        <ods-table context="signalconso"
+                                                                   displayed-fields="creationdate,category,subcategory,establishmentname,city,dep_name,status"
+                                                                   labels="{creationdate: 'Date', category: 'Catégorie', subcategory: 'Sous-catégorie', establishmentname: 'Établissement', city: 'Ville', dep_name: 'Département', status: 'Statut'}">
+                                                        </ods-table>
                                                     </div>
                                                     
-                                                    <!-- Pagination DSFR minimaliste -->
-                                                    <nav role="navigation" class="fr-pagination fr-pagination--center" aria-label="Pagination" ng-if="signalconso.nhits > 10">
-                                                        <ul class="fr-pagination__list">
-                                                            <!-- Page précédente -->
-                                                            <li ng-if="(signalconso.parameters.start || 0) > 0">
-                                                                <button class="fr-pagination__link fr-pagination__link--prev" 
-                                                                        ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - 10)"
-                                                                        type="button">
-                                                                    Précédente
-                                                                </button>
-                                                            </li>
-                                                            
-                                                            <!-- Numéros de page -->
-                                                            <li ng-repeat="pageIndex in generatePageArray(signalconso.nhits, 10, signalconso.parameters.start || 0) track by $index">
-                                                                <button class="fr-pagination__link" 
-                                                                        ng-click="signalconso.parameters.start = pageIndex * 10"
-                                                                        ng-class="{'fr-pagination__link--active': (signalconso.parameters.start || 0) === pageIndex * 10}"
-                                                                        type="button"
-                                                                        ng-attr-aria-current="{{ (signalconso.parameters.start || 0) === pageIndex * 10 ? 'page' : undefined }}"
-                                                                        title="Page {{pageIndex + 1}}">
-                                                                    {{pageIndex + 1}}
-                                                                </button>
-                                                            </li>
-                                                            
-                                                            <!-- Page suivante -->
-                                                            <li ng-if="(signalconso.parameters.start || 0) + 10 < signalconso.nhits">
-                                                                <button class="fr-pagination__link fr-pagination__link--next" 
-                                                                        ng-click="signalconso.parameters.start = (signalconso.parameters.start || 0) + 10"
-                                                                        type="button">
-                                                                    Suivante
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </nav>
-                                                    
-                                                    <!-- Information sur la pagination -->
-                                                    <div class="fr-mt-2w fr-text--sm fr-text--center" ng-if="signalconso.nhits > 0">
-                                                        Affichage de {{(signalconso.parameters.start || 0) + 1}} à {{Math.min((signalconso.parameters.start || 0) + 10, signalconso.nhits)}} sur {{signalconso.nhits}} résultats
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -856,6 +663,35 @@
                                         </div>
                                     </div>
                                 </ods-dataset-context>
+                                
+                                <!-- Modale DSFR pour les détails -->
+                                <dialog id="fr-modal-details" class="fr-modal" role="dialog" aria-labelledby="fr-modal-details-title">
+                                    <div class="fr-container fr-container--fluid fr-container-md">
+                                        <div class="fr-grid-row fr-grid-row--center">
+                                            <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                                                <div class="fr-modal__body">
+                                                    <div class="fr-modal__header">
+                                                        <button class="fr-btn--close fr-btn" 
+                                                                title="Fermer" 
+                                                                aria-controls="fr-modal-details"
+                                                                onclick="document.getElementById('fr-modal-details').close()">
+                                                            Fermer
+                                                        </button>
+                                                    </div>
+                                                    <div class="fr-modal__content">
+                                                        <h1 id="fr-modal-details-title" class="fr-modal__title">
+                                                            Détails du signalement
+                                                        </h1>
+                                                        
+                                                        <div id="modal-details-content">
+                                                            <!-- Contenu dynamique injecté par Angular -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </dialog>
                             </div>
                             <!-- FIN ZONE WIDGET FACETS-REFINEMENT-001 -->
                         </div>
@@ -981,6 +817,97 @@
             // Rendre Math disponible dans le scope Angular
             $rootScope.Math = window.Math;
             
+            // Fonction pour afficher les détails dans la modale
+            $rootScope.showDetails = function(record) {
+                const modal = document.getElementById('fr-modal-details');
+                const content = document.getElementById('modal-details-content');
+                
+                if (modal && content) {
+                    // Construction du contenu HTML
+                    content.innerHTML = `
+                        <!-- Alert avec référence -->
+                        <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                            <p class="fr-alert__title">Référence du signalement</p>
+                            <p><code>${record.recordid || 'N/A'}</code></p>
+                        </div>
+                        
+                        <!-- Informations principales -->
+                        <div class="modal-info-card">
+                            <h3 class="fr-h6">Informations générales</h3>
+                            <div class="modal-info-grid">
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Date de création</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.creationdate ? new Date(record.fields.creationdate).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'}) : 'N/A'}</strong>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Catégorie</div>
+                                    <div class="modal-field-value">
+                                        <span class="fr-badge fr-badge--info">${record.fields.category || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Sous-catégorie</div>
+                                    <div class="modal-field-value">
+                                        ${record.fields.subcategory || 'Non spécifiée'}
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Statut actuel</div>
+                                    <div class="modal-field-value">
+                                        <span class="fr-badge fr-badge--grey">
+                                            ${record.fields.status || 'N/A'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Établissement -->
+                        <div class="modal-info-card">
+                            <h3 class="fr-h6">Établissement</h3>
+                            <div class="modal-info-grid">
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Nom</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.establishmentname || 'Non spécifié'}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Localisation -->
+                        <div class="modal-info-card">
+                            <h3 class="fr-h6">Localisation</h3>
+                            <div class="modal-info-grid">
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Ville</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.city || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Département</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.dep_name || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Région</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.reg_name || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Ouvrir la modale
+                    modal.showModal();
+                }
+            };
+            
             // Fonction pour générer un tableau de pages
             $rootScope.generatePageArray = function(nhits, rowsPerPage, currentStart) {
                 if (!nhits || nhits <= 0) return [];
@@ -1058,130 +985,6 @@
                 modal.showModal();
             };
         }]);
-        
-        // Observer pour les changements dynamiques d'ODS
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fonction pour améliorer les intitulés et ajouter la colonne action
-            function improveTable() {
-                const headerMappings = {
-                    'creationdate': 'Date',
-                    'establishmentname': 'Établissement',
-                    'city': 'Ville',
-                    'dep_name': 'Département',
-                    'category': 'Catégorie',
-                    'subcategory': 'Sous-catégorie',
-                    'status': 'Statut'
-                };
-                
-                setTimeout(function() {
-                    const table = document.querySelector('.odswidget-table table');
-                    if (!table) return;
-                    
-                    // Améliorer les entêtes
-                    const headers = table.querySelectorAll('thead th');
-                    if (headers.length > 0) {
-                        // N° pour la première colonne
-                        if (headers[0]) {
-                            headers[0].textContent = 'N°';
-                            headers[0].style.textAlign = 'center';
-                            headers[0].style.width = '5%';
-                        }
-                        
-                        // Remplacer les autres entêtes
-                        headers.forEach(function(th) {
-                            const text = th.textContent.trim().toLowerCase();
-                            if (headerMappings[text]) {
-                                th.textContent = headerMappings[text];
-                            }
-                        });
-                        
-                        // Ajouter colonne Action si pas déjà présente
-                        const lastHeader = headers[headers.length - 1];
-                        if (lastHeader && lastHeader.textContent !== 'Action') {
-                            const actionHeader = document.createElement('th');
-                            actionHeader.textContent = 'Action';
-                            actionHeader.style.width = '8%';
-                            actionHeader.style.textAlign = 'center';
-                            actionHeader.setAttribute('scope', 'col');
-                            lastHeader.parentNode.appendChild(actionHeader);
-                        }
-                    }
-                    
-                    // Ajouter boutons action dans chaque ligne
-                    const rows = table.querySelectorAll('tbody tr');
-                    rows.forEach(function(row, index) {
-                        // Vérifier si la colonne action existe déjà
-                        const cells = row.querySelectorAll('td');
-                        const lastCell = cells[cells.length - 1];
-                        
-                        if (lastCell && !lastCell.querySelector('button')) {
-                            const actionCell = document.createElement('td');
-                            actionCell.style.textAlign = 'center';
-                            actionCell.innerHTML = '<button class="fr-btn fr-btn--sm fr-btn--tertiary-no-outline" type="button" onclick="showDetailsFromTable(' + index + ')" title="Voir détails"><span class="fr-icon-eye-line" aria-hidden="true"></span></button>';
-                            row.appendChild(actionCell);
-                        }
-                    });
-                }, 500);
-            }
-            
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    mutation.addedNodes.forEach(function(node) {
-                        if (node.nodeType === 1) {
-                            // Marquer toutes les nouvelles tables comme non-DSFR
-                            if (node.tagName === 'TABLE' || node.querySelector && node.querySelector('table')) {
-                                const tables = node.tagName === 'TABLE' ? [node] : node.querySelectorAll('table');
-                                tables.forEach(function(table) {
-                                    table.setAttribute('data-fr-js-table', 'false');
-                                    table.setAttribute('data-fr-js-table-element', 'false');
-                                });
-                                improveTable();
-                            }
-                        }
-                    });
-                });
-            });
-            
-            // Observer le conteneur des widgets
-            const widgetContainer = document.getElementById('widget-facets-refinement-001');
-            if (widgetContainer) {
-                observer.observe(widgetContainer, {
-                    childList: true,
-                    subtree: true
-                });
-                setTimeout(improveTable, 1000);
-            }
-        });
-        
-        // Fonction globale pour afficher les détails depuis le tableau
-        function showDetailsFromTable(rowIndex) {
-            // Récupérer les données de la ligne
-            const table = document.querySelector('.odswidget-table table');
-            if (!table) return;
-            
-            const row = table.querySelectorAll('tbody tr')[rowIndex];
-            if (!row) return;
-            
-            const cells = row.querySelectorAll('td');
-            const modal = document.getElementById('details-modal');
-            const contentBody = document.getElementById('modal-content-body');
-            
-            // Construire le contenu depuis les cellules
-            var content = '<dl class="fr-mb-0">';
-            const headers = ['N°', 'Date', 'Établissement', 'Ville', 'Département', 'Catégorie', 'Statut'];
-            
-            cells.forEach(function(cell, index) {
-                if (index < headers.length && cell.textContent.trim()) {
-                    content += '<dt class="fr-text--bold">' + headers[index] + '</dt>';
-                    content += '<dd>' + cell.textContent.trim() + '</dd>';
-                }
-            });
-            
-            content += '</dl>';
-            
-            contentBody.innerHTML = content;
-            modal.showModal();
-        }
     </script>
     
     <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
