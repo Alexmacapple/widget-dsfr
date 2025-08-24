@@ -82,13 +82,17 @@
         
         /* Hauteur du tableau ODS */
         .odswidget-table {
-            min-height: 2500px;
-            max-height: 3000px;
-            overflow-y: auto;
+            width: 100%;
         }
         
         .ods-widget .odswidget-table table {
             width: 100%;
+        }
+        
+        /* Enlever les barres de scroll sur le tableau */
+        .odswidget-table__records {
+            height: auto !important;
+            overflow: visible !important;
         }
         
         /* Support du mode sombre */
@@ -465,5 +469,77 @@
     <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Script de traduction des termes anglais -->
+    <script>
+        // Fonction pour traduire les termes anglais en français
+        function translateODSTerms() {
+            // Traduire "Category" en "Catégorie"
+            document.querySelectorAll('.odswidget-facet__category-title').forEach(function(element) {
+                if (element.textContent === 'Category') {
+                    element.textContent = 'Catégorie';
+                }
+            });
+            
+            // Traduire "More" en "Plus"
+            document.querySelectorAll('.odswidget-facet__more-button, .odswidget-table__more-button').forEach(function(element) {
+                if (element.textContent.includes('More')) {
+                    element.textContent = element.textContent.replace('More', 'Plus');
+                }
+            });
+            
+            // Traduire les titres de colonnes du tableau
+            document.querySelectorAll('.odswidget-table th').forEach(function(element) {
+                switch(element.textContent.trim()) {
+                    case 'Category':
+                        element.textContent = 'Catégorie';
+                        break;
+                    case 'Date':
+                        element.textContent = 'Date';
+                        break;
+                    case 'Status':
+                        element.textContent = 'Statut';
+                        break;
+                    case 'Region':
+                        element.textContent = 'Région';
+                        break;
+                    case 'Department':
+                        element.textContent = 'Département';
+                        break;
+                }
+            });
+            
+            // Traduire les boutons de pagination
+            document.querySelectorAll('.odswidget-table__pagination button').forEach(function(element) {
+                if (element.textContent.includes('Previous')) {
+                    element.textContent = element.textContent.replace('Previous', 'Précédent');
+                }
+                if (element.textContent.includes('Next')) {
+                    element.textContent = element.textContent.replace('Next', 'Suivant');
+                }
+            });
+        }
+        
+        // Observer les changements du DOM pour appliquer les traductions
+        const observer = new MutationObserver(function(mutations) {
+            translateODSTerms();
+        });
+        
+        // Démarrer l'observation quand Angular est prêt
+        angular.element(document).ready(function() {
+            // Traduire au chargement initial
+            setTimeout(translateODSTerms, 1000);
+            
+            // Observer les changements futurs
+            const targetNode = document.getElementById('widget-facets-basic-001');
+            if (targetNode) {
+                observer.observe(targetNode, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        });
+    </script>
 </body>
 </html>

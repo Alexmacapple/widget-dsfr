@@ -92,12 +92,124 @@
             border-color: var(--border-default-grey);
         }
         
+        /* Empêcher DSFR de traiter les tables ODS */
+        /* Exclure du traitement JavaScript DSFR */
+        [data-fr-js-table-wrapper="false"] {
+            display: block;
+        }
+        
+        /* Styles pour les tables ODS */
+        .odswidget-table {
+            width: 100%;
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        /* Enlever les barres de scroll */
+        .odswidget-table__wrapper {
+            display: block !important;
+            overflow: visible !important;
+            height: auto !important;
+        }
+        
+        .odswidget-table__records {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        .odswidget-table table {
+            width: 100%;
+            border-collapse: collapse;
+            display: table !important;
+        }
+        
+        .odswidget-table th,
+        .odswidget-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-default-grey);
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal !important;
+            max-width: 200px;
+            overflow-wrap: break-word;
+        }
+        
+        .odswidget-table th {
+            background-color: var(--background-contrast-grey);
+            font-weight: 700;
+            white-space: normal !important;
+        }
+        
+        .odswidget-table tr:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        /* Forcer la largeur du tableau à 100% */
+        .odswidget-table__table {
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+        
+        /* Ajuster les largeurs de colonnes pour un meilleur affichage */
+        .odswidget-table td:first-child,
+        .odswidget-table th:first-child {
+            width: 15%;
+        }
+        
+        .odswidget-table td:nth-child(2),
+        .odswidget-table th:nth-child(2) {
+            width: 20%;
+        }
+        
+        .odswidget-table td:nth-child(3),
+        .odswidget-table th:nth-child(3) {
+            width: 15%;
+        }
+        
+        .odswidget-table td:nth-child(4),
+        .odswidget-table th:nth-child(4) {
+            width: 15%;
+        }
+        
+        .odswidget-table td:nth-child(5),
+        .odswidget-table th:nth-child(5) {
+            width: 15%;
+        }
+        
+        .odswidget-table td:nth-child(6),
+        .odswidget-table th:nth-child(6) {
+            width: 10%;
+        }
+        
+        .odswidget-table td:last-child,
+        .odswidget-table th:last-child {
+            width: 10%;
+        }
+        
+        /* S'assurer que le contenu ODS est visible */
+        .ods-widget,
+        .odswidget,
+        [ods-dataset-context] {
+            display: block !important;
+            visibility: visible !important;
+        }
+        
         /* Amélioration pour les facettes avec raffinement */
         .refinement-container {
             background: white;
             border-radius: 0.25rem;
             border: 1px solid var(--border-default-grey);
-            padding: 1rem;
+            padding: 1.5rem;
+            width: 100%;
+        }
+        
+        /* Organiser les facettes en grille responsive */
+        .refinement-container .ods-facets,
+        .refinement-container ods-facets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
         }
         
         .refinement-summary {
@@ -275,7 +387,7 @@
                                     <!-- Interface de raffinement -->
                                     <div class="fr-grid-row fr-grid-row--gutters">
                                         <!-- Panneau de raffinement -->
-                                        <div class="fr-col-12 fr-col-lg-5">
+                                        <div class="fr-col-12">
                                             <div class="refinement-container">
                                                 <h3>Affiner la recherche</h3>
                                                 
@@ -424,9 +536,11 @@
                                                 </ods-facets>
                                             </div>
                                         </div>
-                                        
-                                        <!-- Résultats raffinés -->
-                                        <div class="fr-col-12 fr-col-lg-7">
+                                    </div>
+                                    
+                                    <!-- Résultats raffinés -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12">
                                             <div class="fr-card">
                                                 <div class="fr-card__body">
                                                     <div class="fr-card__content">
@@ -459,9 +573,11 @@
                                                                 <label class="fr-label" for="pagesize-select">
                                                                     Résultats par page
                                                                 </label>
-                                                                <select class="fr-select" id="pagesize-select">
+                                                                <select class="fr-select" id="pagesize-select" 
+                                                                        ng-model="pageSize" 
+                                                                        ng-init="pageSize='50'">
                                                                     <option value="10">10</option>
-                                                                    <option value="20" selected>20</option>
+                                                                    <option value="20">20</option>
                                                                     <option value="50">50</option>
                                                                     <option value="100">100</option>
                                                                 </select>
@@ -470,12 +586,10 @@
                                                     </div>
                                                     
                                                     <!-- Tableau des résultats -->
-                                                    <div class="fr-table fr-table--bordered">
+                                                    <div data-fr-js-table-wrapper="false">
                                                         <ods-table 
                                                             context="signalconso"
-                                                            displayed-fields="['creationdate','establishmentname','category','subcategory','city','dep_name','statuspromise']"
-                                                            sort="-creationdate"
-                                                            page-size="20">
+                                                            displayed-fields="['creationdate','establishmentname','category','subcategory','city','dep_name','statuspromise']">
                                                         </ods-table>
                                                     </div>
                                                     
@@ -483,7 +597,7 @@
                                                     <nav class="fr-pagination fr-mt-3w" aria-label="Pagination des résultats">
                                                         <ods-pager 
                                                             context="signalconso" 
-                                                            page-size="20">
+                                                            page-size="{{pageSize}}">
                                                         </ods-pager>
                                                     </nav>
                                                 </div>
@@ -495,11 +609,13 @@
                                     <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
                                         <div class="fr-col-12 fr-col-md-3">
                                             <div class="fr-callout fr-callout--blue-france">
-                                                <h3 class="fr-callout__title">Résultats filtrés</h3>
+                                                <h3 class="fr-callout__title">Résultats raffinés</h3>
                                                 <p class="fr-callout__text">
                                                     <span class="fr-text--lg fr-text--bold">
-                                                        {{ signalconso.nhits | number }}
+                                                        {{signalconso.nhits | number}}
                                                     </span>
+                                                    <br>
+                                                    <span class="fr-text--sm">signalements après raffinement</span>
                                                 </p>
                                             </div>
                                         </div>
@@ -516,7 +632,7 @@
                                             <div class="fr-callout fr-callout--orange-terre-battue">
                                                 <h3 class="fr-callout__title">Raffinements</h3>
                                                 <p class="fr-callout__text">
-                                                    {{Object.keys(signalconso.parameters).filter(k => k.startsWith('refine.')).length}}
+                                                    {{(signalconso.parameters | json).split('refine.').length - 1}}
                                                     <br><small>filtres actifs</small>
                                                 </p>
                                             </div>
@@ -615,6 +731,55 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
     <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    
+    <!-- Script pour éviter les conflits DSFR/ODS -->
+    <script>
+        // Empêcher DSFR d'initialiser les tables ODS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Supprimer tous les attributs DSFR des tables ODS avant l'initialisation
+            const odsTables = document.querySelectorAll('.odswidget-table, .odswidget-table table, .ods-widget table, .no-dsfr-table');
+            odsTables.forEach(function(element) {
+                // Supprimer tous les attributs data-fr-* sauf ceux qu'on a mis volontairement
+                const attributes = element.attributes;
+                const toRemove = [];
+                for (let i = 0; i < attributes.length; i++) {
+                    if (attributes[i].name.startsWith('data-fr-js-table')) {
+                        element.setAttribute('data-fr-js-table', 'false');
+                    }
+                }
+                
+                // Supprimer les classes DSFR des tables
+                element.classList.remove('fr-table');
+                element.classList.remove('fr-table__wrapper');
+                element.classList.remove('fr-table__container');
+                element.classList.remove('fr-table__content');
+            });
+            
+            // Observer pour les changements dynamiques d'ODS
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1 && (node.classList?.contains('odswidget-table') || node.tagName === 'TABLE')) {
+                                node.setAttribute('data-fr-js-table', 'false');
+                                node.classList.remove('fr-table');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Observer le conteneur des widgets
+            const widgetContainer = document.getElementById('widget-facets-refinement-001');
+            if (widgetContainer) {
+                observer.observe(widgetContainer, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        });
+    </script>
+    
     <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
 </body>
