@@ -189,13 +189,13 @@
                         
                         <!-- Boutons d'export -->
                         <div class="export-buttons">
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-png">
                                 Exporter en PNG
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
                                 Exporter les données (CSV)
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="toggle-fullscreen">
                                 Plein écran
                             </button>
                         </div>
@@ -606,6 +606,11 @@
         // Chargement initial des données au démarrage
         document.addEventListener('DOMContentLoaded', function() {
             loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            document.getElementById('export-png').addEventListener('click', exportChartAsPNG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
+            document.getElementById('toggle-fullscreen').addEventListener('click', toggleFullscreen);
         });
         
         // Adaptation responsive

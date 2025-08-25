@@ -112,13 +112,13 @@
                         
                         <!-- Boutons d'export -->
                         <div class="export-buttons">
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportchartaspng-btn">
                                 Exporter en PNG
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportdataascsv-btn">
                                 Exporter les données (CSV)
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="togglefullscreen-btn">
                                 Plein écran
                             </button>
                         </div>
@@ -402,6 +402,52 @@
         // Adaptation responsive
         window.addEventListener('resize', () => {
             myChart.resize();
+        });
+    
+        // Chargement des données depuis l'API
+        async function loadDataFromAPI() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&facet=prenom_region');
+                const data = await response.json();
+                
+                
+                // Traiter les données par régions
+                const regions = {};
+                data.records.forEach(record => {
+                    const region = record.fields.prenom_region || 'Non spécifié';
+                    regions[region] = (regions[region] || 0) + 1;
+                });
+                
+                // Prendre les 8 principales régions
+                const sortedRegions = Object.entries(regions)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 8);
+                
+                const labels = sortedRegions.map(r => r[0]);
+                const values = sortedRegions.map(r => r[1]);
+                
+                // Mettre à jour le graphique
+                updateChart(labels, values);
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Utiliser des données de démonstration en cas d'erreur
+                useDefaultData();
+            }
+        }
+        
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            const buttons = document.querySelectorAll('button[id$="-btn"]');
+            buttons.forEach(btn => {
+                const funcName = btn.id.replace('-btn', '').replace(/-/g, '_');
+                if (window[funcName]) {
+                    btn.addEventListener('click', window[funcName]);
+                }
+            });
         });
     </script>
     

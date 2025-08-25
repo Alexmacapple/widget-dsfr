@@ -90,7 +90,7 @@
                             <div class="fr-grid-row fr-grid-row--gutters">
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
-                                        <input type="checkbox" class="fr-toggle__input" id="toggle-stacked" checked onchange="toggleStacked()">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-stacked" checked>
                                         <label class="fr-toggle__label" for="toggle-stacked">
                                             Aires empilées
                                         </label>
@@ -98,7 +98,7 @@
                                 </div>
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
-                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table">
                                         <label class="fr-toggle__label" for="toggle-table">
                                             Afficher le tableau
                                         </label>
@@ -114,10 +114,10 @@
                         
                         <!-- Boutons d'export -->
                         <div class="export-buttons">
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsPNG()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-png">
                                 Exporter en PNG
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
                                 Exporter les données (CSV)
                             </button>
                         </div>
@@ -436,6 +436,12 @@
         // Chargement initial des données au démarrage
         document.addEventListener('DOMContentLoaded', function() {
             loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            document.getElementById('toggle-stacked').addEventListener('change', toggleStacked);
+            document.getElementById('toggle-table').addEventListener('change', toggleDataTable);
+            document.getElementById('export-png').addEventListener('click', exportChartAsPNG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
         });
     </script>
     

@@ -117,7 +117,7 @@
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-select-group">
                                         <label class="fr-label" for="year-select">Année</label>
-                                        <select class="fr-select" id="year-select" onchange="updateYear()">
+                                        <select class="fr-select" id="year-select">
                                             <option value="2024">2024</option>
                                             <option value="2023">2023</option>
                                             <option value="2022">2022</option>
@@ -126,7 +126,7 @@
                                 </div>
                                 <div class="fr-col-12 fr-col-md-6">
                                     <div class="fr-toggle">
-                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table">
                                         <label class="fr-toggle__label" for="toggle-table">
                                             Afficher le tableau de données
                                         </label>
@@ -147,13 +147,13 @@
                         
                         <!-- Boutons d'export -->
                         <div class="export-buttons">
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportChartAsSVG()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-svg">
                                 Exporter en SVG
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="exportDataAsCSV()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
                                 Exporter les données (CSV)
                             </button>
-                            <button class="fr-btn fr-btn--secondary fr-btn--sm" onclick="toggleFullscreen()">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="toggle-fullscreen">
                                 Plein écran
                             </button>
                         </div>
@@ -252,28 +252,98 @@
         let currentYear = 2024;
         let calendarData = [];
         
-        // Génération de données simulées pour une année
-        function generateYearData(year) {
+        // Chargement des données depuis l'API SignalConso
+        async function loadDataFromAPI(year) {
+            try {
+                // Afficher un indicateur de chargement
+                document.getElementById('calendar-container').innerHTML = '<div class="fr-p-3w">Chargement des données...</div>';
+                
+                // Définir les dates de début et fin
+                const startDate = `${year}-01-01`;
+                const endDate = `${year}-12-31`;
+                
+                // Récupérer les données depuis l'API avec filtre par dates
+                const response = await fetch(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=10000&facet=creationdate&refine.creationdate=${year}`);
+                const apiData = await response.json();
+                
+                // Créer un map pour compter les signalements par jour
+                const dailyCounts = new Map();
+                
+                // Initialiser tous les jours de l'année à 0
+                const start = new Date(year, 0, 1);
+                const end = new Date(year, 11, 31);
+                for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                    const dateStr = d.toISOString().split('T')[0];
+                    dailyCounts.set(dateStr, 0);
+                }
+                
+                // Compter les signalements par jour
+                apiData.records.forEach(record => {
+                    if (record.fields.creationdate) {
+                        const date = record.fields.creationdate.split('T')[0];
+                        if (dailyCounts.has(date)) {
+                            dailyCounts.set(date, dailyCounts.get(date) + 1);
+                        }
+                    }
+                });
+                
+                // Si pas assez de données, essayer avec les facettes
+                if (apiData.records.length < 100) {
+                    // Utiliser les facettes pour obtenir les comptes par date
+                    const facetResponse = await fetch(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=creationdate`);
+                    const facetData = await facetResponse.json();
+                    
+                    if (facetData.facet_groups) {
+                        const dateFacet = facetData.facet_groups.find(g => g.name === 'creationdate');
+                        if (dateFacet && dateFacet.facets) {
+                            dateFacet.facets.forEach(facet => {
+                                const date = facet.name.split('T')[0];
+                                if (date.startsWith(year.toString()) && dailyCounts.has(date)) {
+                                    dailyCounts.set(date, facet.count);
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                // Convertir en tableau pour le calendrier
+                const data = [];
+                dailyCounts.forEach((value, dateString) => {
+                    data.push({
+                        date: new Date(dateString + 'T12:00:00'),
+                        value: value,
+                        dateString: dateString
+                    });
+                });
+                
+                return data.sort((a, b) => a.date - b.date);
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                
+                // En cas d'erreur, générer des données de démonstration
+                return generateDemoData(year);
+            }
+        }
+        
+        // Génération de données de démonstration en cas d'erreur API
+        function generateDemoData(year) {
             const data = [];
             const startDate = new Date(year, 0, 1);
             const endDate = new Date(year, 11, 31);
             
             for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                // Simulation avec variations hebdomadaires et saisonnières
                 const dayOfWeek = d.getDay();
                 const month = d.getMonth();
                 
-                // Base value avec variation saisonnière
                 let baseValue = 100 + Math.sin((month / 12) * Math.PI * 2) * 30;
                 
-                // Variation hebdomadaire (moins le weekend)
                 if (dayOfWeek === 0 || dayOfWeek === 6) {
                     baseValue *= 0.6;
                 } else if (dayOfWeek === 1) {
-                    baseValue *= 1.3; // Pic le lundi
+                    baseValue *= 1.3;
                 }
                 
-                // Ajout de bruit aléatoire
                 const value = Math.max(0, Math.round(baseValue + (Math.random() - 0.5) * 50));
                 
                 data.push({
@@ -304,6 +374,8 @@
                 .append("svg")
                 .attr("viewBox", `0 0 ${width} ${height}`)
                 .attr("preserveAspectRatio", "xMidYMid meet")
+                .attr("role", "img")
+                .attr("aria-label", `Calendrier heatmap montrant l'intensité quotidienne des signalements pour l'année ${currentYear}`)
                 .style("width", "100%")
                 .style("height", "auto");
             
@@ -475,9 +547,9 @@
         }
         
         // Mise à jour de l'année
-        function updateYear() {
+        async function updateYear() {
             currentYear = parseInt(document.getElementById('year-select').value);
-            calendarData = generateYearData(currentYear);
+            calendarData = await loadDataFromAPI(currentYear);
             drawCalendarHeatmap();
             updateStatistics();
             
@@ -571,10 +643,18 @@
         }
         
         // Initialisation
-        window.addEventListener('DOMContentLoaded', () => {
-            calendarData = generateYearData(currentYear);
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Charger les données initiales
+            calendarData = await loadDataFromAPI(currentYear);
             drawCalendarHeatmap();
             updateStatistics();
+            
+            // Ajouter les event listeners
+            document.getElementById('year-select').addEventListener('change', updateYear);
+            document.getElementById('toggle-table').addEventListener('change', toggleDataTable);
+            document.getElementById('export-svg').addEventListener('click', exportChartAsSVG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
+            document.getElementById('toggle-fullscreen').addEventListener('click', toggleFullscreen);
         });
         
         // Adaptation responsive
