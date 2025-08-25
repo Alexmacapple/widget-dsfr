@@ -778,10 +778,13 @@
                 // Si on a des données, mettre à jour le graphique
                 if (links.length > 0) {
                     // Mettre à jour les données globales
-                    sankeyData['category-status'] = {
+                    flowData['category-status'] = {
                         nodes: nodes,
                         links: links
                     };
+                    
+                    // Mettre à jour le type de flux actuel
+                    currentFlowType = 'category-status';
                     
                     // Redessiner le graphique avec les nouvelles données
                     drawSankey();
@@ -791,6 +794,8 @@
                     document.getElementById('total-flux').textContent = totalFlux.toLocaleString('fr-FR');
                     document.getElementById('total-nodes').textContent = nodes.length;
                     document.getElementById('total-links').textContent = links.length;
+                    
+                    console.log('Données API chargées:', links.length, 'liens créés');
                 } else {
                     console.log('Pas assez de données, utilisation des données de démonstration');
                 }
