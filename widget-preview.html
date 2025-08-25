@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prévisualisation Widget DSFR</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Leaflet pour les cartes -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- API Scripts pour le cache -->
+    <script src="js/wrapper-api.js"></script>
+    <script src="js/api-client.js"></script>
+    
+    <style>
+        body {
+            background: #f6f6f6;
+        }
+        
+        .preview-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .code-input {
+            width: 100%;
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+            resize: vertical;
+        }
+        
+        .widget-render {
+            margin-top: 2rem;
+            padding: 2rem;
+            border: 2px dashed #000091;
+            border-radius: 8px;
+            min-height: 200px;
+            background: white;
+        }
+        
+        .widget-render.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .fr-table {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .fr-table table {
+            width: 100%;
+        }
+        
+        /* Fix pour les cartes Leaflet */
+        .leaflet-container {
+            z-index: 1;
+        }
+        
+        .example-widgets {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        .example-button {
+            margin: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container">
+        <header class="fr-header">
+            <div class="fr-header__body">
+                <div class="fr-header__brand">
+                    <div class="fr-header__logo">
+                        <p class="fr-logo">République<br>Française</p>
+                    </div>
+                    <div class="fr-header__service">
+                        <p class="fr-header__service-title">Prévisualisation Widget DSFR</p>
+                        <p class="fr-header__service-tagline">Testez vos widgets en temps réel</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="preview-container">
+            <h1 class="fr-h3">Prévisualisation de Widget</h1>
+            
+            <div class="fr-alert fr-alert--info fr-mb-3w">
+                <p>Collez votre code HTML de widget ci-dessous et cliquez sur "Prévisualiser" pour voir le rendu.</p>
+            </div>
+
+            <div class="fr-input-group">
+                <label class="fr-label" for="widget-code">
+                    Code HTML du widget
+                </label>
+                <textarea id="widget-code" class="code-input" placeholder="Collez ici le code HTML généré par le builder..."><!-- Widget Table DSFR - signalconso -->
+<div id="widget-table-signalconso" class="fr-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Entreprise</th>
+                <th>Ville</th>
+                <th>Catégorie</th>
+            </tr>
+        </thead>
+        <tbody id="table-body-signalconso">
+            <!-- Données chargées dynamiquement -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+(async function() {
+    const response = await fetch(
+        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=10'
+    );
+    const data = await response.json();
+    
+    const tbody = document.getElementById('table-body-signalconso');
+    data.results.forEach(record => {
+        const row = tbody.insertRow();
+        row.insertCell().textContent = record['etablissement_nom_etablissement'] || '';
+        row.insertCell().textContent = record['etablissement_commune_etablissement'] || '';
+        row.insertCell().textContent = record['details_sous_categorie'] || '';
+    });
+})();
+</script></textarea>
+            </div>
+
+            <div class="controls">
+                <button class="fr-btn" id="preview-btn">
+                    Prévisualiser
+                </button>
+                <button class="fr-btn fr-btn--secondary" id="clear-btn">
+                    Effacer
+                </button>
+                <button class="fr-btn fr-btn--tertiary" id="copy-btn">
+                    Copier le code
+                </button>
+            </div>
+
+            <div class="example-widgets">
+                <p class="fr-text--sm fr-mb-1w"><strong>Exemples rapides :</strong></p>
+                <button class="fr-btn fr-btn--sm fr-btn--tertiary example-button" data-example="table">Table SignalConso</button>
+                <button class="fr-btn fr-btn--sm fr-btn--tertiary example-button" data-example="chart">Graphique Budget</button>
+                <button class="fr-btn fr-btn--sm fr-btn--tertiary example-button" data-example="map">Carte France</button>
+                <button class="fr-btn fr-btn--sm fr-btn--tertiary example-button" data-example="list">Liste Cards</button>
+            </div>
+
+            <h2 class="fr-h4 fr-mt-4w">Rendu du Widget</h2>
+            <div id="widget-render" class="widget-render empty">
+                <p>Cliquez sur "Prévisualiser" pour afficher le widget</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Examples de widgets
+        const examples = {
+            table: `<!-- Widget Table DSFR - signalconso -->
+<div id="widget-table-signalconso" class="fr-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Entreprise</th>
+                <th>Ville</th>
+                <th>Catégorie</th>
+            </tr>
+        </thead>
+        <tbody id="table-body-signalconso">
+            <!-- Données chargées dynamiquement -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+(async function() {
+    const response = await fetch(
+        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=10'
+    );
+    const data = await response.json();
+    
+    const tbody = document.getElementById('table-body-signalconso');
+    data.results.forEach(record => {
+        const row = tbody.insertRow();
+        row.insertCell().textContent = record['etablissement_nom_etablissement'] || '';
+        row.insertCell().textContent = record['etablissement_commune_etablissement'] || '';
+        row.insertCell().textContent = record['details_sous_categorie'] || '';
+    });
+})();
+<\/script>`,
+            
+            chart: `<!-- Widget Chart DSFR - budget-vert -->
+<div class="fr-container">
+    <canvas id="chart-budget-vert" width="400" height="200"></canvas>
+</div>
+
+<script>
+(async function() {
+    const response = await fetch(
+        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/budget-vert/records?limit=10'
+    );
+    const data = await response.json();
+    
+    const ctx = document.getElementById('chart-budget-vert').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.results.slice(0, 5).map(r => r['mission'] || 'Mission'),
+            datasets: [{
+                label: 'Budget Vert (M€)',
+                data: data.results.slice(0, 5).map(r => parseFloat(r['ae']) || Math.random() * 100),
+                backgroundColor: ['#000091', '#7dd7e0', '#f95c5e', '#fdcf41', '#68cb65']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Budget Vert PLF 2025' }
+            }
+        }
+    });
+})();
+<\/script>`,
+            
+            map: `<!-- Widget Map DSFR - France -->
+<div id="map-france" style="height: 400px;"></div>
+
+<script>
+(async function() {
+    const map = L.map('map-france').setView([46.603354, 1.888334], 6);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Exemple de marqueurs pour les grandes villes
+    const cities = [
+        {name: 'Paris', lat: 48.8566, lon: 2.3522},
+        {name: 'Lyon', lat: 45.7640, lon: 4.8357},
+        {name: 'Marseille', lat: 43.2965, lon: 5.3698},
+        {name: 'Toulouse', lat: 43.6047, lon: 1.4442},
+        {name: 'Nice', lat: 43.7102, lon: 7.2620}
+    ];
+    
+    cities.forEach(city => {
+        L.marker([city.lat, city.lon])
+            .addTo(map)
+            .bindPopup(city.name);
+    });
+})();
+<\/script>`,
+            
+            list: `<!-- Widget List DSFR - annuaire-dgccrf -->
+<div class="fr-grid-row fr-grid-row--gutters" id="list-annuaire">
+    <!-- Cards will be populated here -->
+</div>
+
+<script>
+(async function() {
+    const response = await fetch(
+        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/annuaire-dgccrf/records?limit=6'
+    );
+    const data = await response.json();
+    
+    const container = document.getElementById('list-annuaire');
+    data.results.forEach(record => {
+        const card = document.createElement('div');
+        card.className = 'fr-col-12 fr-col-md-4';
+        card.innerHTML = \`
+            <div class="fr-card">
+                <div class="fr-card__body">
+                    <div class="fr-card__content">
+                        <h3 class="fr-card__title">\${record['adresse_nom'] || 'Service DGCCRF'}</h3>
+                        <p class="fr-card__desc">
+                            \${record['adresse_code_postal'] || ''} \${record['adresse_commune'] || ''}<br>
+                            Tel: \${record['telephone'] || 'Non renseigné'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        \`;
+        container.appendChild(card);
+    });
+})();
+<\/script>`
+        };
+
+        // Event listeners
+        document.getElementById('preview-btn').addEventListener('click', previewWidget);
+        document.getElementById('clear-btn').addEventListener('click', clearAll);
+        document.getElementById('copy-btn').addEventListener('click', copyCode);
+        
+        // Example buttons
+        document.querySelectorAll('.example-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const example = e.target.dataset.example;
+                document.getElementById('widget-code').value = examples[example];
+                previewWidget();
+            });
+        });
+
+        function previewWidget() {
+            const code = document.getElementById('widget-code').value;
+            const renderDiv = document.getElementById('widget-render');
+            
+            if (!code.trim()) {
+                renderDiv.className = 'widget-render empty';
+                renderDiv.innerHTML = '<p>Veuillez entrer du code HTML</p>';
+                return;
+            }
+            
+            // Clear previous content first
+            renderDiv.innerHTML = '';
+            renderDiv.className = 'widget-render';
+            
+            // Parse and inject the HTML
+            try {
+                // Separate HTML and script parts
+                const scriptRegex = /<script>([\s\S]*?)<\/script>/gi;
+                const scripts = [];
+                let match;
+                
+                while ((match = scriptRegex.exec(code)) !== null) {
+                    scripts.push(match[1]);
+                }
+                
+                // Remove script tags from HTML
+                const htmlOnly = code.replace(scriptRegex, '');
+                
+                // Inject HTML
+                renderDiv.innerHTML = htmlOnly;
+                
+                // Execute scripts ONCE in an isolated function
+                if (scripts.length > 0) {
+                    // Create unique IDs to avoid conflicts
+                    const timestamp = Date.now();
+                    const scriptCode = scripts.join('\n');
+                    
+                    // Wrap in IIFE to avoid re-execution
+                    const wrappedCode = `
+                        (function() {
+                            // Check if already executed
+                            if (window._widgetPreview_${timestamp}) return;
+                            window._widgetPreview_${timestamp} = true;
+                            
+                            try {
+                                ${scriptCode}
+                            } catch (e) {
+                                console.error('Widget execution error:', e);
+                            }
+                        })();
+                    `;
+                    
+                    // Execute the script once
+                    const scriptEl = document.createElement('script');
+                    scriptEl.textContent = wrappedCode;
+                    scriptEl.id = 'preview-script-' + timestamp;
+                    
+                    // Remove any previous preview scripts
+                    document.querySelectorAll('[id^="preview-script-"]').forEach(el => el.remove());
+                    
+                    // Add new script
+                    document.body.appendChild(scriptEl);
+                }
+                
+                // Special handling for maps - reinitialize if needed
+                if (code.includes('L.map')) {
+                    setTimeout(() => {
+                        const mapElements = renderDiv.querySelectorAll('[id^="map-"]');
+                        mapElements.forEach(el => {
+                            if (el._leaflet_id) {
+                                // Map already initialized, trigger resize
+                                const mapId = el.id;
+                                if (window[mapId + '_map']) {
+                                    window[mapId + '_map'].invalidateSize();
+                                }
+                            }
+                        });
+                    }, 100);
+                }
+                
+            } catch (error) {
+                renderDiv.className = 'widget-render';
+                renderDiv.innerHTML = `
+                    <div class="fr-alert fr-alert--error">
+                        <p>Erreur lors du rendu du widget : ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('widget-code').value = '';
+            const renderDiv = document.getElementById('widget-render');
+            renderDiv.className = 'widget-render empty';
+            renderDiv.innerHTML = '<p>Cliquez sur "Prévisualiser" pour afficher le widget</p>';
+        }
+        
+        function copyCode() {
+            const code = document.getElementById('widget-code').value;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copié !';
+                btn.classList.add('fr-btn--success');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('fr-btn--success');
+                }, 2000);
+            });
+        }
+        
+        // Auto-preview on load if there's code
+        if (document.getElementById('widget-code').value.trim()) {
+            previewWidget();
+        }
+    </script>
+    
+    <!-- DSFR JS -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
