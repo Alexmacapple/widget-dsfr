@@ -239,21 +239,21 @@
         const flowData = {
             'category-status': {
                 nodes: [
-                    // Catégories (source)
-                    {id: 0, name: "Téléphonie"},
-                    {id: 1, name: "Voyage"},
-                    {id: 2, name: "Produits"},
-                    {id: 3, name: "Voiture"},
-                    {id: 4, name: "Travaux"},
-                    {id: 5, name: "Santé"},
-                    {id: 6, name: "Services"},
-                    {id: 7, name: "Autres"},
-                    // Statuts (destination)
-                    {id: 8, name: "Résolu"},
-                    {id: 9, name: "En cours"},
-                    {id: 10, name: "Transmis"},
-                    {id: 11, name: "Infondé"},
-                    {id: 12, name: "Abandonné"}
+                    // Catégories (source) - ces valeurs seront remplacées par l'API
+                    {id: 0, name: "AchatInternet"},
+                    {id: 1, name: "DemarchageAbusif"},
+                    {id: 2, name: "AchatMagasinInternet"},
+                    {id: 3, name: "TravauxRenovations"},
+                    {id: 4, name: "VoyageLoisirs"},
+                    {id: 5, name: "AchatMagasin"},
+                    // Statuts (destination) - vrais statuts de l'API
+                    {id: 6, name: "Non défini"},
+                    {id: 7, name: "Promesse d'action"},
+                    {id: 8, name: "Non consulté"},
+                    {id: 9, name: "Infondé"},
+                    {id: 10, name: "Consulté ignoré"},
+                    {id: 11, name: "Transmis"},
+                    {id: 12, name: "En cours"}
                 ],
                 links: [
                     {source: 0, target: 8, value: 18000},
@@ -741,7 +741,11 @@
                     .slice(0, 6)
                     .map(c => c[0]);
                 
-                const topStatuses = ['Promesse d\'action', 'Non consulté', 'Infondé', 'En cours', 'Transmis'];
+                // Utiliser les statuts qui existent vraiment dans les données
+                const topStatuses = Object.entries(statusCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(s => s[0]);
                 
                 // Convertir en format pour D3 Sankey
                 const nodes = [];
@@ -791,9 +795,16 @@
                     
                     // Mettre à jour les statistiques avec les vraies données
                     const totalFlux = links.reduce((sum, link) => sum + link.value, 0);
-                    document.getElementById('total-flux').textContent = totalFlux.toLocaleString('fr-FR');
-                    document.getElementById('total-nodes').textContent = nodes.length;
-                    document.getElementById('total-links').textContent = links.length;
+                    const totalFlowElement = document.getElementById('total-flow');
+                    const nodesCountElement = document.getElementById('nodes-count');
+                    const mainFlowElement = document.getElementById('main-flow');
+                    
+                    if (totalFlowElement) totalFlowElement.textContent = totalFlux.toLocaleString('fr-FR');
+                    if (nodesCountElement) nodesCountElement.textContent = nodes.length;
+                    if (mainFlowElement && links.length > 0) {
+                        const maxFlow = Math.max(...links.map(l => l.value));
+                        mainFlowElement.textContent = maxFlow.toLocaleString('fr-FR');
+                    }
                     
                     console.log('Données API chargées:', links.length, 'liens créés');
                 } else {
