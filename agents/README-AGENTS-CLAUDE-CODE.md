@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Cette collection de 7 agents Claude Code spécialisés permet la migration automatisée de 70+ widgets OpenDataSoft vers le Design System France (DSFR) avec validation RGAA niveau AA.
+Cette collection de 8 agents Claude Code spécialisés permet la migration automatisée de 70+ widgets OpenDataSoft vers le Design System France (DSFR) avec validation RGAA niveau AA.
 
 ## Architecture des Agents
 
@@ -11,18 +11,20 @@ graph TD
     OE[orchestrator-epct] --> WE[widget-explorer-dsfr]
     OE --> WG[widget-generator-dsfr]
     OE --> DV[dsfr-validator-claude]
+    OE --> VT[visual-tester-dsfr]
     OE --> MA[migration-assistant-dsfr]
     
     WG --> CR[code-reviewer-dsfr]
     WG --> DV
-    DV --> PV[production-validator-dsfr]
+    DV --> VT
+    VT --> PV[production-validator-dsfr]
     
     MA --> WE
     MA --> WG
     MA --> DV
 ```
 
-## Les 7 Agents Spécialisés
+## Les 8 Agents Spécialisés
 
 ### 1. 🔍 widget-explorer-dsfr
 **Rôle:** Exploration et analyse des widgets ODS existants  
@@ -42,25 +44,31 @@ graph TD
 **Outils:** Read, Edit, MultiEdit  
 **Output:** Score de conformité et corrections automatiques
 
-### 4. 🚀 production-validator-dsfr
+### 4. 📸 visual-tester-dsfr
+**Rôle:** Tests visuels et interaction avec Playwright  
+**Activation:** Après dsfr-validator-claude (score ≥80)  
+**Outils:** Read, Write, Playwright  
+**Output:** Screenshots et validation responsive/accessibilité
+
+### 5. 🚀 production-validator-dsfr
 **Rôle:** Validation finale avant déploiement production  
 **Activation:** Avant tout commit/déploiement  
 **Outils:** Read, Grep, Glob, Bash  
 **Output:** Verdict PRÊT/PAS PRÊT avec blocages critiques
 
-### 5. 👨‍💻 code-reviewer-dsfr
+### 6. 👨‍💻 code-reviewer-dsfr
 **Rôle:** Révision qualité et sécurité du code  
 **Activation:** Après modifications de widgets  
 **Outils:** Read, Grep, Glob  
 **Output:** Rapport de révision avec corrections suggérées
 
-### 6. 🎯 orchestrator-epct
+### 7. 🎯 orchestrator-epct
 **Rôle:** Coordination du workflow EPCT complet  
 **Activation:** Pour tâches complexes multi-widgets  
 **Outils:** All tools  
 **Output:** Dashboard temps réel et orchestration
 
-### 7. 📦 migration-assistant-dsfr
+### 8. 📦 migration-assistant-dsfr
 **Rôle:** Gestion des migrations batch  
 **Activation:** Pour migration >5 widgets  
 **Outils:** Read, Write, Edit, MultiEdit, TodoWrite  
@@ -105,8 +113,9 @@ Task: widget-explorer-dsfr "Analyser les widgets dans /widgets"
 1. widget-explorer → analyse du besoin
 2. widget-generator → création du widget
 3. dsfr-validator → validation conformité
-4. code-reviewer → révision qualité
-5. production-validator → check final
+4. visual-tester → tests visuels/responsive
+5. code-reviewer → révision qualité
+6. production-validator → check final
 ```
 
 ### Workflow 2: Migration batch (70+ widgets)
@@ -132,8 +141,9 @@ Task: widget-explorer-dsfr "Analyser les widgets dans /widgets"
 
 # Cascade de validation :
 1. dsfr-validator → conformité DSFR/RGAA
-2. code-reviewer → qualité et sécurité
-3. production-validator → blocages critiques
+2. visual-tester → tests visuels et interactions
+3. code-reviewer → qualité et sécurité
+4. production-validator → blocages critiques
 ```
 
 ## Intégrations MCP
@@ -164,10 +174,10 @@ Les agents utilisent les 11 serveurs MCP configurés :
 ### Score de validation
 ```markdown
 Score Global: X/100
-- Conformité DSFR: X/40
+- Conformité DSFR: X/30
 - Accessibilité RGAA: X/30
+- Tests Visuels: X/20
 - Sécurité: X/20
-- Performance: X/10
 ```
 
 ## Règles strictes
@@ -197,6 +207,9 @@ Task: widget-generator-dsfr "Table DSFR pour signalconso"
 
 # Valider la conformité
 Task: dsfr-validator-claude "Valider widget-001.html"
+
+# Tester visuellement
+Task: visual-tester-dsfr "Tests visuels widget-001.html"
 
 # Migration complète
 Task: orchestrator-epct "Migration batch tous widgets"
@@ -239,5 +252,6 @@ Pour toute question ou amélioration :
 
 ---
 
-*Version 1.0 - Agents Claude Code DSFR*  
-*7 agents spécialisés pour migration automatisée ODS → DSFR*
+*Version 1.1 - Agents Claude Code DSFR*  
+*8 agents spécialisés pour migration automatisée ODS → DSFR*  
+*Nouveauté: visual-tester-dsfr avec tests Playwright*

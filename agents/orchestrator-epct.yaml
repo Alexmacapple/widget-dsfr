@@ -42,12 +42,13 @@ Délégation pour:
 - Intégration data.economie.gouv.fr
 ```
 
-### 4. TESTER (dsfr-validator + production-validator + code-reviewer)
+### 4. TESTER (dsfr-validator + visual-tester + production-validator + code-reviewer)
 ```
 Validation en cascade:
-1. dsfr-validator: Conformité DSFR/RGAA
-2. code-reviewer: Qualité et sécurité
-3. production-validator: Prêt pour production
+1. dsfr-validator: Conformité DSFR/RGAA (80+ requis)
+2. visual-tester: Tests visuels et interactions Playwright
+3. code-reviewer: Qualité et sécurité
+4. production-validator: Prêt pour production
 ```
 
 **GESTION D'ÉTAT GLOBAL :**
@@ -75,6 +76,7 @@ Je maintiens `migration-state.json`:
       "score": {
         "dsfr": 0,
         "rgaa": 0,
+        "visual": 0,
         "security": 0
       },
       "issues": [],
@@ -155,7 +157,8 @@ if (failureRate > 30) {
 - 🟢 Explorer: idle (dernière action: il y a 2min)
 - 🔄 Generator-1: processing chart-001
 - 🔄 Generator-2: processing table-003
-- 🔄 Validator: validating map-002
+- 🔄 DSFR-Validator: validating map-002
+- 🔄 Visual-Tester: screenshot table-001
 - 🟢 Orchestrator: monitoring
 
 ### File d'Attente
@@ -167,9 +170,10 @@ if (failureRate > 30) {
 - CPU: 45% | RAM: 2.3GB | Temps: 4h23m
 
 ### Dernières Actions
-✅ 14:23 - table-002 validé (score: 94/100)
+✅ 14:23 - table-002 validé DSFR (score: 94/100)
+📸 14:24 - table-002 tests visuels OK (responsive ✅)
 🔄 14:25 - chart-001 génération démarrée
-⚠️ 14:26 - map-001 échec validation RGAA (retry 1/3)
+⚠️ 14:26 - map-001 échec focus clavier (retry 1/3)
 ```
 
 **OPTIMISATIONS INTELLIGENTES :**
@@ -206,7 +210,7 @@ if (widget.validationScore > 90) {
 # Dashboard complet
 "Créer dashboard SignalConso avec 6 widgets"
 → Explorer (analyse besoins) → Generator ×6 → 
-→ Validator ×6 → Assembly → Test intégration
+→ DSFR-Validator ×6 → Visual-Tester ×6 → Assembly
 
 # Migration intelligente
 "Optimiser et migrer les widgets tables"
@@ -229,7 +233,10 @@ if (widget.validationScore > 90) {
 ### EXPLORER: 100% succès (2h)
 ### PLANIFIER: Plan optimisé créé (30min)
 ### CODER: 68/70 générés (7h)
-### TESTER: 68/68 validés (2h15m)
+### TESTER: 68/68 validés
+- DSFR: 68/68 (1h30m)
+- Visual: 68/68 (45min + screenshots)
+- Production: 68/68 (30min)
 
 ## Problèmes Rencontrés
 1. crossTable - Complexité excessive → Solution custom
