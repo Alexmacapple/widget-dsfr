@@ -5,8 +5,13 @@
   "main": "mcp-ods-widgets/server.js",
   "scripts": {
     "start": "node mcp-ods-widgets/server.js",
+    "dev": "live-server --port=8080 --watch=*.html,*.js,widgets/**/*.html",
+    "build": "node scripts/build.js",
     "test": "node tests/run-tests.js",
     "validate": "node tests/validate-dsfr.js",
+    "lint": "eslint . --ext .js,.html --fix",
+    "format": "prettier --write \"**/*.{js,html,json,md}\"",
+    "pre-commit": "npm run lint && npm run test",
     "serve": "python3 -m http.server 8000",
     "serve:utf8": "python3 serve-utf8.py",
     "fix:encoding": "python3 fix-encoding.py",
@@ -30,11 +35,17 @@
   "dependencies": {
     "@gouvfr/dsfr": "^1.14.0",
     "angular": "^1.8.2",
-    "angular-sanitize": "^1.8.2"
+    "angular-sanitize": "^1.8.2",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@progress/kendo-angular-mcp": "latest",
     "@upstash/context7-mcp": "latest",
-    "@progress/kendo-angular-mcp": "latest"
+    "eslint": "^9.34.0",
+    "eslint-plugin-html": "^8.1.3",
+    "live-server": "^1.2.2",
+    "prettier": "^3.6.2"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -1,5 +1,10 @@
 # Widget DSFR - Générateur de Widgets OpenDataSoft
 
+[![CI](https://github.com/votre-org/widget-dsfr/actions/workflows/ci.yml/badge.svg)](https://github.com/votre-org/widget-dsfr/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DSFR Compliant](https://img.shields.io/badge/DSFR-Compliant-blue.svg)](https://www.systeme-de-design.gouv.fr/)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+
 Transformez les widgets OpenDataSoft en composants conformes au Design System France (DSFR) pour une intégration directe dans Drupal.
 
 ## 🚀 Installation Rapide

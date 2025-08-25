@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget temps réel avec API centralisée">
+    <title>Widget SignalConso - Temps Réel</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000091;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+        
+        .sync-status {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .sync-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .sync-indicator.online {
+            background: #18753c;
+            animation: pulse 2s infinite;
+        }
+        
+        .sync-indicator.offline {
+            background: #ce0500;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #000091;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #fee9e7;
+            border-left: 3px solid #ce0500;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .update-badge {
+            background: #18753c;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">République<br>Française</p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <p class="fr-header__service-title">
+                                SignalConso Temps Réel
+                                <span id="update-indicator" class="update-badge" style="display: none;">Nouveau</span>
+                            </p>
+                            <p class="fr-header__service-tagline">Surveillance en temps réel des signalements</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-4w">
+            
+            <!-- Contrôles -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="refresh-interval">
+                            Intervalle de rafraîchissement
+                        </label>
+                        <select class="fr-select" id="refresh-interval">
+                            <option value="5000">5 secondes</option>
+                            <option value="10000">10 secondes</option>
+                            <option value="30000" selected>30 secondes</option>
+                            <option value="60000">1 minute</option>
+                            <option value="300000">5 minutes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-6">
+                    <button id="toggle-sync" class="fr-btn fr-btn--secondary">
+                        <span class="fr-icon-pause-circle-line fr-btn--icon-left"></span>
+                        Pause synchronisation
+                    </button>
+                    <button id="force-refresh" class="fr-btn">
+                        <span class="fr-icon-refresh-line fr-btn--icon-left"></span>
+                        Rafraîchir maintenant
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistiques en temps réel -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-signals">-</div>
+                    <div class="stat-label">Total signalements</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="today-signals">-</div>
+                    <div class="stat-label">Aujourd'hui</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pending-signals">-</div>
+                    <div class="stat-label">En attente</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="resolved-signals">-</div>
+                    <div class="stat-label">Résolus</div>
+                </div>
+            </div>
+
+            <!-- Graphique temps réel -->
+            <div class="fr-card">
+                <div class="fr-card__body">
+                    <h2 class="fr-card__title">Évolution en temps réel</h2>
+                    <div class="chart-container">
+                        <canvas id="realtime-chart"></canvas>
+                        <div id="chart-loading" class="loading-overlay" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table temps réel -->
+            <div class="fr-table fr-mt-3w" id="table-container">
+                <h2>Derniers signalements</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Entreprise</th>
+                            <th scope="col">Catégorie</th>
+                            <th scope="col">Région</th>
+                            <th scope="col">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signals-tbody">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">
+                                <div class="spinner" style="margin: 2rem auto;"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Messages d'erreur -->
+            <div id="error-container"></div>
+        </div>
+    </main>
+
+    <!-- Indicateur de synchronisation -->
+    <div class="sync-status" id="sync-status">
+        <div>
+            <span class="sync-indicator online" id="sync-indicator"></span>
+            <span id="sync-text">Connecté</span>
+        </div>
+        <div style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+            Dernière mise à jour: <span id="last-update">-</span>
+        </div>
+    </div>
+
+    <!-- Scripts API (inline pour éviter les problèmes de chemins) -->
+    <script src="api-client.js"></script>
+    <script src="data-sync.js"></script>
+    
+    <script>
+        // Initialisation
+        const apiClient = new ApiClient({
+            cacheTimeout: 30000, // 30 secondes
+            retryAttempts: 3
+        });
+        
+        const dataSync = new DataSyncService(apiClient);
+        
+        let realtimeChart = null;
+        let chartData = {
+            labels: [],
+            datasets: [{
+                label: 'Signalements',
+                data: [],
+                borderColor: '#000091',
+                backgroundColor: 'rgba(0, 0, 145, 0.1)',
+                tension: 0.4
+            }]
+        };
+        
+        let isPaused = false;
+
+        // Fonction de mise à jour des statistiques
+        function updateStats(data) {
+            // Total
+            document.getElementById('total-signals').textContent = 
+                data.nhits.toLocaleString('fr-FR');
+            
+            // Aujourd'hui (simulation)
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = data.records.filter(r => 
+                r.fields.creationdate && r.fields.creationdate.startsWith(today)
+            ).length;
+            document.getElementById('today-signals').textContent = todayCount;
+            
+            // Statuts
+            let pending = 0, resolved = 0;
+            data.records.forEach(record => {
+                const status = record.fields.status;
+                if (status === 'NonConsulte' || status === 'EnAttente') {
+                    pending++;
+                } else if (status === 'PromesseAction' || status === 'Resolu') {
+                    resolved++;
+                }
+            });
+            
+            document.getElementById('pending-signals').textContent = pending;
+            document.getElementById('resolved-signals').textContent = resolved;
+        }
+
+        // Fonction de mise à jour du graphique
+        function updateChart(data) {
+            const now = new Date().toLocaleTimeString('fr-FR');
+            
+            // Ajouter le nouveau point
+            chartData.labels.push(now);
+            chartData.datasets[0].data.push(data.nhits);
+            
+            // Garder seulement les 20 derniers points
+            if (chartData.labels.length > 20) {
+                chartData.labels.shift();
+                chartData.datasets[0].data.shift();
+            }
+            
+            // Mettre à jour le graphique
+            if (realtimeChart) {
+                realtimeChart.update('none'); // Sans animation pour fluidité
+            }
+        }
+
+        // Fonction de mise à jour de la table
+        function updateTable(data) {
+            const tbody = document.getElementById('signals-tbody');
+            const rows = data.records.slice(0, 10).map(record => {
+                const fields = record.fields;
+                const date = new Date(fields.creationdate).toLocaleDateString('fr-FR');
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${fields.companyname || 'N/A'}</td>
+                        <td>${fields.category || 'N/A'}</td>
+                        <td>${fields.companyregion || 'N/A'}</td>
+                        <td>
+                            <span class="fr-badge fr-badge--${getStatusColor(fields.status)}">
+                                ${fields.status || 'N/A'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            tbody.innerHTML = rows;
+        }
+
+        // Fonction pour obtenir la couleur du statut
+        function getStatusColor(status) {
+            switch(status) {
+                case 'PromesseAction': return 'success';
+                case 'NonConsulte': return 'error';
+                case 'Infonde': return 'warning';
+                default: return 'info';
+            }
+        }
+
+        // Fonction de mise à jour globale
+        function handleDataUpdate(data, meta) {
+            console.log('Mise à jour reçue:', meta);
+            
+            // Cacher le loading
+            document.getElementById('chart-loading').style.display = 'none';
+            
+            // Mettre à jour les composants
+            updateStats(data);
+            updateChart(data);
+            updateTable(data);
+            
+            // Mettre à jour l'indicateur
+            document.getElementById('last-update').textContent = 
+                new Date().toLocaleTimeString('fr-FR');
+            
+            // Afficher badge de mise à jour
+            if (!meta.isInitial) {
+                const indicator = document.getElementById('update-indicator');
+                indicator.style.display = 'inline-block';
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Initialisation du graphique
+        function initChart() {
+            const ctx = document.getElementById('realtime-chart').getContext('2d');
+            realtimeChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nombre total de signalements'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Souscription aux données
+        let subscriptionId = null;
+        
+        function startSync() {
+            const interval = parseInt(document.getElementById('refresh-interval').value);
+            
+            subscriptionId = dataSync.subscribe('signalconso', {
+                query: {
+                    rows: 100,
+                    sort: '-creationdate'
+                },
+                interval: interval,
+                onUpdate: handleDataUpdate
+            });
+        }
+
+        // Gestion des événements
+        document.getElementById('refresh-interval').addEventListener('change', (e) => {
+            if (subscriptionId) {
+                dataSync.unsubscribe(subscriptionId);
+                startSync();
+            }
+        });
+
+        document.getElementById('toggle-sync').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                dataSync.pauseAll();
+                btn.innerHTML = '<span class="fr-icon-play-circle-line fr-btn--icon-left"></span>Reprendre';
+                document.getElementById('sync-indicator').classList.remove('online');
+                document.getElementById('sync-text').textContent = 'En pause';
+            } else {
+                dataSync.resumeAll();
+                btn.innerHTML = '<span class="fr-icon-pause-circle-line fr-btn--icon-left"></span>Pause synchronisation';
+                document.getElementById('sync-indicator').classList.add('online');
+                document.getElementById('sync-text').textContent = 'Connecté';
+            }
+        });
+
+        document.getElementById('force-refresh').addEventListener('click', () => {
+            document.getElementById('chart-loading').style.display = 'flex';
+            dataSync.syncAll();
+        });
+
+        // Listener global pour les événements
+        dataSync.addListener((event) => {
+            console.log('Événement sync:', event);
+            
+            if (event.type === 'error') {
+                const errorContainer = document.getElementById('error-container');
+                errorContainer.innerHTML = `
+                    <div class="error-message">
+                        <strong>Erreur:</strong> ${event.error}
+                    </div>
+                `;
+                setTimeout(() => {
+                    errorContainer.innerHTML = '';
+                }, 5000);
+            }
+            
+            if (event.type === 'offline') {
+                document.getElementById('sync-indicator').classList.remove('online');
+                document.getElementById('sync-indicator').classList.add('offline');
+                document.getElementById('sync-text').textContent = 'Hors ligne';
+            }
+            
+            if (event.type === 'online') {
+                document.getElementById('sync-indicator').classList.add('online');
+                document.getElementById('sync-indicator').classList.remove('offline');
+                document.getElementById('sync-text').textContent = 'Connecté';
+            }
+        });
+
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            startSync();
+        });
+
+        // Nettoyage avant fermeture
+        window.addEventListener('beforeunload', () => {
+            dataSync.destroy();
+            apiClient.destroy();
+        });
+    </script>
+    
+    <!-- DSFR JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
