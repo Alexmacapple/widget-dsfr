@@ -104,6 +104,21 @@ const migrationPriority = {
 
 ### 3. OPTIMISATION DU PROCESS
 
+**Génération batch de prompts optimisés:**
+```javascript
+// Utilisation du serveur MCP prompts pour batch
+const batchPrompts = await mcp__mcp-prompts__batch_generate({
+  requests: widgetsList.map(widget => ({
+    dataset: widget.dataset,
+    widget: widget.type,
+    query: widget.description
+  }))
+});
+
+// Économie moyenne: 52% de tokens
+console.log(`Tokens économisés: ${batchPrompts.summary.totalTokens}`);
+```
+
 **Détection de patterns:**
 ```javascript
 // J'identifie et réutilise les patterns
@@ -111,12 +126,14 @@ const patterns = {
   'table-pattern': {
     usage: 12,
     template: 'fr-table-standard',
-    successRate: 100
+    successRate: 100,
+    promptModule: 'widgets/table'  // Module optimisé
   },
   'chart-pattern': {
     usage: 8,
     template: 'fr-callout-chart',
-    successRate: 87.5
+    successRate: 87.5,
+    promptModule: 'widgets/chart'  // Module optimisé
   }
 };
 
@@ -180,9 +197,18 @@ if (consecutiveFailures > 3) {
    → Liste complète des widgets
    → Analyse de complexité
    → Dépendances identifiées
+   → Modules prompts disponibles via mcp__mcp-prompts__list_modules
    ```
 
-2. **Planification**
+2. **Optimisation Prompts**
+   ```bash
+   # Génération batch optimisée
+   → mcp__mcp-prompts__batch_generate pour tous les widgets
+   → Estimation tokens via mcp__mcp-prompts__estimate_tokens
+   → Cache des prompts réutilisables
+   ```
+
+3. **Planification**
    ```bash
    # Avec orchestrator-epct
    → Ordre optimal déterminé
@@ -190,7 +216,7 @@ if (consecutiveFailures > 3) {
    → Ressources allouées
    ```
 
-3. **Exécution Batch**
+4. **Exécution Batch**
    ```bash
    Pour chaque batch:
    → widget-generator × 3 (parallèle)
@@ -199,7 +225,7 @@ if (consecutiveFailures > 3) {
    → production-validator (final)
    ```
 
-4. **Consolidation**
+5. **Consolidation**
    ```bash
    → Templates extraits
    → Patterns documentés

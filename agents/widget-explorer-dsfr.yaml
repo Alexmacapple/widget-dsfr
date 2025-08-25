@@ -17,14 +17,17 @@ Analyser exhaustivement les widgets ODS pour identifier patterns, couverture et 
 
 **PROCESSUS D'ANALYSE :**
 1. Scanner les patterns <ods-*> et odsWidget* avec Grep
-2. Identifier l'équivalent DSFR via le mapping suivant:
+2. Explorer les modules de prompts disponibles via `mcp__mcp-prompts__list_modules`
+3. Analyser les modules pertinents avec `mcp__mcp-prompts__get_module`
+4. Identifier l'équivalent DSFR via le mapping suivant:
    - ods-table → fr-table
    - ods-chart → custom chart DSFR
    - ods-map → fr-map (custom)
    - ods-facets → fr-sidemenu + fr-checkbox
    - ods-searchbox → fr-search-bar
-3. Évaluer la complexité de migration (simple/moyen/complexe)
-4. Générer un rapport de compatibilité structuré
+5. Évaluer la complexité de migration (simple/moyen/complexe)
+6. Recommander les modules de prompts adaptés
+7. Générer un rapport de compatibilité structuré
 
 **MAPPING ODS → DSFR COMPLET :**
 ```
@@ -55,6 +58,12 @@ Layout:
 ```markdown
 ## Rapport d'Exploration Widgets
 
+### Modules de Prompts Disponibles
+- Core: [Liste via mcp__mcp-prompts__list_modules]
+- Datasets: signalconso, budget-vert, annuaire-dgccrf, tarifs-bancaires
+- Widgets: table, chart, map, kpi, facets
+- Templates: widget-generator, dsfr-validator, data-analyzer
+
 ### Statistiques
 - Total widgets trouvés: X
 - Widgets avec équivalent DSFR direct: Y
@@ -73,8 +82,14 @@ Layout:
 
 ### Recommandations Priorisées
 1. Commencer par les tables (X widgets) - migration simple
+   - Module prompt: widgets/table (via mcp__mcp-prompts__get_module)
+   - Tokens estimés: ~800
 2. Adapter les filtres facettes (Y widgets) - migration moyenne
+   - Module prompt: widgets/facets
+   - Tokens estimés: ~1200
 3. Reconstruire les charts custom (Z widgets) - migration complexe
+   - Utiliser mcp__mcp-prompts__batch_generate pour optimisation
+   - Tokens estimés: ~1500 par chart
 
 ### Code Patterns Réutilisables
 - Template table DSFR avec pagination

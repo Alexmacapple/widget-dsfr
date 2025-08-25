@@ -2,81 +2,103 @@
 
 ## Vue d'ensemble
 
-Cette collection de 8 agents Claude Code spécialisés permet la migration automatisée de 70+ widgets OpenDataSoft vers le Design System France (DSFR) avec validation RGAA niveau AA.
+Cette collection de 9 agents Claude Code spécialisés permet la migration automatisée de 70+ widgets OpenDataSoft vers le Design System France (DSFR) avec validation RGAA niveau AA. Intégration complète avec le serveur MCP prompts pour optimisation des tokens.
 
 ## Architecture des Agents
 
 ```mermaid
 graph TD
     OE[orchestrator-epct] --> WE[widget-explorer-dsfr]
+    OE --> PO[prompt-optimizer-dsfr]
     OE --> WG[widget-generator-dsfr]
     OE --> DV[dsfr-validator-claude]
     OE --> VT[visual-tester-dsfr]
     OE --> MA[migration-assistant-dsfr]
     
+    PO --> WG
     WG --> CR[code-reviewer-dsfr]
     WG --> DV
     DV --> VT
     VT --> PV[production-validator-dsfr]
     
     MA --> WE
+    MA --> PO
     MA --> WG
     MA --> DV
 ```
 
-## Les 8 Agents Spécialisés
+## Les 9 Agents Spécialisés
 
 ### 1. 🔍 widget-explorer-dsfr
 **Rôle:** Exploration et analyse des widgets ODS existants  
 **Activation:** Automatique sur fichiers avec balises `<ods-*>`  
-**Outils:** Read, Grep, Glob, LS  
-**Output:** Rapport d'inventaire avec mapping DSFR
+**Outils:** Read, Grep, Glob, LS, mcp__mcp-prompts__list_modules  
+**Output:** Rapport d'inventaire avec mapping DSFR et modules prompts recommandés
 
-### 2. 🏗️ widget-generator-dsfr
+### 2. 🚄 prompt-optimizer-dsfr [NOUVEAU]
+**Rôle:** Optimisation des prompts pour génération de widgets  
+**Activation:** Avant toute génération par widget-generator  
+**Outils:** Task, mcp__mcp-prompts (tous les outils)  
+**Output:** Prompts optimisés avec réduction de 40-60% des tokens
+
+### 3. 🏗️ widget-generator-dsfr
 **Rôle:** Génération de 70+ types de widgets DSFR  
 **Activation:** Sur demande de création/transformation  
-**Outils:** Read, Write, Edit, MultiEdit, Bash  
-**Output:** Widgets HTML complets avec identification unique
+**Outils:** Read, Write, Edit, MultiEdit, Bash, mcp__mcp-prompts__generate_prompt  
+**Output:** Widgets HTML complets avec identification unique et prompts optimisés
 
-### 3. ✅ dsfr-validator-claude
+### 4. ✅ dsfr-validator-claude
 **Rôle:** Validation conformité DSFR et accessibilité RGAA  
 **Activation:** Après chaque génération de widget  
 **Outils:** Read, Edit, MultiEdit  
 **Output:** Score de conformité et corrections automatiques
 
-### 4. 📸 visual-tester-dsfr
+### 5. 📸 visual-tester-dsfr
 **Rôle:** Tests visuels et interaction avec Playwright  
 **Activation:** Après dsfr-validator-claude (score ≥80)  
 **Outils:** Read, Write, Playwright  
 **Output:** Screenshots et validation responsive/accessibilité
 
-### 5. 🚀 production-validator-dsfr
+### 6. 🚀 production-validator-dsfr
 **Rôle:** Validation finale avant déploiement production  
 **Activation:** Avant tout commit/déploiement  
 **Outils:** Read, Grep, Glob, Bash  
 **Output:** Verdict PRÊT/PAS PRÊT avec blocages critiques
 
-### 6. 👨‍💻 code-reviewer-dsfr
+### 7. 👨‍💻 code-reviewer-dsfr
 **Rôle:** Révision qualité et sécurité du code  
 **Activation:** Après modifications de widgets  
 **Outils:** Read, Grep, Glob  
 **Output:** Rapport de révision avec corrections suggérées
 
-### 7. 🎯 orchestrator-epct
+### 8. 🎯 orchestrator-epct
 **Rôle:** Coordination du workflow EPCT complet  
 **Activation:** Pour tâches complexes multi-widgets  
 **Outils:** All tools  
 **Output:** Dashboard temps réel et orchestration
 
-### 8. 📦 migration-assistant-dsfr
+### 9. 📦 migration-assistant-dsfr
 **Rôle:** Gestion des migrations batch  
 **Activation:** Pour migration >5 widgets  
-**Outils:** Read, Write, Edit, MultiEdit, TodoWrite  
-**Output:** Tracking progression et rapport final
+**Outils:** Read, Write, Edit, MultiEdit, TodoWrite, mcp__mcp-prompts__batch_generate  
+**Output:** Tracking progression et rapport final avec économie de tokens
 
 ## Installation
 
-### 1. Configuration Claude Code
+### 1. Prérequis - Serveur MCP Prompts
+
+Le nouvel agent prompt-optimizer nécessite le serveur MCP prompts configuré :
+
+```bash
+# Vérifier la configuration dans .mcp.json
+"mcp-prompts": {
+  "type": "stdio",
+  "command": "node",
+  "args": ["/path/to/mcp-prompts/index.js"]
+}
+```
+
+### 2. Configuration Claude Code
 
 Les agents sont au format YAML standard Claude Code et peuvent être installés via :
 
@@ -87,11 +109,11 @@ Les agents sont au format YAML standard Claude Code et peuvent être installés 
 # Puis importer chaque fichier .yaml depuis le répertoire agents/
 ```
 
-### 2. Agents niveau utilisateur (recommandé)
+### 3. Agents niveau utilisateur (recommandé)
 
 Pour une utilisation dans tous vos projets, configurez les agents au niveau utilisateur plutôt que projet.
 
-### 3. Vérification
+### 4. Vérification
 
 ```bash
 # Lister les agents disponibles
@@ -127,10 +149,11 @@ Task: widget-explorer-dsfr "Analyser les widgets dans /widgets"
 # Orchestration automatique :
 1. orchestrator-epct → planification EPCT
 2. widget-explorer → inventaire complet
-3. migration-assistant → gestion batch
-4. Parallélisation 3 widgets simultanés
-5. Validation continue
-6. Rapport final avec métriques
+3. prompt-optimizer → optimisation des prompts (-52% tokens)
+4. migration-assistant → gestion batch
+5. Parallélisation 3 widgets simultanés
+6. Validation continue
+7. Rapport final avec métriques et économies
 ```
 
 ### Workflow 3: Validation avant production

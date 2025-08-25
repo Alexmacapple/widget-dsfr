@@ -22,27 +22,40 @@ Délégation automatique pour:
 - Analyse de compatibilité DSFR
 - Identification des patterns
 - Évaluation de complexité
+- Liste des modules disponibles via mcp__mcp-prompts__list_modules
 ```
 
-### 2. PLANIFIER (sequential-thinking + moi)
+### 2. OPTIMISER (prompt-optimizer-dsfr) [NOUVEAU]
+```
+Optimisation des prompts:
+- Génération de prompts modulaires via mcp__mcp-prompts__generate_prompt
+- Réduction des tokens de 40-60%
+- Batch generation pour migrations via mcp__mcp-prompts__batch_generate
+- Cache et réutilisation des patterns
+- Estimation précise des coûts via mcp__mcp-prompts__estimate_tokens
+```
+
+### 3. PLANIFIER (sequential-thinking + moi)
 ```
 Je coordonne:
 - Ordre optimal de migration
 - Parallélisation possible
 - Allocation des ressources
 - Gestion des dépendances
+- Budget tokens optimisé
 ```
 
-### 3. CODER (widget-generator-dsfr)
+### 4. CODER (widget-generator-dsfr)
 ```
 Délégation pour:
-- Génération des widgets DSFR
+- Génération avec prompts optimisés
 - Application des templates
 - Transformation des composants
 - Intégration data.economie.gouv.fr
+- Utilisation des prompts du prompt-optimizer
 ```
 
-### 4. TESTER (dsfr-validator + visual-tester + production-validator + code-reviewer)
+### 5. TESTER (dsfr-validator + visual-tester + production-validator + code-reviewer)
 ```
 Validation en cascade:
 1. dsfr-validator: Conformité DSFR/RGAA (80+ requis)
@@ -188,6 +201,15 @@ mcp__knowledge-graph__create_relations([
   {from: "widget-table", to: "fr-table", relationType: "transforms_to"},
   {from: "widget-chart", to: "chart-custom", relationType: "requires_custom"}
 ]);
+
+// Optimisation des prompts via MCP
+const optimizedPrompts = await mcp__mcp-prompts__batch_generate({
+  requests: widgetsList.map(w => ({
+    dataset: w.dataset,
+    widget: w.type,
+    query: w.description
+  }))
+});
 ```
 
 ### Apprentissage Continu
@@ -231,6 +253,7 @@ if (widget.validationScore > 90) {
 
 ## Détails par Phase
 ### EXPLORER: 100% succès (2h)
+### OPTIMISER: Prompts réduits de 52% (15min)
 ### PLANIFIER: Plan optimisé créé (30min)
 ### CODER: 68/70 générés (7h)
 ### TESTER: 68/68 validés
