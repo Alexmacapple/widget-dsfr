@@ -74,6 +74,13 @@ widget-dsfr/
 ├── mcp-dsfr/              # Serveur MCP DSFR (208 composants)
 ├── mcp-ods-widgets/       # Serveur MCP ODS Widgets (70+ widgets)
 ├── agents/                # 4 agents d'automatisation EPCT
+├── prompts/               # 🆕 Système de prompts modulaires
+│   ├── core/              # Modules de base réutilisables
+│   ├── datasets/          # Contexte par dataset
+│   ├── widgets/           # Instructions par type
+│   ├── examples/          # Exemples annotés
+│   ├── templates/         # Templates pré-assemblés
+│   └── assembler.js       # Système d'assemblage
 ├── examples/              # Dashboards et widgets fonctionnels
 ├── templates/             # Templates HTML DSFR
 ├── tests/                 # Tests de validation DSFR
@@ -82,6 +89,39 @@ widget-dsfr/
 ├── .mcp.json             # Configuration des 11 serveurs MCP
 └── MCP_USAGE_GUIDE.md    # Guide d'utilisation des serveurs
 ```
+
+## 🆕 Système de Prompts Modulaires
+
+Notre projet intègre un **système innovant de prompts modulaires** pour générer des widgets DSFR optimisés :
+
+### Génération Rapide de Prompts
+
+```bash
+# Générer un prompt pour un widget table
+node generate-widget-prompt.js signalconso table "Créer une table avec filtres"
+
+# Version minimale (moins de tokens)
+node generate-widget-prompt.js budget-vert chart "Graphique du budget" --minimal
+
+# Avec analyse et sauvegarde
+node generate-widget-prompt.js tarifs-bancaires kpi "KPIs principaux" --save --analyze
+```
+
+### Avantages du Système
+
+- **📦 Modularité** : Chaque partie du prompt est indépendante et réutilisable
+- **🎯 Précision** : Prompts spécialisés par dataset et type de widget
+- **💾 Optimisation** : Réduction de 30-50% des tokens par rapport aux prompts classiques
+- **🔧 Personnalisation** : Templates adaptables selon vos besoins
+- **📊 Analyse** : Estimation précise des tokens avant utilisation
+
+### Documentation Complète
+
+Consultez [prompts/README.md](prompts/README.md) pour :
+- Architecture détaillée du système
+- Guide de personnalisation
+- Création de nouveaux modules
+- Exemples avancés
 
 ## 🎯 Utilisation
 

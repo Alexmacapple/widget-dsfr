@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard Global SignalConso - Tableau de bord unifié DSFR">
+    <title>Dashboard Global SignalConso - DSFR</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/utility/icons/icons.min.css">
+    
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Wrapper API si disponible (optionnel) -->
+    <!-- <script src="wrapper-api.js"></script> -->
+    
+    <style>
+        /* Variables personnalisées */
+        :root {
+            --dashboard-sidebar-width: 320px;
+            --dashboard-header-height: 60px;
+        }
+
+        /* Layout principal */
+        .dashboard-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-main {
+            flex: 1;
+            display: flex;
+            gap: 2rem;
+            padding: 2rem;
+            background: var(--background-default-grey);
+        }
+
+        .dashboard-sidebar {
+            width: var(--dashboard-sidebar-width);
+            flex-shrink: 0;
+        }
+
+        .dashboard-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--background-action-high-blue-france);
+        }
+
+        .kpi-card--success::before { background: var(--background-flat-success); }
+        .kpi-card--warning::before { background: var(--background-flat-warning); }
+        .kpi-card--error::before { background: var(--background-flat-error); }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-title-blue-france);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-label {
+            font-size: 0.875rem;
+            color: var(--text-mention-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .kpi-trend--up { color: var(--text-default-success); }
+        .kpi-trend--down { color: var(--text-default-error); }
+        .kpi-trend--stable { color: var(--text-mention-grey); }
+
+        /* Alertes */
+        .alert-banner {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            margin: -2rem -2rem 2rem;
+            padding: 1rem 2rem;
+            background: var(--background-flat-error);
+            color: white;
+            display: none;
+        }
+
+        .alert-banner.active { display: block; }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-default-grey);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--border-action-high-blue-france);
+        }
+
+        .timeline-item--critical::before {
+            background: var(--background-flat-error);
+            border-color: var(--border-plain-error);
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        /* Filtres */
+        .filter-section {
+            background: white;
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Export buttons */
+        .export-section {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-main {
+                flex-direction: column;
+            }
+            
+            .dashboard-sidebar {
+                width: 100%;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading states */
+        .widget-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            background: white;
+            border-radius: 0.25rem;
+        }
+
+        /* Map container */
+        #dashboard-map {
+            height: 500px;
+            background: white;
+            border-radius: 0.25rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header DSFR -->
+        <header role="banner" class="fr-header">
+            <div class="fr-header__body">
+                <div class="fr-container">
+                    <div class="fr-header__body-row">
+                        <div class="fr-header__brand fr-enlarge-link">
+                            <div class="fr-header__brand-top">
+                                <div class="fr-header__logo">
+                                    <p class="fr-logo">
+                                        République<br>Française
+                                    </p>
+                                </div>
+                                <div class="fr-header__navbar">
+                                    <button class="fr-btn--search fr-btn" data-fr-opened="false" aria-controls="modal-search">
+                                        Recherche
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="fr-header__service">
+                                <a href="/" title="Accueil">
+                                    <p class="fr-header__service-title">Dashboard SignalConso</p>
+                                </a>
+                                <p class="fr-header__service-tagline">Tableau de bord des rappels produits</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Zone principale -->
+        <div class="dashboard-main">
+            <!-- Sidebar avec filtres -->
+            <aside class="dashboard-sidebar">
+                <!-- DÉBUT ZONE WIDGET dashboard-filters-001 -->
+                <div id="dashboard-filters-001" class="filter-section">
+                    <h2 class="fr-h5">Filtres globaux</h2>
+                    
+                    <!-- Date range -->
+                    <div class="fr-input-group fr-mb-2w">
+                        <label class="fr-label" for="date-start">
+                            Date de début
+                        </label>
+                        <input class="fr-input" type="date" id="date-start" name="date-start">
+                    </div>
+                    
+                    <div class="fr-input-group fr-mb-2w">
+                        <label class="fr-label" for="date-end">
+                            Date de fin
+                        </label>
+                        <input class="fr-input" type="date" id="date-end" name="date-end">
+                    </div>
+                    
+                    <!-- Catégorie -->
+                    <div class="fr-select-group fr-mb-2w">
+                        <label class="fr-label" for="category-filter">
+                            Catégorie
+                        </label>
+                        <select class="fr-select" id="category-filter" name="category-filter">
+                            <option value="">Toutes les catégories</option>
+                            <option value="Alimentation">Alimentation</option>
+                            <option value="Cosmétiques">Cosmétiques</option>
+                            <option value="Jouets">Jouets</option>
+                            <option value="Appareils électriques">Appareils électriques</option>
+                            <option value="Véhicules">Véhicules</option>
+                            <option value="Textiles">Textiles</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Niveau de risque -->
+                    <fieldset class="fr-fieldset fr-mb-2w">
+                        <legend class="fr-fieldset__legend fr-text--regular">
+                            Niveau de risque
+                        </legend>
+                        <div class="fr-fieldset__content">
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="risk-high" name="risk-high" checked>
+                                <label class="fr-label" for="risk-high">
+                                    Élevé
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="risk-medium" name="risk-medium" checked>
+                                <label class="fr-label" for="risk-medium">
+                                    Moyen
+                                </label>
+                            </div>
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="risk-low" name="risk-low" checked>
+                                <label class="fr-label" for="risk-low">
+                                    Faible
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="fr-btns-group fr-btns-group--sm">
+                        <button class="fr-btn fr-btn--sm" id="apply-filters">
+                            Appliquer
+                        </button>
+                        <button class="fr-btn fr-btn--secondary fr-btn--sm" id="reset-filters">
+                            Réinitialiser
+                        </button>
+                    </div>
+                    
+                    <!-- Tags des filtres actifs -->
+                    <div class="filter-tags" id="active-filters">
+                        <!-- Les tags seront ajoutés dynamiquement -->
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-filters-001 -->
+
+                <!-- DÉBUT ZONE WIDGET dashboard-facets-001 -->
+                <div id="dashboard-facets-001" class="filter-section">
+                    <h2 class="fr-h5">Facettes</h2>
+                    <div id="facets-container">
+                        <!-- Les facettes seront chargées dynamiquement -->
+                        <p class="fr-text--sm">Chargement des filtres...</p>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-facets-001 -->
+            </aside>
+
+            <!-- Contenu principal -->
+            <main class="dashboard-content" role="main">
+                <!-- DÉBUT ZONE WIDGET dashboard-alerts-001 -->
+                <div id="dashboard-alerts-001" class="alert-banner" role="alert">
+                    <div class="fr-container">
+                        <p class="fr-h6">
+                            <span class="fr-icon-warning-line" aria-hidden="true"></span>
+                            <span id="alert-count">0</span> nouveaux rappels critiques détectés
+                        </p>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-alerts-001 -->
+
+                <!-- DÉBUT ZONE WIDGET dashboard-kpi-001 -->
+                <div id="dashboard-kpi-001" class="kpi-grid">
+                    <!-- KPI 1: Total rappels -->
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-total">-</div>
+                        <div class="kpi-label">Total rappels</div>
+                        <div class="kpi-trend kpi-trend--up">
+                            <span class="fr-icon-arrow-up-line" aria-hidden="true"></span>
+                            <span id="kpi-total-trend">+0%</span> vs mois dernier
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Nouveaux aujourd'hui -->
+                    <div class="kpi-card kpi-card--warning">
+                        <div class="kpi-value" id="kpi-today">-</div>
+                        <div class="kpi-label">Aujourd'hui</div>
+                        <div class="kpi-trend kpi-trend--stable">
+                            <span class="fr-icon-subtract-line" aria-hidden="true"></span>
+                            <span id="kpi-today-trend">Stable</span>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Cette semaine -->
+                    <div class="kpi-card">
+                        <div class="kpi-value" id="kpi-week">-</div>
+                        <div class="kpi-label">Cette semaine</div>
+                        <div class="kpi-trend kpi-trend--down">
+                            <span class="fr-icon-arrow-down-line" aria-hidden="true"></span>
+                            <span id="kpi-week-trend">-5%</span> vs semaine dernière
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Taux critique -->
+                    <div class="kpi-card kpi-card--error">
+                        <div class="kpi-value" id="kpi-critical">-</div>
+                        <div class="kpi-label">Critiques (%)</div>
+                        <div class="kpi-trend kpi-trend--up">
+                            <span class="fr-icon-arrow-up-line" aria-hidden="true"></span>
+                            <span id="kpi-critical-trend">+2pts</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-kpi-001 -->
+
+                <!-- Graphiques -->
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <!-- DÉBUT ZONE WIDGET dashboard-chart-bar-001 -->
+                    <div class="fr-col-12 fr-col-lg-6">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Rappels par catégorie</h3>
+                                <div class="chart-container">
+                                    <canvas id="chart-bar"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FIN ZONE WIDGET dashboard-chart-bar-001 -->
+                    
+                    <!-- DÉBUT ZONE WIDGET dashboard-chart-line-001 -->
+                    <div class="fr-col-12 fr-col-lg-6">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h3 class="fr-card__title">Évolution temporelle</h3>
+                                <div class="chart-container">
+                                    <canvas id="chart-line"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FIN ZONE WIDGET dashboard-chart-line-001 -->
+                </div>
+
+                <!-- DÉBUT ZONE WIDGET dashboard-table-001 -->
+                <div id="dashboard-table-001" class="fr-table fr-table--bordered fr-mb-4w">
+                    <h3 class="fr-h4 fr-mb-2w">Derniers rappels</h3>
+                    <div class="fr-table__wrapper">
+                        <div class="fr-table__container">
+                            <div class="fr-table__content">
+                                <table role="table" aria-label="Tableau des derniers rappels">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Catégorie</th>
+                                            <th scope="col">Produit</th>
+                                            <th scope="col">Marque</th>
+                                            <th scope="col">Risque</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                <div class="widget-loading">
+                                                    <span class="fr-spinner fr-spinner--sm" aria-label="Chargement"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <nav class="fr-pagination" role="navigation" aria-label="Pagination">
+                        <ul class="fr-pagination__list">
+                            <li>
+                                <button class="fr-pagination__link fr-pagination__link--prev" id="prev-page">
+                                    Page précédente
+                                </button>
+                            </li>
+                            <li>
+                                <span class="fr-pagination__link" aria-current="page" id="current-page">1</span>
+                            </li>
+                            <li>
+                                <button class="fr-pagination__link fr-pagination__link--next" id="next-page">
+                                    Page suivante
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-table-001 -->
+
+                <!-- DÉBUT ZONE WIDGET dashboard-timeline-001 -->
+                <div id="dashboard-timeline-001" class="fr-card fr-mb-4w">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Timeline des événements</h3>
+                        <div class="timeline" id="timeline-container">
+                            <!-- Les événements seront ajoutés dynamiquement -->
+                            <div class="widget-loading">
+                                <span class="fr-spinner fr-spinner--sm" aria-label="Chargement"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-timeline-001 -->
+
+                <!-- DÉBUT ZONE WIDGET dashboard-map-001 -->
+                <div id="dashboard-map-001" class="fr-card">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Répartition géographique</h3>
+                        <div id="dashboard-map">
+                            <!-- La carte sera initialisée ici -->
+                            <div class="widget-loading">
+                                <span class="fr-spinner fr-spinner--sm" aria-label="Chargement"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET dashboard-map-001 -->
+            </main>
+        </div>
+
+        <!-- DÉBUT ZONE WIDGET dashboard-export-001 -->
+        <div id="dashboard-export-001" class="export-section">
+            <div class="fr-btns-group fr-btns-group--icon-right">
+                <button class="fr-btn fr-btn--icon-right fr-icon-download-line" id="export-pdf">
+                    Export PDF
+                </button>
+                <button class="fr-btn fr-btn--secondary fr-btn--icon-right fr-icon-file-text-line" id="export-csv">
+                    Export CSV
+                </button>
+                <button class="fr-btn fr-btn--tertiary fr-btn--icon-right fr-icon-code-s-slash-line" id="export-json">
+                    Export JSON
+                </button>
+            </div>
+        </div>
+        <!-- FIN ZONE WIDGET dashboard-export-001 -->
+
+        <!-- Footer DSFR -->
+        <footer role="contentinfo" class="fr-footer">
+            <div class="fr-container">
+                <div class="fr-footer__body">
+                    <div class="fr-footer__brand fr-enlarge-link">
+                        <p class="fr-logo">
+                            République<br>Française
+                        </p>
+                        <a class="fr-footer__brand-link" href="/" title="Retour à l'accueil">
+                            <img class="fr-footer__logo" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/artwork/dark/logo-ministere-economie.svg" alt="Ministère de l'Économie">
+                        </a>
+                    </div>
+                    <div class="fr-footer__content">
+                        <p class="fr-footer__content-desc">
+                            Dashboard SignalConso - Données temps réel depuis data.economie.gouv.fr
+                        </p>
+                        <ul class="fr-footer__content-list">
+                            <li class="fr-footer__content-item">
+                                <a class="fr-footer__content-link" href="https://data.economie.gouv.fr">data.economie.gouv.fr</a>
+                            </li>
+                            <li class="fr-footer__content-item">
+                                <a class="fr-footer__content-link" href="/mentions-legales">Mentions légales</a>
+                            </li>
+                            <li class="fr-footer__content-item">
+                                <a class="fr-footer__content-link" href="/donnees-personnelles">Données personnelles</a>
+                            </li>
+                            <li class="fr-footer__content-item">
+                                <a class="fr-footer__content-link" href="/accessibilite">Accessibilité : non conforme</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="fr-footer__bottom">
+                    <ul class="fr-footer__bottom-list">
+                        <li class="fr-footer__bottom-item">
+                            <span class="fr-footer__bottom-link">
+                                Dernière mise à jour : <span id="last-update">-</span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- DSFR JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <!-- Application JavaScript -->
+    <script>
+        // Configuration
+        const API_BASE = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso0/records';
+        const REFRESH_INTERVAL = 60000; // 1 minute
+        
+        // État global
+        let currentPage = 0;
+        let itemsPerPage = 10;
+        let filters = {
+            dateStart: null,
+            dateEnd: null,
+            category: '',
+            riskLevels: ['high', 'medium', 'low']
+        };
+        let dashboardData = {
+            total: 0,
+            today: 0,
+            week: 0,
+            critical: 0,
+            records: [],
+            categories: {},
+            timeline: []
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+            loadDashboardData();
+            setupEventListeners();
+            startAutoRefresh();
+        });
+
+        // Initialiser le dashboard
+        function initializeDashboard() {
+            // Initialiser les dates par défaut (30 derniers jours)
+            const today = new Date();
+            const lastMonth = new Date(today);
+            lastMonth.setDate(lastMonth.getDate() - 30);
+            
+            // Ne pas définir de dates par défaut pour charger toutes les données
+            // document.getElementById('date-start').value = lastMonth.toISOString().split('T')[0];
+            // document.getElementById('date-end').value = today.toISOString().split('T')[0];
+            
+            // Initialiser fetchCompat si disponible
+            if (typeof fetchCompat !== 'undefined') {
+                fetchCompat.configure({
+                    apiDomain: 'data.economie.gouv.fr',
+                    enableCache: true,
+                    cacheDuration: 300000,
+                    enableMonitoring: true
+                });
+            }
+            
+            // Afficher un message de chargement initial
+            console.log('Initialisation du dashboard SignalConso...');
+        }
+
+        // Charger les données du dashboard
+        async function loadDashboardData() {
+            try {
+                console.log('Chargement des données...');
+                
+                // Construire les paramètres de requête
+                const params = new URLSearchParams({
+                    limit: 100,
+                    order_by: 'date_de_publication DESC'
+                });
+                
+                // Ajouter les filtres
+                if (filters.dateStart) {
+                    params.append('where', `date_de_publication >= "${filters.dateStart}"`);
+                }
+                if (filters.category) {
+                    params.append('refine', `categorie_de_produit:${filters.category}`);
+                }
+                
+                const url = `${API_BASE}?${params}`;
+                console.log('Requête API:', url);
+                
+                // Fetch avec fetchCompat si disponible
+                const fetchFunction = typeof fetchCompat !== 'undefined' ? fetchCompat : fetch;
+                const response = await fetchFunction(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur API: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Données reçues:', data.total_count, 'enregistrements');
+                
+                // Traiter les données
+                processDashboardData(data);
+                
+                // Mettre à jour l'interface
+                updateKPIs();
+                updateCharts();
+                updateTable();
+                updateTimeline();
+                updateFacets();
+                updateLastUpdate();
+                
+                console.log('Dashboard mis à jour avec succès');
+                
+            } catch (error) {
+                console.error('Erreur chargement dashboard:', error);
+                showError('Impossible de charger les données: ' + error.message);
+                
+                // Afficher un message d'erreur dans les facettes
+                document.getElementById('facets-container').innerHTML = 
+                    '<p class="fr-text--sm fr-error-text">Erreur de chargement des données</p>';
+            }
+        }
+
+        // Traiter les données reçues
+        function processDashboardData(data) {
+            const now = new Date();
+            const today = now.toDateString();
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            
+            dashboardData.records = data.results || [];
+            dashboardData.total = data.total_count || 0;
+            
+            // Calculer les KPIs
+            dashboardData.today = dashboardData.records.filter(r => 
+                new Date(r.date_de_publication).toDateString() === today
+            ).length;
+            
+            dashboardData.week = dashboardData.records.filter(r => 
+                new Date(r.date_de_publication) >= weekAgo
+            ).length;
+            
+            // Calculer le taux critique (simulé)
+            dashboardData.critical = Math.round(
+                (dashboardData.records.filter(r => 
+                    r.risques_encourus_par_le_consommateur && 
+                    r.risques_encourus_par_le_consommateur.toLowerCase().includes('grave')
+                ).length / dashboardData.total) * 100
+            ) || 0;
+            
+            // Compter par catégorie
+            dashboardData.categories = {};
+            dashboardData.records.forEach(record => {
+                const cat = record.categorie_de_produit || 'Non catégorisé';
+                dashboardData.categories[cat] = (dashboardData.categories[cat] || 0) + 1;
+            });
+            
+            // Créer la timeline (10 derniers événements)
+            dashboardData.timeline = dashboardData.records.slice(0, 10).map(r => ({
+                date: new Date(r.date_de_publication),
+                title: r.noms_des_modeles_ou_references || 'Produit non spécifié',
+                category: r.categorie_de_produit || 'Non catégorisé',
+                risk: r.risques_encourus_par_le_consommateur || 'Non spécifié',
+                critical: r.risques_encourus_par_le_consommateur && 
+                         r.risques_encourus_par_le_consommateur.toLowerCase().includes('grave')
+            }));
+        }
+
+        // Mettre à jour les KPIs
+        function updateKPIs() {
+            document.getElementById('kpi-total').textContent = dashboardData.total.toLocaleString('fr-FR');
+            document.getElementById('kpi-today').textContent = dashboardData.today.toLocaleString('fr-FR');
+            document.getElementById('kpi-week').textContent = dashboardData.week.toLocaleString('fr-FR');
+            document.getElementById('kpi-critical').textContent = dashboardData.critical + '%';
+            
+            // Mettre à jour les alertes
+            if (dashboardData.today > 0) {
+                const alertBanner = document.getElementById('dashboard-alerts-001');
+                document.getElementById('alert-count').textContent = dashboardData.today;
+                alertBanner.classList.add('active');
+            }
+        }
+
+        // Mettre à jour les graphiques
+        function updateCharts() {
+            // Graphique en barres - Catégories
+            const barCtx = document.getElementById('chart-bar').getContext('2d');
+            
+            // Détruire le graphique existant s'il existe
+            if (window.barChart) window.barChart.destroy();
+            
+            const categories = Object.entries(dashboardData.categories)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            window.barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories.map(c => c[0]),
+                    datasets: [{
+                        label: 'Nombre de rappels',
+                        data: categories.map(c => c[1]),
+                        backgroundColor: '#000091',
+                        borderColor: '#000091',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            
+            // Graphique en ligne - Évolution temporelle
+            const lineCtx = document.getElementById('chart-line').getContext('2d');
+            
+            if (window.lineChart) window.lineChart.destroy();
+            
+            // Grouper par jour (7 derniers jours)
+            const dailyData = {};
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                dailyData[dateStr] = 0;
+            }
+            
+            dashboardData.records.forEach(record => {
+                const date = record.date_de_publication.split('T')[0];
+                if (dailyData.hasOwnProperty(date)) {
+                    dailyData[date]++;
+                }
+            });
+            
+            window.lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(dailyData).map(d => new Date(d).toLocaleDateString('fr-FR')),
+                    datasets: [{
+                        label: 'Rappels par jour',
+                        data: Object.values(dailyData),
+                        borderColor: '#000091',
+                        backgroundColor: 'rgba(0, 0, 145, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Mettre à jour la table
+        function updateTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            const pageData = dashboardData.records.slice(
+                currentPage * itemsPerPage,
+                (currentPage + 1) * itemsPerPage
+            );
+            
+            pageData.forEach(record => {
+                const row = document.createElement('tr');
+                
+                const date = new Date(record.date_de_publication);
+                const critical = record.risques_encourus_par_le_consommateur && 
+                                record.risques_encourus_par_le_consommateur.toLowerCase().includes('grave');
+                
+                row.innerHTML = `
+                    <td>${date.toLocaleDateString('fr-FR')}</td>
+                    <td>${record.categorie_de_produit || '-'}</td>
+                    <td>${record.noms_des_modeles_ou_references || '-'}</td>
+                    <td>${record.marque_du_produit || '-'}</td>
+                    <td>
+                        <span class="fr-badge fr-badge--${critical ? 'error' : 'info'}">
+                            ${critical ? 'Élevé' : 'Normal'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="fr-btn fr-btn--sm fr-btn--tertiary" onclick="viewDetails('${record.recordid}')">
+                            Détails
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Mettre à jour la pagination
+            document.getElementById('current-page').textContent = currentPage + 1;
+            document.getElementById('prev-page').disabled = currentPage === 0;
+            document.getElementById('next-page').disabled = (currentPage + 1) * itemsPerPage >= dashboardData.total;
+        }
+
+        // Mettre à jour la timeline
+        function updateTimeline() {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+            
+            dashboardData.timeline.forEach(event => {
+                const item = document.createElement('div');
+                item.className = `timeline-item ${event.critical ? 'timeline-item--critical' : ''}`;
+                
+                item.innerHTML = `
+                    <div class="fr-text--sm fr-mb-1v">
+                        ${event.date.toLocaleDateString('fr-FR')} - ${event.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}
+                    </div>
+                    <div class="fr-text--bold fr-mb-1v">${event.title}</div>
+                    <div class="fr-text--sm">
+                        <span class="fr-tag fr-tag--sm">${event.category}</span>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Mettre à jour les facettes
+        function updateFacets() {
+            const container = document.getElementById('facets-container');
+            
+            // Extraire les marques uniques
+            const marques = {};
+            dashboardData.records.forEach(record => {
+                const marque = record.marque_du_produit || 'Non spécifiée';
+                marques[marque] = (marques[marque] || 0) + 1;
+            });
+            
+            // Grouper les facettes
+            const facets = {
+                'Catégories': dashboardData.categories,
+                'Marques': marques
+            };
+            
+            let html = '';
+            Object.entries(facets).forEach(([title, items], index) => {
+                const facetId = `facet-${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+                const hasItems = Object.keys(items).length > 0;
+                
+                if (hasItems) {
+                    html += `
+                    <div class="fr-mb-2w">
+                        <h3 class="fr-h6">${title}</h3>
+                        <div class="fr-form-group">`;
+                    
+                    Object.entries(items)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 5)
+                        .forEach(([key, count]) => {
+                            const checkboxId = `facet-${key.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`;
+                            html += `
+                            <div class="fr-checkbox-group fr-checkbox-group--sm">
+                                <input type="checkbox" id="${checkboxId}" name="${checkboxId}" 
+                                       onchange="applyFacetFilter('${title}', '${key}', this.checked)">
+                                <label class="fr-label" for="${checkboxId}">
+                                    ${key} 
+                                    <span class="fr-badge fr-badge--sm fr-badge--info">${count}</span>
+                                </label>
+                            </div>`;
+                        });
+                    
+                    html += `
+                        </div>
+                    </div>`;
+                }
+            });
+            
+            if (html === '') {
+                html = '<p class="fr-text--sm">Chargement des facettes...</p>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Mettre à jour la dernière mise à jour
+        function updateLastUpdate() {
+            document.getElementById('last-update').textContent = new Date().toLocaleString('fr-FR');
+        }
+
+        // Configuration des event listeners
+        function setupEventListeners() {
+            // Filtres
+            document.getElementById('apply-filters').addEventListener('click', () => {
+                filters.dateStart = document.getElementById('date-start').value;
+                filters.dateEnd = document.getElementById('date-end').value;
+                filters.category = document.getElementById('category-filter').value;
+                
+                currentPage = 0;
+                loadDashboardData();
+            });
+            
+            document.getElementById('reset-filters').addEventListener('click', () => {
+                document.getElementById('date-start').value = '';
+                document.getElementById('date-end').value = '';
+                document.getElementById('category-filter').value = '';
+                
+                filters = {
+                    dateStart: null,
+                    dateEnd: null,
+                    category: '',
+                    riskLevels: ['high', 'medium', 'low']
+                };
+                
+                loadDashboardData();
+            });
+            
+            // Pagination
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    updateTable();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', () => {
+                if ((currentPage + 1) * itemsPerPage < dashboardData.total) {
+                    currentPage++;
+                    updateTable();
+                }
+            });
+            
+            // Export
+            document.getElementById('export-csv').addEventListener('click', exportCSV);
+            document.getElementById('export-json').addEventListener('click', exportJSON);
+            document.getElementById('export-pdf').addEventListener('click', exportPDF);
+        }
+
+        // Démarrer l'auto-refresh
+        function startAutoRefresh() {
+            setInterval(loadDashboardData, REFRESH_INTERVAL);
+        }
+
+        // Fonctions d'export
+        function exportCSV() {
+            const headers = ['Date', 'Catégorie', 'Produit', 'Marque', 'Risques'];
+            const rows = dashboardData.records.map(r => [
+                new Date(r.date_de_publication).toLocaleDateString('fr-FR'),
+                r.categorie_de_produit || '',
+                r.noms_des_modeles_ou_references || '',
+                r.marque_du_produit || '',
+                r.risques_encourus_par_le_consommateur || ''
+            ]);
+            
+            let csv = '\ufeff' + headers.join(';') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `dashboard_signalconso_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function exportJSON() {
+            const json = JSON.stringify(dashboardData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `dashboard_signalconso_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        function exportPDF() {
+            window.print();
+        }
+
+        // Afficher les détails d'un rappel
+        function viewDetails(recordId) {
+            const record = dashboardData.records.find(r => r.recordid === recordId);
+            if (record) {
+                alert(`Détails du rappel:\n\n` +
+                      `Produit: ${record.noms_des_modeles_ou_references || 'Non spécifié'}\n` +
+                      `Marque: ${record.marque_du_produit || 'Non spécifiée'}\n` +
+                      `Catégorie: ${record.categorie_de_produit || 'Non catégorisée'}\n` +
+                      `Risques: ${record.risques_encourus_par_le_consommateur || 'Non spécifiés'}\n` +
+                      `Date: ${new Date(record.date_de_publication).toLocaleDateString('fr-FR')}`);
+            }
+        }
+
+        // Appliquer un filtre de facette
+        function applyFacetFilter(type, value, checked) {
+            if (!filters.facets) {
+                filters.facets = {};
+            }
+            if (!filters.facets[type]) {
+                filters.facets[type] = [];
+            }
+            
+            if (checked) {
+                if (!filters.facets[type].includes(value)) {
+                    filters.facets[type].push(value);
+                }
+            } else {
+                filters.facets[type] = filters.facets[type].filter(v => v !== value);
+            }
+            
+            // Mettre à jour les tags de filtres actifs
+            updateActiveFilterTags();
+            
+            // Recharger les données avec les nouveaux filtres
+            currentPage = 0;
+            loadDashboardData();
+        }
+        
+        // Mettre à jour les tags de filtres actifs
+        function updateActiveFilterTags() {
+            const container = document.getElementById('active-filters');
+            let html = '';
+            
+            // Filtres de date
+            if (filters.dateStart || filters.dateEnd) {
+                const dateText = filters.dateStart && filters.dateEnd 
+                    ? `${filters.dateStart} - ${filters.dateEnd}`
+                    : filters.dateStart || filters.dateEnd;
+                html += `<span class="fr-tag fr-tag--dismiss" onclick="removeFilter('date')">
+                    ${dateText}
+                    <button class="fr-tag--dismiss" aria-label="Retirer le filtre">×</button>
+                </span>`;
+            }
+            
+            // Filtre de catégorie
+            if (filters.category) {
+                html += `<span class="fr-tag fr-tag--dismiss" onclick="removeFilter('category')">
+                    ${filters.category}
+                    <button class="fr-tag--dismiss" aria-label="Retirer le filtre">×</button>
+                </span>`;
+            }
+            
+            // Filtres de facettes
+            if (filters.facets) {
+                Object.entries(filters.facets).forEach(([type, values]) => {
+                    values.forEach(value => {
+                        html += `<span class="fr-tag fr-tag--dismiss" onclick="removeFacetFilter('${type}', '${value}')">
+                            ${value}
+                            <button class="fr-tag--dismiss" aria-label="Retirer le filtre">×</button>
+                        </span>`;
+                    });
+                });
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Retirer un filtre
+        function removeFilter(type) {
+            if (type === 'date') {
+                filters.dateStart = null;
+                filters.dateEnd = null;
+                document.getElementById('date-start').value = '';
+                document.getElementById('date-end').value = '';
+            } else if (type === 'category') {
+                filters.category = '';
+                document.getElementById('category-filter').value = '';
+            }
+            
+            updateActiveFilterTags();
+            loadDashboardData();
+        }
+        
+        // Retirer un filtre de facette
+        function removeFacetFilter(type, value) {
+            if (filters.facets && filters.facets[type]) {
+                filters.facets[type] = filters.facets[type].filter(v => v !== value);
+                
+                // Décocher la checkbox correspondante
+                const checkboxId = `facet-${value.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`;
+                const checkbox = document.getElementById(checkboxId);
+                if (checkbox) checkbox.checked = false;
+            }
+            
+            updateActiveFilterTags();
+            loadDashboardData();
+        }
+
+        // Afficher une erreur
+        function showError(message) {
+            console.error(message);
+            // Implémenter une notification d'erreur DSFR
+        }
+
+        // Styles d'impression
+        const printStyles = `
+            @media print {
+                .dashboard-sidebar,
+                .export-section,
+                .fr-header__navbar,
+                .fr-pagination,
+                button { display: none !important; }
+                
+                .dashboard-main {
+                    display: block !important;
+                    padding: 0 !important;
+                }
+                
+                .dashboard-content {
+                    width: 100% !important;
+                }
+                
+                .chart-container {
+                    break-inside: avoid;
+                    height: 300px !important;
+                }
+            }
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = printStyles;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

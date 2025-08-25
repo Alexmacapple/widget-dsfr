@@ -23,6 +23,17 @@
       },
       "description": "MCP ODS Widgets - Création de widgets OpenDataSoft compatibles DSFR"
     },
+    "mcp-prompts": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/alex/Desktop/widget-dsfr/mcp-prompts/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "description": "Système de génération de prompts modulaires optimisés"
+    },
     "context7": {
       "type": "stdio",
       "command": "npx",

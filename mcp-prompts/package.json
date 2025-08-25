@@ -1,0 +1,19 @@
+{
+  "name": "mcp-prompts",
+  "version": "1.0.0",
+  "description": "MCP Server for modular prompt generation system",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "mcp",
+    "prompts",
+    "dsfr",
+    "widget"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}
