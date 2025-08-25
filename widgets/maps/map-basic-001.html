@@ -295,8 +295,8 @@
                                                                         <span class="fr-hint-text">Filtrer par type d'établissement</span>
                                                                     </label>
                                                                     <select class="fr-select" id="type-select-map" 
-                                                                            ng-model="selectedType"
-                                                                            ng-change="updateFilters()"
+                                                                            ng-model="$parent.selectedType"
+                                                                            ng-change="$parent.updateFilters()"
                                                                             aria-describedby="type-select-map-hint">
                                                                         <option value="">Tous les services</option>
                                                                         <option value="Centre des Finances Publiques">Centre des Finances Publiques</option>
@@ -316,14 +316,14 @@
                                                                     <div style="padding: 0.5rem; border: 1px solid var(--border-default-grey); border-radius: 0.25rem; background: var(--background-default-grey);">
                                                                         <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
                                                                             <button class="fr-btn fr-btn--sm" 
-                                                                                    ng-class="{'fr-btn--secondary': selectedDept !== '', 'fr-btn--tertiary-no-outline': selectedDept === ''}"
-                                                                                    ng-click="selectedDept = ''; updateFilters()">
+                                                                                    ng-class="{'fr-btn--secondary': $parent.selectedDept !== '', 'fr-btn--tertiary-no-outline': $parent.selectedDept === ''}"
+                                                                                    ng-click="$parent.selectedDept = ''; $parent.updateFilters()">
                                                                                 Tous
                                                                             </button>
-                                                                            <button ng-repeat="dept in departments" 
+                                                                            <button ng-repeat="dept in $parent.departments" 
                                                                                     class="fr-btn fr-btn--sm" 
-                                                                                    ng-class="{'fr-btn--secondary': selectedDept !== dept.code, 'fr-btn--tertiary-no-outline': selectedDept === dept.code}"
-                                                                                    ng-click="selectedDept = dept.code; updateFilters()">
+                                                                                    ng-class="{'fr-btn--secondary': $parent.selectedDept !== dept.code, 'fr-btn--tertiary-no-outline': $parent.selectedDept === dept.code}"
+                                                                                    ng-click="$parent.selectedDept = dept.code; $parent.updateFilters()">
                                                                                 {{ dept.code }} - {{ dept.name }}
                                                                             </button>
                                                                         </div>
@@ -378,15 +378,15 @@
                                         
                                         <!-- Boutons de contrôle rapide -->
                                         <div class="fr-btns-group fr-btns-group--inline fr-mb-2w">
-                                            <button class="fr-btn fr-btn--secondary" ng-click="resetMap()">
+                                            <button class="fr-btn fr-btn--secondary" ng-click="$parent.resetMap()">
                                                 Réinitialiser la carte
                                             </button>
                                             <button class="fr-btn fr-btn--secondary" 
-                                                    ng-click="toggleFullscreen()"
+                                                    ng-click="$parent.toggleFullscreen()"
                                                     id="toggle-fullscreen"
-                                                    aria-label="{{ fullscreenEnabled ? 'Quitter le mode plein écran' : 'Activer le mode plein écran' }}">
-                                                <span ng-if="!fullscreenEnabled">Plein écran</span>
-                                                <span ng-if="fullscreenEnabled">Quitter plein écran</span>
+                                                    aria-label="{{ $parent.fullscreenEnabled ? 'Quitter le mode plein écran' : 'Activer le mode plein écran' }}">
+                                                <span ng-if="!$parent.fullscreenEnabled">Plein écran</span>
+                                                <span ng-if="$parent.fullscreenEnabled">Quitter plein écran</span>
                                             </button>
                                         </div>
                                         
@@ -398,14 +398,14 @@
                                             <input class="fr-input" 
                                                    type="search" 
                                                    id="map-search-input"
-                                                   ng-model="mapSearchQuery" 
-                                                   ng-change="searchLocation()"
-                                                   ng-keypress="($event.which === 13) && searchLocation()"
+                                                   ng-model="$parent.mapSearchQuery" 
+                                                   ng-change="$parent.searchLocation()"
+                                                   ng-keypress="($event.which === 13) && $parent.searchLocation()"
                                                    placeholder="Rechercher une ville, adresse ou code postal..."
                                                    aria-label="Rechercher une localisation sur la carte">
                                             <button class="fr-btn" 
                                                     type="submit"
-                                                    ng-click="searchLocation()"
+                                                    ng-click="$parent.searchLocation()"
                                                     aria-label="Lancer la recherche">
                                                 Rechercher
                                             </button>
