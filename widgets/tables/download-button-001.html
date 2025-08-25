@@ -8,6 +8,7 @@
     <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
     <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -183,5 +184,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

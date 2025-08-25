@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test API Monitor & Cache</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- Wrapper API et Monitor -->
+    <script src="js/wrapper-api.js"></script>
+    <script src="js/api-monitor.js"></script>
+    
+    <style>
+        body {
+            padding: 2rem;
+        }
+        .test-results {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f6f6f6;
+            border-radius: 8px;
+        }
+        .test-log {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: white;
+            border-left: 3px solid #000091;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .test-log.success {
+            border-color: #10b981;
+        }
+        .test-log.warning {
+            border-color: #f59e0b;
+        }
+        .test-log.error {
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container">
+        <h1>Test du système API avec Cache et Monitoring</h1>
+        
+        <div class="fr-alert fr-alert--info">
+            <p>Cette page teste le wrapper fetchCompat avec cache centralisé et monitoring temps réel.</p>
+        </div>
+        
+        <div class="fr-btns-group fr-btns-group--inline fr-btns-group--center">
+            <button class="fr-btn" id="test-single">
+                Test 1 : Requête simple
+            </button>
+            <button class="fr-btn" id="test-multiple">
+                Test 2 : Requêtes multiples
+            </button>
+            <button class="fr-btn" id="test-cache">
+                Test 3 : Test du cache
+            </button>
+            <button class="fr-btn" id="test-dedup">
+                Test 4 : Déduplication
+            </button>
+            <button class="fr-btn fr-btn--secondary" id="clear-cache">
+                Vider le cache
+            </button>
+        </div>
+        
+        <div class="test-results" id="results">
+            <h2>Résultats des tests</h2>
+            <div id="log-container"></div>
+        </div>
+        
+        <div class="fr-mt-4w">
+            <h3>Statistiques en temps réel</h3>
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-3">
+                    <div class="fr-tile">
+                        <div class="fr-tile__body">
+                            <h4 class="fr-tile__title">Requêtes totales</h4>
+                            <p class="fr-tile__desc" id="stat-total">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-3">
+                    <div class="fr-tile">
+                        <div class="fr-tile__body">
+                            <h4 class="fr-tile__title">Cache hits</h4>
+                            <p class="fr-tile__desc" id="stat-hits">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-3">
+                    <div class="fr-tile">
+                        <div class="fr-tile__body">
+                            <h4 class="fr-tile__title">Appels API</h4>
+                            <p class="fr-tile__desc" id="stat-api">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-3">
+                    <div class="fr-tile">
+                        <div class="fr-tile__body">
+                            <h4 class="fr-tile__title">Réduction</h4>
+                            <p class="fr-tile__desc" id="stat-reduction">0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration du wrapper
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: true
+            });
+        }
+        
+        // Initialisation du monitor
+        document.addEventListener('DOMContentLoaded', function() {
+            // Créer le monitor visuel
+            if (window.ApiMonitor) {
+                window.apiMonitor = new ApiMonitor({
+                    position: 'bottom-right',
+                    theme: 'light',
+                    collapsed: false,
+                    updateInterval: 1000
+                });
+            }
+            
+            const logContainer = document.getElementById('log-container');
+            
+            function log(message, type = 'info') {
+                const logEntry = document.createElement('div');
+                logEntry.className = `test-log ${type}`;
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+            
+            function updateStats() {
+                if (window.fetchCompat && window.fetchCompat.getStats) {
+                    const stats = window.fetchCompat.getStats();
+                    document.getElementById('stat-total').textContent = stats.totalRequests;
+                    document.getElementById('stat-hits').textContent = `${stats.cacheHits} (${stats.hitRate}%)`;
+                    document.getElementById('stat-api').textContent = stats.apiCalls;
+                    document.getElementById('stat-reduction').textContent = `${stats.reduction}%`;
+                }
+            }
+            
+            // Test 1 : Requête simple
+            document.getElementById('test-single').addEventListener('click', async function() {
+                log('🚀 Test 1 : Requête simple vers SignalConso...', 'info');
+                
+                try {
+                    const response = await fetchCompat(
+                        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=10'
+                    );
+                    const data = await response.json();
+                    
+                    log(`✅ Succès ! ${data.total_count} enregistrements trouvés`, 'success');
+                    log(`📊 Premiers résultats : ${data.results.length} items`, 'info');
+                    
+                    updateStats();
+                } catch (error) {
+                    log(`❌ Erreur : ${error.message}`, 'error');
+                }
+            });
+            
+            // Test 2 : Requêtes multiples
+            document.getElementById('test-multiple').addEventListener('click', async function() {
+                log('🚀 Test 2 : 5 requêtes différentes...', 'info');
+                
+                const urls = [
+                    'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=5',
+                    'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=10',
+                    'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/annuaire-dgccrf/records?limit=5',
+                    'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/budget-vert/records?limit=5',
+                    'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/tarifs-bancaires/records?limit=5'
+                ];
+                
+                for (let i = 0; i < urls.length; i++) {
+                    try {
+                        const response = await fetchCompat(urls[i]);
+                        const data = await response.json();
+                        log(`✅ Requête ${i+1}/5 : ${data.total_count} enregistrements`, 'success');
+                    } catch (error) {
+                        log(`❌ Requête ${i+1}/5 échouée : ${error.message}`, 'error');
+                    }
+                }
+                
+                updateStats();
+            });
+            
+            // Test 3 : Test du cache
+            document.getElementById('test-cache').addEventListener('click', async function() {
+                log('🚀 Test 3 : Test du cache (même requête 3 fois)...', 'info');
+                
+                const url = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=20';
+                
+                for (let i = 0; i < 3; i++) {
+                    const start = Date.now();
+                    try {
+                        const response = await fetchCompat(url);
+                        const data = await response.json();
+                        const duration = Date.now() - start;
+                        
+                        const cacheStatus = response.headers.get('X-Cache') === 'HIT' ? '🎯 CACHE HIT' : '🌐 API CALL';
+                        log(`${cacheStatus} - Requête ${i+1}/3 : ${duration}ms`, 
+                            response.headers.get('X-Cache') === 'HIT' ? 'success' : 'warning');
+                    } catch (error) {
+                        log(`❌ Erreur : ${error.message}`, 'error');
+                    }
+                }
+                
+                updateStats();
+            });
+            
+            // Test 4 : Déduplication
+            document.getElementById('test-dedup').addEventListener('click', async function() {
+                log('🚀 Test 4 : Déduplication (3 requêtes simultanées identiques)...', 'info');
+                
+                const url = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/signalconso/records?limit=15';
+                
+                // Lancer 3 requêtes identiques en parallèle
+                const promises = [
+                    fetchCompat(url),
+                    fetchCompat(url),
+                    fetchCompat(url)
+                ];
+                
+                try {
+                    const responses = await Promise.all(promises);
+                    log(`✅ 3 requêtes terminées, vérifier les stats pour la déduplication`, 'success');
+                    
+                    // Vérifier les données
+                    for (let i = 0; i < responses.length; i++) {
+                        const data = await responses[i].json();
+                        log(`📊 Réponse ${i+1} : ${data.results.length} résultats`, 'info');
+                    }
+                } catch (error) {
+                    log(`❌ Erreur : ${error.message}`, 'error');
+                }
+                
+                updateStats();
+            });
+            
+            // Vider le cache
+            document.getElementById('clear-cache').addEventListener('click', function() {
+                if (window.fetchCompat && window.fetchCompat.clearCache) {
+                    window.fetchCompat.clearCache();
+                    log('🗑️ Cache vidé avec succès', 'warning');
+                    updateStats();
+                }
+            });
+            
+            // Mise à jour automatique des stats
+            setInterval(updateStats, 1000);
+            
+            // Log initial
+            log('✨ Page de test prête ! Utilisez les boutons pour tester le système.', 'info');
+            log('📊 Le monitor API est visible en bas à droite de l\'écran', 'info');
+        });
+    </script>
+    
+    <!-- DSFR JS -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

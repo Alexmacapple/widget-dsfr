@@ -203,6 +203,7 @@
             font-size: 1rem;
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -477,7 +478,7 @@
             try {
                 const url = buildApiUrl();
                 
-                const response = await fetch(url);
+                const response = await fetchCompat(url);
                 
                 const data = await response.json();
                 
@@ -656,7 +657,7 @@
             let record = null;
             
             // Faire une requête pour obtenir les détails complets
-            fetch(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&q=recordid:${recordId}`)
+            fetchCompat(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&q=recordid:${recordId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.records && data.records.length > 0) {
@@ -909,5 +910,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

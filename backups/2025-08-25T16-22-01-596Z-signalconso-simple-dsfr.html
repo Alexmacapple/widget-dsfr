@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget SignalConso - Version simplifiée DSFR">
+    <title>SignalConso - Widget DSFR Simplifié</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Variables DSFR */
+        :root {
+            --primary-color: #000091;
+            --text-color: #161616;
+        }
+
+        /* Harmonisation des widgets ODS avec DSFR */
+        body {
+            font-family: Marianne, arial, sans-serif;
+        }
+        
+        .ods-widget {
+            font-family: inherit;
+        }
+        
+        /* Tables DSFR */
+        .odswidget-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .odswidget-table th {
+            background-color: #f6f6f6;
+            font-weight: 700;
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .odswidget-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .odswidget-table tbody tr:hover {
+            background-color: #f6f6f6;
+        }
+        
+        /* Facettes DSFR */
+        .odswidget-facet {
+            margin-bottom: 1.5rem;
+        }
+        
+        .odswidget-facet__title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Search box */
+        .odswidget-searchbox input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 0.25rem;
+            font-family: inherit;
+        }
+        
+        .odswidget-searchbox input:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* KPI Cards */
+        .kpi-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .kpi-label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        /* Zone widget identifiée */
+        .widget-zone {
+            background-color: #f9f9f9;
+            border: 2px dashed #ddd;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .widget-zone::before {
+            content: attr(data-widget-id);
+            position: absolute;
+            top: -0.75rem;
+            left: 1rem;
+            background: white;
+            padding: 0 0.5rem;
+            color: #666;
+            font-size: 0.875rem;
+            font-family: monospace;
+        }
+
+        /* Container ODS */
+        .ods-container {
+            padding: 0 1rem;
+        }
+        
+        /* Pagination */
+        .odswidget-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+        
+        .odswidget-pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .odswidget-pagination button:hover:not(:disabled) {
+            background: #f6f6f6;
+        }
+        
+        .odswidget-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#widget-zone">Widget</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil">
+                                <p class="fr-header__service-title">SignalConso</p>
+                            </a>
+                            <p class="fr-header__service-tagline">Signalements des consommateurs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main id="content" class="fr-container fr-py-6w">
+        
+        <h1>Dashboard SignalConso - Version Simplifiée</h1>
+        <p class="fr-text--lg fr-mb-4w">
+            Tableau de bord avec widgets OpenDataSoft intégrés au Design System France
+        </p>
+
+        <!-- Application Angular -->
+        <div ng-app="ods-widgets" class="ods-container">
+            
+            <!-- Contexte dataset SignalConso -->
+            <ods-dataset-context 
+                context="signalconso" 
+                signalconso-domain="data.economie.gouv.fr" 
+                signalconso-dataset="signalconso"
+                signalconso-facet="category"
+                signalconso-facet="dep_code"
+                signalconso-facet="reg_name"
+                signalconso-facet="status">
+                
+                <!-- DÉBUT ZONE WIDGET SIGNALCONSO -->
+                <div id="widget-signalconso" class="widget-zone" data-widget-id="signalconso">
+                    
+                    <!-- Barre de recherche -->
+                    <div class="fr-mb-3w">
+                        <label class="fr-label" for="search">
+                            Rechercher dans les signalements
+                        </label>
+                        <ods-searchbox 
+                            context="signalconso"
+                            placeholder="Rechercher dans les signalements (catégorie, département, région, statut...)"
+                            id="search">
+                        </ods-searchbox>
+                    </div>
+
+                    <!-- KPIs -->
+                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                        <div class="fr-col-12 fr-col-md-3">
+                            <div class="kpi-card">
+                                <ods-aggregation 
+                                    context="signalconso"
+                                    function="COUNT">
+                                    <div class="kpi-value">{{ results[0].count | number }}</div>
+                                    <div class="kpi-label">Total signalements</div>
+                                </ods-aggregation>
+                            </div>
+                        </div>
+                        
+                        <div class="fr-col-12 fr-col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-value">93</div>
+                                <div class="kpi-label">Départements</div>
+                            </div>
+                        </div>
+                        
+                        <div class="fr-col-12 fr-col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-value">32</div>
+                                <div class="kpi-label">Catégories</div>
+                            </div>
+                        </div>
+                        
+                        <div class="fr-col-12 fr-col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-value">13</div>
+                                <div class="kpi-label">Régions</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout principal avec filtres et table -->
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                        
+                        <!-- Panneau de filtres -->
+                        <div class="fr-col-12 fr-col-md-3">
+                            <div class="fr-card">
+                                <div class="fr-card__body">
+                                    <h2 class="fr-h5">Filtres</h2>
+                                    
+                                    <ods-facets context="signalconso">
+                                        <!-- Filtre Catégorie -->
+                                        <div class="odswidget-facet">
+                                            <h3 class="odswidget-facet__title">Catégorie</h3>
+                                            <ods-facet 
+                                                name="category"
+                                                disjunctive="true">
+                                            </ods-facet>
+                                        </div>
+                                        
+                                        <!-- Filtre Département -->
+                                        <div class="odswidget-facet">
+                                            <h3 class="odswidget-facet__title">Département</h3>
+                                            <ods-facet 
+                                                name="dep_code"
+                                                disjunctive="true">
+                                            </ods-facet>
+                                        </div>
+                                        
+                                        <!-- Filtre Région -->
+                                        <div class="odswidget-facet">
+                                            <h3 class="odswidget-facet__title">Région</h3>
+                                            <ods-facet 
+                                                name="reg_name"
+                                                disjunctive="true">
+                                            </ods-facet>
+                                        </div>
+                                    </ods-facets>
+                                    
+                                    <!-- Bouton réinitialiser -->
+                                    <ods-clear-all-filters context="signalconso">
+                                        <button class="fr-btn fr-btn--secondary fr-btn--sm">
+                                            Réinitialiser
+                                        </button>
+                                    </ods-clear-all-filters>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Table des données -->
+                        <div class="fr-col-12 fr-col-md-9">
+                            <div class="fr-card">
+                                <div class="fr-card__body">
+                                    <h2 class="fr-h5">Signalements</h2>
+                                    
+                                    <!-- Nombre de résultats -->
+                                    <ods-results context="signalconso">
+                                        <p class="fr-text--sm fr-text-mention--grey fr-mb-2w">
+                                            <strong>{{ nhits | number }}</strong> résultats trouvés
+                                        </p>
+                                    </ods-results>
+                                    
+                                    <!-- Table -->
+                                    <div style="overflow-x: auto;">
+                                        <ods-table 
+                                            context="signalconso"
+                                            displayed-fields="creationdate,category,subcategories,dep_code,reg_name,status"
+                                            sort="-creationdate">
+                                        </ods-table>
+                                    </div>
+                                    
+                                    <!-- Pagination -->
+                                    <ods-pager 
+                                        context="signalconso"
+                                        page-size="20">
+                                    </ods-pager>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graphique simple -->
+                    <div class="fr-mt-4w">
+                        <div class="fr-card">
+                            <div class="fr-card__body">
+                                <h2 class="fr-h5">Top 10 catégories</h2>
+                                <ods-chart single-y-axis="true" scientific-display="false">
+                                    <ods-chart-query 
+                                        context="signalconso" 
+                                        field-x="category"
+                                        maxpoints="10">
+                                        <ods-chart-serie 
+                                            chart-type="column"
+                                            function-y="COUNT"
+                                            color="#000091">
+                                        </ods-chart-serie>
+                                    </ods-chart-query>
+                                </ods-chart>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions d'export -->
+                    <div class="fr-mt-3w">
+                        <div class="fr-btns-group fr-btns-group--inline">
+                            <button class="fr-btn download-btn"
+                                    data-format="csv"
+                                    data-url="https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=csv">
+                                Télécharger toutes les données au format CSV
+                            </button>
+                            <button class="fr-btn download-btn"
+                                    data-format="xls"
+                                    data-url="https://data.economie.gouv.fr/explore/dataset/signalconso/export/?format=xls">
+                                Télécharger toutes les données au format Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+                <!-- FIN ZONE WIDGET SIGNALCONSO -->
+                
+            </ods-dataset-context>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <p class="fr-logo">
+                        République
+                        <br>Française
+                    </p>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        SignalConso permet aux consommateurs de signaler des problèmes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- jQuery requis pour ODS widgets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Angular et dépendances -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <!-- ODS Widgets -->
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <!-- DSFR -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Script pour gérer les boutons de téléchargement sans onclick -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attacher les event listeners aux boutons de téléchargement
+            const downloadButtons = document.querySelectorAll('.download-btn');
+            downloadButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

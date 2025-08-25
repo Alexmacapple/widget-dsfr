@@ -100,6 +100,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -306,7 +307,7 @@
                 const endDate = `${year}-12-31`;
                 
                 // Récupérer les données depuis l'API avec filtre par dates
-                const response = await fetch(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=10000&facet=creationdate&refine.creationdate=${year}`);
+                const response = await fetchCompat(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=10000&facet=creationdate&refine.creationdate=${year}`);
                 const apiData = await response.json();
                 
                 // Créer un map pour compter les signalements par jour
@@ -333,7 +334,7 @@
                 // Si pas assez de données, essayer avec les facettes
                 if (apiData.records.length < 100) {
                     // Utiliser les facettes pour obtenir les comptes par date
-                    const facetResponse = await fetch(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=creationdate`);
+                    const facetResponse = await fetchCompat(`https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=creationdate`);
                     const facetData = await facetResponse.json();
                     
                     if (facetData.facet_groups) {
@@ -755,5 +756,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

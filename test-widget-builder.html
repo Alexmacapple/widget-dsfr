@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Test Widget Builder</title>
+</head>
+<body>
+    <h1>Test du Widget Builder</h1>
+    
+    <div>
+        <label for="dataset-select">Dataset:</label>
+        <select id="dataset-select">
+            <option value="">-- Sélectionner --</option>
+            <option value="signalconso">SignalConso</option>
+            <option value="custom">Custom</option>
+        </select>
+    </div>
+    
+    <div id="custom-dataset-input" style="display: none;">
+        <label for="custom-dataset">Custom dataset:</label>
+        <input type="text" id="custom-dataset" placeholder="mon-dataset">
+    </div>
+    
+    <button id="analyze-dataset" disabled>Analyser le dataset</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        const app = {
+            dataset: null
+        };
+        
+        document.getElementById('dataset-select').addEventListener('change', function(e) {
+            const value = e.target.value;
+            const customInput = document.getElementById('custom-dataset-input');
+            const analyzeBtn = document.getElementById('analyze-dataset');
+            const resultDiv = document.getElementById('result');
+            
+            console.log('Selected value:', value);
+            
+            if (value === 'custom') {
+                customInput.style.display = 'block';
+                const customDatasetInput = document.getElementById('custom-dataset');
+                analyzeBtn.disabled = !customDatasetInput.value;
+                
+                customDatasetInput.addEventListener('input', (e) => {
+                    app.dataset = e.target.value;
+                    analyzeBtn.disabled = !e.target.value;
+                    console.log('Custom dataset:', e.target.value, 'Button disabled:', analyzeBtn.disabled);
+                });
+            } else {
+                customInput.style.display = 'none';
+                app.dataset = value;
+                analyzeBtn.disabled = !value || value === '';
+                console.log('Dataset:', value, 'Button disabled:', analyzeBtn.disabled);
+            }
+            
+            resultDiv.innerHTML = `Dataset: ${app.dataset}, Button disabled: ${analyzeBtn.disabled}`;
+        });
+        
+        document.getElementById('analyze-dataset').addEventListener('click', function() {
+            alert('Analyzing dataset: ' + app.dataset);
+        });
+    </script>
+</body>
+</html>

@@ -109,6 +109,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Header officiel DSFR -->
@@ -503,6 +504,17 @@
                 observer.observe(stat);
             }
         });
+    </script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
     </script>
 </body>
 </html>

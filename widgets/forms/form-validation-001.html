@@ -244,6 +244,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -874,7 +875,7 @@
                 }
             } else if (validationType === 'postalcode') {
                 // Récupérer la commune
-                const response = await fetch(`https://geo.api.gouv.fr/communes?codePostal=${input.value}&fields=nom`);
+                const response = await fetchCompat(`https://geo.api.gouv.fr/communes?codePostal=${input.value}&fields=nom`);
                 const data = await response.json();
                 
                 if (data.length > 0) {
@@ -1194,5 +1195,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique treemap DSFR - Visualisation hiérarchique des données SignalConso">
+    <title>Graphique treemap DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { position: relative; height: 500px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+            width: 100% !important;
+        }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+            display: block !important;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        .export-buttons { margin-top: 1rem; }
+        .stat-cards { margin-top: 2rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphique de visualisation SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-chart-treemap-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Répartition hiérarchique des signalements</h2>
+                        <p class="fr-text--sm">Visualisation proportionnelle des catégories et sous-catégories de signalements</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="data-level">Niveau de détail</label>
+                                        <select class="fr-select" id="data-level" onchange="updateDataLevel()">
+                                            <option value="categories">Catégories principales</option>
+                                            <option value="subcategories">Sous-catégories</option>
+                                            <option value="regions">Par région</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="treemapChart" role="img" aria-label="Graphique treemap montrant la répartition hiérarchique des signalements"></canvas>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportchartaspng-btn">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportdataascsv-btn">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="togglefullscreen-btn">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Statistiques -->
+                        <div class="stat-cards">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Total signalements</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="total-count">130 000</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Catégories</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="categories-count">8</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Top catégorie</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="top-category">Téléphonie</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Part top 3</p>
+                                            <p class="fr-tile__desc fr-text--lg fr-text--bold" id="top3-share">55%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Répartition hiérarchique</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Catégorie</th>
+                                                        <th scope="col">Sous-catégorie</th>
+                                                        <th scope="col">Nombre</th>
+                                                        <th scope="col">Pourcentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de cette visualisation</p>
+                            <p>Le treemap permet de visualiser la répartition hiérarchique des signalements. 
+                            La taille de chaque rectangle est proportionnelle au nombre de signalements dans cette catégorie.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-TREEMAP-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            palette: [
+                '#000091', // Bleu France
+                '#18753C', // Vert
+                '#CE0500', // Rouge
+                '#B34000', // Orange
+                '#0063CB', // Bleu clair
+                '#6A6AF4', // Violet
+                '#27A658', // Vert clair
+                '#E94539', // Rouge clair
+                '#FC5D00', // Orange vif
+                '#0088CE', // Cyan
+                '#313178', // Bleu foncé
+                '#2DB783'  // Vert menthe
+            ]
+        };
+        
+        // Données simulées
+        const dataSets = {
+            categories: [
+                { name: 'Téléphonie - Internet - TV', value: 28500, parent: 'root' },
+                { name: 'Voyage - Loisirs', value: 24200, parent: 'root' },
+                { name: 'Produits - Objets', value: 18900, parent: 'root' },
+                { name: 'Voiture / Véhicule', value: 16500, parent: 'root' },
+                { name: 'Travaux - Rénovation', value: 14300, parent: 'root' },
+                { name: 'Santé - Beauté', value: 11200, parent: 'root' },
+                { name: 'Services aux particuliers', value: 8900, parent: 'root' },
+                { name: 'Autres', value: 7500, parent: 'root' }
+            ],
+            subcategories: [
+                // Téléphonie
+                { name: 'Téléphonie mobile', value: 12000, parent: 'Téléphonie' },
+                { name: 'Internet fixe', value: 8500, parent: 'Téléphonie' },
+                { name: 'TV et streaming', value: 8000, parent: 'Téléphonie' },
+                // Voyage
+                { name: 'Transport aérien', value: 10000, parent: 'Voyage' },
+                { name: 'Hébergement', value: 8200, parent: 'Voyage' },
+                { name: 'Location voiture', value: 6000, parent: 'Voyage' },
+                // Produits
+                { name: 'Électroménager', value: 7500, parent: 'Produits' },
+                { name: 'High-tech', value: 6400, parent: 'Produits' },
+                { name: 'Mobilier', value: 5000, parent: 'Produits' },
+                // Voiture
+                { name: 'Achat véhicule', value: 8000, parent: 'Voiture' },
+                { name: 'Réparation', value: 5500, parent: 'Voiture' },
+                { name: 'Assurance', value: 3000, parent: 'Voiture' },
+                // Travaux
+                { name: 'Rénovation', value: 7000, parent: 'Travaux' },
+                { name: 'Construction', value: 4300, parent: 'Travaux' },
+                { name: 'Dépannage', value: 3000, parent: 'Travaux' },
+                // Santé
+                { name: 'Cosmétiques', value: 5000, parent: 'Santé' },
+                { name: 'Soins médicaux', value: 3700, parent: 'Santé' },
+                { name: 'Bien-être', value: 2500, parent: 'Santé' },
+                // Services
+                { name: 'Déménagement', value: 4000, parent: 'Services' },
+                { name: 'Formation', value: 2900, parent: 'Services' },
+                { name: 'Aide à domicile', value: 2000, parent: 'Services' },
+                // Autres
+                { name: 'Divers', value: 7500, parent: 'Autres' }
+            ],
+            regions: [
+                { name: 'Île-de-France', value: 45000, parent: 'root' },
+                { name: 'Auvergne-Rhône-Alpes', value: 22000, parent: 'root' },
+                { name: 'Nouvelle-Aquitaine', value: 18000, parent: 'root' },
+                { name: 'Occitanie', value: 15000, parent: 'root' },
+                { name: 'Hauts-de-France', value: 12000, parent: 'root' },
+                { name: 'PACA', value: 10000, parent: 'root' },
+                { name: 'Grand Est', value: 8000, parent: 'root' }
+            ]
+        };
+        
+        let currentDataLevel = 'categories';
+        
+        // Configuration du graphique
+        const config = {
+            type: 'treemap',
+            data: {
+                datasets: [{
+                    label: 'Signalements',
+                    tree: dataSets[currentDataLevel],
+                    key: 'value',
+                    groups: ['parent', 'name'],
+                    backgroundColor: function(ctx) {
+                        if (ctx.type !== 'data') return 'transparent';
+                        const index = ctx.dataIndex % dsfrColors.palette.length;
+                        return dsfrColors.palette[index] + '90';
+                    },
+                    borderColor: function(ctx) {
+                        if (ctx.type !== 'data') return 'transparent';
+                        const index = ctx.dataIndex % dsfrColors.palette.length;
+                        return dsfrColors.palette[index];
+                    },
+                    borderWidth: 2,
+                    spacing: 1,
+                    labels: {
+                        display: true,
+                        color: 'white',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        formatter: function(ctx) {
+                            const item = ctx.raw._data;
+                            const total = dataSets[currentDataLevel].reduce((sum, d) => sum + d.value, 0);
+                            const percentage = ((item.value / total) * 100).toFixed(1);
+                            return [item.name, item.value.toLocaleString('fr-FR'), percentage + '%'];
+                        }
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].raw._data.name;
+                            },
+                            label: function(context) {
+                                const item = context.raw._data;
+                                const total = dataSets[currentDataLevel].reduce((sum, d) => sum + d.value, 0);
+                                const percentage = ((item.value / total) * 100).toFixed(1);
+                                return [
+                                    'Nombre: ' + item.value.toLocaleString('fr-FR'),
+                                    'Part: ' + percentage + '%'
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('treemapChart').getContext('2d');
+        let myChart = new Chart(ctx, config);
+        
+        // Mise à jour des statistiques
+        function updateStatistics() {
+            const data = dataSets[currentDataLevel];
+            const total = data.reduce((sum, d) => sum + d.value, 0);
+            const sorted = [...data].sort((a, b) => b.value - a.value);
+            const top3Sum = sorted.slice(0, 3).reduce((sum, d) => sum + d.value, 0);
+            
+            document.getElementById('total-count').textContent = total.toLocaleString('fr-FR');
+            document.getElementById('categories-count').textContent = data.length;
+            document.getElementById('top-category').textContent = sorted[0].name.split(' ')[0];
+            document.getElementById('top3-share').textContent = ((top3Sum / total) * 100).toFixed(0) + '%';
+        }
+        
+        // Mise à jour du niveau de données
+        function updateDataLevel() {
+            currentDataLevel = document.getElementById('data-level').value;
+            
+            myChart.data.datasets[0].tree = dataSets[currentDataLevel];
+            myChart.update();
+            
+            updateStatistics();
+            if (document.getElementById('toggle-table').checked) {
+                updateDataTable();
+            }
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            const data = dataSets[currentDataLevel];
+            const total = data.reduce((sum, d) => sum + d.value, 0);
+            
+            tableBody.innerHTML = '';
+            
+            // Grouper par parent si nécessaire
+            const sorted = [...data].sort((a, b) => b.value - a.value);
+            
+            sorted.forEach(item => {
+                const row = tableBody.insertRow();
+                const cellCategory = row.insertCell(0);
+                const cellSubcategory = row.insertCell(1);
+                const cellValue = row.insertCell(2);
+                const cellPercent = row.insertCell(3);
+                
+                if (currentDataLevel === 'subcategories') {
+                    cellCategory.textContent = item.parent;
+                    cellSubcategory.textContent = item.name;
+                } else {
+                    cellCategory.textContent = item.name;
+                    cellSubcategory.textContent = '-';
+                }
+                
+                cellValue.textContent = item.value.toLocaleString('fr-FR');
+                cellPercent.textContent = ((item.value / total) * 100).toFixed(1) + '%';
+            });
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-treemap.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            const data = dataSets[currentDataLevel];
+            const total = data.reduce((sum, d) => sum + d.value, 0);
+            
+            let csv = 'Catégorie,Parent,Valeur,Pourcentage\n';
+            data.forEach(item => {
+                const percentage = ((item.value / total) * 100).toFixed(1);
+                csv += `"${item.name}","${item.parent}",${item.value},${percentage}%\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-treemap.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-treemap-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Initialisation
+        updateStatistics();
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+    
+        // Chargement des données depuis l'API
+        async function loadDataFromAPI() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=2000&facet=categoriedeprobleme&facet=prenom_region');
+                const data = await response.json();
+                
+                
+                // Créer une structure hiérarchique
+                const hierarchy = {
+                    name: 'SignalConso',
+                    children: []
+                };
+                
+                // Grouper par catégories puis par régions
+                const categoryMap = {};
+                data.records.forEach(record => {
+                    const cat = record.fields.categoriedeprobleme || 'Autre';
+                    const region = record.fields.prenom_region || 'Non spécifié';
+                    
+                    if (!categoryMap[cat]) {
+                        categoryMap[cat] = {};
+                    }
+                    categoryMap[cat][region] = (categoryMap[cat][region] || 0) + 1;
+                });
+                
+                // Convertir en structure pour treemap
+                Object.entries(categoryMap).forEach(([category, regions]) => {
+                    const categoryNode = {
+                        name: category,
+                        children: []
+                    };
+                    
+                    Object.entries(regions).forEach(([region, count]) => {
+                        categoryNode.children.push({
+                            name: region,
+                            value: count
+                        });
+                    });
+                    
+                    hierarchy.children.push(categoryNode);
+                });
+                
+                // Mettre à jour le graphique
+                updateChart(labels, values);
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Utiliser des données de démonstration en cas d'erreur
+                useDefaultData();
+            }
+        }
+        
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            const buttons = document.querySelectorAll('button[id$="-btn"]');
+            buttons.forEach(btn => {
+                const funcName = btn.id.replace('-btn', '').replace(/-/g, '_');
+                if (window[funcName]) {
+                    btn.addEventListener('click', window[funcName]);
+                }
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Graphique de visualisation SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

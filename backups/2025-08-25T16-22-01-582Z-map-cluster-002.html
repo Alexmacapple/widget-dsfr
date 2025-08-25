@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Map Cluster - Carte avec clustering intelligent pour services DGFIP">
+    <title>Services DGFIP - Carte avec clustering</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-map {
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            overflow: hidden;
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 700px;
+        }
+        
+        /* Contrôles de clustering */
+        .cluster-controls {
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Carte avec clustering */
+        .map-cluster-container {
+            min-height: 600px;
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Panneau d'information des clusters */
+        .cluster-info-panel {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: white;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1rem;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cluster-info-panel.collapsed {
+            padding: 0.5rem;
+            max-width: auto;
+        }
+        
+        .cluster-info-panel.collapsed .panel-content {
+            display: none;
+        }
+        
+        /* Styles pour les clusters personnalisés */
+        .leaflet-marker-cluster {
+            background: var(--background-action-low-blue-france);
+            border: 2px solid var(--border-action-high-blue-france);
+        }
+        
+        .leaflet-marker-cluster-small {
+            background: rgba(0, 99, 203, 0.6);
+        }
+        
+        .leaflet-marker-cluster-medium {
+            background: rgba(252, 93, 0, 0.6);
+        }
+        
+        .leaflet-marker-cluster-large {
+            background: rgba(206, 5, 0, 0.6);
+        }
+        
+        /* Slider pour le rayon de clustering */
+        .fr-range-group {
+            margin: 1.5rem 0;
+        }
+        
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-mention-grey);
+        }
+        
+        /* Statistiques de clustering */
+        .cluster-stats {
+            background: var(--background-alt-grey);
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .cluster-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-action-high-blue-france);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-mention-grey);
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .cluster-controls,
+        [data-fr-theme="dark"] .map-cluster-container,
+        [data-fr-theme="dark"] .cluster-info-panel {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        /* Animation des clusters */
+        @keyframes cluster-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .cluster-animated {
+            animation: cluster-pulse 2s infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cluster-info-panel {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Widget DSFR">
+                                <p class="fr-header__service-title">
+                                    Widget Map Cluster
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Clustering des services DGFIP - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Map Cluster</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Carte avec clustering intelligent - Services DGFIP</h1>
+                    <p class="fr-text--lead">Visualisation optimisée des centres des finances publiques par regroupement dynamique</p>
+                </div>
+            </div>
+
+            <!-- DÉBUT ZONE WIDGET MAP-CLUSTER-002 -->
+            <div id="widget-map-cluster-002" class="widget-container" ng-app="ods-widgets" ng-controller="MapClusterController" ng-cloak>
+                <ods-dataset-context 
+                    context="dgfip"
+                    dgfip-domain="data.economie.gouv.fr"
+                    dgfip-dataset="coordonnees-des-structures-dgfip">
+                    
+                    <!-- Contrôles de clustering -->
+                    <div class="cluster-controls">
+                        <h2>Paramètres de clustering</h2>
+                        
+                        <div class="fr-grid-row fr-grid-row--gutters">
+                            <!-- Rayon de clustering -->
+                            <div class="fr-col-12 fr-col-md-6">
+                                <div class="fr-range-group">
+                                    <label class="fr-label" for="cluster-radius">
+                                        Rayon de regroupement : {{clusterRadius}}px
+                                        <span class="fr-hint-text">Ajustez la distance de regroupement des points</span>
+                                    </label>
+                                    <input type="range" 
+                                           class="fr-range" 
+                                           id="cluster-radius"
+                                           ng-model="clusterRadius"
+                                           ng-change="updateClusterRadius()"
+                                           min="20"
+                                           max="150"
+                                           step="10">
+                                    <div class="range-values">
+                                        <span>20px</span>
+                                        <span>85px</span>
+                                        <span>150px</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Seuil de clustering -->
+                            <div class="fr-col-12 fr-col-md-6">
+                                <div class="fr-range-group">
+                                    <label class="fr-label" for="cluster-threshold">
+                                        Seuil de densité : {{clusterThreshold}} points
+                                        <span class="fr-hint-text">Nombre minimum de points pour créer un cluster</span>
+                                    </label>
+                                    <input type="range" 
+                                           class="fr-range" 
+                                           id="cluster-threshold"
+                                           ng-model="clusterThreshold"
+                                           ng-change="updateClusterThreshold()"
+                                           min="2"
+                                           max="20"
+                                           step="1">
+                                    <div class="range-values">
+                                        <span>2</span>
+                                        <span>11</span>
+                                        <span>20</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Options de clustering -->
+                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-toggle">
+                                    <input type="checkbox" class="fr-toggle__input" id="toggle-spider" ng-model="spiderifyOnMaxZoom" ng-init="spiderifyOnMaxZoom=true">
+                                    <label class="fr-toggle__label" for="toggle-spider">
+                                        Éclatement au zoom max
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-toggle">
+                                    <input type="checkbox" class="fr-toggle__input" id="toggle-animate" ng-model="animateClusters">
+                                    <label class="fr-toggle__label" for="toggle-animate">
+                                        Animer les clusters
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-toggle">
+                                    <input type="checkbox" class="fr-toggle__input" id="toggle-show-coverage" ng-model="showCoverage">
+                                    <label class="fr-toggle__label" for="toggle-show-coverage">
+                                        Afficher la couverture
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="fr-col-12 fr-col-md-3">
+                                <div class="fr-toggle">
+                                    <input type="checkbox" class="fr-toggle__input" id="toggle-freeze" ng-model="freezeClusters">
+                                    <label class="fr-toggle__label" for="toggle-freeze">
+                                        Figer les clusters
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtres par catégorie -->
+                        <div class="fr-mt-3w">
+                            <fieldset class="fr-fieldset">
+                                <legend class="fr-fieldset__legend">
+                                    <span class="fr-fieldset__legend-text">
+                                        Filtrer par catégorie
+                                    </span>
+                                </legend>
+                                <div class="fr-fieldset__content">
+                                    <div class="fr-checkbox-group fr-checkbox-group--inline">
+                                        <input type="checkbox" id="cat-telecom" ng-model="categories.telecom" ng-change="filterByCategory()">
+                                        <label class="fr-label" for="cat-telecom">
+                                            Téléphonie/Internet
+                                        </label>
+                                        <input type="checkbox" id="cat-voyage" ng-model="categories.voyage" ng-change="filterByCategory()">
+                                        <label class="fr-label" for="cat-voyage">
+                                            Voyage/Loisirs
+                                        </label>
+                                        <input type="checkbox" id="cat-travaux" ng-model="categories.travaux" ng-change="filterByCategory()">
+                                        <label class="fr-label" for="cat-travaux">
+                                            Travaux/Rénovation
+                                        </label>
+                                        <input type="checkbox" id="cat-produits" ng-model="categories.produits" ng-change="filterByCategory()">
+                                        <label class="fr-label" for="cat-produits">
+                                            Produits/Objets
+                                        </label>
+                                        <input type="checkbox" id="cat-voiture" ng-model="categories.voiture" ng-change="filterByCategory()">
+                                        <label class="fr-label" for="cat-voiture">
+                                            Voiture/Véhicule
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Carte avec clustering -->
+                    <div class="map-cluster-container">
+                        <!-- Panneau d'information -->
+                        <div class="cluster-info-panel" ng-class="{collapsed: infoPanelCollapsed}">
+                            <div class="fr-grid-row fr-grid-row--middle">
+                                <div class="fr-col">
+                                    <h3 class="fr-h6">{{infoPanelCollapsed ? 'Info' : 'Informations de clustering'}}</h3>
+                                </div>
+                                <div class="fr-col-auto">
+                                    <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left" 
+                                            ng-class="{'fr-icon-arrow-down-s-line': !infoPanelCollapsed, 'fr-icon-arrow-up-s-line': infoPanelCollapsed}"
+                                            ng-click="infoPanelCollapsed = !infoPanelCollapsed"
+                                            aria-label="{{infoPanelCollapsed ? 'Déplier' : 'Replier'}} le panneau">
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="panel-content">
+                                <div class="fr-mt-2w">
+                                    <p class="fr-text--sm">
+                                        <strong>Clusters visibles :</strong> {{visibleClusters}}<br>
+                                        <strong>Points totaux :</strong> {{totalPoints | number}}<br>
+                                        <strong>Niveau de zoom :</strong> {{currentZoom}}
+                                    </p>
+                                    
+                                    <div class="fr-notice fr-notice--info fr-mt-2w" ng-if="selectedCluster">
+                                        <div class="fr-container">
+                                            <div class="fr-notice__body">
+                                                <p class="fr-notice__title">
+                                                    Cluster sélectionné
+                                                </p>
+                                                <p class="fr-text--sm">
+                                                    {{selectedCluster.count}} signalements<br>
+                                                    Zone : {{selectedCluster.bounds}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Carte ODS avec clustering -->
+                        <ods-map 
+                            context="dgfip"
+                            location="6,46.5,2.5"
+                            basemap="france"
+                            scroll-wheel-zoom="true"
+                            search-box="false"
+                            toolbar-fullscreen="true"
+                            toolbar-drawing="false">
+                            
+                            <ods-map-layer 
+                                context="dgfip"
+                                color-categories="true"
+                                color-by-field="category"
+                                color-categories-other="false"
+                                color="#0063cb"
+                                border-color="#ffffff"
+                                border-opacity="1"
+                                border-size="2"
+                                border-pattern="solid"
+                                point-opacity="0.8"
+                                size="4"
+                                size-max="15"
+                                size-min="3"
+                                size-function="linear"
+                                clustered="true"
+                                cluster-mode="{{clusterMode}}"
+                                cluster-radius="{{clusterRadius}}"
+                                display="clustered"
+                                tooltip-sort="-date_creation"
+                                title="{{fields.nom_de_la_structure || fields.type_de_service}}"
+                                caption="Type: {{fields.type_de_service}}<br>Adresse: {{fields.adresse}}<br>{{fields.code_postal}} {{fields.commune}}<br>Tél: {{fields.telephone}}"
+                                show-zoom-max="18"
+                                show-zoom-min="1">
+                            </ods-map-layer>
+                        </ods-map>
+                    </div>
+                    
+                    <!-- Statistiques de clustering -->
+                    <div class="cluster-stats">
+                        <h3>Statistiques de clustering</h3>
+                        <div class="cluster-stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">{{totalClusters}}</div>
+                                <div class="stat-label">Clusters totaux</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{avgPointsPerCluster | number:1}}</div>
+                                <div class="stat-label">Moy. points/cluster</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{maxClusterSize}}</div>
+                                <div class="stat-label">Plus gros cluster</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{isolatedPoints}}</div>
+                                <div class="stat-label">Points isolés</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="fr-mt-3w">
+                        <div class="fr-btns-group fr-btns-group--inline">
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-refresh-line" ng-click="recalculateClusters()">
+                                Recalculer les clusters
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line" ng-click="exportClusters()">
+                                Exporter les clusters
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-eye-line" ng-click="showHeatmap()">
+                                Vue heatmap
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-settings-3-line" ng-click="openClusterSettings()">
+                                Paramètres avancés
+                            </button>
+                        </div>
+                    </div>
+                </ods-dataset-context>
+            </div>
+            <!-- FIN ZONE WIDGET MAP-CLUSTER-002 -->
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de carte avec clustering intelligent pour une visualisation optimisée des données. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Controller Angular pour le clustering -->
+    <script>
+        angular.module('ods-widgets').controller('MapClusterController', ['$scope', '$timeout', function($scope, $timeout) {
+            // Paramètres de clustering
+            $scope.clusterRadius = 80;
+            $scope.clusterThreshold = 3;
+            $scope.clusterMode = 'automatic';
+            $scope.infoPanelCollapsed = false;
+            
+            // Options
+            $scope.spiderifyOnMaxZoom = true;
+            $scope.animateClusters = false;
+            $scope.showCoverage = false;
+            $scope.freezeClusters = false;
+            
+            // Catégories
+            $scope.categories = {
+                telecom: true,
+                voyage: true,
+                travaux: true,
+                produits: true,
+                voiture: true
+            };
+            
+            // Statistiques
+            $scope.visibleClusters = 0;
+            $scope.totalPoints = 0;
+            $scope.currentZoom = 6;
+            $scope.totalClusters = 0;
+            $scope.avgPointsPerCluster = 0;
+            $scope.maxClusterSize = 0;
+            $scope.isolatedPoints = 0;
+            $scope.selectedCluster = null;
+            
+            // Mise à jour du rayon de clustering
+            $scope.updateClusterRadius = function() {
+                // Mettre à jour le clustering de la carte
+                var mapLayer = document.querySelector('#widget-map-cluster-002 ods-map-layer');
+                if (mapLayer) {
+                    mapLayer.setAttribute('cluster-radius', $scope.clusterRadius);
+                    $scope.recalculateClusters();
+                }
+            };
+            
+            // Mise à jour du seuil de clustering
+            $scope.updateClusterThreshold = function() {
+                // Le seuil affecte la création des clusters
+                $scope.recalculateClusters();
+            };
+            
+            // Filtrer par catégorie
+            $scope.filterByCategory = function() {
+                var activeCategories = [];
+                
+                if ($scope.categories.telecom) activeCategories.push('Téléphonie - Internet - TV');
+                if ($scope.categories.voyage) activeCategories.push('Voyage - Loisirs');
+                if ($scope.categories.travaux) activeCategories.push('Travaux - Rénovation');
+                if ($scope.categories.produits) activeCategories.push('Produits - Objets');
+                if ($scope.categories.voiture) activeCategories.push('Voiture / Véhicule');
+                
+                if (activeCategories.length > 0 && activeCategories.length < 5) {
+                    $scope.dgfip.parameters['refine.type_de_service'] = activeCategories.join(' OR ');
+                } else {
+                    delete $scope.dgfip.parameters['refine.type_de_service'];
+                }
+            };
+            
+            // Recalculer les clusters
+            $scope.recalculateClusters = function() {
+                // Forcer le recalcul des clusters
+                var map = document.querySelector('#widget-map-cluster-002 .odswidget-map');
+                if (map) {
+                    // Déclencher un événement de recalcul
+                    angular.element(map).trigger('recalculate-clusters');
+                    
+                    // Mettre à jour les statistiques après un délai
+                    $timeout(function() {
+                        $scope.updateClusterStats();
+                    }, 500);
+                }
+            };
+            
+            // Mettre à jour les statistiques de clustering
+            $scope.updateClusterStats = function() {
+                // Simuler le calcul des statistiques (en production, ces données viendraient de l'API)
+                $scope.totalPoints = $scope.dgfip ? $scope.dgfip.nhits : 0;
+                $scope.totalClusters = Math.floor($scope.totalPoints / ($scope.clusterThreshold * 5));
+                $scope.avgPointsPerCluster = $scope.totalClusters > 0 ? $scope.totalPoints / $scope.totalClusters : 0;
+                $scope.maxClusterSize = Math.floor($scope.avgPointsPerCluster * 2.5);
+                $scope.isolatedPoints = Math.floor($scope.totalPoints * 0.1);
+                $scope.visibleClusters = Math.min($scope.totalClusters, 50);
+            };
+            
+            // Exporter les clusters
+            $scope.exportClusters = function() {
+                var exportData = {
+                    parameters: {
+                        radius: $scope.clusterRadius,
+                        threshold: $scope.clusterThreshold,
+                        mode: $scope.clusterMode
+                    },
+                    statistics: {
+                        totalClusters: $scope.totalClusters,
+                        totalPoints: $scope.totalPoints,
+                        avgPointsPerCluster: $scope.avgPointsPerCluster,
+                        maxClusterSize: $scope.maxClusterSize,
+                        isolatedPoints: $scope.isolatedPoints
+                    },
+                    filters: $scope.categories,
+                    timestamp: new Date().toISOString()
+                };
+                
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+                var downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "clusters-export-" + Date.now() + ".json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            };
+            
+            // Afficher la vue heatmap
+            $scope.showHeatmap = function() {
+                var mapLayer = document.querySelector('#widget-map-cluster-002 ods-map-layer');
+                if (mapLayer) {
+                    var currentDisplay = mapLayer.getAttribute('display');
+                    if (currentDisplay === 'heatmap') {
+                        mapLayer.setAttribute('display', 'clustered');
+                    } else {
+                        mapLayer.setAttribute('display', 'heatmap');
+                    }
+                }
+            };
+            
+            // Ouvrir les paramètres avancés
+            $scope.openClusterSettings = function() {
+                // Ouvrir une modale avec des paramètres avancés (à implémenter)
+                alert('Paramètres avancés de clustering - Fonctionnalité à venir');
+            };
+            
+            // Gérer l'animation des clusters
+            $scope.$watch('animateClusters', function(newVal) {
+                var clusters = document.querySelectorAll('.leaflet-marker-cluster');
+                if (newVal) {
+                    clusters.forEach(function(cluster) {
+                        cluster.classList.add('cluster-animated');
+                    });
+                } else {
+                    clusters.forEach(function(cluster) {
+                        cluster.classList.remove('cluster-animated');
+                    });
+                }
+            });
+            
+            // Écouter les changements de zoom
+            $timeout(function() {
+                var map = document.querySelector('#widget-map-cluster-002 .leaflet-container');
+                if (map && map._leaflet_id) {
+                    // Écouter les événements de zoom
+                    map.addEventListener('zoomend', function(e) {
+                        $scope.$apply(function() {
+                            $scope.currentZoom = e.target.getZoom();
+                            $scope.updateClusterStats();
+                        });
+                    });
+                }
+            }, 1000);
+            
+            // Initialiser les statistiques
+            $scope.$watch('dgfip.nhits', function(newVal) {
+                if (newVal) {
+                    $scope.updateClusterStats();
+                }
+            });
+            
+            // Gestion du mode freeze
+            $scope.$watch('freezeClusters', function(newVal) {
+                if (newVal) {
+                    // Désactiver le recalcul automatique des clusters
+                    $scope.clusterMode = 'frozen';
+                } else {
+                    $scope.clusterMode = 'automatic';
+                }
+            });
+        }]);
+    </script>
+</body>
+</html>

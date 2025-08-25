@@ -302,6 +302,7 @@
             gap: 0.5rem;
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Skip links pour l'accessibilité -->
@@ -840,6 +841,17 @@
                 angular.element($window).unbind('resize');
             });
         }]);
+    </script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
     </script>
 </body>
 </html>

@@ -181,6 +181,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -629,7 +630,7 @@
             searchFn: async (query) => {
                 try {
                     // Recherche dans l'API SignalConso
-                    const response = await fetch(
+                    const response = await fetchCompat(
                         `https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&q=${encodeURIComponent(query)}&facet=prenomProfessionnel&rows=20`
                     );
                     const data = await response.json();
@@ -755,14 +756,14 @@
             searchFn: async (query) => {
                 try {
                     // API des communes françaises
-                    const response = await fetch(
+                    const response = await fetchCompat(
                         `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(query)}&fields=nom,code,codesPostaux,population&limit=10`
                     );
                     const data = await response.json();
                     
                     // Si c'est un code postal
                     if (/^\d{5}$/.test(query)) {
-                        const cpResponse = await fetch(
+                        const cpResponse = await fetchCompat(
                             `https://geo.api.gouv.fr/communes?codePostal=${query}&fields=nom,code,codesPostaux,population&limit=10`
                         );
                         const cpData = await cpResponse.json();
@@ -858,7 +859,7 @@
         // Charger des données initiales depuis l'API
         async function loadInitialData() {
             try {
-                const response = await fetch(
+                const response = await fetchCompat(
                     'https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1&facet=categoriedeprobleme&facet=prenomProfessionnel&facet=prenom_region'
                 );
                 const data = await response.json();
@@ -925,5 +926,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

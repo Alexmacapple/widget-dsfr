@@ -365,6 +365,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -884,7 +885,7 @@
                 await simulateUpload(fileData, progressFill);
                 
                 // En production, utiliser l'API SignalConso
-                // const response = await fetch('https://api.signalconso.gouv.fr/upload', {
+                // const response = await fetchCompat('https://api.signalconso.gouv.fr/upload', {
                 //     method: 'POST',
                 //     body: formData
                 // });
@@ -1061,7 +1062,7 @@
         // Connexion à l'API SignalConso (exemple)
         async function connectToSignalConso() {
             try {
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1');
+                const response = await fetchCompat('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1');
                 const data = await response.json();
                 console.log('Connexion SignalConso OK:', data.nhits, 'enregistrements');
             } catch (error) {
@@ -1122,5 +1123,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

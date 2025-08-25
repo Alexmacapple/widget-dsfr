@@ -67,6 +67,7 @@
             border: 0;
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -234,7 +235,7 @@
             try {
                 
                 // Charger les données
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&sort=-creationdate');
+                const response = await fetchCompat('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&sort=-creationdate');
                 const data = await response.json();
                 
                 allData = data.records || [];
@@ -320,7 +321,7 @@
         async function loadFacets() {
             try {
                 // Charger les facettes pour avoir les vraies stats complètes
-                const facetResponse = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=category&facet=reg_name&facet=status');
+                const facetResponse = await fetchCompat('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=category&facet=reg_name&facet=status');
                 const facetData = await facetResponse.json();
                 
                 
@@ -602,5 +603,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
     
+    <!-- API Monitor pour visualiser les performances -->
+    <script src="../js/api-monitor.js"></script>
+    
     <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
     <style>
         /* Variables DSFR */
@@ -698,6 +701,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Skip links pour l'accessibilité -->
@@ -2202,6 +2206,34 @@
                     console.log('%cTous les appels vers data.economie.gouv.fr seront affichés dans la console', 'color: #666666; font-style: italic;');
                 })();
             }, 100);
+        });
+    </script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+        
+        // Initialisation du monitoring API avec affichage visuel
+        document.addEventListener('DOMContentLoaded', function() {
+            // Créer le monitor visuel
+            if (window.ApiMonitor) {
+                window.apiMonitor = new ApiMonitor({
+                    position: 'bottom-right',
+                    theme: 'light',
+                    collapsed: false,
+                    updateInterval: 2000
+                });
+                
+                console.log('%c📊 API Monitor activé', 'background: #10b981; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;');
+                console.log('Statistiques disponibles: window.apiStats()');
+                console.log('Monitor visuel: bottom-right de l\'écran');
+            }
         });
     </script>
 </body>

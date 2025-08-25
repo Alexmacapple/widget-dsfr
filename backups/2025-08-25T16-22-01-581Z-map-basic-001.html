@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Carte interactive des services de la Direction Générale des Finances Publiques en France">
+    <meta name="author" content="Ministère de l'Économie, des Finances et de la Souveraineté industrielle et numérique">
+    <meta name="keywords" content="DGFIP, finances publiques, impôts, carte, services publics">
+    <title>Carte des services DGFIP - Localisation interactive</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.ico" type="image/x-icon">
+    <!-- Manifest retiré pour éviter erreur CORS en local -->
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-map {
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            overflow: hidden;
+        }
+        
+        .ods-widget .odswidget-map .leaflet-container {
+            border-radius: 0.25rem;
+        }
+        
+        .ods-widget .odswidget-map .leaflet-popup-content {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-map .leaflet-control {
+            border-radius: 0.25rem;
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 600px;
+            background-color: var(--background-alt-grey);
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .widget-container {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        /* Amélioration pour les cartes avec composants DSFR */
+        .map-controls {
+            margin-bottom: 1.5rem;
+        }
+        
+        .map-controls .fr-accordion {
+            background: white;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .map-container {
+            min-height: 500px;
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Mode plein écran avec API Fullscreen native */
+        #widget-map-basic-001:fullscreen,
+        #widget-map-basic-001:-webkit-full-screen,
+        #widget-map-basic-001:-moz-full-screen,
+        #widget-map-basic-001:-ms-fullscreen {
+            background: white;
+            padding: 2rem;
+            overflow: auto;
+            width: 100vw !important;
+            height: 100vh !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 9999 !important;
+        }
+        
+        #widget-map-basic-001:fullscreen .map-container,
+        #widget-map-basic-001:-webkit-full-screen .map-container,
+        #widget-map-basic-001:-moz-full-screen .map-container,
+        #widget-map-basic-001:-ms-fullscreen .map-container {
+            height: calc(100vh - 200px) !important;
+            width: calc(100vw - 4rem) !important;
+            max-width: none !important;
+        }
+        
+        #widget-map-basic-001:fullscreen .odswidget-map,
+        #widget-map-basic-001:fullscreen .leaflet-container,
+        #widget-map-basic-001:-webkit-full-screen .odswidget-map,
+        #widget-map-basic-001:-webkit-full-screen .leaflet-container {
+            height: 100% !important;
+            width: 100% !important;
+        }
+        
+        /* Bouton de sortie flottant en plein écran */
+        #widget-map-basic-001:fullscreen #toggle-fullscreen,
+        #widget-map-basic-001:-webkit-full-screen #toggle-fullscreen {
+            position: fixed !important;
+            top: 1rem !important;
+            right: 1rem !important;
+            z-index: 10000 !important;
+            background: var(--background-contrast-red-marianne) !important;
+            color: white !important;
+        }
+        
+        #widget-map-basic-001:fullscreen #toggle-fullscreen:hover,
+        #widget-map-basic-001:-webkit-full-screen #toggle-fullscreen:hover {
+            background: var(--background-contrast-red-marianne-hover) !important;
+        }
+        
+        .map-legend {
+            background: var(--background-default-grey);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            transition: opacity 0.3s ease;
+        }
+        
+        .map-legend .fr-tags-group {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        /* Boutons de zoom personnalisés */
+        .map-zoom-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+        
+        .map-zoom-controls .fr-btns-group--column {
+            gap: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Services DGFIP">
+                                <p class="fr-header__service-title">
+                                    Services DGFIP
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Localisation des centres des finances publiques</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Map Basic</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Carte interactive des services DGFIP</h1>
+                    <p class="fr-text--lead">Trouvez les centres des impôts et trésoreries près de chez vous</p>
+                </div>
+            </div>
+
+            <!-- Widget -->
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <h2 class="fr-card__title">Localisation des services</h2>
+                                <p class="fr-card__desc">Plus de 3000 points d'accueil en France - Source : data.economie.gouv.fr</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__body">
+                            <!-- DÉBUT ZONE WIDGET MAP-BASIC-001 -->
+                            <div id="widget-map-basic-001" class="widget-container" ng-app="ods-widgets" ng-controller="MapBasicController" ng-cloak>
+                                <ods-dataset-context 
+                                    context="dgfip"
+                                    dgfip-domain="data.economie.gouv.fr"
+                                    dgfip-dataset="coordonnees-des-structures-dgfip"
+                                    dgfip-parameters="{'rows': 1000}"
+                                    dgfip-refine.type_de_service="{{ selectedType }}"
+                                    dgfip-refine.departement="{{ selectedDept }}"
+                                    dgfip-q="{{ mapSearchQuery }}">
+                                    
+                                    <!-- Info box DSFR avec compteur ODS -->
+                                    <div ods-results="items" 
+                                         ods-results-context="dgfip" 
+                                         ods-results-max="0">
+                                        <div class="fr-callout fr-callout--blue-france fr-mb-3w" role="region" aria-label="Informations sur les services">
+                                            <h3 class="fr-callout__title">Services disponibles</h3>
+                                            <p class="fr-callout__text"> 
+                                                {{ dgfip.nhits | number }} structures DGFIP localisées sur la carte
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Contrôles de la carte avec composants DSFR améliorés -->
+                                    <div class="map-controls">
+                                        <!-- Barre de recherche DSFR -->
+                                        <div class="fr-search-bar fr-mb-3w" role="search">
+                                            <label class="fr-label" for="map-search">
+                                                Rechercher une adresse ou une ville
+                                            </label>
+                                            <input class="fr-input" type="search" id="map-search" 
+                                                   ng-model="mapSearch"
+                                                   ng-change="searchLocation()"
+                                                   placeholder="Ex: Paris, 75001">
+                                            <button class="fr-btn" title="Rechercher" ng-click="searchLocation()">
+                                                Rechercher
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Panneau de filtres repliable -->
+                                        <div class="fr-accordion fr-mb-3w">
+                                            <section class="fr-accordion__item">
+                                                <h3 class="fr-accordion__title">
+                                                    <button class="fr-accordion__btn" aria-expanded="true" aria-controls="map-filters">
+                                                        Filtres de la carte
+                                                        <span class="fr-badge fr-badge--sm fr-badge--info fr-ml-1w" ng-if="hasActiveFilters()">
+                                                            {{countActiveFilters()}}
+                                                        </span>
+                                                    </button>
+                                                </h3>
+                                                <div class="fr-collapse" id="map-filters">
+                                                    <div class="fr-accordion__inner">
+                                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                                            <div class="fr-col-12 fr-col-md-6">
+                                                                <div class="fr-select-group">
+                                                                    <label class="fr-label" for="type-select-map">
+                                                                        Type de service
+                                                                        <span class="fr-hint-text">Filtrer par type d'établissement</span>
+                                                                    </label>
+                                                                    <select class="fr-select" id="type-select-map" 
+                                                                            ng-model="$parent.selectedType"
+                                                                            ng-change="$parent.updateFilters()"
+                                                                            aria-describedby="type-select-map-hint">
+                                                                        <option value="">Tous les services</option>
+                                                                        <option value="Centre des Finances Publiques">Centre des Finances Publiques</option>
+                                                                        <option value="Trésorerie">Trésorerie</option>
+                                                                        <option value="Service des Impôts des Particuliers">Service des Impôts des Particuliers</option>
+                                                                        <option value="Service des Impôts des Entreprises">Service des Impôts des Entreprises</option>
+                                                                        <option value="Accueil de proximité">Accueil de proximité</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12">
+                                                                <div class="fr-form-group">
+                                                                    <label class="fr-label">
+                                                                        Filtrer par département
+                                                                        <span class="fr-hint-text">Cliquez sur un département pour filtrer (101 départements disponibles)</span>
+                                                                    </label>
+                                                                    <div style="padding: 0.5rem; border: 1px solid var(--border-default-grey); border-radius: 0.25rem; background: var(--background-default-grey);">
+                                                                        <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                                                                            <button class="fr-btn fr-btn--sm" 
+                                                                                    ng-class="{'fr-btn--secondary': $parent.selectedDept !== '', 'fr-btn--tertiary-no-outline': $parent.selectedDept === ''}"
+                                                                                    ng-click="$parent.selectedDept = ''; $parent.updateFilters()">
+                                                                                Tous
+                                                                            </button>
+                                                                            <button ng-repeat="dept in $parent.departments" 
+                                                                                    class="fr-btn fr-btn--sm" 
+                                                                                    ng-class="{'fr-btn--secondary': $parent.selectedDept !== dept.code, 'fr-btn--tertiary-no-outline': $parent.selectedDept === dept.code}"
+                                                                                    ng-click="$parent.selectedDept = dept.code; $parent.updateFilters()">
+                                                                                {{ dept.code }} - {{ dept.name }}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-6">
+                                                                <div class="fr-select-group">
+                                                                    <label class="fr-label" for="display-select-map">
+                                                                        Mode d'affichage
+                                                                    </label>
+                                                                    <select class="fr-select" id="display-select-map" ng-model="mapDisplayMode">
+                                                                        <option value="auto">Points groupés (auto)</option>
+                                                                        <option value="raw">Points individuels</option>
+                                                                        <option value="heatmap">Carte de chaleur</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Options supplémentaires avec toggles DSFR -->
+                                                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-toggle">
+                                                                    <input type="checkbox" class="fr-toggle__input" id="toggle-animation" ng-model="animateMarkers">
+                                                                    <label class="fr-toggle__label" for="toggle-animation">
+                                                                        Animation des marqueurs
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-toggle">
+                                                                    <input type="checkbox" class="fr-toggle__input" id="toggle-legend" ng-model="showLegend" ng-init="showLegend=true">
+                                                                    <label class="fr-toggle__label" for="toggle-legend">
+                                                                        Afficher la légende
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="fr-col-12 fr-col-md-4">
+                                                                <div class="fr-toggle">
+                                                                    <input type="checkbox" class="fr-toggle__input" id="toggle-fullscreen" ng-model="fullscreenEnabled" ng-change="toggleFullscreen()">
+                                                                    <label class="fr-toggle__label" for="toggle-fullscreen">
+                                                                        Mode plein écran
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        
+                                        <!-- Boutons de contrôle rapide -->
+                                        <div class="fr-btns-group fr-btns-group--inline fr-mb-2w">
+                                            <button class="fr-btn fr-btn--secondary" ng-click="$parent.resetMap()">
+                                                Réinitialiser la carte
+                                            </button>
+                                            <button class="fr-btn fr-btn--secondary" 
+                                                    ng-click="$parent.toggleFullscreen()"
+                                                    id="toggle-fullscreen"
+                                                    aria-label="{{ $parent.fullscreenEnabled ? 'Quitter le mode plein écran' : 'Activer le mode plein écran' }}">
+                                                <span ng-if="!$parent.fullscreenEnabled">Plein écran</span>
+                                                <span ng-if="$parent.fullscreenEnabled">Quitter plein écran</span>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Barre de recherche DSFR au-dessus de la carte -->
+                                        <div class="fr-search-bar fr-mb-3w" role="search">
+                                            <label class="fr-label" for="map-search-input">
+                                                Rechercher une localisation
+                                            </label>
+                                            <input class="fr-input" 
+                                                   type="search" 
+                                                   id="map-search-input"
+                                                   ng-model="$parent.mapSearchQuery" 
+                                                   ng-change="$parent.searchLocation()"
+                                                   ng-keypress="($event.which === 13) && $parent.searchLocation()"
+                                                   placeholder="Rechercher une ville, adresse ou code postal..."
+                                                   aria-label="Rechercher une localisation sur la carte">
+                                            <button class="fr-btn" 
+                                                    type="submit"
+                                                    ng-click="$parent.searchLocation()"
+                                                    aria-label="Lancer la recherche">
+                                                Rechercher
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Carte interactive avec accessibilité améliorée -->
+                                    <div class="map-container" role="region" aria-label="Carte interactive des services DGFIP" aria-describedby="map-description">
+                                        <div id="map-description" class="fr-sr-only">Carte interactive permettant de localiser les centres des finances publiques en France. Utilisez les contrôles pour zoomer et naviguer.</div>
+                                        <ods-map 
+                                            context="dgfip"
+                                            location="6,46.5,2.5"
+                                            basemap="jawg.streets"
+                                            scroll-wheel-zoom="false"
+                                            search-box="false"
+                                            toolbar-fullscreen="true"
+                                            toolbar-drawing="false"
+                                            aria-label="Carte des services DGFIP">
+                                            
+                                            <!-- Couche principale des services DGFIP avec GPS -->
+                                            <ods-map-layer 
+                                                context="dgfip"
+                                                location="geocodage"
+                                                color="#000091"
+                                                picto="dot"
+                                                display="auto"
+                                                show-marker="true"
+                                                clustered="true"
+                                                title="{{ fields.nom_de_la_structure || fields.type_de_service }}"
+                                                size="4">
+                                            </ods-map-layer>
+                                        </ods-map>
+                                    </div>
+                                    
+                                    <!-- Légende améliorée avec badges DSFR -->
+                                    <div class="map-legend" ng-show="showLegend">
+                                        <div class="fr-grid-row fr-grid-row--middle fr-mb-2w">
+                                            <div class="fr-col">
+                                                <h3>Légende</h3>
+                                            </div>
+                                            <div class="fr-col-auto">
+                                                <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm"
+                                                        ng-click="showLegend = false"
+                                                        aria-label="Masquer la légende">
+                                                    Fermer
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="fr-grid-row fr-grid-row--gutters">
+                                            <div class="fr-col-12 fr-col-md-6">
+                                                <p><strong>Types de services :</strong></p>
+                                                <ul class="fr-tags-group">
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #000091; color: white;">
+                                                            Centre des Finances Publiques
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #161616; color: white;">
+                                                            Trésorerie
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #0063cb; color: white;">
+                                                            Service des Impôts
+                                                        </span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="fr-tag fr-tag--sm" style="background-color: #18753c; color: white;">
+                                                            Accueil de proximité
+                                                        </span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="fr-col-12 fr-col-md-6">
+                                                <p><strong>Interactions disponibles :</strong></p>
+                                                <ul class="fr-text--sm">
+                                                    <li>Cliquez sur un marqueur pour voir les détails</li>
+                                                    <li>Utilisez la molette pour zoomer</li>
+                                                    <li>Glissez pour déplacer la carte</li>
+                                                    <li>Groupement automatique des points proches</li>
+                                                    <li>Recherche par ville dans la barre de recherche</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statistiques géographiques -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--blue-france">
+                                                <h3 class="fr-callout__title">Total services</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">{{ dgfip.nhits | number }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-4">
+                                            <div class="fr-callout fr-callout--green-tilleul-verveine">
+                                                <h3 class="fr-callout__title">Départements</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">101</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-2">
+                                            <div class="fr-callout fr-callout--orange-terre-battue">
+                                                <h3 class="fr-callout__title">Villes</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">{{ getUniqueVilles() | number }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-sm-6 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--purple-glycine">
+                                                <h3 class="fr-callout__title">Région principale</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--bold">Île-de-France</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ods-dataset-context>
+                            </div>
+                            <!-- FIN ZONE WIDGET MAP-BASIC-001 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de cartographie des données SignalConso. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal des paramètres d'affichage -->
+    <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                                Paramètres d'affichage
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Controller Angular pour la carte améliorée -->
+    <script>
+        angular.module('ods-widgets').controller('MapBasicController', ['$scope', '$timeout', '$interval', function($scope, $timeout, $interval) {
+            // Variables d'état
+            $scope.mapSearchQuery = ''; // Recherche de localisation
+            $scope.mapDisplayMode = 'auto';
+            $scope.animateMarkers = false;
+            $scope.fullscreenEnabled = false;
+            $scope.showLegend = true; // Légende visible par défaut
+            $scope.selectedDept = ''; // Département sélectionné
+            $scope.selectedType = ''; // Type de service sélectionné
+            
+            // Liste complète des départements français
+            $scope.departments = [
+                {code: '01', name: 'Ain'},
+                {code: '02', name: 'Aisne'},
+                {code: '03', name: 'Allier'},
+                {code: '04', name: 'Alpes-de-Haute-Provence'},
+                {code: '05', name: 'Hautes-Alpes'},
+                {code: '06', name: 'Alpes-Maritimes'},
+                {code: '07', name: 'Ardèche'},
+                {code: '08', name: 'Ardennes'},
+                {code: '09', name: 'Ariège'},
+                {code: '10', name: 'Aube'},
+                {code: '11', name: 'Aude'},
+                {code: '12', name: 'Aveyron'},
+                {code: '13', name: 'Bouches-du-Rhône'},
+                {code: '14', name: 'Calvados'},
+                {code: '15', name: 'Cantal'},
+                {code: '16', name: 'Charente'},
+                {code: '17', name: 'Charente-Maritime'},
+                {code: '18', name: 'Cher'},
+                {code: '19', name: 'Corrèze'},
+                {code: '2A', name: 'Corse-du-Sud'},
+                {code: '2B', name: 'Haute-Corse'},
+                {code: '21', name: 'Côte-d\'Or'},
+                {code: '22', name: 'Côtes-d\'Armor'},
+                {code: '23', name: 'Creuse'},
+                {code: '24', name: 'Dordogne'},
+                {code: '25', name: 'Doubs'},
+                {code: '26', name: 'Drôme'},
+                {code: '27', name: 'Eure'},
+                {code: '28', name: 'Eure-et-Loir'},
+                {code: '29', name: 'Finistère'},
+                {code: '30', name: 'Gard'},
+                {code: '31', name: 'Haute-Garonne'},
+                {code: '32', name: 'Gers'},
+                {code: '33', name: 'Gironde'},
+                {code: '34', name: 'Hérault'},
+                {code: '35', name: 'Ille-et-Vilaine'},
+                {code: '36', name: 'Indre'},
+                {code: '37', name: 'Indre-et-Loire'},
+                {code: '38', name: 'Isère'},
+                {code: '39', name: 'Jura'},
+                {code: '40', name: 'Landes'},
+                {code: '41', name: 'Loir-et-Cher'},
+                {code: '42', name: 'Loire'},
+                {code: '43', name: 'Haute-Loire'},
+                {code: '44', name: 'Loire-Atlantique'},
+                {code: '45', name: 'Loiret'},
+                {code: '46', name: 'Lot'},
+                {code: '47', name: 'Lot-et-Garonne'},
+                {code: '48', name: 'Lozère'},
+                {code: '49', name: 'Maine-et-Loire'},
+                {code: '50', name: 'Manche'},
+                {code: '51', name: 'Marne'},
+                {code: '52', name: 'Haute-Marne'},
+                {code: '53', name: 'Mayenne'},
+                {code: '54', name: 'Meurthe-et-Moselle'},
+                {code: '55', name: 'Meuse'},
+                {code: '56', name: 'Morbihan'},
+                {code: '57', name: 'Moselle'},
+                {code: '58', name: 'Nièvre'},
+                {code: '59', name: 'Nord'},
+                {code: '60', name: 'Oise'},
+                {code: '61', name: 'Orne'},
+                {code: '62', name: 'Pas-de-Calais'},
+                {code: '63', name: 'Puy-de-Dôme'},
+                {code: '64', name: 'Pyrénées-Atlantiques'},
+                {code: '65', name: 'Hautes-Pyrénées'},
+                {code: '66', name: 'Pyrénées-Orientales'},
+                {code: '67', name: 'Bas-Rhin'},
+                {code: '68', name: 'Haut-Rhin'},
+                {code: '69', name: 'Rhône'},
+                {code: '70', name: 'Haute-Saône'},
+                {code: '71', name: 'Saône-et-Loire'},
+                {code: '72', name: 'Sarthe'},
+                {code: '73', name: 'Savoie'},
+                {code: '74', name: 'Haute-Savoie'},
+                {code: '75', name: 'Paris'},
+                {code: '76', name: 'Seine-Maritime'},
+                {code: '77', name: 'Seine-et-Marne'},
+                {code: '78', name: 'Yvelines'},
+                {code: '79', name: 'Deux-Sèvres'},
+                {code: '80', name: 'Somme'},
+                {code: '81', name: 'Tarn'},
+                {code: '82', name: 'Tarn-et-Garonne'},
+                {code: '83', name: 'Var'},
+                {code: '84', name: 'Vaucluse'},
+                {code: '85', name: 'Vendée'},
+                {code: '86', name: 'Vienne'},
+                {code: '87', name: 'Haute-Vienne'},
+                {code: '88', name: 'Vosges'},
+                {code: '89', name: 'Yonne'},
+                {code: '90', name: 'Territoire de Belfort'},
+                {code: '91', name: 'Essonne'},
+                {code: '92', name: 'Hauts-de-Seine'},
+                {code: '93', name: 'Seine-Saint-Denis'},
+                {code: '94', name: 'Val-de-Marne'},
+                {code: '95', name: 'Val-d\'Oise'}
+            ];
+            
+            // Fonction pour mettre à jour les filtres
+            $scope.updateFilters = function() {
+                // Les filtres sont maintenant directement liés via les attributs dgfip-*
+                // Cette fonction peut juste logger les changements
+                console.log('Mise à jour des filtres:');
+                console.log('- Type de service:', $scope.selectedType || 'Tous');
+                console.log('- Département:', $scope.selectedDept || 'Tous');
+                console.log('- Recherche:', $scope.mapSearchQuery || 'Aucune');
+                
+                // Forcer un rafraîchissement si nécessaire
+                if ($scope.dgfip) {
+                    console.log('Nombre de résultats après filtre:', $scope.dgfip.nhits);
+                }
+            };
+            
+            // Initialisation du contexte
+            $scope.$watch('dgfip', function(newVal) {
+                if (newVal) {
+                    console.log('Contexte DGFIP chargé avec', newVal.nhits, 'résultats');
+                }
+            });
+            
+            // Observer les changements de nhits
+            $scope.$watch('dgfip.nhits', function(newVal) {
+                if (newVal !== undefined) {
+                    console.log('Mise à jour nhits:', newVal);
+                }
+            });
+            
+            // Vérifier périodiquement si le contexte est chargé
+            var checkContext = $interval(function() {
+                if ($scope.dgfip && $scope.dgfip.nhits > 0) {
+                    console.log('Contexte DGFIP actif avec', $scope.dgfip.nhits, 'résultats');
+                    $interval.cancel(checkContext);
+                }
+            }, 500);
+            
+            // Nettoyer l'intervalle quand le scope est détruit
+            $scope.$on('$destroy', function() {
+                if (checkContext) {
+                    $interval.cancel(checkContext);
+                }
+            });
+            
+            // Recherche de localisation
+            $scope.searchLocation = function() {
+                // Utiliser updateFilters qui gère déjà la logique de recherche
+                $scope.updateFilters();
+            };
+            
+            // Vérifier si des filtres sont actifs
+            $scope.hasActiveFilters = function() {
+                return ($scope.selectedType !== '' || 
+                        $scope.selectedDept !== '' || 
+                        $scope.mapSearchQuery !== '');
+            };
+            
+            // Compter les filtres actifs
+            $scope.countActiveFilters = function() {
+                var count = 0;
+                if ($scope.selectedType) count++;
+                if ($scope.selectedDept) count++;
+                if ($scope.mapSearchQuery) count++;
+                return count;
+            };
+            
+            // Réinitialiser la carte
+            $scope.resetMap = function() {
+                // Réinitialiser toutes les variables
+                $scope.mapSearchQuery = '';
+                $scope.mapDisplayMode = 'auto';
+                $scope.animateMarkers = false;
+                $scope.selectedDept = '';
+                $scope.selectedType = '';
+                
+                console.log('Carte réinitialisée');
+                
+                // Forcer un rafraîchissement
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            };
+            
+            // Toggle plein écran avec accessibilité améliorée
+            $scope.toggleFullscreen = function() {
+                var container = document.getElementById('widget-map-basic-001');
+                
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                    !document.mozFullScreenElement && !document.msFullscreenElement) {
+                    // Entrer en mode plein écran
+                    $scope.fullscreenEnabled = true;
+                    
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.mozRequestFullScreen) {
+                        container.mozRequestFullScreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    }
+                    
+                    // Forcer le redimensionnement de la carte après activation
+                    $timeout(function() {
+                        window.dispatchEvent(new Event('resize'));
+                        if (window.L && window.L.Map) {
+                            var leafletContainer = document.querySelector('.leaflet-container');
+                            if (leafletContainer && leafletContainer._leaflet_map) {
+                                leafletContainer._leaflet_map.invalidateSize();
+                            }
+                        }
+                        // Annoncer le changement aux lecteurs d'écran
+                        $scope.announceMode('Mode plein écran activé. Appuyez sur Échap pour quitter.');
+                    }, 100);
+                } else {
+                    // Sortir du mode plein écran
+                    $scope.fullscreenEnabled = false;
+                    
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    
+                    // Forcer le redimensionnement de la carte après désactivation
+                    $timeout(function() {
+                        window.dispatchEvent(new Event('resize'));
+                        if (window.L && window.L.Map) {
+                            var leafletContainer = document.querySelector('.leaflet-container');
+                            if (leafletContainer && leafletContainer._leaflet_map) {
+                                leafletContainer._leaflet_map.invalidateSize();
+                            }
+                        }
+                        $scope.announceMode('Mode plein écran désactivé');
+                    }, 100);
+                }
+            };
+            
+            // Écouter les changements de fullscreen
+            document.addEventListener('fullscreenchange', function() {
+                $scope.$apply(function() {
+                    $scope.fullscreenEnabled = !!document.fullscreenElement;
+                });
+            });
+            
+            document.addEventListener('webkitfullscreenchange', function() {
+                $scope.$apply(function() {
+                    $scope.fullscreenEnabled = !!document.webkitFullscreenElement;
+                });
+            });
+            
+            // Écouter la touche Échap pour sortir du plein écran
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && $scope.fullscreenEnabled) {
+                    $scope.$apply(function() {
+                        $scope.toggleFullscreen();
+                    });
+                }
+            });
+            
+            // Écouter les changements de mode d'affichage
+            $scope.$watch('mapDisplayMode', function(newVal, oldVal) {
+                if (newVal !== oldVal && newVal) {
+                    // Mettre à jour le mode d'affichage de la carte
+                    var mapLayer = document.querySelector('ods-map-layer');
+                    if (mapLayer) {
+                        if (newVal === 'heatmap') {
+                            mapLayer.setAttribute('display', 'heatmap');
+                            mapLayer.setAttribute('clustered', 'false');
+                        } else if (newVal === 'auto') {
+                            mapLayer.setAttribute('display', 'auto');
+                            mapLayer.setAttribute('clustered', 'true');
+                        } else {
+                            mapLayer.setAttribute('display', 'raw');
+                            mapLayer.setAttribute('clustered', 'false');
+                        }
+                    }
+                }
+            });
+            
+            // Gérer l'animation des marqueurs
+            $scope.$watch('animateMarkers', function(newVal) {
+                if (newVal) {
+                    // Ajouter l'animation CSS aux marqueurs
+                    $timeout(function() {
+                        var markers = document.querySelectorAll('.leaflet-marker-icon');
+                        markers.forEach(function(marker) {
+                            marker.style.animation = 'pulse 2s infinite';
+                        });
+                    }, 500);
+                } else {
+                    // Retirer l'animation
+                    var markers = document.querySelectorAll('.leaflet-marker-icon');
+                    markers.forEach(function(marker) {
+                        marker.style.animation = '';
+                    });
+                }
+            });
+            
+            // Ajouter l'animation CSS au document
+            if (!document.querySelector('#map-animations')) {
+                var style = document.createElement('style');
+                style.id = 'map-animations';
+                style.innerHTML = `
+                    @keyframes pulse {
+                        0% { transform: scale(1); opacity: 1; }
+                        50% { transform: scale(1.1); opacity: 0.8; }
+                        100% { transform: scale(1); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Fonction pour obtenir le nombre de villes uniques
+            $scope.getUniqueVilles = function() {
+                // Cette valeur devrait idéalement venir des données réelles
+                // Pour l'instant on retourne une estimation basée sur le nombre de résultats
+                if ($scope.dgfip && $scope.dgfip.nhits && $scope.dgfip.nhits > 0) {
+                    // Estimation : environ 1 ville pour 10 signalements
+                    return Math.min(Math.floor($scope.dgfip.nhits / 10), 36000);
+                }
+                return 1234; // Valeur par défaut réaliste
+            };
+            
+            // Fonction pour annoncer les changements aux lecteurs d'écran
+            $scope.announceMode = function(message) {
+                var announcement = document.getElementById('aria-announcement');
+                if (!announcement) {
+                    announcement = document.createElement('div');
+                    announcement.id = 'aria-announcement';
+                    announcement.setAttribute('role', 'status');
+                    announcement.setAttribute('aria-live', 'polite');
+                    announcement.className = 'fr-sr-only';
+                    document.body.appendChild(announcement);
+                }
+                announcement.textContent = message;
+                
+                // Nettoyer après 3 secondes
+                $timeout(function() {
+                    announcement.textContent = '';
+                }, 3000);
+            };
+            
+            // Échap pour quitter le plein écran
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && $scope.fullscreenEnabled) {
+                    $scope.$apply(function() {
+                        $scope.toggleFullscreen();
+                    });
+                }
+            });
+            
+            // Gestion de l'API Fullscreen native si disponible
+            document.addEventListener('fullscreenchange', function() {
+                if (!document.fullscreenElement && $scope.fullscreenEnabled) {
+                    $scope.$apply(function() {
+                        $scope.fullscreenEnabled = false;
+                    });
+                }
+            });
+            
+            // Initialiser le contexte si nécessaire
+            $scope.$watch('dgfip', function(newVal) {
+                if (newVal && !newVal.nhits) {
+                    // Forcer le rafraîchissement du contexte
+                    $timeout(function() {
+                        if ($scope.dgfip && $scope.dgfip.search) {
+                            $scope.dgfip.search();
+                        }
+                    }, 100);
+                }
+            });
+        }]);
+    </script>
+</body>
+</html>

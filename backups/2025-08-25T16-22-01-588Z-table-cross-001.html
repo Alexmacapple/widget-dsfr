@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Cross Table DSFR - Tableau croisé dynamique">
+    <title>Cross Table DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; overflow-x: hidden; }
+        .table-container { overflow-x: auto; overflow-y: hidden; margin: 2rem 0; }
+        .table-container .fr-table { width: 100%; min-width: 100%; border-collapse: collapse; }
+        .fr-table.fr-table--bordered th,
+        .fr-table.fr-table--bordered td {
+            border: 1px solid #ddd;
+        }
+        .heat-cell { position: relative; }
+        .heat-bg { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            opacity: 0.2; 
+            background: #000091; /* Bleu France */
+            z-index: 0; 
+        }
+        .heat-cell span { position: relative; z-index: 1; }
+        .fr-table th.total, .fr-table td.total { 
+            background-color: #e3e3fd; /* Bleu France clair */
+            font-weight: 700; 
+        }
+        .fr-table .row-header { 
+            font-weight: 600; 
+            background-color: #f6f6f6; /* Gris clair DSFR */
+        }
+        .fr-table th, .fr-table td { text-align: center; }
+        .fr-table th:first-child { text-align: left; }
+    </style>
+</head>
+<body ng-app="ods-widgets">
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Tableau de données SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-cross-table-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Tableau croisé dynamique</h1>
+        <p class="fr-text--sm">Analyse croisée catégorie × région</p>
+        
+        <ods-dataset-context context="signalconso" signalconso-domain="data.economie.gouv.fr" signalconso-dataset="signalconso">
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-6">
+                    <label class="fr-label">Dimension ligne</label>
+                    <select class="fr-select" ng-model="rowDim" ng-init="rowDim='categorie'">
+                        <option value="categorie">Catégorie</option>
+                        <option value="region">Région</option>
+                        <option value="statut">Statut</option>
+                    </select>
+                </div>
+                <div class="fr-col-6">
+                    <label class="fr-label">Dimension colonne</label>
+                    <select class="fr-select" ng-model="colDim" ng-init="colDim='statut'">
+                        <option value="statut">Statut</option>
+                        <option value="region">Région</option>
+                        <option value="categorie">Catégorie</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="fr-table fr-table--bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{ rowDim }} / {{ colDim }}</th>
+                            <th scope="col">Nouveau</th>
+                            <th scope="col">En cours</th>
+                            <th scope="col">Traité</th>
+                            <th scope="col">Clos</th>
+                            <th scope="col" class="total">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="row-header">Alimentation</th>
+                            <td>245</td>
+                            <td>189</td>
+                            <td>412</td>
+                            <td>87</td>
+                            <td class="total">933</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="row-header">Services</th>
+                            <td>178</td>
+                            <td>234</td>
+                            <td>356</td>
+                            <td>92</td>
+                            <td class="total">860</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="row-header">Commerce</th>
+                            <td>298</td>
+                            <td>156</td>
+                            <td>289</td>
+                            <td>112</td>
+                            <td class="total">855</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="total">Total</th>
+                            <td class="total">721</td>
+                            <td class="total">579</td>
+                            <td class="total">1057</td>
+                            <td class="total">291</td>
+                            <td class="total">2648</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </ods-dataset-context>
+    </div>
+    <!-- FIN ZONE WIDGET CROSS-TABLE-001 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Tableau de données SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

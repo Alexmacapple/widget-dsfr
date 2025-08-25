@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique en ligne DSFR - Évolution temporelle des données SignalConso">
+    <title>Graphique en ligne DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 300px; }
+        }
+        .export-buttons { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphique de visualisation SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-chart-line-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Évolution mensuelle des signalements SignalConso</h2>
+                        <p class="fr-text--sm">Nombre de signalements par mois sur les 12 derniers mois</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="period-select">Période</label>
+                                        <select class="fr-select" id="period-select" onchange="updatePeriod()">
+                                            <option value="12">12 derniers mois</option>
+                                            <option value="6">6 derniers mois</option>
+                                            <option value="3">3 derniers mois</option>
+                                            <option value="24">24 derniers mois</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="lineChart" role="img" aria-label="Graphique montrant l'évolution mensuelle des signalements"></canvas>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-png">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="toggle-fullscreen">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Évolution mensuelle des signalements</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Mois</th>
+                                    <th scope="col">Nombre de signalements</th>
+                                    <th scope="col">Variation (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Les données seront insérées ici -->
+                            </tbody>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de ces données</p>
+                            <p>Les données proviennent de SignalConso, la plateforme de signalement des anomalies de consommation. 
+                            Les valeurs sont mises à jour quotidiennement depuis data.economie.gouv.fr.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-LINE-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            primary: '#000091',
+            primaryLight: '#6A6AF4',
+            success: '#18753C',
+            error: '#CE0500',
+            warning: '#B34000',
+            info: '#0063CB',
+            grey: '#666666'
+        };
+        
+        // Données simulées (en production, elles viendraient de l'API)
+        const generateMonthlyData = (months) => {
+            const data = [];
+            const labels = [];
+            const currentDate = new Date();
+            
+            for (let i = months - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(currentDate.getMonth() - i);
+                const monthName = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+                labels.push(monthName);
+                
+                // Simulation de données avec tendance et variation
+                const baseValue = 25000;
+                const trend = (months - i) * 200;
+                const variation = Math.random() * 5000 - 2500;
+                data.push(Math.round(baseValue + trend + variation));
+            }
+            
+            return { labels, data };
+        };
+        
+        // Configuration initiale du graphique
+        let chartData = generateMonthlyData(12);
+        
+        const config = {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Nombre de signalements',
+                    data: chartData.data,
+                    borderColor: dsfrColors.primary,
+                    backgroundColor: dsfrColors.primaryLight + '20',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: dsfrColors.primary,
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Signalements: ' + context.parsed.y.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('lineChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            chartData.labels.forEach((label, index) => {
+                const row = tableBody.insertRow();
+                const cellMonth = row.insertCell(0);
+                const cellValue = row.insertCell(1);
+                const cellVariation = row.insertCell(2);
+                
+                cellMonth.textContent = label;
+                cellValue.textContent = chartData.data[index].toLocaleString('fr-FR');
+                
+                // Calcul de la variation
+                if (index > 0) {
+                    const variation = ((chartData.data[index] - chartData.data[index - 1]) / chartData.data[index - 1] * 100).toFixed(1);
+                    cellVariation.textContent = (variation > 0 ? '+' : '') + variation + '%';
+                    cellVariation.style.color = variation > 0 ? dsfrColors.success : dsfrColors.error;
+                } else {
+                    cellVariation.textContent = '-';
+                }
+            });
+        }
+        
+        // Mise à jour de la période
+        function updatePeriod() {
+            const period = parseInt(document.getElementById('period-select').value);
+            chartData = generateMonthlyData(period);
+            
+            myChart.data.labels = chartData.labels;
+            myChart.data.datasets[0].data = chartData.data;
+            myChart.update();
+            
+            updateDataTable();
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-evolution.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Mois,Nombre de signalements\n';
+            chartData.labels.forEach((label, index) => {
+                csv += `"${label}",${chartData.data[index]}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-evolution.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-line-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+        
+        // Ajouter les event listeners au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('export-png').addEventListener('click', exportChartAsPNG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
+            document.getElementById('toggle-fullscreen').addEventListener('click', toggleFullscreen);
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Graphique de visualisation SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

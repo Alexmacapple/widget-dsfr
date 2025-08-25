@@ -129,6 +129,7 @@
             to { opacity: 1; }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Header DSFR -->
@@ -512,5 +513,16 @@
     
     <!-- DSFR JS -->
     <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

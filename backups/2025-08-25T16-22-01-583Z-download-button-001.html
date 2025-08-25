@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Download Button DSFR - Bouton de téléchargement">
+    <title>Download Button DSFR - SignalConso</title>
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Download Button DSFR - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-download-button-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Téléchargement de fichiers</h1>
+        <p class="fr-text--sm">Téléchargez les ressources disponibles</p>
+        
+        <!-- Section avec boutons de téléchargement -->
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+            <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-card fr-card--download">
+                    <div class="fr-card__body">
+                        <div class="fr-card__content">
+                            <h3 class="fr-card__title">Données SignalConso CSV</h3>
+                            <p class="fr-card__desc">Export complet des signalements au format CSV</p>
+                            <div class="fr-card__start">
+                                <p class="fr-card__detail">CSV - Export complet</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__footer">
+                            <a class="fr-btn fr-btn--download" href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=csv" download="signalconso-doc.csv">
+                                Télécharger
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fr-col-12 fr-col-md-6">
+                <div class="fr-card fr-card--download">
+                    <div class="fr-card__body">
+                        <div class="fr-card__content">
+                            <h3 class="fr-card__title">Données SignalConso Excel</h3>
+                            <p class="fr-card__desc">Export complet des signalements au format Excel</p>
+                            <div class="fr-card__start">
+                                <p class="fr-card__detail">XLS - Export complet</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__footer">
+                            <a class="fr-btn fr-btn--download" href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=xls" download="signalconso.xls">
+                                Télécharger
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Liste de téléchargements compacte -->
+        <h2 class="fr-h4">Autres ressources</h2>
+        <div class="fr-download">
+            <p>
+                <a class="fr-download__link" href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=json" download="signalconso.json">
+                    Export JSON
+                    <span class="fr-download__detail">
+                        JSON - Format structuré
+                    </span>
+                </a>
+            </p>
+        </div>
+        
+        <div class="fr-download fr-mt-2w">
+            <p>
+                <a class="fr-download__link" href="https://data.economie.gouv.fr/api/records/1.0/download/?dataset=signalconso&format=geojson" download="signalconso.geojson">
+                    Export GeoJSON
+                    <span class="fr-download__detail">
+                        GeoJSON - Données géographiques
+                    </span>
+                </a>
+            </p>
+        </div>
+        
+        <!-- Boutons d'action groupés -->
+        <div class="fr-btns-group fr-btns-group--inline fr-mt-3w">
+            <a class="fr-btn fr-btn--secondary" href="https://data.economie.gouv.fr/explore/dataset/signalconso/export/" target="_blank">
+                Plus de formats
+            </a>
+            <a class="fr-btn fr-btn--tertiary-no-outline" href="https://data.economie.gouv.fr/explore/dataset/signalconso/" target="_blank">
+                Voir sur data.economie.gouv.fr
+            </a>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET DOWNLOAD-BUTTON-001 -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Download Button DSFR. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

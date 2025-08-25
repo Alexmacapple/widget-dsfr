@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique donut DSFR - Visualisation avec KPI central pour SignalConso">
+    <title>Graphique donut DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { 
+            position: relative; 
+            height: 400px; 
+            margin: 2rem 0;
+        }
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+        .chart-center-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #000091;
+            line-height: 1;
+        }
+        .chart-center-label {
+            font-size: 0.875rem;
+            color: #666666;
+            margin-top: 0.25rem;
+        }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 350px; }
+            .chart-center-value { font-size: 2rem; }
+        }
+        .export-buttons { margin-top: 1rem; }
+        .kpi-cards { margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphique de visualisation SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-chart-donut-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Taux de résolution des signalements</h2>
+                        <p class="fr-text--sm">Analyse de l'efficacité du traitement des signalements consommateurs</p>
+                        
+                        <!-- KPIs principaux -->
+                        <div class="kpi-cards">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Taux de résolution</p>
+                                            <p class="fr-tile__desc">
+                                                <span class="fr-text--lg fr-text--bold" id="kpi-resolution">72%</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Délai moyen</p>
+                                            <p class="fr-tile__desc">
+                                                <span class="fr-text--lg fr-text--bold" id="kpi-delay">8 jours</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Satisfaction</p>
+                                            <p class="fr-tile__desc">
+                                                <span class="fr-text--lg fr-text--bold" id="kpi-satisfaction">4.2/5</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-3">
+                                    <div class="fr-tile">
+                                        <div class="fr-tile__body">
+                                            <p class="fr-tile__title">Tendance</p>
+                                            <p class="fr-tile__desc">
+                                                <span class="fr-text--lg fr-text--bold" style="color: #18753C;" id="kpi-trend">↑ +5%</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="metric-select">Métrique à afficher</label>
+                                        <select class="fr-select" id="metric-select" onchange="changeMetric()">
+                                            <option value="status">Statut des signalements</option>
+                                            <option value="satisfaction">Niveau de satisfaction</option>
+                                            <option value="delay">Délais de traitement</option>
+                                            <option value="category">Répartition par type</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="donutChart" role="img" aria-label="Graphique donut avec KPI central"></canvas>
+                            <div class="chart-center-text">
+                                <div class="chart-center-value" id="center-value">72%</div>
+                                <div class="chart-center-label" id="center-label">Résolu</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportchartaspng-btn">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportdataascsv-btn">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="togglefullscreen-btn">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Métriques de performance</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Catégorie</th>
+                                    <th scope="col">Valeur</th>
+                                    <th scope="col">Pourcentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Les données seront insérées ici -->
+                            </tbody>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">Indicateurs de performance</p>
+                            <p>Ces métriques mesurent l'efficacité du traitement des signalements consommateurs. 
+                            Le KPI central représente la valeur principale de la métrique sélectionnée.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-DONUT-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            success: '#18753C',
+            warning: '#B34000',
+            error: '#CE0500',
+            info: '#0063CB',
+            grey: '#666666',
+            palette: [
+                '#18753C', // Vert (résolu)
+                '#B34000', // Orange (en cours)
+                '#CE0500', // Rouge (non traité)
+                '#0063CB', // Bleu (transmis)
+                '#666666'  // Gris (autre)
+            ]
+        };
+        
+        // Données par métrique
+        const metricsData = {
+            status: {
+                labels: ['Résolu', 'En cours', 'Non traité', 'Transmis'],
+                data: [72, 15, 8, 5],
+                colors: [dsfrColors.success, dsfrColors.warning, dsfrColors.error, dsfrColors.info],
+                centerValue: '72%',
+                centerLabel: 'Résolu'
+            },
+            satisfaction: {
+                labels: ['Très satisfait', 'Satisfait', 'Neutre', 'Insatisfait', 'Très insatisfait'],
+                data: [35, 40, 15, 7, 3],
+                colors: dsfrColors.palette,
+                centerValue: '4.2/5',
+                centerLabel: 'Moyenne'
+            },
+            delay: {
+                labels: ['< 48h', '2-7 jours', '1-2 semaines', '> 2 semaines'],
+                data: [25, 45, 20, 10],
+                colors: [dsfrColors.success, dsfrColors.info, dsfrColors.warning, dsfrColors.error],
+                centerValue: '8j',
+                centerLabel: 'Moyenne'
+            },
+            category: {
+                labels: ['Commerce', 'Services', 'Transport', 'Autre'],
+                data: [40, 30, 20, 10],
+                colors: dsfrColors.palette.slice(0, 4),
+                centerValue: '100%',
+                centerLabel: 'Total'
+            }
+        };
+        
+        let currentMetric = 'status';
+        
+        // Configuration du graphique donut
+        const config = {
+            type: 'doughnut',
+            data: {
+                labels: metricsData[currentMetric].labels,
+                datasets: [{
+                    data: metricsData[currentMetric].data,
+                    backgroundColor: metricsData[currentMetric].colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%', // Taille du trou central
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            color: dsfrColors.grey
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return [
+                                    label,
+                                    'Valeur: ' + value + '%',
+                                    'Part relative: ' + percentage + '%'
+                                ];
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: false
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('donutChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Changement de métrique
+        function changeMetric() {
+            currentMetric = document.getElementById('metric-select').value;
+            const metricData = metricsData[currentMetric];
+            
+            // Mise à jour du graphique
+            myChart.data.labels = metricData.labels;
+            myChart.data.datasets[0].data = metricData.data;
+            myChart.data.datasets[0].backgroundColor = metricData.colors;
+            myChart.update();
+            
+            // Mise à jour du KPI central
+            document.getElementById('center-value').textContent = metricData.centerValue;
+            document.getElementById('center-label').textContent = metricData.centerLabel;
+            
+            // Mise à jour des KPIs en fonction de la métrique
+            updateKPIs();
+            updateDataTable();
+        }
+        
+        // Mise à jour des KPIs
+        function updateKPIs() {
+            const kpiData = {
+                status: { resolution: '72%', delay: '8 jours', satisfaction: '4.2/5', trend: '↑ +5%' },
+                satisfaction: { resolution: '75%', delay: '7 jours', satisfaction: '4.2/5', trend: '↑ +3%' },
+                delay: { resolution: '70%', delay: '8 jours', satisfaction: '4.0/5', trend: '→ 0%' },
+                category: { resolution: '72%', delay: '8 jours', satisfaction: '4.1/5', trend: '↑ +2%' }
+            };
+            
+            const current = kpiData[currentMetric];
+            document.getElementById('kpi-resolution').textContent = current.resolution;
+            document.getElementById('kpi-delay').textContent = current.delay;
+            document.getElementById('kpi-satisfaction').textContent = current.satisfaction;
+            document.getElementById('kpi-trend').textContent = current.trend;
+            
+            // Couleur de la tendance
+            const trendElement = document.getElementById('kpi-trend');
+            if (current.trend.includes('↑')) {
+                trendElement.style.color = dsfrColors.success;
+            } else if (current.trend.includes('↓')) {
+                trendElement.style.color = dsfrColors.error;
+            } else {
+                trendElement.style.color = dsfrColors.grey;
+            }
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            const data = myChart.data.datasets[0].data;
+            const labels = myChart.data.labels;
+            const total = data.reduce((a, b) => a + b, 0);
+            
+            tableBody.innerHTML = '';
+            
+            labels.forEach((label, index) => {
+                const row = tableBody.insertRow();
+                const cellLabel = row.insertCell(0);
+                const cellValue = row.insertCell(1);
+                const cellPercent = row.insertCell(2);
+                
+                cellLabel.textContent = label;
+                cellValue.textContent = data[index] + '%';
+                cellPercent.textContent = ((data[index] / total) * 100).toFixed(1) + '% du total';
+            });
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            // Temporairement masquer le texte central pour l'export
+            const centerText = document.querySelector('.chart-center-text');
+            centerText.style.display = 'none';
+            
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = 'signalconso-donut.png';
+                link.href = myChart.toBase64Image();
+                link.click();
+                
+                // Réafficher le texte central
+                centerText.style.display = 'block';
+            }, 100);
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            const data = myChart.data.datasets[0].data;
+            const labels = myChart.data.labels;
+            const total = data.reduce((a, b) => a + b, 0);
+            
+            let csv = 'Catégorie,Valeur,Pourcentage\n';
+            labels.forEach((label, index) => {
+                const percentage = ((data[index] / total) * 100).toFixed(1);
+                csv += `"${label}",${data[index]}%,${percentage}%\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-donut.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-donut-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Initialisation
+        updateKPIs();
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+    
+        // Chargement des données depuis l'API
+        async function loadDataFromAPI() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&facet=categoriedeprobleme');
+                const data = await response.json();
+                
+                
+                // Traiter les données par catégories
+                const categories = {};
+                data.records.forEach(record => {
+                    const cat = record.fields.categoriedeprobleme || 'Autre';
+                    categories[cat] = (categories[cat] || 0) + 1;
+                });
+                
+                // Prendre les 6 principales catégories
+                const sortedCats = Object.entries(categories)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6);
+                
+                const labels = sortedCats.map(c => c[0].substring(0, 20));
+                const values = sortedCats.map(c => c[1]);
+                
+                // Mettre à jour le graphique
+                updateChart(labels, values);
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Utiliser des données de démonstration en cas d'erreur
+                useDefaultData();
+            }
+        }
+        
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            const buttons = document.querySelectorAll('button[id$="-btn"]');
+            buttons.forEach(btn => {
+                const funcName = btn.id.replace('-btn', '').replace(/-/g, '_');
+                if (window[funcName]) {
+                    btn.addEventListener('click', window[funcName]);
+                }
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Graphique de visualisation SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

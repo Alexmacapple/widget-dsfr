@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Collection complète de widgets formulaires DSFR pour SignalConso - Composants réutilisables conformes au Design System de l'État">
+    <title>Widgets Formulaires DSFR - SignalConso</title>
+    
+    <!-- DSFR CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/utility/icons/icons.min.css" rel="stylesheet">
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.ico" type="image/x-icon">
+    
+    <!-- Meta SEO -->
+    <meta property="og:title" content="Widgets Formulaires DSFR - SignalConso">
+    <meta property="og:description" content="Collection de composants formulaires conformes DSFR pour SignalConso">
+    <meta property="og:image" content="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/artwork/pictograms/system/france.svg">
+    <style>
+        /* Styles complémentaires DSFR */
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        
+        .widget-card {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .widget-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .widget-features {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0.75rem;
+            font-size: 0.8125rem;
+            line-height: 1.3;
+        }
+        
+        .widget-features li {
+            margin: 0.125rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+        
+        .widget-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--green-emeraude-main-632);
+            font-weight: bold;
+        }
+        
+        .widget-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        
+        .quick-nav {
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .quick-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .quick-nav-item {
+            margin: 0.125rem 0;
+        }
+        
+        .quick-nav-link {
+            display: block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            text-decoration: none;
+            color: var(--text-default-grey);
+            transition: all 0.3s ease;
+        }
+        
+        .quick-nav-link:hover {
+            background: var(--blue-france-sun-113);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .widget-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-nav {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header officiel DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République<br>Française
+                                </p>
+                            </div>
+                            <div class="fr-header__navbar">
+                                <button class="fr-btn--menu fr-btn" data-fr-opened="false" aria-controls="modal-menu" aria-haspopup="menu" title="Menu">
+                                    Menu
+                                </button>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Widgets DSFR">
+                                <p class="fr-header__service-title">
+                                    Widgets Formulaires DSFR
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">SignalConso - Composants réutilisables</p>
+                        </div>
+                    </div>
+                    <div class="fr-header__tools">
+                        <div class="fr-header__tools-links">
+                            <ul class="fr-links-group">
+                                <li>
+                                    <a class="fr-link fr-icon-arrow-up-fill" href="../">Retour aux widgets</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation principale -->
+        <div class="fr-header__menu fr-modal" id="modal-menu" aria-labelledby="button-menu">
+            <div class="fr-container">
+                <button class="fr-link--close fr-link" aria-controls="modal-menu" title="Fermer">
+                    Fermer
+                </button>
+                <div class="fr-header__menu-links">
+                    <nav class="fr-nav" role="navigation" aria-label="Menu principal">
+                        <ul class="fr-nav__list">
+                            <li class="fr-nav__item">
+                                <a class="fr-nav__link" href="../" target="_self">Tous les widgets</a>
+                            </li>
+                            <li class="fr-nav__item">
+                                <a class="fr-nav__link" href="../charts/" target="_self">Graphiques</a>
+                            </li>
+                            <li class="fr-nav__item">
+                                <a class="fr-nav__link" href="../forms/" target="_self" aria-current="page">Formulaires</a>
+                            </li>
+                            <li class="fr-nav__item">
+                                <a class="fr-nav__link" href="../tables/" target="_self">Tableaux</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Fil d'ariane -->
+    <div class="fr-container">
+        <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+            <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-collapse">
+                Voir le fil d'Ariane
+            </button>
+            <div class="fr-collapse" id="breadcrumb-collapse">
+                <ol class="fr-breadcrumb__list">
+                    <li>
+                        <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                    </li>
+                    <li>
+                        <a class="fr-breadcrumb__link" href="../">Widgets</a>
+                    </li>
+                    <li>
+                        <a class="fr-breadcrumb__link" aria-current="page">Formulaires</a>
+                    </li>
+                </ol>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Contenu principal -->
+    <main role="main" id="content">
+        <div class="fr-container fr-py-2w">
+            <h1 class="fr-h2 fr-mb-2w">Widgets Formulaires DSFR</h1>
+            
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <!-- Navigation rapide -->
+                <aside class="fr-col-12 fr-col-lg-3">
+                    <nav class="quick-nav fr-card fr-card--no-border" role="navigation" aria-label="Navigation rapide">
+                        <div class="fr-card__body fr-p-2w">
+                            <h2 class="fr-h6 fr-mb-1w">Navigation</h2>
+                            <ul class="quick-nav-list">
+                                <li class="quick-nav-item"><a href="#form-stepper" class="quick-nav-link">Multi-étapes</a></li>
+                                <li class="quick-nav-item"><a href="#form-autocomplete" class="quick-nav-link">Autocomplétion</a></li>
+                                <li class="quick-nav-item"><a href="#form-upload" class="quick-nav-link">Upload</a></li>
+                                <li class="quick-nav-item"><a href="#form-validation" class="quick-nav-link">Validation</a></li>
+                                <li class="quick-nav-item"><a href="#form-conditional" class="quick-nav-link">Conditionnel</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </aside>
+            
+                <!-- Grille de widgets -->
+                <div class="fr-col-12 fr-col-lg-9">
+                    <div class="widget-grid">
+                        
+                        <!-- Widget 1: Formulaire multi-étapes -->
+                        <div id="form-stepper">
+                            <article class="fr-card fr-enlarge-link widget-card">
+                                <div class="fr-card__body">
+                                    <h3 class="fr-card__title">
+                                        <a href="form-stepper-001.html" class="fr-card__link">Formulaire multi-étapes</a>
+                                    </h3>
+                                    <p class="fr-card__desc fr-text--sm">
+                                        Navigation par étapes avec validation progressive
+                                    </p>
+                                    <div class="fr-card__start">
+                                        <ul class="fr-badges-group">
+                                            <li><p class="fr-badge fr-badge--green-emeraude">Nouveau</p></li>
+                                            <li><p class="fr-badge fr-badge--blue-ecume">Complexe</p></li>
+                                        </ul>
+                                    </div>
+                                    <ul class="widget-features">
+                                        <li>4 étapes visuelles</li>
+                                        <li>Validation progressive</li>
+                                        <li>Sauvegarde auto</li>
+                                        <li>Upload drag & drop</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                    
+                        <!-- Widget 2: Autocomplétion -->
+                        <div id="form-autocomplete">
+                            <article class="fr-card fr-enlarge-link widget-card">
+                                <div class="fr-card__body">
+                                    <h3 class="fr-card__title">
+                                        <a href="form-autocomplete-001.html" class="fr-card__link">Autocomplétion</a>
+                                    </h3>
+                                    <p class="fr-card__desc fr-text--sm">
+                                        Suggestions intelligentes avec API
+                                    </p>
+                                    <div class="fr-card__start">
+                                        <ul class="fr-badges-group">
+                                            <li><p class="fr-badge fr-badge--green-emeraude">Nouveau</p></li>
+                                            <li><p class="fr-badge fr-badge--purple-glycine">API</p></li>
+                                        </ul>
+                                    </div>
+                                    <ul class="widget-features">
+                                        <li>4 types d'autocomplétion</li>
+                                        <li>API SignalConso</li>
+                                        <li>Cache optimisé</li>
+                                        <li>ARIA complet</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                    
+                        <!-- Widget 3: Upload -->
+                        <div id="form-upload">
+                            <article class="fr-card fr-enlarge-link widget-card">
+                                <div class="fr-card__body">
+                                    <h3 class="fr-card__title">
+                                        <a href="form-upload-001.html" class="fr-card__link">Téléversement</a>
+                                    </h3>
+                                    <p class="fr-card__desc fr-text--sm">
+                                        Upload avec drag & drop
+                                    </p>
+                                    <div class="fr-card__start">
+                                        <ul class="fr-badges-group">
+                                            <li><p class="fr-badge fr-badge--blue-ecume">Complexe</p></li>
+                                        </ul>
+                                    </div>
+                                    <ul class="widget-features">
+                                        <li>Drag & drop multi-fichiers</li>
+                                        <li>Aperçu images</li>
+                                        <li>Barre de progression</li>
+                                        <li>Validation type/taille</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                    
+                        <!-- Widget 4: Validation -->
+                        <div id="form-validation">
+                            <article class="fr-card fr-enlarge-link widget-card">
+                                <div class="fr-card__body">
+                                    <h3 class="fr-card__title">
+                                        <a href="form-validation-001.html" class="fr-card__link">Validation temps réel</a>
+                                    </h3>
+                                    <p class="fr-card__desc fr-text--sm">
+                                        Validation avec feedback visuel
+                                    </p>
+                                    <div class="fr-card__start">
+                                        <ul class="fr-badges-group">
+                                            <li><p class="fr-badge fr-badge--error">Priorité haute</p></li>
+                                        </ul>
+                                    </div>
+                                    <ul class="widget-features">
+                                        <li>15+ types de validation</li>
+                                        <li>Messages DSFR</li>
+                                        <li>SIRET/IBAN</li>
+                                        <li>Compteur caractères</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                    
+                        <!-- Widget 5: Champs conditionnels -->
+                        <div id="form-conditional">
+                            <article class="fr-card fr-enlarge-link widget-card">
+                                <div class="fr-card__body">
+                                    <h3 class="fr-card__title">
+                                        <a href="form-conditional-001.html" class="fr-card__link">Champs conditionnels</a>
+                                    </h3>
+                                    <p class="fr-card__desc fr-text--sm">
+                                        Affichage dynamique selon réponses
+                                    </p>
+                                    <div class="fr-card__start">
+                                        <ul class="fr-badges-group">
+                                            <li><p class="fr-badge fr-badge--green-emeraude">Nouveau</p></li>
+                                            <li><p class="fr-badge fr-badge--blue-ecume">Complexe</p></li>
+                                        </ul>
+                                    </div>
+                                    <ul class="widget-features">
+                                        <li>Logique multi-niveaux</li>
+                                        <li>Arbre de décision</li>
+                                        <li>10+ scénarios</li>
+                                        <li>Résumé dynamique</li>
+                                    </ul>
+                                </div>
+                            </article>
+                        </div>
+                        
+                    </div>
+                
+                    <!-- Liens rapides -->
+                    <div class="fr-btns-group fr-btns-group--inline fr-mt-1w fr-mb-2w">
+                        <a class="fr-btn fr-btn--sm" href="https://www.systeme-de-design.gouv.fr" target="_blank">
+                            DSFR
+                        </a>
+                        <a class="fr-btn fr-btn--secondary fr-btn--sm" href="https://data.economie.gouv.fr" target="_blank">
+                            API
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <div class="fr-footer__brand-top">
+                        <div class="fr-footer__logo">
+                            <p class="fr-logo">
+                                République<br>Française
+                            </p>
+                        </div>
+                    </div>
+                    <div class="fr-footer__brand-body">
+                        <p class="fr-footer__brand-description">
+                            Widgets formulaires conformes au Design System de l'État français
+                        </p>
+                    </div>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Collection de composants réutilisables pour SignalConso
+                    </p>
+                    <ul class="fr-footer__content-links">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="système-de-design.gouv.fr - nouvelle fenêtre" href="https://www.systeme-de-design.gouv.fr">
+                                systeme-de-design.gouv.fr
+                            </a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="data.economie.gouv.fr - nouvelle fenêtre" href="https://data.economie.gouv.fr">
+                                data.economie.gouv.fr
+                            </a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener external" title="signalconso.gouv.fr - nouvelle fenêtre" href="https://signalconso.gouv.fr">
+                                signalconso.gouv.fr
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous 
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript DSFR -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <script>
+        
+        // Initialisation DSFR
+        if (window.dsfr) {
+            window.dsfr.start();
+        }
+        
+        // Smooth scroll pour la navigation
+        document.querySelectorAll('.quick-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        // Animation des statistiques
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+        
+        const animateValue = (element, start, end, duration) => {
+            const range = end - start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                element.textContent = current;
+                if (current === end) {
+                    clearInterval(timer);
+                    if (element.dataset.suffix) {
+                        element.textContent = end + element.dataset.suffix;
+                    }
+                }
+            }, stepTime);
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    entry.target.classList.add('animated');
+                    const value = entry.target.textContent;
+                    
+                    if (value === '5') {
+                        animateValue(entry.target, 0, 5, 500);
+                    } else if (value === '100%') {
+                        entry.target.dataset.suffix = '%';
+                        entry.target.textContent = '0';
+                        animateValue(entry.target, 0, 100, 1000);
+                    } else if (value === '0') {
+                        animateValue(entry.target, 10, 0, 500);
+                    }
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.stat-value').forEach(stat => {
+            if (stat.textContent !== 'AA') {
+                observer.observe(stat);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -262,6 +262,7 @@
             transform: rotate(180deg);
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Skip links pour l'accessibilité -->
@@ -845,6 +846,17 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
     </script>
 </body>
 </html>

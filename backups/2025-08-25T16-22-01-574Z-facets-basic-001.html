@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Facets Basic - Filtres à facettes pour données SignalConso">
+    <title>Widget DSFR - Facets Basic</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-facets {
+            font-family: var(--font-family-base);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-header {
+            background-color: var(--background-contrast-grey);
+            color: var(--text-default-grey);
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem 0.25rem 0 0;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-items {
+            border: 1px solid var(--border-default-grey);
+            border-top: none;
+            border-radius: 0 0 0.25rem 0.25rem;
+            background: white;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border-default-grey-light);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item .facet-value {
+            color: var(--text-action-high-blue-france);
+            text-decoration: none;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item .facet-value:hover {
+            text-decoration: underline;
+        }
+        
+        .ods-widget .odswidget-facets .facet-count {
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 500px;
+            background-color: var(--background-alt-grey);
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+        }
+        
+        /* Hauteur du tableau ODS */
+        .odswidget-table {
+            width: 100%;
+            min-height: 400px;
+        }
+        
+        /* S'assurer que le widget table est visible */
+        ods-table {
+            display: block;
+            width: 100%;
+        }
+        
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .ods-widget .odswidget-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .ods-widget .odswidget-table th {
+            background-color: var(--background-contrast-grey);
+            color: var(--text-default-grey);
+            font-weight: 700;
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .ods-widget .odswidget-table td {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-default-grey);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-table tr:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        /* Enlever les barres de scroll sur le tableau */
+        .odswidget-table__records {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        /* Pagination du tableau */
+        .odswidget-table__pagination {
+            margin-top: 1rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-default-grey);
+        }
+        
+        .odswidget-table__pagination button {
+            background: var(--background-action-low-blue-france);
+            color: var(--text-action-high-blue-france);
+            border: 1px solid var(--border-action-high-blue-france);
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        
+        .odswidget-table__pagination button:hover {
+            background: var(--background-action-high-blue-france);
+            color: white;
+        }
+        
+        .odswidget-table__pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .widget-container {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        /* Amélioration pour les facettes */
+        .facets-container {
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            padding: 1rem;
+        }
+        
+        .filters-summary {
+            background: var(--background-contrast-grey);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Styles pour les accordéons personnalisés */
+        .fr-accordions-group .fr-accordion {
+            margin-bottom: 0;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .fr-accordions-group .fr-accordion:first-child {
+            border-top: 1px solid var(--border-default-grey);
+        }
+        
+        .fr-accordion__inner .odswidget-facet {
+            padding: 0;
+        }
+        
+        /* Badge dans l'accordéon */
+        .fr-accordion__btn .fr-badge {
+            vertical-align: middle;
+        }
+        
+        /* Amélioration de l'affichage des facettes ODS dans les accordéons */
+        .fr-accordion__inner .odswidget-facet__category-title {
+            display: none;
+        }
+        
+        .fr-accordion__inner .facet-value {
+            color: var(--text-action-high-blue-france);
+            cursor: pointer;
+        }
+        
+        .fr-accordion__inner .facet-value:hover {
+            text-decoration: underline;
+        }
+        
+        /* Styles pour les tags DSFR */
+        .fr-tags-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        /* Animation pour aria-live */
+        .filters-summary[aria-live] {
+            transition: all 0.3s ease;
+        }
+        
+        /* Style pour les checkboxes DSFR intégrés */
+        .fr-checkbox-group--inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        /* Intégration des styles de facettes ODS avec checkboxes DSFR */
+        .facet-checkbox-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-default-grey-light);
+        }
+        
+        .facet-checkbox-item:last-child {
+            border-bottom: none;
+        }
+        
+        .facet-checkbox-item .fr-checkbox-group {
+            margin: 0;
+            flex: 1;
+        }
+        
+        .facet-checkbox-item .facet-count {
+            margin-left: auto;
+            padding-left: 1rem;
+        }
+        
+        /* Bouton pour tout déplier/replier */
+        .fr-btn--tertiary-no-outline.fr-icon-filter-line {
+            transition: transform 0.3s ease;
+        }
+        
+        .fr-btn--tertiary-no-outline.fr-icon-filter-line.expanded {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - Widget DSFR">
+                                <p class="fr-header__service-title">
+                                    Widget Facets Basic
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Filtres à facettes - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Facets Basic</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Filtres à facettes - SignalConso</h1>
+                    <p class="fr-text--lead">Explorez les données par catégories et filtres interactifs</p>
+                </div>
+            </div>
+
+            <!-- Widget -->
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <h2 class="fr-card__title">Filtrage interactif des signalements</h2>
+                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__body">
+                            <!-- DÉBUT ZONE WIDGET FACETS-BASIC-001 -->
+                            <div id="widget-facets-basic-001" class="widget-container" ng-app="ods-widgets" ng-controller="FacetsController" ng-cloak>
+                                <ods-dataset-context 
+                                    context="signalconso"
+                                    signalconso-domain="data.economie.gouv.fr"
+                                    signalconso-dataset="signalconso"
+                                    signalconso-facet="category"
+                                    signalconso-facet="reg_name"
+                                    signalconso-facet="dep_name"
+                                    signalconso-facet="status"
+                                    signalconso-facet="creationdate">
+                                    
+                                    <!-- Résumé des filtres actifs avec tags DSFR -->
+                                    <div class="filters-summary" ng-show="signalconso.parameters['refine.category'] || signalconso.parameters['refine.reg_name'] || signalconso.parameters['refine.dep_name'] || signalconso.parameters['refine.status'] || signalconso.parameters['refine.creationdate'] || signalconso.parameters['q']" aria-live="polite" aria-atomic="true">
+                                        <h3>
+                                            Filtres actifs
+                                            <span class="fr-badge fr-badge--green-emeraude fr-ml-1w">
+                                                {{ (signalconso.parameters['refine.category'] ? 1 : 0) + 
+                                                   (signalconso.parameters['refine.reg_name'] ? 1 : 0) + 
+                                                   (signalconso.parameters['refine.dep_name'] ? 1 : 0) + 
+                                                   (signalconso.parameters['refine.status'] ? 1 : 0) +
+                                                   (signalconso.parameters['refine.creationdate'] ? 1 : 0) +
+                                                   (signalconso.parameters['q'] ? 1 : 0) }}
+                                            </span>
+                                        </h3>
+                                        <ul class="fr-tags-group">
+                                            <li ng-show="signalconso.parameters['refine.category']">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters['refine.category'] = undefined"
+                                                        aria-label="Supprimer le filtre : Catégorie {{signalconso.parameters['refine.category']}}">
+                                                    Catégorie : {{signalconso.parameters['refine.category']}}
+                                                </button>
+                                            </li>
+                                            <li ng-show="signalconso.parameters['refine.reg_name']">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters['refine.reg_name'] = undefined"
+                                                        aria-label="Supprimer le filtre : Région {{signalconso.parameters['refine.reg_name']}}">
+                                                    Région : {{signalconso.parameters['refine.reg_name']}}
+                                                </button>
+                                            </li>
+                                            <li ng-show="signalconso.parameters['refine.dep_name']">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters['refine.dep_name'] = undefined"
+                                                        aria-label="Supprimer le filtre : Département {{signalconso.parameters['refine.dep_name']}}">
+                                                    Département : {{signalconso.parameters['refine.dep_name']}}
+                                                </button>
+                                            </li>
+                                            <li ng-show="signalconso.parameters['refine.status']">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters['refine.status'] = undefined"
+                                                        aria-label="Supprimer le filtre : Statut {{signalconso.parameters['refine.status']}}">
+                                                    Statut : {{signalconso.parameters['refine.status']}}
+                                                </button>
+                                            </li>
+                                            <li ng-show="signalconso.parameters['refine.creationdate']">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters['refine.creationdate'] = undefined"
+                                                        aria-label="Supprimer le filtre : Année {{signalconso.parameters['refine.creationdate']}}">
+                                                    Année : {{signalconso.parameters['refine.creationdate']}}
+                                                </button>
+                                            </li>
+                                            <li ng-show="signalconso.parameters['q']">
+                                                <button class="fr-tag fr-tag--dismiss" 
+                                                        ng-click="signalconso.parameters['q'] = undefined"
+                                                        aria-label="Supprimer la recherche : {{signalconso.parameters['q']}}">
+                                                    Recherche : {{signalconso.parameters['q']}}
+                                                </button>
+                                            </li>
+                                        </ul>
+                                        <div class="fr-mt-2w">
+                                            <button class="fr-btn fr-btn--secondary fr-btn--sm fr-btn--icon-left fr-icon-refresh-line" 
+                                                    ng-click="signalconso.parameters = {}"
+                                                    ng-show="signalconso.parameters['refine.category'] || signalconso.parameters['refine.reg_name'] || signalconso.parameters['refine.dep_name'] || signalconso.parameters['refine.status'] || signalconso.parameters['q']">
+                                                Réinitialiser tous les filtres
+                                            </button>
+                                        </div>
+                                        <div class="fr-notice fr-notice--info fr-mt-2w">
+                                            <div class="fr-container">
+                                                <div class="fr-notice__body">
+                                                    <p class="fr-notice__title">
+                                                        <strong>{{signalconso.nhits | number}}</strong> résultats trouvés
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Interface de filtrage -->
+                                    <div class="fr-grid-row fr-grid-row--gutters">
+                                        <!-- Panneau de filtres -->
+                                        <div class="fr-col-12 fr-col-lg-4">
+                                            <div class="facets-container">
+                                                <div class="fr-grid-row fr-grid-row--middle">
+                                                    <div class="fr-col">
+                                                        <h3>Filtrer les données</h3>
+                                                    </div>
+                                                    <div class="fr-col-auto">
+                                                        <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-filter-line" 
+                                                                ng-click="toggleAllAccordions()"
+                                                                title="Déplier/Replier tous les filtres">
+                                                            <span class="fr-sr-only">Tout déplier</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Recherche textuelle -->
+                                                <div class="fr-search-bar fr-mb-3w" role="search">
+                                                    <label class="fr-label" for="search-facets">
+                                                        Recherche textuelle
+                                                    </label>
+                                                    <input 
+                                                        class="fr-input" 
+                                                        type="search" 
+                                                        id="search-facets"
+                                                        ng-model="signalconso.parameters['q']"
+                                                        ng-model-options="{ debounce: 300 }"
+                                                        placeholder="Nom, ville, description..."
+                                                        aria-label="Rechercher dans les données">
+                                                    <button class="fr-btn" title="Rechercher" type="submit">
+                                                        Rechercher
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Facettes avec accordéons DSFR -->
+                                                <div class="fr-accordions-group">
+                                                    <ods-facets context="signalconso">
+                                                        <!-- Catégorie avec accordéon -->
+                                                        <section class="fr-accordion">
+                                                            <h3 class="fr-accordion__title">
+                                                                <button class="fr-accordion__btn" aria-expanded="true" aria-controls="accordion-category">
+                                                                    Par catégorie
+                                                                    <span class="fr-badge fr-badge--sm fr-badge--blue-france fr-ml-1w" ng-if="signalconso.parameters['refine.category']">
+                                                                        1
+                                                                    </span>
+                                                                </button>
+                                                            </h3>
+                                                            <div class="fr-collapse" id="accordion-category">
+                                                                <div class="fr-accordion__inner">
+                                                                    <ods-facet 
+                                                                        name="category"
+                                                                        disjunctive="true"
+                                                                        sort="count"
+                                                                        limit="8">
+                                                                    </ods-facet>
+                                                                </div>
+                                                            </div>
+                                                        </section>
+                                                        
+                                                        <!-- Région avec accordéon -->
+                                                        <section class="fr-accordion">
+                                                            <h3 class="fr-accordion__title">
+                                                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-region">
+                                                                    Par région
+                                                                    <span class="fr-badge fr-badge--sm fr-badge--blue-france fr-ml-1w" ng-if="signalconso.parameters['refine.reg_name']">
+                                                                        1
+                                                                    </span>
+                                                                </button>
+                                                            </h3>
+                                                            <div class="fr-collapse" id="accordion-region">
+                                                                <div class="fr-accordion__inner">
+                                                                    <ods-facet 
+                                                                        name="reg_name"
+                                                                        disjunctive="true"
+                                                                        sort="count"
+                                                                        limit="6">
+                                                                    </ods-facet>
+                                                                </div>
+                                                            </div>
+                                                        </section>
+                                                        
+                                                        <!-- Département avec accordéon -->
+                                                        <section class="fr-accordion">
+                                                            <h3 class="fr-accordion__title">
+                                                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-department">
+                                                                    Par département
+                                                                    <span class="fr-badge fr-badge--sm fr-badge--blue-france fr-ml-1w" ng-if="signalconso.parameters['refine.dep_name']">
+                                                                        1
+                                                                    </span>
+                                                                </button>
+                                                            </h3>
+                                                            <div class="fr-collapse" id="accordion-department">
+                                                                <div class="fr-accordion__inner">
+                                                                    <ods-facet 
+                                                                        name="dep_name"
+                                                                        disjunctive="true"
+                                                                        sort="count"
+                                                                        limit="10">
+                                                                    </ods-facet>
+                                                                </div>
+                                                            </div>
+                                                        </section>
+                                                        
+                                                        <!-- Statut avec accordéon -->
+                                                        <section class="fr-accordion">
+                                                            <h3 class="fr-accordion__title">
+                                                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-status">
+                                                                    Par statut
+                                                                    <span class="fr-badge fr-badge--sm fr-badge--blue-france fr-ml-1w" ng-if="signalconso.parameters['refine.status']">
+                                                                        1
+                                                                    </span>
+                                                                </button>
+                                                            </h3>
+                                                            <div class="fr-collapse" id="accordion-status">
+                                                                <div class="fr-accordion__inner">
+                                                                    <ods-facet 
+                                                                        name="status"
+                                                                        disjunctive="true"
+                                                                        sort="count">
+                                                                    </ods-facet>
+                                                                </div>
+                                                            </div>
+                                                        </section>
+                                                        
+                                                        <!-- Année avec accordéon -->
+                                                        <section class="fr-accordion">
+                                                            <h3 class="fr-accordion__title">
+                                                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-year">
+                                                                    Par année
+                                                                    <span class="fr-badge fr-badge--sm fr-badge--blue-france fr-ml-1w" ng-if="signalconso.parameters['refine.creationdate']">
+                                                                        1
+                                                                    </span>
+                                                                </button>
+                                                            </h3>
+                                                            <div class="fr-collapse" id="accordion-year">
+                                                                <div class="fr-accordion__inner">
+                                                                    <ods-facet 
+                                                                        name="creationdate"
+                                                                        disjunctive="true"
+                                                                        sort="-alphanum"
+                                                                        date-format="year">
+                                                                    </ods-facet>
+                                                                </div>
+                                                            </div>
+                                                        </section>
+                                                    </ods-facets>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Résultats filtrés -->
+                                        <div class="fr-col-12 fr-col-lg-8">
+                                            <div class="fr-card">
+                                                <div class="fr-card__body">
+                                                    <div class="fr-card__content">
+                                                        <h3 class="fr-card__title">Résultats filtrés</h3>
+                                                        <p class="fr-card__desc">
+                                                            <strong>{{signalconso.nhits | number}}</strong> signalements correspondent à vos critères
+                                                        </p>
+                                                        
+                                                        <!-- Tableau des résultats -->
+                                                        <div class="table-container">
+                                                            <ods-table 
+                                                                context="signalconso"
+                                                                displayed-fields="creationdate,category,subcategories,dep_name,reg_name,status"
+                                                                sort="-creationdate">
+                                                            </ods-table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statistiques de filtrage -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--blue-france">
+                                                <h3 class="fr-callout__title">Résultats</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.nhits | number }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--green-tilleul-verveine">
+                                                <h3 class="fr-callout__title">Filtres actifs</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold" ng-init="activeFilters = 0">
+                                                        <span ng-show="signalconso.parameters['refine.category']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.reg_name']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.dep_name']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.status']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['refine.creationdate']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        <span ng-show="signalconso.parameters['q']" ng-init="activeFilters = activeFilters + 1"></span>
+                                                        {{ (signalconso.parameters['refine.category'] ? 1 : 0) + 
+                                                           (signalconso.parameters['refine.reg_name'] ? 1 : 0) + 
+                                                           (signalconso.parameters['refine.dep_name'] ? 1 : 0) + 
+                                                           (signalconso.parameters['refine.status'] ? 1 : 0) +
+                                                           (signalconso.parameters['refine.creationdate'] ? 1 : 0) +
+                                                           (signalconso.parameters['q'] ? 1 : 0) }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--orange-terre-battue">
+                                                <h3 class="fr-callout__title">Données totales</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{ signalconso.dataset.metas.records_count | number }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-3">
+                                            <div class="fr-callout fr-callout--purple-glycine">
+                                                <h3 class="fr-callout__title">Dernière mise à jour</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--sm">
+                                                        {{ signalconso.dataset.metas.modified | date:'dd/MM/yyyy' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ods-dataset-context>
+                            </div>
+                            <!-- FIN ZONE WIDGET FACETS-BASIC-001 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de filtrage des données SignalConso par facettes. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal des paramètres d'affichage -->
+    <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                                Paramètres d'affichage
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+    
+    <!-- Script de traduction des termes anglais et gestion des accordéons -->
+    <script>
+        // Fonction pour gérer le dépliage/repliage de tous les accordéons
+        angular.module('ods-widgets').controller('FacetsController', ['$scope', function($scope) {
+            $scope.accordionsExpanded = false;
+            
+            $scope.toggleAllAccordions = function() {
+                $scope.accordionsExpanded = !$scope.accordionsExpanded;
+                var accordions = document.querySelectorAll('.fr-accordion__btn');
+                var collapses = document.querySelectorAll('.fr-accordion .fr-collapse');
+                
+                accordions.forEach(function(btn) {
+                    btn.setAttribute('aria-expanded', $scope.accordionsExpanded ? 'true' : 'false');
+                });
+                
+                collapses.forEach(function(collapse) {
+                    if ($scope.accordionsExpanded) {
+                        collapse.classList.add('fr-collapse--expanded');
+                    } else {
+                        collapse.classList.remove('fr-collapse--expanded');
+                    }
+                });
+            };
+        }]);
+        
+        // Fonction pour traduire les termes anglais en français
+        function translateODSTerms() {
+            // Traduire "Category" en "Catégorie"
+            document.querySelectorAll('.odswidget-facet__category-title').forEach(function(element) {
+                if (element.textContent === 'Category') {
+                    element.textContent = 'Catégorie';
+                }
+            });
+            
+            // Traduire "More" en "Plus"
+            document.querySelectorAll('.odswidget-facet__more-button, .odswidget-table__more-button').forEach(function(element) {
+                if (element.textContent.includes('More')) {
+                    element.textContent = element.textContent.replace('More', 'Plus');
+                }
+            });
+            
+            // Traduire les titres de colonnes du tableau
+            document.querySelectorAll('.odswidget-table th').forEach(function(element) {
+                const text = element.textContent.trim().toLowerCase();
+                switch(text) {
+                    case 'category':
+                        element.textContent = 'Catégorie';
+                        break;
+                    case 'creationdate':
+                    case 'creation date':
+                    case 'date':
+                        element.textContent = 'Date de création';
+                        break;
+                    case 'subcategories':
+                    case 'sub categories':
+                        element.textContent = 'Sous-catégories';
+                        break;
+                    case 'status':
+                        element.textContent = 'Statut';
+                        break;
+                    case 'reg_name':
+                    case 'region':
+                        element.textContent = 'Région';
+                        break;
+                    case 'dep_code':
+                    case 'dep_name':
+                    case 'dep name':
+                    case 'department':
+                        element.textContent = 'Département';
+                        break;
+                }
+            });
+            
+            // Traduire les boutons de pagination
+            document.querySelectorAll('.odswidget-table__pagination button').forEach(function(element) {
+                if (element.textContent.includes('Previous')) {
+                    element.textContent = element.textContent.replace('Previous', 'Précédent');
+                }
+                if (element.textContent.includes('Next')) {
+                    element.textContent = element.textContent.replace('Next', 'Suivant');
+                }
+            });
+        }
+        
+        // Observer les changements du DOM pour appliquer les traductions
+        const observer = new MutationObserver(function(mutations) {
+            translateODSTerms();
+        });
+        
+        // Démarrer l'observation quand Angular est prêt
+        angular.element(document).ready(function() {
+            // Traduire au chargement initial
+            setTimeout(translateODSTerms, 1000);
+            
+            // Observer les changements futurs
+            const targetNode = document.getElementById('widget-facets-basic-001');
+            if (targetNode) {
+                observer.observe(targetNode, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        });
+    </script>
+</body>
+</html>

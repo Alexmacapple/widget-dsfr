@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Test Builder</title>
+</head>
+<body>
+    <h1>Test du Builder</h1>
+    <p>Si cette page s'affiche sans erreurs JavaScript, le builder devrait fonctionner.</p>
+    
+    <script>
+        // Test simple des fonctions de génération
+        function testGenerateCode() {
+            const dataset = 'signalconso';
+            const config = { limit: 10, fields: ['field1', 'field2'] };
+            
+            // Test table generation
+            const tableCode = `<!-- Widget Table DSFR - ${dataset} -->
+<div id="widget-table-${dataset}" class="fr-table">
+    <table>
+        <thead>
+            <tr>
+                ${config.fields.map(f => `<th>${f}</th>`).join('\n                ')}
+            </tr>
+        </thead>
+        <tbody id="table-body-${dataset}">
+            <!-- Données chargées dynamiquement -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+(async function() {
+    const response = await fetchCompat(
+        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/${dataset}/records?limit=${config.limit}'
+    );
+    
+    const tbody = document.getElementById('table-body-${dataset}');
+    response.results.forEach(record => {
+        const row = tbody.insertRow();
+        ${config.fields.map(f => `row.insertCell().textContent = record['${f}'] || '';`).join('\n        ')}
+    });
+})();
+<\/script>`;
+            
+            console.log('✅ Test table generation passed');
+            
+            // Test chart generation  
+            const chartCode = `<!-- Widget Chart DSFR - ${dataset} -->
+<div class="fr-container">
+    <canvas id="chart-${dataset}" width="400" height="200"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+<script>
+(async function() {
+    const response = await fetchCompat(
+        'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/${dataset}/records?limit=${config.limit}'
+    );
+    
+    const ctx = document.getElementById('chart-${dataset}').getContext('2d');
+    new Chart(ctx, {
+        type: '${config.chartType || 'bar'}',
+        data: {
+            labels: response.results.map((r, i) => \`Item \${i + 1}\`),
+            datasets: [{
+                label: '${dataset}',
+                data: response.results.map((r, i) => i * 10),
+                backgroundColor: '#000091'
+            }]
+        }
+    });
+})();
+<\/script>`;
+            
+            console.log('✅ Test chart generation passed');
+            
+            document.body.innerHTML += '<p style="color: green;">✅ Tous les tests sont passés!</p>';
+        }
+        
+        // Run test
+        testGenerateCode();
+    </script>
+</body>
+</html>

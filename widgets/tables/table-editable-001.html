@@ -183,6 +183,7 @@
             text-decoration: underline;
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -378,7 +379,7 @@
             document.getElementById('editable-table').style.opacity = '0.5';
             
             try {
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=20&sort=-creationdate');
+                const response = await fetchCompat('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=20&sort=-creationdate');
                 const json = await response.json();
                 
                 tableData = json.records.map((record, index) => {
@@ -937,5 +938,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table avec Export Multi-format - Widget DSFR</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/utility/icons/icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <style>
+        body {
+            font-family: 'Marianne', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5fe;
+        }
+        
+        .export-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .export-formats {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .format-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .format-csv { background: #e3f5ff; color: #0078f3; }
+        .format-excel { background: #d4f4dd; color: #18753c; }
+        .format-json { background: #fee9e7; color: #ce0500; }
+        .format-pdf { background: #feeaa7; color: #c9191e; }
+        .format-xml { background: #f5e8ff; color: #6e445a; }
+        
+        .export-preview {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 90%;
+            max-height: 80vh;
+            overflow: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .export-preview.active {
+            display: block;
+        }
+        
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e5e5;
+        }
+        
+        .preview-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow: auto;
+        }
+        
+        .export-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card {
+            padding: 0.75rem;
+            background: #f5f5fe;
+            border-radius: 0.25rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000091;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .export-history {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .export-history.active {
+            display: block;
+        }
+        
+        .history-header {
+            padding: 1rem;
+            background: #000091;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .history-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:hover {
+            background: #f5f5fe;
+        }
+        
+        .download-progress {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem;
+            display: none;
+        }
+        
+        .download-progress.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e5e5;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #000091;
+            transition: width 0.3s;
+        }
+        
+        .column-selector {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .column-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 0.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1rem;
+            display: none;
+            z-index: 100;
+            min-width: 250px;
+        }
+        
+        .column-dropdown.active {
+            display: block;
+        }
+        
+        .column-option {
+            padding: 0.25rem 0;
+        }
+        
+        /* Amélioration de l'espacement des checkboxes */
+        .fr-checkbox-group {
+            margin-bottom: 1rem !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .fr-checkbox-group label {
+            padding-left: 0.5rem;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+        
+        #accordion-options .fr-checkbox-group:last-child {
+            margin-bottom: 0 !important;
+        }
+        
+        #accordion-options .fr-grid-row {
+            padding: 1rem;
+        }
+        
+        /* Espacement spécifique pour le dropdown des colonnes */
+        .column-checkbox {
+            margin-bottom: 0.75rem !important;
+            padding: 0.25rem 0;
+        }
+        
+        .column-checkbox:last-child {
+            margin-bottom: 0 !important;
+        }
+        
+        .column-checkbox label {
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .column-checkbox input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        
+        .batch-export {
+            background: #fef4e8;
+            border: 1px solid #ff9940;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Tableau de données SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-table-export-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Table avec Export Multi-format - SignalConso</h2>
+                        <p class="fr-text--sm">Exportez les données dans différents formats avec options avancées</p>
+                        
+                        <!-- Statistiques d'export -->
+                        <div class="export-stats">
+                            <div class="stat-card">
+                                <div class="stat-value" id="total-rows">0</div>
+                                <div class="stat-label">Lignes total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="selected-rows">0</div>
+                                <div class="stat-label">Lignes sélectionnées</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="export-count">0</div>
+                                <div class="stat-label">Exports effectués</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="file-size">0 KB</div>
+                                <div class="stat-label">Taille estimée</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Toolbar d'export -->
+                        <div class="export-toolbar">
+                            <div class="export-formats">
+                                <button class="fr-btn fr-btn--icon-left fr-btn--sm" onclick="exportData('csv')">
+                                    <span class="fr-icon-file-text-line" aria-hidden="true"></span>
+                                    CSV
+                                    <span class="format-badge format-csv">Tableur</span>
+                                </button>
+                                <button class="fr-btn fr-btn--icon-left fr-btn--sm" onclick="exportData('excel')">
+                                    <span class="fr-icon-table-2" aria-hidden="true"></span>
+                                    Excel
+                                    <span class="format-badge format-excel">XLSX</span>
+                                </button>
+                                <button class="fr-btn fr-btn--icon-left fr-btn--sm" onclick="exportData('json')">
+                                    <span class="fr-icon-code-s-slash-line" aria-hidden="true"></span>
+                                    JSON
+                                    <span class="format-badge format-json">API</span>
+                                </button>
+                                <button class="fr-btn fr-btn--icon-left fr-btn--sm" onclick="exportData('pdf')">
+                                    <span class="fr-icon-file-pdf-line" aria-hidden="true"></span>
+                                    PDF
+                                    <span class="format-badge format-pdf">Document</span>
+                                </button>
+                                <button class="fr-btn fr-btn--icon-left fr-btn--sm" onclick="exportData('xml')">
+                                    <span class="fr-icon-code-line" aria-hidden="true"></span>
+                                    XML
+                                    <span class="format-badge format-xml">Données</span>
+                                </button>
+                            </div>
+                            
+                            <div class="export-options">
+                                <div class="column-selector">
+                                    <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-btn--sm" onclick="toggleColumnSelector()">
+                                        <span class="fr-icon-settings-5-line" aria-hidden="true"></span>
+                                        Colonnes
+                                    </button>
+                                    <div class="column-dropdown" id="column-dropdown">
+                                        <div class="fr-checkbox-group column-checkbox">
+                                            <input type="checkbox" id="col-id" checked>
+                                            <label for="col-id" class="fr-label">ID</label>
+                                        </div>
+                                        <div class="fr-checkbox-group column-checkbox">
+                                            <input type="checkbox" id="col-date" checked>
+                                            <label for="col-date" class="fr-label">Date</label>
+                                        </div>
+                                        <div class="fr-checkbox-group column-checkbox">
+                                            <input type="checkbox" id="col-company" checked>
+                                            <label for="col-company" class="fr-label">Entreprise</label>
+                                        </div>
+                                        <div class="fr-checkbox-group column-checkbox">
+                                            <input type="checkbox" id="col-category" checked>
+                                            <label for="col-category" class="fr-label">Catégorie</label>
+                                        </div>
+                                        <div class="fr-checkbox-group column-checkbox">
+                                            <input type="checkbox" id="col-status" checked>
+                                            <label for="col-status" class="fr-label">Statut</label>
+                                        </div>
+                                        <div class="fr-checkbox-group column-checkbox">
+                                            <input type="checkbox" id="col-region" checked>
+                                            <label for="col-region" class="fr-label">Région</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-btn--sm" onclick="togglePreview()">
+                                    <span class="fr-icon-eye-line" aria-hidden="true"></span>
+                                    Aperçu
+                                </button>
+                                
+                                <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-btn--sm" onclick="toggleHistory()">
+                                    <span class="fr-icon-time-line" aria-hidden="true"></span>
+                                    Historique
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Options d'export avancées -->
+                        <div class="fr-accordion">
+                            <h3 class="fr-accordion__title">
+                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-options">
+                                    Options d'export avancées
+                                </button>
+                            </h3>
+                            <div class="fr-collapse" id="accordion-options">
+                                <div class="fr-grid-row fr-grid-row--gutters">
+                                    <div class="fr-col-12 fr-col-md-6">
+                                        <div class="fr-checkbox-group fr-mb-2w">
+                                            <input type="checkbox" id="include-headers" checked>
+                                            <label for="include-headers" class="fr-label">Inclure les en-têtes</label>
+                                        </div>
+                                        <div class="fr-checkbox-group fr-mb-2w">
+                                            <input type="checkbox" id="include-metadata">
+                                            <label for="include-metadata" class="fr-label">Inclure les métadonnées</label>
+                                        </div>
+                                        <div class="fr-checkbox-group fr-mb-2w">
+                                            <input type="checkbox" id="compress-file">
+                                            <label for="compress-file" class="fr-label">Compresser le fichier (ZIP)</label>
+                                        </div>
+                                    </div>
+                                    <div class="fr-col-12 fr-col-md-6">
+                                        <div class="fr-select-group">
+                                            <label class="fr-label" for="encoding">Encodage</label>
+                                            <select class="fr-select" id="encoding">
+                                                <option value="UTF-8" selected>UTF-8</option>
+                                                <option value="ISO-8859-1">ISO-8859-1</option>
+                                                <option value="Windows-1252">Windows-1252</option>
+                                            </select>
+                                        </div>
+                                        <div class="fr-select-group">
+                                            <label class="fr-label" for="separator">Séparateur CSV</label>
+                                            <select class="fr-select" id="separator">
+                                                <option value="," selected>Virgule (,)</option>
+                                                <option value=";">Point-virgule (;)</option>
+                                                <option value="\t">Tabulation</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Export en masse -->
+                        <div class="batch-export">
+                            <h3 class="fr-h6">Export programmé</h3>
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-btn--sm" onclick="exportAllFormats()">
+                                        <span class="fr-icon-download-line" aria-hidden="true"></span>
+                                        Exporter dans tous les formats
+                                    </button>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-6">
+                                    <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-btn--sm" onclick="scheduleExport()">
+                                        <span class="fr-icon-calendar-line" aria-hidden="true"></span>
+                                        Programmer un export récurrent
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Table avec sélection -->
+                        <div class="fr-table fr-table--bordered fr-mt-3w">
+                            <div class="fr-table__wrapper">
+                                <div class="fr-table__container">
+                                    <div class="fr-table__content">
+                                        <table id="export-table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">
+                                                        <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                                                    </th>
+                                                    <th scope="col">ID</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Entreprise</th>
+                                                    <th scope="col">Catégorie</th>
+                                                    <th scope="col">Statut</th>
+                                                    <th scope="col">Région</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-body">
+                                                <!-- Les données seront chargées ici -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Info -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">Formats d'export disponibles</p>
+                            <ul>
+                                <li><strong>CSV</strong> : Compatible avec Excel, LibreOffice, Google Sheets</li>
+                                <li><strong>Excel</strong> : Format XLSX avec mise en forme</li>
+                                <li><strong>JSON</strong> : Pour intégration API et développement</li>
+                                <li><strong>PDF</strong> : Document formaté pour impression</li>
+                                <li><strong>XML</strong> : Format structuré pour échange de données</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview modal -->
+    <div class="export-preview" id="export-preview">
+        <div class="preview-header">
+            <h3 class="fr-h5">Aperçu de l'export <span id="preview-format"></span></h3>
+            <button class="fr-btn fr-btn--tertiary-no-outline fr-btn--icon-only fr-btn--sm" onclick="closePreview()" aria-label="Fermer">
+                <span class="fr-icon-close-line" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="preview-content" id="preview-content">
+            <!-- Le contenu de l'aperçu sera affiché ici -->
+        </div>
+        <div class="fr-btns-group fr-btns-group--right fr-mt-2w">
+            <button class="fr-btn fr-btn--secondary" onclick="closePreview()">Fermer</button>
+            <button class="fr-btn" onclick="confirmExport()">Télécharger</button>
+        </div>
+    </div>
+    
+    <!-- Historique des exports -->
+    <div class="export-history" id="export-history">
+        <div class="history-header">
+            <span class="fr-icon-time-line" aria-hidden="true"></span>
+            Historique des exports
+        </div>
+        <div id="history-list">
+            <!-- L'historique sera affiché ici -->
+        </div>
+    </div>
+    
+    <!-- Progress indicator -->
+    <div class="download-progress" id="download-progress">
+        <div class="fr-text--sm fr-text--bold">Export en cours...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="fr-text--xs fr-mt-1w" id="progress-text">0%</div>
+    </div>
+    <!-- FIN ZONE WIDGET TABLE-EXPORT-001 -->
+    
+    <script>
+        // État de l'application
+        let tableData = [];
+        let selectedRows = new Set();
+        let exportHistory = [];
+        let exportCount = 0;
+        let currentExportFormat = '';
+        let currentExportData = '';
+        
+        // Chargement des données depuis l'API SignalConso
+        async function loadData() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=50&sort=-creationdate');
+                const json = await response.json();
+                
+                tableData = json.records.map((record, index) => {
+                    const fields = record.fields;
+                    const date = new Date(fields.creationdate);
+                    
+                    return {
+                        id: `SIG-${date.getFullYear()}-${String(index + 1).padStart(4, '0')}`,
+                        date: date.toLocaleDateString('fr-FR'),
+                        company: fields.companyname || 'Non renseigné',
+                        category: fields.category || 'Non catégorisé',
+                        status: fields.status || 'En attente',
+                        region: fields.companyregion || 'Non renseigné',
+                        department: fields.companydepartment || '',
+                        problem: fields.problem || '',
+                        siret: fields.companysiret || ''
+                    };
+                });
+                
+                renderTable();
+                updateStats();
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            }
+        }
+        
+        // Rendu de la table
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            tableData.forEach((row, index) => {
+                const tr = tbody.insertRow();
+                tr.dataset.rowId = row.id;
+                
+                // Checkbox
+                tr.insertCell(0).innerHTML = `<input type="checkbox" data-row-id="${row.id}" onchange="toggleRowSelection('${row.id}')">`;
+                
+                // Données
+                tr.insertCell(1).textContent = row.id;
+                tr.insertCell(2).textContent = row.date;
+                tr.insertCell(3).textContent = row.company;
+                tr.insertCell(4).textContent = row.category;
+                
+                // Statut avec badge
+                const cellStatus = tr.insertCell(5);
+                const badge = document.createElement('span');
+                badge.className = `fr-badge fr-badge--${getStatusColor(row.status)}`;
+                badge.textContent = row.status;
+                cellStatus.appendChild(badge);
+                
+                tr.insertCell(6).textContent = row.region;
+            });
+            
+            document.getElementById('total-rows').textContent = tableData.length;
+        }
+        
+        // Couleur du badge de statut
+        function getStatusColor(status) {
+            const colors = {
+                'Transmis': 'info',
+                'PromesseAction': 'success',
+                'Infonde': 'error',
+                'NonConsulte': 'warning'
+            };
+            return colors[status] || 'grey';
+        }
+        
+        // Sélection de lignes
+        function toggleRowSelection(rowId) {
+            const checkbox = document.querySelector(`input[data-row-id="${rowId}"]`);
+            
+            if (checkbox.checked) {
+                selectedRows.add(rowId);
+            } else {
+                selectedRows.delete(rowId);
+            }
+            
+            updateStats();
+        }
+        
+        // Sélectionner tout
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+                const rowId = cb.dataset.rowId;
+                if (selectAll.checked) {
+                    selectedRows.add(rowId);
+                } else {
+                    selectedRows.delete(rowId);
+                }
+            });
+            
+            updateStats();
+        }
+        
+        // Mettre à jour les statistiques
+        function updateStats() {
+            document.getElementById('selected-rows').textContent = selectedRows.size;
+            document.getElementById('export-count').textContent = exportCount;
+            
+            // Estimer la taille du fichier
+            const dataToExport = getDataToExport();
+            const jsonSize = JSON.stringify(dataToExport).length;
+            const sizeKB = Math.round(jsonSize / 1024);
+            document.getElementById('file-size').textContent = sizeKB + ' KB';
+        }
+        
+        // Obtenir les données à exporter
+        function getDataToExport() {
+            const dataToExport = selectedRows.size > 0 
+                ? tableData.filter(row => selectedRows.has(row.id))
+                : tableData;
+            
+            // Filtrer les colonnes selon la sélection
+            const columns = {
+                id: document.getElementById('col-id').checked,
+                date: document.getElementById('col-date').checked,
+                company: document.getElementById('col-company').checked,
+                category: document.getElementById('col-category').checked,
+                status: document.getElementById('col-status').checked,
+                region: document.getElementById('col-region').checked
+            };
+            
+            return dataToExport.map(row => {
+                const filteredRow = {};
+                if (columns.id) filteredRow.id = row.id;
+                if (columns.date) filteredRow.date = row.date;
+                if (columns.company) filteredRow.company = row.company;
+                if (columns.category) filteredRow.category = row.category;
+                if (columns.status) filteredRow.status = row.status;
+                if (columns.region) filteredRow.region = row.region;
+                return filteredRow;
+            });
+        }
+        
+        // Export des données
+        function exportData(format) {
+            currentExportFormat = format;
+            const data = getDataToExport();
+            
+            if (data.length === 0) {
+                alert('Aucune donnée à exporter');
+                return;
+            }
+            
+            showProgress();
+            
+            setTimeout(() => {
+                let exportContent = '';
+                let filename = `signalconso_export_${new Date().toISOString().slice(0,10)}`;
+                
+                switch(format) {
+                    case 'csv':
+                        exportContent = exportToCSV(data);
+                        filename += '.csv';
+                        downloadFile(exportContent, filename, 'text/csv;charset=utf-8');
+                        break;
+                        
+                    case 'excel':
+                        exportToExcel(data, filename);
+                        break;
+                        
+                    case 'json':
+                        exportContent = exportToJSON(data);
+                        filename += '.json';
+                        downloadFile(exportContent, filename, 'application/json');
+                        break;
+                        
+                    case 'pdf':
+                        exportToPDF(data, filename);
+                        break;
+                        
+                    case 'xml':
+                        exportContent = exportToXML(data);
+                        filename += '.xml';
+                        downloadFile(exportContent, filename, 'text/xml');
+                        break;
+                }
+                
+                // Ajouter à l'historique
+                exportHistory.push({
+                    format: format,
+                    filename: filename,
+                    rows: data.length,
+                    timestamp: new Date()
+                });
+                
+                exportCount++;
+                updateStats();
+                updateHistory();
+                hideProgress();
+                
+                // Notification
+                showNotification(`Export ${format.toUpperCase()} réussi : ${data.length} lignes`);
+            }, 1000);
+        }
+        
+        // Export CSV
+        function exportToCSV(data) {
+            const separator = document.getElementById('separator').value;
+            const includeHeaders = document.getElementById('include-headers').checked;
+            
+            let csv = '';
+            
+            if (includeHeaders && data.length > 0) {
+                csv = Object.keys(data[0]).join(separator) + '\n';
+            }
+            
+            data.forEach(row => {
+                csv += Object.values(row).map(val => 
+                    typeof val === 'string' && val.includes(separator) 
+                        ? `"${val}"` 
+                        : val
+                ).join(separator) + '\n';
+            });
+            
+            return csv;
+        }
+        
+        // Export Excel
+        function exportToExcel(data, filename) {
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "SignalConso");
+            
+            // Styling
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const address = XLSX.utils.encode_col(C) + "1";
+                if (!ws[address]) continue;
+                ws[address].s = {
+                    font: { bold: true },
+                    fill: { fgColor: { rgb: "000091" } },
+                    alignment: { horizontal: "center" }
+                };
+            }
+            
+            XLSX.writeFile(wb, filename + '.xlsx');
+        }
+        
+        // Export JSON
+        function exportToJSON(data) {
+            const includeMetadata = document.getElementById('include-metadata').checked;
+            
+            const exportObj = includeMetadata ? {
+                metadata: {
+                    source: 'SignalConso API',
+                    exportDate: new Date().toISOString(),
+                    totalRows: data.length,
+                    columns: Object.keys(data[0] || {})
+                },
+                data: data
+            } : data;
+            
+            return JSON.stringify(exportObj, null, 2);
+        }
+        
+        // Export PDF
+        function exportToPDF(data, filename) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Titre
+            doc.setFontSize(16);
+            doc.text('Export SignalConso', 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 14, 25);
+            doc.text(`Nombre de lignes: ${data.length}`, 14, 30);
+            
+            // Table
+            const headers = Object.keys(data[0] || {});
+            const rows = data.map(row => Object.values(row));
+            
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 35,
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [0, 0, 145] }
+            });
+            
+            doc.save(filename + '.pdf');
+        }
+        
+        // Export XML
+        function exportToXML(data) {
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+            xml += '<signalconso>\n';
+            xml += `  <metadata>\n`;
+            xml += `    <exportDate>${new Date().toISOString()}</exportDate>\n`;
+            xml += `    <totalRows>${data.length}</totalRows>\n`;
+            xml += `  </metadata>\n`;
+            xml += '  <records>\n';
+            
+            data.forEach(row => {
+                xml += '    <record>\n';
+                Object.entries(row).forEach(([key, value]) => {
+                    xml += `      <${key}>${value}</${key}>\n`;
+                });
+                xml += '    </record>\n';
+            });
+            
+            xml += '  </records>\n';
+            xml += '</signalconso>';
+            
+            return xml;
+        }
+        
+        // Télécharger le fichier
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Exporter dans tous les formats
+        function exportAllFormats() {
+            const formats = ['csv', 'excel', 'json', 'pdf', 'xml'];
+            let index = 0;
+            
+            const exportNext = () => {
+                if (index < formats.length) {
+                    exportData(formats[index]);
+                    index++;
+                    setTimeout(exportNext, 2000);
+                }
+            };
+            
+            exportNext();
+        }
+        
+        // Programmer un export
+        function scheduleExport() {
+            alert('Fonctionnalité de programmation d\'export à venir');
+        }
+        
+        // Afficher/masquer l'aperçu
+        function togglePreview() {
+            const preview = document.getElementById('export-preview');
+            if (preview.classList.contains('active')) {
+                closePreview();
+            } else {
+                showPreview();
+            }
+        }
+        
+        // Afficher l'aperçu
+        function showPreview() {
+            const data = getDataToExport();
+            const preview = document.getElementById('export-preview');
+            const content = document.getElementById('preview-content');
+            
+            // Afficher les 5 premières lignes en JSON
+            const previewData = data.slice(0, 5);
+            content.textContent = JSON.stringify(previewData, null, 2);
+            
+            preview.classList.add('active');
+        }
+        
+        // Fermer l'aperçu
+        function closePreview() {
+            document.getElementById('export-preview').classList.remove('active');
+        }
+        
+        // Confirmer l'export depuis l'aperçu
+        function confirmExport() {
+            exportData('json');
+            closePreview();
+        }
+        
+        // Toggle sélecteur de colonnes
+        function toggleColumnSelector() {
+            const dropdown = document.getElementById('column-dropdown');
+            dropdown.classList.toggle('active');
+        }
+        
+        // Toggle historique
+        function toggleHistory() {
+            const history = document.getElementById('export-history');
+            history.classList.toggle('active');
+        }
+        
+        // Mettre à jour l'historique
+        function updateHistory() {
+            const historyList = document.getElementById('history-list');
+            
+            if (exportHistory.length === 0) {
+                historyList.innerHTML = '<div class="history-item">Aucun export</div>';
+                return;
+            }
+            
+            historyList.innerHTML = exportHistory.slice(-10).reverse().map(item => `
+                <div class="history-item">
+                    <div>
+                        <div class="fr-text--sm fr-text--bold">${item.format.toUpperCase()}</div>
+                        <div class="fr-text--xs">${item.rows} lignes</div>
+                        <div class="fr-text--xs">${item.timestamp.toLocaleTimeString('fr-FR')}</div>
+                    </div>
+                    <span class="format-badge format-${item.format}">${item.format}</span>
+                </div>
+            `).join('');
+        }
+        
+        // Afficher la progression
+        function showProgress() {
+            const progress = document.getElementById('download-progress');
+            const fill = document.getElementById('progress-fill');
+            const text = document.getElementById('progress-text');
+            
+            progress.classList.add('active');
+            
+            let percent = 0;
+            const interval = setInterval(() => {
+                percent += 10;
+                fill.style.width = percent + '%';
+                text.textContent = percent + '%';
+                
+                if (percent >= 100) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+        
+        // Masquer la progression
+        function hideProgress() {
+            setTimeout(() => {
+                const progress = document.getElementById('download-progress');
+                progress.classList.remove('active');
+                document.getElementById('progress-fill').style.width = '0%';
+                document.getElementById('progress-text').textContent = '0%';
+            }, 500);
+        }
+        
+        // Notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fr-alert fr-alert--success';
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `<p>${message}</p>`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Fermer les dropdowns en cliquant ailleurs
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.column-selector')) {
+                document.getElementById('column-dropdown').classList.remove('active');
+            }
+        });
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Tableau de données SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

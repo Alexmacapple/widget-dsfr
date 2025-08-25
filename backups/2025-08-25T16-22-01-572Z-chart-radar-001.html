@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique radar DSFR - Analyse multicritères des performances SignalConso">
+    <title>Graphique radar DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { position: relative; height: 450px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        /* Caption DSFR en dehors du tableau */
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+            border-left: 3px solid var(--border-plain-blue-france, #000091);
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .export-buttons { margin-top: 1rem; }
+        .legend-custom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .legend-color {
+            width: 20px;
+            height: 12px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphique de visualisation SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-chart-radar-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Analyse multicritères des performances par région</h2>
+                        <p class="fr-text--sm">Comparaison des indicateurs de performance du service SignalConso</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="period-select">Période</label>
+                                        <select class="fr-select" id="period-select" onchange="updatePeriod()">
+                                            <option value="current">Mois en cours</option>
+                                            <option value="previous">Mois précédent</option>
+                                            <option value="quarter">Trimestre</option>
+                                            <option value="year">Année</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-checkbox-group">
+                                        <input type="checkbox" id="compare-mode" onchange="toggleCompareMode()">
+                                        <label class="fr-label" for="compare-mode">
+                                            Mode comparaison
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-checkbox-group">
+                                        <input type="checkbox" id="show-values" checked onchange="toggleValues()">
+                                        <label class="fr-label" for="show-values">
+                                            Afficher les valeurs
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sélection des régions (mode comparaison) -->
+                        <div id="region-selector" style="display: none;" class="fr-mb-2w">
+                            <fieldset class="fr-fieldset">
+                                <legend class="fr-fieldset__legend fr-text--regular">
+                                    Sélectionner les régions à comparer (max 3)
+                                </legend>
+                                <div class="fr-fieldset__content">
+                                    <div class="fr-grid-row fr-grid-row--gutters">
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="region-idf" value="Île-de-France" onchange="updateRegions()">
+                                                <label class="fr-label" for="region-idf">Île-de-France</label>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="region-aura" value="Auvergne-Rhône-Alpes" onchange="updateRegions()">
+                                                <label class="fr-label" for="region-aura">Auvergne-Rhône-Alpes</label>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="region-paca" value="PACA" onchange="updateRegions()">
+                                                <label class="fr-label" for="region-paca">PACA</label>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="region-occ" value="Occitanie" onchange="updateRegions()">
+                                                <label class="fr-label" for="region-occ">Occitanie</label>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="region-na" value="Nouvelle-Aquitaine" onchange="updateRegions()">
+                                                <label class="fr-label" for="region-na">Nouvelle-Aquitaine</label>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-4">
+                                            <div class="fr-checkbox-group">
+                                                <input type="checkbox" id="region-bzh" value="Bretagne" onchange="updateRegions()">
+                                                <label class="fr-label" for="region-bzh">Bretagne</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="radarChart" role="img" aria-label="Graphique radar montrant l'analyse multicritères"></canvas>
+                        </div>
+                        
+                        <!-- Légende personnalisée -->
+                        <div class="legend-custom" id="custom-legend"></div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportchartaspng-btn">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="exportdataascsv-btn">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="togglefullscreen-btn">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="fr-mt-3w">
+                            <div class="fr-toggle">
+                                <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                <label class="fr-toggle__label" for="toggle-table">
+                                    Afficher le tableau de données
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Analyse multicritères</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                <thead>
+                                    <tr id="table-header">
+                                        <th scope="col">Critère</th>
+                                        <th scope="col">Valeur</th>
+                                        <th scope="col">Score (/100)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Les données seront insérées ici -->
+                                </tbody>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Explication des critères -->
+                        <div class="fr-accordion fr-mt-3w">
+                            <h3 class="fr-accordion__title">
+                                <button class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-criteria">
+                                    Définition des critères d'évaluation
+                                </button>
+                            </h3>
+                            <div class="fr-collapse" id="accordion-criteria">
+                                <dl class="fr-mt-2w">
+                                    <dt class="fr-text--bold">Temps de traitement</dt>
+                                    <dd class="fr-mb-2w">Délai moyen de résolution des signalements (objectif : < 15 jours)</dd>
+                                    
+                                    <dt class="fr-text--bold">Taux de résolution</dt>
+                                    <dd class="fr-mb-2w">Pourcentage de signalements résolus avec succès (objectif : > 80%)</dd>
+                                    
+                                    <dt class="fr-text--bold">Satisfaction client</dt>
+                                    <dd class="fr-mb-2w">Note moyenne donnée par les consommateurs (objectif : > 4/5)</dd>
+                                    
+                                    <dt class="fr-text--bold">Réactivité</dt>
+                                    <dd class="fr-mb-2w">Temps de première réponse aux signalements (objectif : < 48h)</dd>
+                                    
+                                    <dt class="fr-text--bold">Qualité de réponse</dt>
+                                    <dd class="fr-mb-2w">Évaluation de la pertinence et complétude des réponses</dd>
+                                    
+                                    <dt class="fr-text--bold">Taux de conformité</dt>
+                                    <dd class="fr-mb-2w">Respect des procédures et de la réglementation</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de ces données</p>
+                            <p>Le graphique radar permet de visualiser simultanément plusieurs indicateurs de performance. 
+                            Chaque axe représente un critère différent, noté de 0 à 100. Plus la surface couverte est grande, 
+                            meilleure est la performance globale.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-RADAR-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            primary: '#000091',
+            primaryLight: '#6A6AF4',
+            success: '#18753C',
+            error: '#CE0500',
+            warning: '#B34000',
+            info: '#0063CB',
+            grey: '#666666'
+        };
+        
+        // Couleurs pour les différentes régions
+        const regionColors = [
+            { bg: dsfrColors.primary + '40', border: dsfrColors.primary },
+            { bg: dsfrColors.success + '40', border: dsfrColors.success },
+            { bg: dsfrColors.error + '40', border: dsfrColors.error },
+            { bg: dsfrColors.warning + '40', border: dsfrColors.warning },
+            { bg: dsfrColors.info + '40', border: dsfrColors.info }
+        ];
+        
+        // Labels des axes
+        const criteriaLabels = [
+            'Temps de traitement',
+            'Taux de résolution',
+            'Satisfaction client',
+            'Réactivité',
+            'Qualité de réponse',
+            'Taux de conformité'
+        ];
+        
+        // Génération de données
+        function generateRadarData(label = 'Performance globale') {
+            return {
+                label: label,
+                data: criteriaLabels.map(() => 60 + Math.random() * 35)
+            };
+        }
+        
+        // Configuration initiale du graphique
+        const config = {
+            type: 'radar',
+            data: {
+                labels: criteriaLabels,
+                datasets: [{
+                    label: 'Performance globale',
+                    data: generateRadarData().data,
+                    backgroundColor: regionColors[0].bg,
+                    borderColor: regionColors[0].border,
+                    borderWidth: 2,
+                    pointBackgroundColor: regionColors[0].border,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: regionColors[0].border,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + 
+                                       context.parsed.r.toFixed(1) + '/100';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            color: dsfrColors.grey,
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        pointLabels: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    line: {
+                        tension: 0.2
+                    }
+                }
+            }
+        };
+        
+        // Initialisation du graphique
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        const myChart = new Chart(ctx, config);
+        
+        // Mise à jour de la période
+        function updatePeriod() {
+            const period = document.getElementById('period-select').value;
+            
+            // Simulation de données différentes selon la période
+            myChart.data.datasets.forEach(dataset => {
+                dataset.data = generateRadarData().data;
+            });
+            
+            myChart.update();
+            updateDataTable();
+        }
+        
+        // Mode comparaison
+        function toggleCompareMode() {
+            const isCompareMode = document.getElementById('compare-mode').checked;
+            const regionSelector = document.getElementById('region-selector');
+            
+            if (isCompareMode) {
+                regionSelector.style.display = 'block';
+                // Réinitialiser avec les premières régions sélectionnées
+                document.getElementById('region-idf').checked = true;
+                document.getElementById('region-aura').checked = true;
+                updateRegions();
+            } else {
+                regionSelector.style.display = 'none';
+                // Revenir au mode simple
+                myChart.data.datasets = [{
+                    label: 'Performance globale',
+                    data: generateRadarData().data,
+                    backgroundColor: regionColors[0].bg,
+                    borderColor: regionColors[0].border,
+                    borderWidth: 2,
+                    pointBackgroundColor: regionColors[0].border,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: regionColors[0].border,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }];
+                myChart.update();
+                updateLegend();
+                updateDataTable();
+            }
+        }
+        
+        // Mise à jour des régions sélectionnées
+        function updateRegions() {
+            const checkboxes = document.querySelectorAll('#region-selector input[type="checkbox"]:checked');
+            
+            // Limiter à 3 régions
+            if (checkboxes.length > 3) {
+                event.target.checked = false;
+                alert('Vous pouvez sélectionner au maximum 3 régions');
+                return;
+            }
+            
+            // Créer les datasets pour les régions sélectionnées
+            const datasets = [];
+            checkboxes.forEach((checkbox, index) => {
+                const data = generateRadarData(checkbox.value);
+                datasets.push({
+                    label: checkbox.value,
+                    data: data.data,
+                    backgroundColor: regionColors[index].bg,
+                    borderColor: regionColors[index].border,
+                    borderWidth: 2,
+                    pointBackgroundColor: regionColors[index].border,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: regionColors[index].border,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                });
+            });
+            
+            myChart.data.datasets = datasets;
+            myChart.update();
+            updateLegend();
+            updateDataTable();
+        }
+        
+        // Toggle affichage des valeurs
+        function toggleValues() {
+            const showValues = document.getElementById('show-values').checked;
+            myChart.options.scales.r.pointLabels.display = showValues;
+            myChart.update();
+        }
+        
+        // Mise à jour de la légende personnalisée
+        function updateLegend() {
+            const legendContainer = document.getElementById('custom-legend');
+            legendContainer.innerHTML = '';
+            
+            myChart.data.datasets.forEach((dataset, index) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <span class="legend-color" style="background-color: ${dataset.borderColor}"></span>
+                    <span>${dataset.label}</span>
+                `;
+                legendContainer.appendChild(item);
+            });
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            const tableHeader = document.getElementById('table-header');
+            tableBody.innerHTML = '';
+            
+            // Mise à jour de l'en-tête selon le mode
+            const isCompareMode = document.getElementById('compare-mode').checked;
+            if (isCompareMode) {
+                let headerHTML = '<th scope="col">Critère</th>';
+                myChart.data.datasets.forEach(dataset => {
+                    headerHTML += `<th scope="col">${dataset.label}</th>`;
+                });
+                tableHeader.innerHTML = headerHTML;
+            } else {
+                tableHeader.innerHTML = '<th scope="col">Critère</th><th scope="col">Score</th><th scope="col">Statut</th>';
+            }
+            
+            // Remplissage des données
+            criteriaLabels.forEach((label, index) => {
+                const row = tableBody.insertRow();
+                const cellCriteria = row.insertCell(0);
+                cellCriteria.textContent = label;
+                
+                if (isCompareMode) {
+                    myChart.data.datasets.forEach(dataset => {
+                        const cell = row.insertCell();
+                        const value = dataset.data[index];
+                        cell.textContent = value.toFixed(1) + '/100';
+                        cell.style.color = value >= 80 ? dsfrColors.success : 
+                                          value >= 60 ? dsfrColors.warning : dsfrColors.error;
+                    });
+                } else {
+                    const value = myChart.data.datasets[0].data[index];
+                    const cellValue = row.insertCell(1);
+                    cellValue.textContent = value.toFixed(1) + '/100';
+                    
+                    const cellStatus = row.insertCell(2);
+                    if (value >= 80) {
+                        cellStatus.innerHTML = '<span style="color: ' + dsfrColors.success + '"> Excellent</span>';
+                    } else if (value >= 60) {
+                        cellStatus.innerHTML = '<span style="color: ' + dsfrColors.warning + '">→ Correct</span>';
+                    } else {
+                        cellStatus.innerHTML = '<span style="color: ' + dsfrColors.error + '">! À améliorer</span>';
+                    }
+                }
+            });
+        }
+        
+        // Toggle du tableau de données
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'radar-performance.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Critère';
+            
+            // En-têtes
+            myChart.data.datasets.forEach(dataset => {
+                csv += ',' + dataset.label;
+            });
+            csv += '\n';
+            
+            // Données
+            criteriaLabels.forEach((label, index) => {
+                csv += '"' + label + '"';
+                myChart.data.datasets.forEach(dataset => {
+                    csv += ',' + dataset.data[index].toFixed(1);
+                });
+                csv += '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'radar-performance.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-radar-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Initialisation
+        updateLegend();
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+    
+        // Chargement des données depuis l'API
+        async function loadDataFromAPI() {
+            try {
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000&facet=categoriedeprobleme&facet=statut');
+                const data = await response.json();
+                
+                
+                // Analyser différents indicateurs
+                const indicators = {
+                    'Commerce': 0,
+                    'Services': 0,
+                    'Transport': 0,
+                    'Santé': 0,
+                    'Tourisme': 0,
+                    'Alimentation': 0
+                };
+                
+                data.records.forEach(record => {
+                    const cat = record.fields.categoriedeprobleme || '';
+                    if (cat.includes('commerce')) indicators['Commerce']++;
+                    if (cat.includes('service')) indicators['Services']++;
+                    if (cat.includes('transport')) indicators['Transport']++;
+                    if (cat.includes('santé')) indicators['Santé']++;
+                    if (cat.includes('tourisme')) indicators['Tourisme']++;
+                    if (cat.includes('alimentation')) indicators['Alimentation']++;
+                });
+                
+                const labels = Object.keys(indicators);
+                const values = Object.values(indicators);
+                const maxValue = Math.max(...values);
+                const normalizedValues = values.map(v => (v / maxValue) * 100);
+                
+                // Mettre à jour le graphique
+                updateChart(labels, values);
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Utiliser des données de démonstration en cas d'erreur
+                useDefaultData();
+            }
+        }
+        
+        // Initialisation au chargement
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            const buttons = document.querySelectorAll('button[id$="-btn"]');
+            buttons.forEach(btn => {
+                const funcName = btn.id.replace('-btn', '').replace(/-/g, '_');
+                if (window[funcName]) {
+                    btn.addEventListener('click', window[funcName]);
+                }
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Graphique de visualisation SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

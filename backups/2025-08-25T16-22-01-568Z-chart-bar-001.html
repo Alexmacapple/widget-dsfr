@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique en barres DSFR - Comparaison des données SignalConso par région">
+    <title>Graphique en barres DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        /* Caption DSFR positionné correctement */
+        .fr-table__caption {
+            padding: 1rem;
+            margin: 0 0 1rem 0;
+            background-color: #f6f6f6;
+            color: #161616;
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            border-bottom: 3px solid #000091;
+        }
+        /* Structure DSFR pour tableaux */
+        .fr-table {
+            width: 100%;
+            background: white;
+        }
+        .fr-table__wrapper {
+            position: relative;
+            overflow-x: auto;
+            width: 100%;
+        }
+        .fr-table__container {
+            min-width: 100%;
+        }
+        .fr-table__content {
+            display: block;
+            width: 100%;
+        }
+        .fr-table__content table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+            background: white;
+        }
+        .fr-table__content th,
+        .fr-table__content td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+        }
+        .fr-table__content thead {
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        .fr-table__content thead th {
+            font-weight: 700;
+            color: #161616;
+            color: var(--text-title-grey, #161616);
+        }
+        .fr-table__content tbody tr:hover {
+            background-color: #e5e5e5;
+            background-color: var(--background-contrast-grey-hover, #e5e5e5);
+        }
+        .fr-table__content tbody tr:nth-child(even) {
+            background-color: #fafafa;
+            background-color: var(--background-alt-grey, #fafafa);
+        }
+        /* Classe DSFR pour bordures */
+        .fr-table--bordered .fr-table__content table,
+        .fr-table--bordered .fr-table__content th,
+        .fr-table--bordered .fr-table__content td {
+            border: 1px solid #dddddd;
+            border: 1px solid var(--border-default-grey, #dddddd);
+        }
+        /* Suppression du scroll si non nécessaire */
+        .fr-table__wrapper--no-scroll {
+            overflow-x: visible;
+        }
+        .data-table table {
+            width: 100%;
+            table-layout: auto;
+            border-collapse: collapse;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .data-table thead {
+            background-color: #f6f6f6;
+            background-color: var(--background-contrast-grey, #f6f6f6);
+        }
+        .data-table tbody tr:hover {
+            background-color: #e5e5e5;
+            background-color: var(--background-contrast-grey-hover, #e5e5e5);
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 500px; } /* Plus haut en mobile pour les labels */
+        }
+        .export-buttons { margin-top: 1rem; }
+        .stats-cards { margin-top: 2rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphique de visualisation SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-chart-bar-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Répartition des signalements par région</h2>
+                        <p class="fr-text--sm">Comparaison du nombre de signalements entre les régions françaises</p>
+                        
+                        <!-- Contrôles du graphique -->
+                        <div class="chart-controls">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="chart-type">Type de graphique</label>
+                                        <select class="fr-select" id="chart-type" onchange="changeChartType()">
+                                            <option value="bar">Barres verticales</option>
+                                            <option value="horizontalBar">Barres horizontales</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-select-group">
+                                        <label class="fr-label" for="sort-select">Tri</label>
+                                        <select class="fr-select" id="sort-select" onchange="sortData()">
+                                            <option value="alpha">Alphabétique</option>
+                                            <option value="asc">Croissant</option>
+                                            <option value="desc">Décroissant</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table" onchange="toggleDataTable()">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="barChart" role="img" aria-label="Graphique en barres montrant la répartition par région"></canvas>
+                        </div>
+                        
+                        <!-- Statistiques rapides -->
+                        <div class="stats-cards">
+                            <div class="fr-grid-row fr-grid-row--gutters">
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-callout">
+                                        <p class="fr-callout__title">Région la plus active</p>
+                                        <p class="fr-callout__text" id="max-region">-</p>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-callout">
+                                        <p class="fr-callout__title">Moyenne nationale</p>
+                                        <p class="fr-callout__text" id="average">-</p>
+                                    </div>
+                                </div>
+                                <div class="fr-col-12 fr-col-md-4">
+                                    <div class="fr-callout">
+                                        <p class="fr-callout__title">Total signalements</p>
+                                        <p class="fr-callout__text" id="total">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-png">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
+                                Exporter les données (CSV)
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="toggle-fullscreen">
+                                Plein écran
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Répartition par région</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Région</th>
+                                    <th scope="col">Nombre de signalements</th>
+                                    <th scope="col">Pourcentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Les données seront insérées ici -->
+                            </tbody>
+                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        
+                        <!-- Légende et informations -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p class="fr-alert__title">À propos de ces données</p>
+                            <p>Répartition géographique des signalements SignalConso par région. 
+                            Les données sont récupérées en temps réel depuis l'API officielle data.economie.gouv.fr.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-BAR-001 -->
+    
+    <script>
+        // Configuration des couleurs DSFR
+        const dsfrColors = {
+            primary: '#000091',
+            primaryLight: '#6A6AF4',
+            success: '#18753C',
+            successLight: '#27A658',
+            error: '#CE0500',
+            warning: '#B34000',
+            info: '#0063CB',
+            grey: '#666666',
+            palette: [
+                '#000091', '#18753C', '#CE0500', '#B34000', '#0063CB',
+                '#6A6AF4', '#27A658', '#E94539', '#FC5D00', '#0088CE',
+                '#313178', '#2DB783', '#F95C5E', '#FF7638', '#00A9CE'
+            ]
+        };
+        
+        // Variables globales pour les données
+        let chartLabels = [];
+        let chartValues = [];
+        let originalLabels = [];
+        let originalValues = [];
+        let myChart = null;
+        
+        // Chargement des données depuis l'API SignalConso
+        async function loadDataFromAPI() {
+            try {
+                // Afficher un indicateur de chargement
+                document.getElementById('barChart').style.opacity = '0.5';
+                
+                // Récupérer les données depuis l'API avec les facettes de région
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=0&facet=reg_name');
+                const data = await response.json();
+                
+                // Agréger les données par région
+                const regionData = {};
+                
+                // Utiliser les facettes pour obtenir le compte par région
+                if (data.facet_groups && data.facet_groups.length > 0) {
+                    const regionFacet = data.facet_groups.find(fg => fg.name === 'reg_name');
+                    if (regionFacet && regionFacet.facets) {
+                        regionFacet.facets.forEach(facet => {
+                            if (facet.name && facet.count > 0) {
+                                regionData[facet.name] = facet.count;
+                            }
+                        });
+                    }
+                }
+                
+                // Si aucune donnée de facette, récupérer quelques enregistrements pour l'exemple
+                if (Object.keys(regionData).length === 0) {
+                    // Fallback : utiliser des données de démonstration basées sur les vraies régions
+                    regionData['Île-de-France'] = 565431;
+                    regionData['Auvergne-Rhône-Alpes'] = 114145;
+                    regionData['Hauts-de-France'] = 78453;
+                    regionData['Nouvelle-Aquitaine'] = 78369;
+                    regionData['Provence-Alpes-Côte d\'Azur'] = 78158;
+                    regionData['Occitanie'] = 77801;
+                    regionData['Grand Est'] = 58736;
+                    regionData['Pays de la Loire'] = 54850;
+                    regionData['Normandie'] = 35663;
+                    regionData['Bretagne'] = 35592;
+                    regionData['Centre-Val de Loire'] = 29388;
+                    regionData['Bourgogne-Franche-Comté'] = 27207;
+                    regionData['La Réunion'] = 5227;
+                    regionData['Corse'] = 3462;
+                }
+                
+                // Trier par nombre de signalements décroissant
+                const sortedRegions = Object.entries(regionData)
+                    .sort((a, b) => b[1] - a[1]);
+                    // Toutes les régions (environ 14-18 selon les DOM-TOM)
+                
+                chartLabels = sortedRegions.map(r => r[0]);
+                chartValues = sortedRegions.map(r => r[1]);
+                // Sauvegarder les données originales
+                originalLabels = [...chartLabels];
+                originalValues = [...chartValues];
+                
+                // Restaurer l'opacité
+                document.getElementById('barChart').style.opacity = '1';
+                
+                // Initialiser le graphique avec les données réelles
+                initChart();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                // Utiliser des données de démonstration en cas d'erreur
+                document.getElementById('barChart').style.opacity = '1';
+                
+                // Données de démonstration basées sur les vraies régions
+                const demoData = {
+                    'Île-de-France': 565431,
+                    'Auvergne-Rhône-Alpes': 114145,
+                    'Hauts-de-France': 78453,
+                    'Nouvelle-Aquitaine': 78369,
+                    'Provence-Alpes-Côte d\'Azur': 78158,
+                    'Occitanie': 77801,
+                    'Grand Est': 58736,
+                    'Pays de la Loire': 54850,
+                    'Normandie': 35663,
+                    'Bretagne': 35592,
+                    'Centre-Val de Loire': 29388,
+                    'Bourgogne-Franche-Comté': 27207
+                };
+                
+                const sortedRegions = Object.entries(demoData)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                chartLabels = sortedRegions.map(r => r[0]);
+                chartValues = sortedRegions.map(r => r[1]);
+                originalLabels = [...chartLabels];
+                originalValues = [...chartValues];
+                
+                initChart();
+                updateStats();
+            }
+        }
+        
+        // Configuration du graphique
+        const config = {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Nombre de signalements',
+                    data: chartValues,
+                    backgroundColor: dsfrColors.primary,
+                    borderColor: dsfrColors.primary,
+                    borderWidth: 1,
+                    hoverBackgroundColor: dsfrColors.primaryLight
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'x',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 4,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.y || context.parsed.x;
+                                const total = chartValues.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return [
+                                    'Signalements: ' + value.toLocaleString('fr-FR'),
+                                    'Part: ' + percentage + '%'
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 11
+                            },
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Fonction d'initialisation du graphique
+        function initChart() {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            // Mise à jour de la configuration avec les nouvelles données
+            config.data.labels = chartLabels;
+            config.data.datasets[0].data = chartValues;
+            
+            myChart = new Chart(ctx, config);
+        }
+        
+        // Mise à jour des statistiques
+        function updateStats() {
+            const total = chartValues.reduce((a, b) => a + b, 0);
+            const average = Math.round(total / chartValues.length);
+            const maxIndex = chartValues.indexOf(Math.max(...chartValues));
+            const maxRegion = chartLabels[maxIndex];
+            const maxValue = chartValues[maxIndex];
+            
+            document.getElementById('max-region').textContent = 
+                `${maxRegion} (${maxValue.toLocaleString('fr-FR')})`;
+            document.getElementById('average').textContent = 
+                average.toLocaleString('fr-FR') + ' signalements';
+            document.getElementById('total').textContent = 
+                total.toLocaleString('fr-FR') + ' signalements';
+        }
+        
+        // Changement de type de graphique
+        function changeChartType() {
+            const chartType = document.getElementById('chart-type').value;
+            
+            if (!myChart) return;
+            
+            // Détruire le graphique actuel
+            myChart.destroy();
+            
+            // Mettre à jour la configuration
+            if (chartType === 'horizontalBar') {
+                // Configuration pour barres horizontales
+                config.type = 'bar';
+                config.options.indexAxis = 'y';
+                config.options.scales = {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 11
+                            },
+                            autoSkip: false
+                        }
+                    }
+                };
+            } else {
+                // Configuration pour barres verticales
+                config.type = 'bar';
+                config.options.indexAxis = 'x';
+                config.options.scales = {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 11
+                            },
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#E5E5E5'
+                        },
+                        ticks: {
+                            color: dsfrColors.grey,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
+                };
+            }
+            
+            // S'assurer que les données sont à jour
+            config.data.labels = chartLabels;
+            config.data.datasets[0].data = chartValues;
+            
+            // Recréer le graphique
+            const ctx = document.getElementById('barChart').getContext('2d');
+            myChart = new Chart(ctx, config);
+        }
+        
+        // Tri des données
+        function sortData() {
+            const sortType = document.getElementById('sort-select').value;
+            
+            // Vérifier que les données originales existent, sinon utiliser les données actuelles
+            const labelsToSort = originalLabels.length > 0 ? originalLabels : chartLabels;
+            const valuesToSort = originalValues.length > 0 ? originalValues : chartValues;
+            
+            // Utiliser les données pour le tri
+            let combined = labelsToSort.map((label, index) => ({
+                label: label,
+                value: valuesToSort[index]
+            }));
+            
+            // Appliquer le tri
+            switch(sortType) {
+                case 'asc':
+                    combined.sort((a, b) => a.value - b.value);
+                    break;
+                case 'desc':
+                    combined.sort((a, b) => b.value - a.value);
+                    break;
+                case 'alpha':
+                    combined.sort((a, b) => a.label.localeCompare(b.label, 'fr'));
+                    break;
+                default:
+                    // Garder l'ordre original
+                    break;
+            }
+            
+            // Mettre à jour les données actuelles
+            chartLabels = combined.map(item => item.label);
+            chartValues = combined.map(item => item.value);
+            
+            // Mettre à jour le graphique
+            if (myChart) {
+                myChart.data.labels = chartLabels;
+                myChart.data.datasets[0].data = chartValues;
+                myChart.update();
+            }
+            
+            // Mettre à jour le tableau
+            updateDataTable();
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            const total = chartValues.reduce((a, b) => a + b, 0);
+            tableBody.innerHTML = '';
+            
+            chartLabels.forEach((label, index) => {
+                const row = tableBody.insertRow();
+                const cellRegion = row.insertCell(0);
+                const cellValue = row.insertCell(1);
+                const cellPercent = row.insertCell(2);
+                
+                cellRegion.textContent = label;
+                cellValue.textContent = chartValues[index].toLocaleString('fr-FR');
+                cellPercent.textContent = ((chartValues[index] / total) * 100).toFixed(1) + '%';
+            });
+        }
+        
+        // Afficher/masquer le tableau
+        function toggleDataTable() {
+            const table = document.getElementById('data-table');
+            const isChecked = document.getElementById('toggle-table').checked;
+            
+            if (isChecked) {
+                table.classList.add('show');
+                updateDataTable();
+            } else {
+                table.classList.remove('show');
+            }
+        }
+        
+        // Export en PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-regions.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export en CSV
+        function exportDataAsCSV() {
+            let csv = 'Région,Nombre de signalements,Pourcentage\n';
+            const total = chartValues.reduce((a, b) => a + b, 0);
+            
+            chartLabels.forEach((label, index) => {
+                const percentage = ((chartValues[index] / total) * 100).toFixed(1);
+                csv += `"${label}",${chartValues[index]},${percentage}%\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-regions.csv';
+            link.click();
+        }
+        
+        // Mode plein écran
+        function toggleFullscreen() {
+            const container = document.getElementById('widget-chart-bar-001');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.error(`Erreur lors du passage en plein écran: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Chargement initial des données au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            document.getElementById('export-png').addEventListener('click', exportChartAsPNG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
+            document.getElementById('toggle-fullscreen').addEventListener('click', toggleFullscreen);
+        });
+        
+        // Adaptation responsive
+        window.addEventListener('resize', () => {
+            if (myChart) {
+                myChart.resize();
+            }
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Graphique de visualisation SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

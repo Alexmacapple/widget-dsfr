@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget de recherche avancée pour données SignalConso">
+    <title>Recherche avancée - SignalConso</title>
+    
+    <!-- Favicon DSFR -->
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/apple-touch-icon.png">
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/favicon/favicon.svg" type="image/svg+xml">
+    
+    <!-- Material Icons pour les flèches de pagination -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- CSS - Ordre important : ODS puis DSFR -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+
+    <!-- jQuery requis par ODS Widgets -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+    <!-- Styles personnalisés pour harmoniser ODS avec DSFR -->
+    <style>
+        /* Harmonisation des widgets ODS avec DSFR */
+        .ods-widget {
+            font-family: var(--font-family-base);
+            color: var(--text-default-grey);
+        }
+        
+        .ods-widget .odswidget-facets {
+            font-family: var(--font-family-base);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-header {
+            background-color: var(--background-contrast-grey);
+            color: var(--text-default-grey);
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem 0.25rem 0 0;
+            border: 1px solid var(--border-default-grey);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-items {
+            border: 1px solid var(--border-default-grey);
+            border-top: none;
+            border-radius: 0 0 0.25rem 0.25rem;
+            background: white;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border-default-grey-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item:hover {
+            background-color: var(--background-alt-grey);
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item .facet-value {
+            color: var(--text-action-high-blue-france);
+            text-decoration: none;
+        }
+        
+        .ods-widget .odswidget-facets .facet-category-item .facet-value:hover {
+            text-decoration: underline;
+        }
+        
+        .ods-widget .odswidget-facets .facet-count {
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+            background: var(--background-contrast-grey);
+            padding: 0.125rem 0.5rem;
+            border-radius: 1rem;
+        }
+        
+        /* Zone de widget */
+        .widget-container {
+            min-height: 600px;
+            background-color: var(--background-alt-grey);
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+        
+        
+        @media (max-width: 768px) {
+            .odswidget-table {
+                font-size: 0.8125rem;
+            }
+            
+            .odswidget-table th,
+            .odswidget-table td {
+                padding: 0.5rem 0.25rem;
+            }
+        }
+        
+        /* Support du mode sombre */
+        [data-fr-theme="dark"] .widget-container {
+            background-color: var(--background-elevated-grey);
+            border-color: var(--border-default-grey);
+        }
+        
+        /* Ajustements pour la pagination DSFR officielle */
+        .fr-pagination {
+            margin-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        /* Centrage de la pagination */
+        .fr-pagination--center .fr-pagination__list,
+        .fr-pagination .fr-pagination__list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .fr-text--center {
+            text-align: center;
+        }
+        
+        /* Classe pour l'accessibilité - lecteurs d'écran */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        
+        
+        
+        /* Styles responsive DSFR */
+        @media (max-width: 48em) {
+            .fr-table__wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .fr-table .odswidget-table {
+                min-width: 700px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .odswidget-table {
+                font-size: 0.8125rem;
+            }
+            
+            .odswidget-table th,
+            .odswidget-table td {
+                padding: 0.5rem;
+            }
+        }
+        
+        /* S'assurer que le contenu ODS est visible */
+        .ods-widget,
+        .odswidget,
+        [ods-dataset-context] {
+            display: block !important;
+            visibility: visible !important;
+        }
+        
+        /* Amélioration pour les facettes avec raffinement */
+        .refinement-container {
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-default-grey);
+            padding: 1.5rem;
+            width: 100%;
+        }
+        
+        /* Organiser les facettes en grille responsive */
+        .refinement-container .ods-facets,
+        .refinement-container ods-facets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .refinement-summary {
+            background: var(--background-action-low-blue-france);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-action-high-blue-france);
+        }
+        
+        .active-refinements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .active-refinement {
+            background: var(--background-action-high-blue-france);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .refinement-remove {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        
+        /* Styles pour le bouton d'action minimaliste */
+        .fr-btn--tertiary-no-outline {
+            padding: 0.25rem;
+            min-height: auto;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-action-high-blue-france);
+        }
+        
+        .fr-btn--tertiary-no-outline:hover {
+            background: var(--background-action-low-blue-france);
+            border-color: var(--border-action-high-blue-france);
+        }
+        
+        /* Style pour la modale */
+        #details-modal .fr-modal__content dl {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0.5rem 1rem;
+        }
+        
+        #details-modal .fr-modal__content dt {
+            text-align: right;
+            color: var(--text-mention-grey);
+        }
+        
+        #details-modal .fr-modal__content dd {
+            margin: 0;
+        }
+        
+        
+        .facet-section {
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-default-grey);
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        
+        .facet-section-header {
+            background: var(--background-contrast-grey);
+            padding: 1rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .facet-section-content {
+            padding: 1rem;
+            background: white;
+        }
+        
+        /* Styles pour la modale DSFR */
+        .fr-modal {
+            display: none;
+        }
+        
+        .fr-modal[aria-modal="true"] {
+            display: flex;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .modal-field-group {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .modal-field-label {
+            color: var(--text-mention-grey);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .modal-field-value {
+            font-size: 1rem;
+        }
+        
+        .modal-info-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Style pour le bouton dans le tableau */
+        .btn-details {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Recherche avancée - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <!-- Fil d'Ariane -->
+            <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici :">
+                <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-1">Voir le fil d'Ariane</button>
+                <div class="fr-collapse" id="breadcrumb-1">
+                    <ol class="fr-breadcrumb__list">
+                        <li>
+                            <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                        </li>
+                        <li>
+                            <a class="fr-breadcrumb__link" aria-current="page">Facets Refinement</a>
+                        </li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Titre principal -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                <div class="fr-col-12">
+                    <h1>Explorer les signalements</h1>
+                    <p class="fr-text--lead">Base de données SignalConso - Signalements consommateurs</p>
+                </div>
+            </div>
+
+            <!-- Widget -->
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12">
+                    <div class="fr-card">
+                        <div class="fr-card__body">
+                            <div class="fr-card__content">
+                                <h2 class="fr-card__title">Recherche multicritères</h2>
+                                <p class="fr-card__desc">Source : data.economie.gouv.fr - Mise à jour en temps réel</p>
+                            </div>
+                        </div>
+                        <div class="fr-card__body">
+                            <!-- DÉBUT ZONE WIDGET FACETS-REFINEMENT-001 -->
+                            <div id="widget-facets-refinement-001" class="widget-container" ng-app="ods-widgets" ng-cloak>
+                                <ods-dataset-context 
+                                    context="signalconso"
+                                    signalconso-domain="data.economie.gouv.fr"
+                                    signalconso-dataset="signalconso">
+                                    
+                                    
+                                    <!-- Résumé des filtres actifs -->
+                                    <div class="refinement-summary" ng-if="signalconso.parameters">
+                                        <h3>Critères sélectionnés</h3>
+                                        <div class="active-refinements">
+                                            <div class="active-refinement" ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')">
+                                                <span>{{key.replace('refine.', '') | titlecase}} : {{value}}</span>
+                                                <button type="button" class="refinement-remove" 
+                                                        ng-click="signalconso.parameters[key] = undefined"
+                                                        title="Supprimer ce filtre">
+                                                    ×
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                                            <div class="fr-col-auto">
+                                                <p class="fr-text--sm">
+                                                    <strong>{{signalconso.nhits | number}}</strong> résultats trouvés
+                                                </p>
+                                            </div>
+                                            <div class="fr-col-auto">
+                                                <button class="fr-btn fr-btn--secondary fr-btn--sm" 
+                                                        ng-click="signalconso.clearAllParameters()"
+                                                        ng-if="Object.keys(signalconso.parameters).length > 0">
+                                                    Effacer tous les filtres
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Interface de filtrage -->
+                                    <div class="fr-grid-row fr-grid-row--gutters">
+                                        <!-- Panneau de filtres -->
+                                        <div class="fr-col-12">
+                                            <div class="refinement-container">
+                                                <h3>Affiner la recherche</h3>
+                                                
+                                                <!-- Recherche avancée -->
+                                                <div class="facet-section">
+                                                    <div class="facet-section-header">
+                                                        Recherche textuelle
+                                                    </div>
+                                                    <div class="facet-section-content">
+                                                        <div class="fr-search-bar fr-mb-2w">
+                                                            <label class="fr-label" for="search-refinement">
+                                                                Recherche globale
+                                                            </label>
+                                                            <input 
+                                                                class="fr-input" 
+                                                                type="search" 
+                                                                id="search-refinement"
+                                                                ng-model="signalconso.parameters['q']"
+                                                                ng-model-options="{ debounce: 300 }"
+                                                                placeholder="Mots-clés, établissement, ville...">
+                                                            <button class="fr-btn" title="Rechercher">
+                                                                Rechercher
+                                                            </button>
+                                                        </div>
+                                                        
+                                                        <!-- Recherche spécialisée -->
+                                                        <div class="refinement-level">
+                                                            <div class="fr-input-group fr-mb-2w">
+                                                                <label class="fr-label" for="search-etablissement">
+                                                                    Nom d'établissement
+                                                                </label>
+                                                                <input class="fr-input" type="text" id="search-etablissement"
+                                                                       ng-model="signalconso.parameters['refine.establishmentname']"
+                                                                       placeholder="Nom exact ou partiel">
+                                                            </div>
+                                                            <div class="fr-input-group">
+                                                                <label class="fr-label" for="search-ville">
+                                                                    Ville
+                                                                </label>
+                                                                <input class="fr-input" type="text" id="search-ville"
+                                                                       ng-model="signalconso.parameters['refine.city']"
+                                                                       placeholder="Nom de ville">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Raffinements par facettes -->
+                                                <ods-facets context="signalconso">
+                                                    <!-- Catégorie principale -->
+                                                    <div class="facet-section">
+                                                        <div class="facet-section-header">
+                                                            Catégorie principale
+                                                        </div>
+                                                        <div class="facet-section-content">
+                                                            <ods-facet 
+                                                                name="category"
+                                                                disjunctive="true"
+                                                                sort="count"
+                                                                limit="10">
+                                                            </ods-facet>
+                                                            
+                                                            <!-- Sous-catégorie (niveau 2) -->
+                                                            <div class="refinement-level" ng-if="signalconso.parameters['refine.category']">
+                                                                <h5>Sous-catégorie</h5>
+                                                                <ods-facet 
+                                                                    name="subcategory"
+                                                                    disjunctive="true"
+                                                                    sort="count"
+                                                                    limit="8">
+                                                                </ods-facet>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                    
+                                                    <!-- Localisation -->
+                                                    <div class="facet-section">
+                                                        <div class="facet-section-header">
+                                                            Localisation
+                                                        </div>
+                                                        <div class="facet-section-content">
+                                                            <!-- Région -->
+                                                            <h5>Région</h5>
+                                                            <ods-facet 
+                                                                name="reg_name"
+                                                                disjunctive="true"
+                                                                sort="count"
+                                                                limit="8">
+                                                            </ods-facet>
+                                                            
+                                                            <!-- Département (niveau 2) -->
+                                                            <div class="refinement-level" ng-if="signalconso.parameters['refine.reg_name']">
+                                                                <h5>Département</h5>
+                                                                <ods-facet 
+                                                                    name="dep_name"
+                                                                    disjunctive="true"
+                                                                    sort="count"
+                                                                    limit="15">
+                                                                </ods-facet>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                    
+                                                    <!-- Temporel -->
+                                                    <div class="facet-section">
+                                                        <div class="facet-section-header">
+                                                            Période
+                                                        </div>
+                                                        <div class="facet-section-content">
+                                                            <!-- Année -->
+                                                            <h5>Année</h5>
+                                                            <ods-facet 
+                                                                name="creationdate"
+                                                                disjunctive="true"
+                                                                sort="count"
+                                                                date-format="year">
+                                                            </ods-facet>
+                                                            
+                                                            <!-- Mois (niveau 2) -->
+                                                            <div class="refinement-level" ng-if="signalconso.parameters['refine.creationdate'] && signalconso.parameters['refine.creationdate'].includes('2024')">
+                                                                <h5>Mois</h5>
+                                                                <ods-facet 
+                                                                    name="creationdate"
+                                                                    disjunctive="true"
+                                                                    sort="alphabetical"
+                                                                    date-format="month"
+                                                                    limit="12">
+                                                                </ods-facet>
+                                                            </div>
+                                                        </div>
+                                                    </fieldset>
+                                                    
+                                                    <!-- Statut et traitement -->
+                                                    <div class="facet-section">
+                                                        <div class="facet-section-header">
+                                                            Statut et traitement
+                                                        </div>
+                                                        <div class="facet-section-content">
+                                                            <ods-facet 
+                                                                name="status"
+                                                                disjunctive="true"
+                                                                sort="count">
+                                                            </ods-facet>
+                                                        </div>
+                                                    </fieldset>
+                                                </ods-facets>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Résultats filtrés -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12">
+                                            <div class="fr-card">
+                                                <div class="fr-card__body">
+                                                    <div class="fr-card__content">
+                                                        <h3 class="fr-card__title">Résultats</h3>
+                                                        <p class="fr-card__desc">
+                                                            <strong>{{signalconso.nhits | number}}</strong> signalements trouvés
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="fr-card__body">
+                                                    <!-- Options d'affichage -->
+                                                    <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+                                                        <div class="fr-col-12">
+                                                            <div class="fr-select-group">
+                                                                <label class="fr-label" for="sort-select">
+                                                                    Trier par
+                                                                </label>
+                                                                <select class="fr-select" id="sort-select" 
+                                                                        ng-model="signalconso.parameters['sort']">
+                                                                    <option value="creationdate">Date (plus récent)</option>
+                                                                    <option value="-creationdate">Date (plus ancien)</option>
+                                                                    <option value="category">Catégorie (A-Z)</option>
+                                                                    <option value="-category">Catégorie (Z-A)</option>
+                                                                    <option value="city">Ville (A-Z)</option>
+                                                                    <option value="-city">Ville (Z-A)</option>
+                                                                    <option value="status">Statut (A-Z)</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Tableau ODS simple avec colonne actions -->
+                                                    <div ng-if="signalconso.nhits > 0" class="fr-table--no-scroll">
+                                                        <ods-table context="signalconso"
+                                                                   displayed-fields="creationdate,category,subcategory,establishmentname,city,dep_name,status"
+                                                                   labels="{creationdate: 'Date', category: 'Catégorie', subcategory: 'Sous-catégorie', establishmentname: 'Établissement', city: 'Ville', dep_name: 'Département', status: 'Statut'}">
+                                                        </ods-table>
+                                                        
+                                                        <!-- Pagination DSFR -->
+                                                        <nav role="navigation" class="fr-pagination fr-mt-3w" aria-label="Pagination">
+                                                            <ul class="fr-pagination__list">
+                                                                <!-- Première page -->
+                                                                <li>
+                                                                    <a class="fr-pagination__link fr-pagination__link--first" 
+                                                                       ng-click="signalconso.parameters.start = 0"
+                                                                       ng-disabled="!signalconso.parameters.start || signalconso.parameters.start === 0"
+                                                                       aria-label="Première page"
+                                                                       title="Première page">
+                                                                        Première page
+                                                                    </a>
+                                                                </li>
+                                                                
+                                                                <!-- Page précédente -->
+                                                                <li>
+                                                                    <a class="fr-pagination__link fr-pagination__link--prev" 
+                                                                       ng-click="signalconso.parameters.start = Math.max(0, (signalconso.parameters.start || 0) - (signalconso.parameters.rows || 10))"
+                                                                       ng-disabled="!signalconso.parameters.start || signalconso.parameters.start === 0"
+                                                                       aria-label="Page précédente"
+                                                                       title="Page précédente">
+                                                                        Page précédente
+                                                                    </a>
+                                                                </li>
+                                                                
+                                                                <!-- Numéros de pages -->
+                                                                <li ng-repeat="page in generatePageArray(signalconso.nhits, (signalconso.parameters.rows || 10), (signalconso.parameters.start || 0))">
+                                                                    <a ng-class="{'fr-pagination__link': true, 'fr-pagination__link--active': page === Math.floor((signalconso.parameters.start || 0) / (signalconso.parameters.rows || 10))}"
+                                                                       ng-click="signalconso.parameters.start = page * (signalconso.parameters.rows || 10)"
+                                                                       aria-label="Page {{page + 1}}"
+                                                                       ng-attr-aria-current="{{page === Math.floor((signalconso.parameters.start || 0) / (signalconso.parameters.rows || 10)) ? 'page' : undefined}}">
+                                                                        {{page + 1}}
+                                                                    </a>
+                                                                </li>
+                                                                
+                                                                <!-- Page suivante -->
+                                                                <li>
+                                                                    <a class="fr-pagination__link fr-pagination__link--next" 
+                                                                       ng-click="signalconso.parameters.start = Math.min(Math.floor(signalconso.nhits / (signalconso.parameters.rows || 10)) * (signalconso.parameters.rows || 10), (signalconso.parameters.start || 0) + (signalconso.parameters.rows || 10))"
+                                                                       ng-disabled="(signalconso.parameters.start || 0) + (signalconso.parameters.rows || 10) >= signalconso.nhits"
+                                                                       aria-label="Page suivante"
+                                                                       title="Page suivante">
+                                                                        Page suivante
+                                                                    </a>
+                                                                </li>
+                                                                
+                                                                <!-- Dernière page -->
+                                                                <li>
+                                                                    <a class="fr-pagination__link fr-pagination__link--last" 
+                                                                       ng-click="signalconso.parameters.start = Math.floor(signalconso.nhits / (signalconso.parameters.rows || 10)) * (signalconso.parameters.rows || 10)"
+                                                                       ng-disabled="(signalconso.parameters.start || 0) + (signalconso.parameters.rows || 10) >= signalconso.nhits"
+                                                                       aria-label="Dernière page"
+                                                                       title="Dernière page">
+                                                                        Dernière page
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </nav>
+                                                        
+                                                        <!-- Info résultats -->
+                                                        <div class="fr-text--sm fr-text--center fr-mt-2w">
+                                                            Affichage de 
+                                                            <strong>{{(signalconso.parameters.start || 0) + 1}}</strong> à 
+                                                            <strong>{{Math.min((signalconso.parameters.start || 0) + (signalconso.parameters.rows || 10), signalconso.nhits)}}</strong> 
+                                                            sur <strong>{{signalconso.nhits}}</strong> résultats
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Statistiques de filtrage -->
+                                    <div class="fr-grid-row fr-grid-row--gutters fr-mt-3w">
+                                        <div class="fr-col-12 fr-col-md-6">
+                                            <div class="fr-callout fr-callout--blue-france">
+                                                <h3 class="fr-callout__title">Total</h3>
+                                                <p class="fr-callout__text">
+                                                    <span class="fr-text--lg fr-text--bold">
+                                                        {{signalconso.nhits | number}}
+                                                    </span>
+                                                    <br>
+                                                    <span class="fr-text--sm">signalements</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fr-col-12 fr-col-md-6">
+                                            <div class="fr-callout fr-callout--orange-terre-battue">
+                                                <h3 class="fr-callout__title">Filtres actifs</h3>
+                                                <div class="fr-callout__text">
+                                                    <span ng-if="(signalconso.parameters | json).split('refine.').length - 1 === 0">Aucun</span>
+                                                    <div ng-if="(signalconso.parameters | json).split('refine.').length - 1 > 0">
+                                                        <strong>{{(signalconso.parameters | json).split('refine.').length - 1}}</strong> filtre(s)
+                                                        <ul class="fr-text--xs fr-mt-1v" style="list-style: none; padding: 0;">
+                                                            <li ng-repeat="(key, value) in signalconso.parameters" ng-if="key.startsWith('refine.')" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                                • {{value | limitTo:15}}{{value.length > 15 ? '...' : ''}}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ods-dataset-context>
+                                
+                                <!-- Modale DSFR pour les détails -->
+                                <dialog id="fr-modal-details" class="fr-modal" role="dialog" aria-labelledby="fr-modal-details-title">
+                                    <div class="fr-container fr-container--fluid fr-container-md">
+                                        <div class="fr-grid-row fr-grid-row--center">
+                                            <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                                                <div class="fr-modal__body">
+                                                    <div class="fr-modal__header">
+                                                        <button class="fr-btn--close fr-btn" 
+                                                                title="Fermer" 
+                                                                aria-controls="fr-modal-details"
+                                                                onclick="document.getElementById('fr-modal-details').close()">
+                                                            Fermer
+                                                        </button>
+                                                    </div>
+                                                    <div class="fr-modal__content">
+                                                        <h1 id="fr-modal-details-title" class="fr-modal__title">
+                                                            Détails du signalement
+                                                        </h1>
+                                                        
+                                                        <div id="modal-details-content">
+                                                            <!-- Contenu dynamique injecté par Angular -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </dialog>
+                            </div>
+                            <!-- FIN ZONE WIDGET FACETS-REFINEMENT-001 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Widget de filtrage avancé des données SignalConso avec raffinements progressifs. 
+                        Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal des paramètres d'affichage -->
+    <dialog id="fr-theme-modal" class="fr-modal" role="dialog" aria-labelledby="fr-theme-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" aria-controls="fr-theme-modal" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="fr-theme-modal-title" class="fr-modal__title">
+                                Paramètres d'affichage
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+    
+    <!-- Modal détails fiche -->
+    <dialog id="details-modal" class="fr-modal" role="dialog" aria-labelledby="details-modal-title">
+        <div class="fr-container fr-container--fluid fr-container-md">
+            <div class="fr-grid-row fr-grid-row--center">
+                <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+                    <div class="fr-modal__body">
+                        <div class="fr-modal__header">
+                            <button class="fr-btn--close fr-btn" onclick="document.getElementById('details-modal').close()" title="Fermer">
+                                Fermer
+                            </button>
+                        </div>
+                        <div class="fr-modal__content">
+                            <h1 id="details-modal-title" class="fr-modal__title">
+                                Détails du signalement
+                            </h1>
+                            <div id="modal-content-body">
+                                <!-- Le contenu sera injecté ici dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- JS - Ordre important -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    
+    <!-- Script pour éviter les conflits DSFR/ODS et initialiser la pagination -->
+    <script>
+        // Empêcher DSFR de traiter les tables AVANT son chargement
+        window.addEventListener('load', function() {
+            // Marquer toutes les tables comme non-DSFR avant l'initialisation
+            document.querySelectorAll('.fr-table, .fr-table__wrapper, table').forEach(function(elem) {
+                if (elem.closest('#widget-facets-refinement-001')) {
+                    elem.setAttribute('data-fr-js-table', 'false');
+                    elem.setAttribute('data-fr-js-table-element', 'false');
+                }
+            });
+        });
+        
+        // Configuration Angular pour la pagination et détails
+        angular.module('ods-widgets').run(['$rootScope', function($rootScope) {
+            // Rendre Math disponible dans le scope Angular
+            $rootScope.Math = window.Math;
+            
+            // Fonction pour afficher les détails dans la modale
+            $rootScope.showDetails = function(record) {
+                const modal = document.getElementById('fr-modal-details');
+                const content = document.getElementById('modal-details-content');
+                
+                if (modal && content) {
+                    // Construction du contenu HTML
+                    content.innerHTML = `
+                        <!-- Alert avec référence -->
+                        <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                            <p class="fr-alert__title">Référence du signalement</p>
+                            <p><code>${record.recordid || 'N/A'}</code></p>
+                        </div>
+                        
+                        <!-- Informations principales -->
+                        <div class="modal-info-card">
+                            <h3 class="fr-h6">Informations générales</h3>
+                            <div class="modal-info-grid">
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Date de création</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.creationdate ? new Date(record.fields.creationdate).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'}) : 'N/A'}</strong>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Catégorie</div>
+                                    <div class="modal-field-value">
+                                        <span class="fr-badge fr-badge--info">${record.fields.category || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Sous-catégorie</div>
+                                    <div class="modal-field-value">
+                                        ${record.fields.subcategory || 'Non spécifiée'}
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Statut actuel</div>
+                                    <div class="modal-field-value">
+                                        <span class="fr-badge fr-badge--grey">
+                                            ${record.fields.status || 'N/A'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Établissement -->
+                        <div class="modal-info-card">
+                            <h3 class="fr-h6">Établissement</h3>
+                            <div class="modal-info-grid">
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Nom</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.establishmentname || 'Non spécifié'}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Localisation -->
+                        <div class="modal-info-card">
+                            <h3 class="fr-h6">Localisation</h3>
+                            <div class="modal-info-grid">
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Ville</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.city || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Département</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.dep_name || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                                <div class="modal-field-group">
+                                    <div class="modal-field-label">Région</div>
+                                    <div class="modal-field-value">
+                                        <strong>${record.fields.reg_name || 'N/A'}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Ouvrir la modale
+                    modal.showModal();
+                }
+            };
+            
+            // Fonction pour générer un tableau de pages
+            $rootScope.generatePageArray = function(nhits, rowsPerPage, currentStart) {
+                if (!nhits || nhits <= 0) return [];
+                
+                var totalPages = Math.ceil(nhits / rowsPerPage);
+                var currentPage = Math.floor((currentStart || 0) / rowsPerPage);
+                var pages = [];
+                
+                // Logique pour afficher les pages autour de la page courante
+                var startPage = Math.max(0, currentPage - 2);
+                var endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                // Ajuster le début si on est proche de la fin
+                if (endPage - startPage < 4 && startPage > 0) {
+                    startPage = Math.max(0, endPage - 4);
+                }
+                
+                for (var i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+                
+                return pages;
+            };
+            
+            // Fonction pour afficher les détails
+            $rootScope.showDetails = function(record) {
+                var modal = document.getElementById('details-modal');
+                var contentBody = document.getElementById('modal-content-body');
+                
+                // Construire le contenu HTML minimaliste
+                var content = '<dl class="fr-mb-0">';
+                
+                // Informations principales
+                if (record.fields.creationdate) {
+                    content += '<dt class="fr-text--bold">Date</dt>';
+                    content += '<dd>' + new Date(record.fields.creationdate).toLocaleDateString('fr-FR') + '</dd>';
+                }
+                
+                if (record.fields.establishmentname) {
+                    content += '<dt class="fr-text--bold">Établissement</dt>';
+                    content += '<dd>' + record.fields.establishmentname + '</dd>';
+                }
+                
+                if (record.fields.city || record.fields.dep_name) {
+                    content += '<dt class="fr-text--bold">Localisation</dt>';
+                    content += '<dd>' + (record.fields.city || '') + ' - ' + (record.fields.dep_name || '') + '</dd>';
+                }
+                
+                if (record.fields.category) {
+                    content += '<dt class="fr-text--bold">Catégorie</dt>';
+                    content += '<dd>' + record.fields.category + '</dd>';
+                }
+                
+                if (record.fields.subcategory) {
+                    content += '<dt class="fr-text--bold">Sous-catégorie</dt>';
+                    content += '<dd>' + record.fields.subcategory + '</dd>';
+                }
+                
+                if (record.fields.status) {
+                    content += '<dt class="fr-text--bold">Statut</dt>';
+                    content += '<dd>' + record.fields.status + '</dd>';
+                }
+                
+                // Afficher tous les autres champs disponibles
+                for (var key in record.fields) {
+                    if (!['creationdate', 'establishmentname', 'city', 'dep_name', 'category', 'subcategory', 'status', 'dep_code', 'reg_code'].includes(key)) {
+                        content += '<dt class="fr-text--bold">' + key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ') + '</dt>';
+                        content += '<dd>' + (record.fields[key] || '-') + '</dd>';
+                    }
+                }
+                
+                content += '</dl>';
+                
+                contentBody.innerHTML = content;
+                modal.showModal();
+            };
+        }]);
+    </script>
+    
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.nomodule.min.js"></script>
+</body>
+</html>

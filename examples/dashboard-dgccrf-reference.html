@@ -286,6 +286,7 @@
         /* Utiliser les animations natives DSFR */
         /* Classes disponibles : fr-unhidden, fr-hidden, etc. */
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Header DSFR -->
@@ -1183,6 +1184,17 @@
                 }
             }, 1000);
         });
+    </script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
     </script>
 </body>
 </html>

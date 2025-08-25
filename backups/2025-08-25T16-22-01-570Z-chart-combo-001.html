@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget graphique combiné DSFR - Analyse croisée ligne/barres SignalConso">
+    <title>Graphique combiné DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        .fr-card__body { padding-bottom: 2rem !important; }
+        .chart-container { position: relative; height: 400px; margin: 2rem 0; }
+        .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            color: #161616;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+        }
+        @media (max-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .export-buttons { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Graphique de visualisation SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-chart-combo-001" class="fr-container fr-py-3w">
+        <div class="fr-grid-row">
+            <div class="fr-col-12">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h2 class="fr-h4">Analyse combinée volume et satisfaction</h2>
+                        <p class="fr-text--sm">Volume de signalements (barres) vs Taux de satisfaction (ligne)</p>
+                        
+                        <!-- Contrôle d'affichage du tableau -->
+                        <div class="chart-controls">
+                            <div class="fr-toggle">
+                                <input type="checkbox" class="fr-toggle__input" id="toggle-table">
+                                <label class="fr-toggle__label" for="toggle-table">
+                                    Afficher le tableau de données
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Graphique -->
+                        <div class="chart-container">
+                            <canvas id="comboChart" role="img" aria-label="Graphique combiné ligne et barres"></canvas>
+                        </div>
+                        
+                        <!-- Boutons d'export -->
+                        <div class="export-buttons">
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-png">
+                                Exporter en PNG
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
+                                Exporter les données (CSV)
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Volume et satisfaction mensuels</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Mois</th>
+                                                        <th scope="col">Volume de signalements</th>
+                                                        <th scope="col">Taux de résolution (%)</th>
+                                                        <th scope="col">Évolution volume</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Légende -->
+                        <div class="fr-alert fr-alert--info fr-mt-3w">
+                            <p>Les barres représentent le volume de signalements, la ligne indique le taux de satisfaction mensuel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET CHART-COMBO-001 -->
+    
+    <script>
+        // Variables globales
+        let months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        let volumeData = [];
+        let resolutionData = [];
+        let myChart = null;
+        
+        // Chargement des données depuis l'API SignalConso
+        async function loadDataFromAPI() {
+            try {
+                // Afficher un indicateur de chargement
+                document.getElementById('comboChart').style.opacity = '0.5';
+                
+                // Récupérer les données depuis l'API
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=10000&facet=creationdate&facet=statut');
+                const data = await response.json();
+                
+                // Initialiser les compteurs par mois
+                const monthlyVolume = new Array(12).fill(0);
+                const monthlyResolved = new Array(12).fill(0);
+                const currentYear = new Date().getFullYear();
+                
+                // Traiter les enregistrements
+                data.records.forEach(record => {
+                    if (record.fields.creationdate) {
+                        const date = new Date(record.fields.creationdate);
+                        if (date.getFullYear() === currentYear) {
+                            const monthIndex = date.getMonth();
+                            monthlyVolume[monthIndex]++;
+                            
+                            // Compter les signalements résolus ou traités
+                            if (record.fields.statut && 
+                                (record.fields.statut.toLowerCase().includes('traité') || 
+                                 record.fields.statut.toLowerCase().includes('résolu') ||
+                                 record.fields.statut.toLowerCase().includes('clos'))) {
+                                monthlyResolved[monthIndex]++;
+                            }
+                        }
+                    }
+                });
+                
+                // Si pas assez de données de l'année en cours, utiliser toutes les données
+                const totalVolume = monthlyVolume.reduce((a, b) => a + b, 0);
+                if (totalVolume < 100) {
+                    // Réinitialiser les compteurs
+                    monthlyVolume.fill(0);
+                    monthlyResolved.fill(0);
+                    
+                    data.records.forEach(record => {
+                        if (record.fields.creationdate) {
+                            const date = new Date(record.fields.creationdate);
+                            const monthIndex = date.getMonth();
+                            monthlyVolume[monthIndex]++;
+                            
+                            if (record.fields.statut && 
+                                (record.fields.statut.toLowerCase().includes('traité') || 
+                                 record.fields.statut.toLowerCase().includes('résolu'))) {
+                                monthlyResolved[monthIndex]++;
+                            }
+                        }
+                    });
+                }
+                
+                // Calculer les taux de résolution
+                volumeData = monthlyVolume;
+                resolutionData = monthlyVolume.map((volume, index) => {
+                    if (volume === 0) return 75; // Valeur par défaut
+                    return Math.round((monthlyResolved[index] / volume) * 100);
+                });
+                
+                // Si toujours pas de données, utiliser des données de démonstration
+                if (volumeData.every(v => v === 0)) {
+                    volumeData = [2400, 2600, 2100, 3100, 3500, 3900, 4200, 4100, 3700, 4500, 4900, 5300];
+                    resolutionData = [72, 74, 71, 75, 78, 80, 82, 81, 79, 83, 85, 87];
+                }
+                
+                // Restaurer l'opacité
+                document.getElementById('comboChart').style.opacity = '1';
+                
+                // Initialiser le graphique et le tableau
+                initChart();
+                updateDataTable();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                document.getElementById('comboChart').style.opacity = '1';
+                
+                // Utiliser des données de démonstration
+                volumeData = [2400, 2600, 2100, 3100, 3500, 3900, 4200, 4100, 3700, 4500, 4900, 5300];
+                resolutionData = [72, 74, 71, 75, 78, 80, 82, 81, 79, 83, 85, 87];
+                initChart();
+            }
+        }
+        
+        // Configuration et initialisation du graphique
+        function initChart() {
+            const config = {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Volume signalements',
+                            data: volumeData,
+                            backgroundColor: 'rgba(0, 0, 145, 0.7)',
+                            borderColor: '#000091',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'line',
+                            label: 'Taux de résolution (%)',
+                            data: resolutionData,
+                            borderColor: '#18753C',
+                            backgroundColor: 'rgba(24, 117, 60, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Volume'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('fr-FR');
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Taux de résolution (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.datasetIndex === 0) {
+                                        label += context.parsed.y.toLocaleString('fr-FR');
+                                    } else {
+                                        label += context.parsed.y + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Détruire le graphique existant si nécessaire
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            // Créer le nouveau graphique
+            const ctx = document.getElementById('comboChart').getContext('2d');
+            myChart = new Chart(ctx, config);
+        }
+        
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            months.forEach((month, index) => {
+                const row = document.createElement('tr');
+                const prevVolume = index > 0 ? volumeData[index - 1] : volumeData[index];
+                const evolution = ((volumeData[index] - prevVolume) / prevVolume * 100).toFixed(1);
+                const evolutionSign = evolution > 0 ? '+' : '';
+                
+                row.innerHTML = `
+                    <td>${month}</td>
+                    <td>${volumeData[index].toLocaleString('fr-FR')}</td>
+                    <td>${resolutionData[index]}%</td>
+                    <td>${evolutionSign}${evolution}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Export PNG
+        function exportChartAsPNG() {
+            const link = document.createElement('a');
+            link.download = 'signalconso-combo.png';
+            link.href = myChart.toBase64Image();
+            link.click();
+        }
+        
+        // Export CSV
+        function exportDataAsCSV() {
+            let csvContent = 'Mois,Volume signalements,Taux résolution (%)\n';
+            months.forEach((month, index) => {
+                csvContent += `${month},${volumeData[index]},${resolutionData[index]}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-combo-data.csv';
+            link.click();
+        }
+        
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDataFromAPI();
+            
+            // Ajouter les event listeners
+            document.getElementById('export-png').addEventListener('click', exportChartAsPNG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
+            
+            // Toggle du tableau de données
+            document.getElementById('toggle-table').addEventListener('change', function(e) {
+                const table = document.getElementById('data-table');
+                table.classList.toggle('show', e.target.checked);
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Graphique de visualisation SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

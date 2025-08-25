@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget Data Grid DSFR - Grille de données interactive">
+    <title>Data Grid DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        
+        /* Centrer la pagination */
+        .fr-pagination {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .fr-pagination__list {
+            justify-content: center;
+        }
+        .data-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 1.5rem; 
+            margin: 2rem 0;
+        }
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .skeleton-card {
+            height: 250px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 0.5rem;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Focus visible renforcé pour accessibilité */
+        .fr-btn:focus-visible,
+        .fr-input:focus-visible,
+        .fr-select:focus-visible,
+        button:focus-visible,
+        .fr-card:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(0, 0, 145, 0.2);
+        }
+        
+        .btn-close-modal:focus-visible {
+            outline: 3px solid #000091;
+            outline-offset: -2px;
+        }
+        
+        /* Styles pour la modale style DSFR */
+        dialog {
+            padding: 0;
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 800px;
+        }
+        
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-wrapper {
+            background: white;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .modal-header-content {
+            flex: 1;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #161616;
+        }
+        
+        .btn-close-modal {
+            background: white;
+            border: 2px solid #000091;
+            color: #000091;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            min-width: 2.5rem;
+            height: 2.5rem;
+        }
+        
+        .btn-close-modal:hover {
+            background: #000091;
+            color: white;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-info-card {
+            background: #f6f6f6;
+            padding: 1.25rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-info-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #161616;
+        }
+        
+        .modal-info-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .modal-field-group {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .modal-field-label {
+            font-size: 0.875rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .modal-field-value {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Skip links pour l'accessibilité -->
+    <div class="fr-skiplinks">
+        <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+            <ul class="fr-skiplinks__list">
+                <li><a class="fr-link" href="#content">Aller au contenu</a></li>
+                <li><a class="fr-link" href="#fr-footer">Aller au pied de page</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Header DSFR -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">
+                                    République
+                                    <br>Française
+                                </p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Accueil - SignalConso">
+                                <p class="fr-header__service-title">
+                                    SignalConso
+                                </p>
+                            </a>
+                            <p class="fr-header__service-tagline">Tableau de données SignalConso - data.economie.gouv.fr</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main content -->
+    <main id="content" role="main">
+        <div class="fr-container fr-py-6w">
+            <div id="widget-data-grid-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Grille de données interactive</h1>
+        <p class="fr-text--sm">Affichage en grille avec interactions</p>
+        
+        <!-- Statistiques -->
+        <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
+            <div class="fr-col-4">
+                <div class="fr-tile fr-tile--horizontal">
+                    <div class="fr-tile__body">
+                        <h3 class="fr-tile__title">Total</h3>
+                        <p class="fr-tile__desc fr-text--bold fr-text--lg" id="total-records">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="fr-col-4">
+                <div class="fr-tile fr-tile--horizontal">
+                    <div class="fr-tile__body">
+                        <h3 class="fr-tile__title">Filtrés</h3>
+                        <p class="fr-tile__desc fr-text--bold fr-text--lg" id="filtered-records">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="fr-col-4">
+                <div class="fr-tile fr-tile--horizontal">
+                    <div class="fr-tile__body">
+                        <h3 class="fr-tile__title">Page</h3>
+                        <p class="fr-tile__desc fr-text--bold fr-text--lg" id="current-page-stat">1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barre de recherche -->
+        <div class="fr-mb-3w">
+            <div class="fr-search-bar" role="search">
+                <input class="fr-input" type="search" id="search-input" placeholder="Rechercher par catégorie, département, région...">
+                <button class="fr-btn" type="submit" onclick="applySearch()">Rechercher</button>
+            </div>
+        </div>
+        
+        <!-- Filtres rapides -->
+        <div class="fr-mb-3w">
+            <div class="fr-btns-group fr-btns-group--inline">
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('all')">Tous</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('NA')">Non applicable</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('NonConsulte')">Non consulté</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('PromesseAction')">Promesse action</button>
+                <button class="fr-btn fr-btn--sm fr-btn--secondary" onclick="filterByStatus('Infonde')">Infondé</button>
+            </div>
+        </div>
+        
+        <!-- Grille de données -->
+        <div id="data-grid" class="data-grid">
+            <!-- Skeleton loading -->
+            <div class="skeleton-grid" id="skeleton-loader">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <nav role="navigation" class="fr-pagination" aria-label="Pagination" id="pagination" style="display: none;">
+            <ul class="fr-pagination__list">
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--first" 
+                       id="first-page" href="#" onclick="goToFirstPage(); return false;">
+                        Première page
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" 
+                       id="prev-page" href="#" onclick="goToPrevPage(); return false;">
+                        Page précédente
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-1" href="#" onclick="goToPage(1); return false;">1</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-2" href="#" onclick="goToPage(2); return false;">2</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-3" href="#" onclick="goToPage(3); return false;">3</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-4" href="#" onclick="goToPage(4); return false;">4</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link" id="page-5" href="#" onclick="goToPage(5); return false;">5</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-displayed-lg" id="dots">...</a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label" 
+                       id="next-page" href="#" onclick="goToNextPage(); return false;">
+                        Page suivante
+                    </a>
+                </li>
+                <li>
+                    <a class="fr-pagination__link fr-pagination__link--last" 
+                       id="last-page" href="#" onclick="goToLastPage(); return false;">
+                        Dernière page
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <!-- FIN ZONE WIDGET DATA-GRID-001 -->
+    
+    <!-- Modale pour les détails -->
+    <dialog id="modal-details" role="dialog" aria-labelledby="modal-details-title">
+        <div class="modal-wrapper">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2 id="modal-details-title" class="modal-title">
+                        Détails du signalement
+                    </h2>
+                </div>
+                <button class="btn-close-modal" 
+                        type="button"
+                        title="Fermer" 
+                        aria-label="Fermer la fenêtre"
+                        onclick="closeModal()">
+                    <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 10.586L16.95 5.636L18.364 7.05L13.414 12L18.364 16.95L16.95 18.364L12 13.414L7.05 18.364L5.636 16.95L10.586 12L5.636 7.05L7.05 5.636L12 10.586Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-details-content">
+                    <!-- Le contenu sera injecté ici -->
+                </div>
+            </div>
+        </div>
+    </dialog>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    <script>
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 0;
+        const itemsPerPage = 12;
+        let currentFilter = 'all';
+        let searchTerm = '';
+        
+        async function loadData() {
+            try {
+                // Charger des données avec différents statuts pour assurer la diversité
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1000');
+                const data = await response.json();
+                
+                allData = data.records || [];
+                document.getElementById('total-records').textContent = data.nhits.toLocaleString('fr-FR');
+                
+                // Compter les statuts pour le debug
+                const statusCount = {};
+                allData.forEach(record => {
+                    const status = record.fields?.status || 'undefined';
+                    statusCount[status] = (statusCount[status] || 0) + 1;
+                });
+                
+                applyFilters();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError();
+            }
+        }
+        
+        function applyFilters() {
+            
+            filteredData = allData.filter(record => {
+                const fields = record.fields || {};
+                
+                // Filtre par statut
+                if (currentFilter !== 'all') {
+                    if (!fields.status || fields.status !== currentFilter) {
+                        return false;
+                    }
+                }
+                
+                // Filtre par recherche
+                if (searchTerm) {
+                    const searchLower = searchTerm.toLowerCase();
+                    const searchableText = `${fields.category || ''} ${fields.subcategories || ''} ${fields.dep_name || ''} ${fields.reg_name || ''}`.toLowerCase();
+                    if (!searchableText.includes(searchLower)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            document.getElementById('filtered-records').textContent = filteredData.length.toLocaleString('fr-FR');
+            currentPage = 0;
+            displayGrid();
+        }
+        
+        function displayGrid() {
+            const grid = document.getElementById('data-grid');
+            const skeleton = document.getElementById('skeleton-loader');
+            
+            if (skeleton) {
+                skeleton.remove();
+            }
+            
+            grid.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                grid.innerHTML = '<div class="fr-alert fr-alert--info"><p>Aucun résultat trouvé</p></div>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+            
+            const start = currentPage * itemsPerPage;
+            const end = Math.min(start + itemsPerPage, filteredData.length);
+            const pageData = filteredData.slice(start, end);
+            
+            pageData.forEach(record => {
+                const fields = record.fields || {};
+                const card = createCard(fields, record.recordid);
+                grid.appendChild(card);
+            });
+            
+            updatePagination();
+            document.getElementById('current-page-stat').textContent = currentPage + 1;
+        }
+        
+        function createCard(fields, recordId) {
+            const card = document.createElement('div');
+            card.className = 'fr-card fr-card--shadow';
+            
+            const statusColor = getStatusColor(fields.status);
+            const statusLabel = getStatusLabel(fields.status);
+            
+            card.innerHTML = `
+                <div class="fr-card__body">
+                    <div class="fr-card__content">
+                        <h3 class="fr-card__title">
+                            <span class="fr-badge fr-badge--${getCategoryColor(fields.category)}">${fields.category || 'Non catégorisé'}</span>
+                        </h3>
+                        <p class="fr-card__desc">
+                            ${fields.subcategories ? fields.subcategories.substring(0, 150) + '...' : 'Pas de sous-catégorie'}
+                        </p>
+                        <div class="fr-card__start">
+                            <p class="fr-card__detail">
+                                ${fields.dep_name || 'Département inconnu'} - ${fields.reg_name || 'Région inconnue'}
+                            </p>
+                            <p class="fr-card__detail">
+                                ${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="fr-card__footer">
+                        <ul class="fr-btns-group fr-btns-group--inline">
+                            <li>
+                                <span class="fr-badge fr-badge--sm fr-badge--${statusColor}">${statusLabel}</span>
+                            </li>
+                            <li>
+                                <button class="fr-btn fr-btn--sm fr-btn--tertiary" onclick="viewDetails('${recordId}')">
+                                    Détails
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function getStatusColor(status) {
+            const colors = {
+                'NA': 'grey',
+                'NonConsulte': 'error',
+                'PromesseAction': 'success',
+                'Infonde': 'warning',
+                'InformateurInterne': 'info',
+                'MalRenseigne': 'new',
+                'ConsulteEtReponse': 'success',
+                'ConsulteSansReponse': 'warning',
+                'ReponseInjustifiee': 'error'
+            };
+            return colors[status] || 'info';
+        }
+        
+        function getStatusLabel(status) {
+            const labels = {
+                'NA': 'Non applicable',
+                'NonConsulte': 'Non consulté',
+                'PromesseAction': 'Promesse action',
+                'Infonde': 'Infondé',
+                'InformateurInterne': 'Informateur interne',
+                'MalRenseigne': 'Mal renseigné',
+                'ConsulteEtReponse': 'Consulté avec réponse',
+                'ConsulteSansReponse': 'Consulté sans réponse',
+                'ReponseInjustifiee': 'Réponse injustifiée'
+            };
+            return labels[status] || status || 'Inconnu';
+        }
+        
+        function getCategoryColor(category) {
+            const hash = category ? category.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 0;
+            const colors = ['info', 'success', 'warning', 'error', 'new', 'grey'];
+            return colors[hash % colors.length];
+        }
+        
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            if (totalPages > 1) {
+                pagination.style.display = 'block';
+                
+                // Cacher/afficher les boutons first/last
+                document.getElementById('first-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('prev-page').style.display = currentPage > 0 ? '' : 'none';
+                document.getElementById('next-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                document.getElementById('last-page').style.display = currentPage < totalPages - 1 ? '' : 'none';
+                
+                // Mettre à jour les numéros de page
+                const startPage = Math.max(0, currentPage - 2);
+                const endPage = Math.min(totalPages - 1, startPage + 4);
+                
+                for (let i = 1; i <= 5; i++) {
+                    const pageLink = document.getElementById('page-' + i);
+                    const pageNum = startPage + i;
+                    
+                    if (pageNum <= totalPages) {
+                        pageLink.style.display = '';
+                        pageLink.textContent = pageNum;
+                        pageLink.setAttribute('data-page', pageNum - 1);
+                        
+                        if (pageNum - 1 === currentPage) {
+                            pageLink.setAttribute('aria-current', 'page');
+                            pageLink.classList.add('fr-pagination__link--active');
+                        } else {
+                            pageLink.removeAttribute('aria-current');
+                            pageLink.classList.remove('fr-pagination__link--active');
+                        }
+                    } else {
+                        pageLink.style.display = 'none';
+                    }
+                }
+                
+                // Afficher les points si nécessaire
+                document.getElementById('dots').style.display = endPage < totalPages - 1 ? '' : 'none';
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+        
+        // Fonctions de navigation
+        function goToFirstPage() {
+            currentPage = 0;
+            displayGrid();
+        }
+        
+        function goToLastPage() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            currentPage = totalPages - 1;
+            displayGrid();
+        }
+        
+        function goToPrevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                displayGrid();
+            }
+        }
+        
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                displayGrid();
+            }
+        }
+        
+        function goToPage(pageNum) {
+            const page = parseInt(event.target.getAttribute('data-page'));
+            if (!isNaN(page)) {
+                currentPage = page;
+                displayGrid();
+            }
+        }
+        
+        function filterByStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.fr-btns-group button').forEach(btn => {
+                btn.classList.remove('fr-btn--primary');
+                btn.classList.add('fr-btn--secondary');
+            });
+            event.target.classList.remove('fr-btn--secondary');
+            event.target.classList.add('fr-btn--primary');
+            applyFilters();
+        }
+        
+        function applySearch() {
+            searchTerm = document.getElementById('search-input').value;
+            applyFilters();
+        }
+        
+        function viewDetails(recordId) {
+            const record = allData.find(r => r.recordid === recordId);
+            if (record) {
+                const fields = record.fields;
+                const modalContent = document.getElementById('modal-details-content');
+                
+                // Création du contenu structuré style DSFR
+                modalContent.innerHTML = `
+                    <!-- Alert avec référence -->
+                    <div class="fr-alert fr-alert--info fr-alert--sm fr-mb-3w">
+                        <p class="fr-alert__title">Référence du signalement</p>
+                        <p><code>${recordId}</code></p>
+                    </div>
+                    
+                    <!-- Informations principales -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Informations générales
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Date de création</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.creationdate ? new Date(fields.creationdate).toLocaleDateString('fr-FR', { 
+                                        day: 'numeric', 
+                                        month: 'long', 
+                                        year: 'numeric' 
+                                    }) : 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Catégorie</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--info">${fields.category || 'Non catégorisé'}</span>
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Statut actuel</div>
+                                <div class="modal-field-value">
+                                    <span class="fr-badge fr-badge--${fields.status === 'PromesseAction' ? 'success' : fields.status === 'NonConsulte' ? 'error' : 'grey'}">
+                                        ${fields.status || 'NA'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Localisation -->
+                    <div class="modal-info-card">
+                        <h3 class="fr-h6">
+                            Localisation
+                        </h3>
+                        <div class="modal-info-grid">
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Département</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.dep_name || 'Non renseigné'}</strong>
+                                    ${fields.dep_code ? ` <span class="fr-badge fr-badge--sm fr-badge--yellow-tournesol">${fields.dep_code}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="modal-field-group">
+                                <div class="modal-field-label">Région</div>
+                                <div class="modal-field-value">
+                                    <strong>${fields.reg_name || 'Non renseignée'}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- État du signalement -->
+                    <div class="fr-callout fr-callout--blue-ecume">
+                        <h3 class="fr-callout__title">
+                            État du traitement
+                        </h3>
+                        <ul class="fr-tags-group">
+                            <li>
+                                <p class="fr-tag ${fields.signalement_transmis == 1 ? 'fr-tag--green-emeraude' : 'fr-tag--grey'}">
+                                    ${fields.signalement_transmis == 1 ? '✓' : '✗'} Transmis
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_lu == 1 ? 'fr-tag--blue-ecume' : 'fr-tag--grey'}">
+                                    ${fields.signalement_lu == 1 ? '✓' : '✗'} Lu
+                                </p>
+                            </li>
+                            <li>
+                                <p class="fr-tag ${fields.signalement_reponse == 1 ? 'fr-tag--purple-glycine' : 'fr-tag--grey'}">
+                                    ${fields.signalement_reponse == 1 ? '✓' : '✗'} Réponse
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+                
+                // Ouvrir la modale
+                openModal();
+            }
+        }
+        
+        function openModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.showModal === 'function') {
+                        modal.showModal();
+                    } else {
+                        // Fallback pour les navigateurs qui ne supportent pas showModal
+                        modal.setAttribute('open', '');
+                        modal.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error('Erreur ouverture modale:', err);
+                    modal.setAttribute('open', '');
+                    modal.style.display = 'block';
+                }
+            } else {
+                console.error('Element modal-details non trouvé!');
+            }
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('modal-details');
+            if (modal) {
+                try {
+                    // Utiliser l'API dialog HTML5
+                    if (typeof modal.close === 'function') {
+                        modal.close();
+                    } else {
+                        // Fallback
+                        modal.removeAttribute('open');
+                        modal.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error('Erreur fermeture modale:', err);
+                    modal.removeAttribute('open');
+                    modal.style.display = 'none';
+                }
+            }
+        }
+        
+        // Rendre les fonctions globales
+        window.viewDetails = viewDetails;
+        window.closeModal = closeModal;
+        window.openModal = openModal;
+        
+        function showError() {
+            const grid = document.getElementById('data-grid');
+            grid.innerHTML = '<div class="fr-alert fr-alert--error"><p>Erreur de chargement des données</p></div>';
+        }
+        
+        // Event listener pour la recherche avec Enter
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applySearch();
+            }
+        });
+        
+        // Initialisation et support clavier amélioré
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger les données
+            loadData();
+            
+            // Support clavier pour bouton fermer modale
+            const closeBtn = document.querySelector('.btn-close-modal');
+            if (closeBtn) {
+                closeBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        closeModal();
+                    }
+                });
+            }
+            
+            // Gestion focus trap dans la modale
+            const modal = document.getElementById('detail-modal');
+            if (modal) {
+                modal.addEventListener('keydown', function(e) {
+                    if (!modal.hasAttribute('open')) return;
+                    
+                    const focusableElements = modal.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    
+                    const firstFocusable = focusableElements[0];
+                    const lastFocusable = focusableElements[focusableElements.length - 1];
+                    
+                    // Trap Tab navigation
+                    if (e.key === 'Tab') {
+                        if (e.shiftKey) { // Shift + Tab
+                            if (document.activeElement === firstFocusable) {
+                                e.preventDefault();
+                                lastFocusable.focus();
+                            }
+                        } else { // Tab
+                            if (document.activeElement === lastFocusable) {
+                                e.preventDefault();
+                                firstFocusable.focus();
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Support clavier pour cartes
+            setTimeout(function() {
+                const cards = document.querySelectorAll('.fr-card');
+                cards.forEach(card => {
+                    // Rendre les cartes focusables
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('role', 'article');
+                    
+                    // Support Enter pour ouvrir les détails
+                    card.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            const detailBtn = card.querySelector('.fr-btn');
+                            if (detailBtn) {
+                                e.preventDefault();
+                                detailBtn.click();
+                            }
+                        }
+                    });
+                });
+                
+                // Support clavier pour pagination
+                const paginationLinks = document.querySelectorAll('.fr-pagination__link');
+                paginationLinks.forEach(link => {
+                    link.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.click();
+                        }
+                    });
+                });
+                
+                // Améliorer accessibilité des boutons
+                const allButtons = document.querySelectorAll('button');
+                allButtons.forEach(button => {
+                    if (!button.hasAttribute('aria-label') && button.textContent.trim()) {
+                        button.setAttribute('aria-label', button.textContent.trim());
+                    }
+                });
+            }, 1000); // Attendre que les données soient chargées
+            
+            // Fermer modale avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('detail-modal');
+                    if (modal && modal.hasAttribute('open')) {
+                        closeModal();
+                    }
+                }
+            });
+        });
+    </script>
+        </div>
+    </main>
+
+    <!-- Footer DSFR -->
+    <footer class="fr-footer" role="contentinfo" id="fr-footer">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Retour à l'accueil">
+                        <p class="fr-logo">
+                            République
+                            <br>Française
+                        </p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Tableau de données SignalConso. Données issues de data.economie.gouv.fr
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" href="https://data.economie.gouv.fr" rel="noopener external">data.economie.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Mentions légales</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Données personnelles</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>
+                        Sauf mention contraire, tous les contenus de ce site sont sous
+                        <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external">licence etalab-2.0</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

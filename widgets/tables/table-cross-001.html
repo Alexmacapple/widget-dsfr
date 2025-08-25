@@ -40,6 +40,7 @@
         .fr-table th, .fr-table td { text-align: center; }
         .fr-table th:first-child { text-align: left; }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body ng-app="ods-widgets">
 
@@ -213,5 +214,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

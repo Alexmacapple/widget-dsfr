@@ -189,6 +189,7 @@
             }
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
 
@@ -916,7 +917,7 @@
             try {
                 // Simuler l'envoi à l'API SignalConso
                 // En production, remplacer par un vrai appel API
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso', {
+                const response = await fetchCompat('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -972,7 +973,7 @@
         // Connexion à l'API SignalConso pour les catégories
         async function loadCategories() {
             try {
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&facet=categoriedeprobleme&rows=0');
+                const response = await fetchCompat('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&facet=categoriedeprobleme&rows=0');
                 const data = await response.json();
                 
                 if (data.facet_groups) {
@@ -1047,5 +1048,16 @@
         </div>
     </footer>
 
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
+    </script>
 </body>
 </html>

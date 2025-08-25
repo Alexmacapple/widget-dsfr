@@ -220,6 +220,7 @@
             color: var(--text-default-grey);
         }
     </style>
+    <script src="../js/wrapper-api.js"></script>
 </head>
 <body>
     <!-- Skip links pour l'accessibilité -->
@@ -926,6 +927,17 @@
                 document.querySelector('#panel-' + tabName).classList.add('fr-tabs__panel--selected');
             };
         }]);
+    </script>
+
+    <script>
+        // Configuration du wrapper API
+        if (window.fetchCompat) {
+            fetchCompat.configure({
+                enableCache: true,
+                enableMonitoring: true,
+                debug: window.location.hostname === 'localhost'
+            });
+        }
     </script>
 </body>
 </html>

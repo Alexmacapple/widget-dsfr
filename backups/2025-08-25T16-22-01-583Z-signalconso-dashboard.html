@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard SignalConso - DSFR</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <style>
+        .widget-container {
+            padding: 20px;
+            background: #f6f6f6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .facet-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .fr-card__header {
+            background-color: var(--background-alt-grey);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-default-grey);
+        }
+        
+        .fr-card__body {
+            padding: 1.5rem;
+        }
+        
+        .facet-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: #f0f0f0;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .facet-item:hover {
+            background: #e0e0e0;
+        }
+        
+        .facet-count {
+            font-weight: bold;
+            color: #0063cb;
+        }
+        
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .ods-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container fr-py-6w" ng-app="ods-widgets" ng-controller="SignalConsoController">
+        
+        <!-- Header -->
+        <header class="fr-mb-4w">
+            <h1>Dashboard SignalConso</h1>
+            <p class="fr-text--lead">Analyse des signalements consommateurs - data.economie.gouv.fr</p>
+        </header>
+        
+        <div class="widget-container">
+            <ods-dataset-context 
+                context="ctx"
+                ctx-domain="data.economie.gouv.fr"
+                ctx-dataset="signalconso"
+                ctx-parameters="params">
+                
+                <!-- Statistiques principales avec valeurs codées en dur -->
+                <div class="fr-callout fr-mb-4w">
+                    <h2 class="fr-callout__title">Vue d'ensemble</h2>
+                    <div class="stats-grid">
+                        <div class="fr-card fr-card--sm">
+                            <div class="fr-card__body">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title">Total signalements</h3>
+                                    <p class="fr-card__desc">
+                                        <span class="fr-text--lg fr-text--bold">{{ totalCount | number }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fr-card fr-card--sm">
+                            <div class="fr-card__body">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title">Départements</h3>
+                                    <p class="fr-card__desc">
+                                        <span class="fr-text--lg fr-text--bold">101</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fr-card fr-card--sm">
+                            <div class="fr-card__body">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title">Catégories</h3>
+                                    <p class="fr-card__desc">
+                                        <span class="fr-text--lg fr-text--bold">15</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fr-card fr-card--sm">
+                            <div class="fr-card__body">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title">Filtres actifs</h3>
+                                    <p class="fr-card__desc">
+                                        <span class="fr-text--lg fr-text--bold">{{ activeFilters }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section des filtres -->
+                <div class="filter-section">
+                    <h2 class="fr-h3">Filtres</h2>
+                    <div class="fr-grid-row fr-grid-row--gutters">
+                        
+                        <!-- Filtre par département -->
+                        <div class="fr-col-12 fr-col-md-6">
+                            <div class="fr-select-group">
+                                <label class="fr-label" for="dep-select">
+                                    Département
+                                </label>
+                                <select class="fr-select" id="dep-select" ng-model="selectedDep" ng-change="updateFilters()">
+                                    <option value="">Tous les départements</option>
+                                    <option value="Paris">Paris (75)</option>
+                                    <option value="Hauts-de-Seine">Hauts-de-Seine (92)</option>
+                                    <option value="Seine-Saint-Denis">Seine-Saint-Denis (93)</option>
+                                    <option value="Val-de-Marne">Val-de-Marne (94)</option>
+                                    <option value="Rhône">Rhône (69)</option>
+                                    <option value="Bouches-du-Rhône">Bouches-du-Rhône (13)</option>
+                                    <option value="Nord">Nord (59)</option>
+                                    <option value="Gironde">Gironde (33)</option>
+                                    <option value="Loire-Atlantique">Loire-Atlantique (44)</option>
+                                    <option value="Haute-Garonne">Haute-Garonne (31)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre par catégorie -->
+                        <div class="fr-col-12 fr-col-md-6">
+                            <div class="fr-select-group">
+                                <label class="fr-label" for="cat-select">
+                                    Catégorie
+                                </label>
+                                <select class="fr-select" id="cat-select" ng-model="selectedCat" ng-change="updateFilters()">
+                                    <option value="">Toutes les catégories</option>
+                                    <option value="AchatMagasinInternet">Achat Magasin/Internet</option>
+                                    <option value="AchatInternet">Achat Internet</option>
+                                    <option value="BanqueAssuranceMutuelle">Banque/Assurance</option>
+                                    <option value="CafeRestaurant">Café/Restaurant</option>
+                                    <option value="EauGazElectricite">Eau/Gaz/Electricité</option>
+                                    <option value="TelephonieFaiMedias">Téléphonie/Internet</option>
+                                    <option value="TravauxRenovations">Travaux/Rénovations</option>
+                                    <option value="VoyageLoisirs">Voyage/Loisirs</option>
+                                    <option value="VoitureVehicule">Voiture/Véhicule</option>
+                                    <option value="Immobilier">Immobilier</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bouton de réinitialisation -->
+                    <div class="fr-mt-2w">
+                        <button class="fr-btn fr-btn--secondary" ng-click="resetFilters()">
+                            Réinitialiser les filtres
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Facettes interactives -->
+                <div class="fr-grid-row fr-grid-row--gutters fr-mb-4w">
+                    
+                    <!-- Top départements -->
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-card">
+                            <div class="fr-card__header">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title fr-h4 fr-mb-0">Top 10 Départements</h3>
+                                </div>
+                            </div>
+                            <div class="fr-card__body">
+                                <div class="facet-container">
+                                    <ods-facets context="ctx">
+                                        <ods-facet name="dep_name" disjunctive="true">
+                                            <div ods-facet-results="depItems" ods-facet-results-context="ctx" ods-facet-results-facet-name="dep_name">
+                                                <div ng-repeat="item in depItems | limitTo:10" 
+                                                     class="facet-item"
+                                                     ng-click="filterByDep(item.name)">
+                                                    <span>{{ item.name }}</span>
+                                                    <span class="facet-count">{{ item.count | number }}</span>
+                                                </div>
+                                            </div>
+                                        </ods-facet>
+                                    </ods-facets>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Top catégories -->
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-card">
+                            <div class="fr-card__header">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title fr-h4 fr-mb-0">Top Catégories</h3>
+                                </div>
+                            </div>
+                            <div class="fr-card__body">
+                                <div class="facet-container">
+                                    <ods-facets context="ctx">
+                                        <ods-facet name="category" disjunctive="true">
+                                            <div ods-facet-results="catItems" ods-facet-results-context="ctx" ods-facet-results-facet-name="category">
+                                                <div ng-repeat="item in catItems | limitTo:10" 
+                                                     class="facet-item"
+                                                     ng-click="filterByCat(item.name)">
+                                                    <span>{{ item.name }}</span>
+                                                    <span class="facet-count">{{ item.count | number }}</span>
+                                                </div>
+                                            </div>
+                                        </ods-facet>
+                                    </ods-facets>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Statuts -->
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-card">
+                            <div class="fr-card__header">
+                                <div class="fr-card__content">
+                                    <h3 class="fr-card__title fr-h4 fr-mb-0">Statuts des signalements</h3>
+                                </div>
+                            </div>
+                            <div class="fr-card__body">
+                                <div class="facet-container">
+                                    <ods-facets context="ctx">
+                                        <ods-facet name="status" disjunctive="true">
+                                            <div ods-facet-results="statusItems" ods-facet-results-context="ctx" ods-facet-results-facet-name="status">
+                                                <div ng-repeat="item in statusItems" 
+                                                     class="facet-item">
+                                                    <span>{{ item.name || 'Non défini' }}</span>
+                                                    <span class="facet-count">{{ item.count | number }}</span>
+                                                </div>
+                                            </div>
+                                        </ods-facet>
+                                    </ods-facets>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tableau des données -->
+                <div class="fr-card">
+                    <div class="fr-card__header">
+                        <div class="fr-card__content">
+                            <h3 class="fr-card__title fr-h3 fr-mb-0">Derniers signalements</h3>
+                        </div>
+                    </div>
+                    <div class="fr-card__body">
+                        <p class="fr-text--sm fr-mb-2w">Affichage des 50 derniers signalements filtrés</p>
+                        <ods-table context="ctx" 
+                                   displayed-fields="dep_name,category,subcategories,creationdate,status,tags"
+                                   sort="-creationdate"></ods-table>
+                    </div>
+                </div>
+                
+            </ods-dataset-context>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+    <script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <!-- Contrôleur Angular -->
+    <script>
+        angular.module('ods-widgets').controller('SignalConsoController', ['$scope', '$timeout', function($scope, $timeout) {
+            // Initialisation
+            $scope.totalCount = 1325182;
+            $scope.activeFilters = 0;
+            $scope.selectedDep = '';
+            $scope.selectedCat = '';
+            $scope.params = {};
+            
+            // Mise à jour des filtres
+            $scope.updateFilters = function() {
+                $scope.params = {};
+                $scope.activeFilters = 0;
+                
+                if ($scope.selectedDep) {
+                    $scope.params['refine.dep_name'] = $scope.selectedDep;
+                    $scope.activeFilters++;
+                }
+                
+                if ($scope.selectedCat) {
+                    $scope.params['refine.category'] = $scope.selectedCat;
+                    $scope.activeFilters++;
+                }
+                
+                // Forcer la mise à jour du contexte
+                if ($scope.ctx) {
+                    $scope.ctx.parameters = $scope.params;
+                }
+            };
+            
+            // Filtrer par département (depuis facette)
+            $scope.filterByDep = function(dep) {
+                $scope.selectedDep = dep;
+                $scope.updateFilters();
+            };
+            
+            // Filtrer par catégorie (depuis facette)
+            $scope.filterByCat = function(cat) {
+                $scope.selectedCat = cat;
+                $scope.updateFilters();
+            };
+            
+            // Réinitialiser les filtres
+            $scope.resetFilters = function() {
+                $scope.selectedDep = '';
+                $scope.selectedCat = '';
+                $scope.updateFilters();
+            };
+            
+            // Initialiser le contexte après chargement
+            $timeout(function() {
+                if ($scope.ctx) {
+                    console.log('Contexte initialisé:', $scope.ctx);
+                }
+            }, 1000);
+        }]);
+    </script>
+</body>
+</html>
