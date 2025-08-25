@@ -99,7 +99,7 @@
         
         .password-requirements {
             font-size: 0.75rem;
-            color: #666;
+            color: #161616;
             margin-top: 0.5rem;
         }
         
@@ -127,7 +127,7 @@
             align-items: center;
             margin-top: 0.5rem;
             font-size: 0.875rem;
-            color: #666;
+            color: #161616;
         }
         
         .char-counter.warning {
@@ -187,7 +187,7 @@
         
         .validation-feedback-content {
             font-size: 0.875rem;
-            color: #666;
+            color: #161616;
         }
         
         /* Exemples de sections */
@@ -1115,13 +1115,13 @@
                         <span class="fr-text--bold" style="color: #CE0500">✗ ${errorCount} erreurs</span>
                     </div>
                     <div class="fr-col-4">
-                        <span class="fr-text--bold" style="color: #666">○ ${emptyCount} vides</span>
+                        <span class="fr-text--bold" style="color: #161616">○ ${emptyCount} vides</span>
                     </div>
                 </div>
                 <div class="fr-mt-2w">
                     ${results.map(r => `
                         <div class="fr-mb-1w">
-                            <span style="color: ${r.status === 'valid' ? '#18753C' : r.status === 'error' ? '#CE0500' : '#666'}">
+                            <span style="color: ${r.status === 'valid' ? '#18753C' : r.status === 'error' ? '#CE0500' : '#161616'}">
                                 ${r.status === 'valid' ? '✓' : r.status === 'error' ? '✗' : '○'}
                             </span>
                             <strong>${r.label}:</strong> ${r.value || 'Non renseigné'}
