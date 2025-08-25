@@ -459,6 +459,14 @@
             
             const data = flowData[currentFlowType];
             
+            console.log('DrawSankey - Type de flux:', currentFlowType);
+            console.log('DrawSankey - Données:', data);
+            
+            if (!data || !data.nodes || !data.links) {
+                console.error('Pas de données pour dessiner le Sankey');
+                return;
+            }
+            
             // Dimensions
             const margin = {top: 20, right: 120, bottom: 20, left: 120};
             const container = document.getElementById("sankey-container");
@@ -563,8 +571,13 @@
                 .style("font-size", "10px")
                 .style("fill", dsfrColors.grey)
                 .text(d => {
-                    const total = d.sourceLinks ? d.sourceLinks.reduce((sum, l) => sum + l.value, 0) :
-                                 d.targetLinks ? d.targetLinks.reduce((sum, l) => sum + l.value, 0) : 0;
+                    // Calculer le total entrant ou sortant selon le type de nœud
+                    let total = 0;
+                    if (d.sourceLinks && d.sourceLinks.length > 0) {
+                        total = d.sourceLinks.reduce((sum, l) => sum + l.value, 0);
+                    } else if (d.targetLinks && d.targetLinks.length > 0) {
+                        total = d.targetLinks.reduce((sum, l) => sum + l.value, 0);
+                    }
                     return total.toLocaleString('fr-FR');
                 });
             
@@ -598,7 +611,7 @@
         // Mise à jour du type de flux
         function updateFlowType() {
             currentFlowType = document.getElementById('flow-type').value;
-            drawSankey();
+            loadDataFromAPI(); // Charger les nouvelles données de l'API
             
             if (document.getElementById('toggle-table').checked) {
                 updateDataTable();
@@ -688,24 +701,10 @@
             }
         }
         
-        // Initialisation
-        window.addEventListener('DOMContentLoaded', () => {
-            drawSankey();
-        });
-        
         // Adaptation responsive
         window.addEventListener('resize', () => {
             drawSankey();
-        });
-    
-        // Fonction pour changer le type de flux
-        function updateFlowType() {
-            const selectElement = document.getElementById('flow-type');
-            if (selectElement) {
-                currentFlowType = selectElement.value;
-                loadDataFromAPI();
-            }
-        }
+        })
         
         // Chargement des données depuis l'API
         async function loadDataFromAPI() {
@@ -797,16 +796,26 @@
                 const nodeMap = {};
                 let nodeIndex = 0;
                 
-                // Ajouter les nœuds sources
+                // D'abord ajouter les sources
                 topSources.forEach(source => {
-                    nodeMap[source] = nodeIndex++;
-                    nodes.push({ id: nodeIndex - 1, name: source });
+                    nodeMap[source] = nodeIndex;
+                    nodes.push({ 
+                        id: nodeIndex, 
+                        name: source
+                    });
+                    nodeIndex++;
                 });
                 
-                // Ajouter les nœuds targets
+                // Puis ajouter les targets (seulement ceux qui ne sont pas déjà dans les sources)
                 topTargets.forEach(target => {
-                    nodeMap[target] = nodeIndex++;
-                    nodes.push({ id: nodeIndex - 1, name: target });
+                    if (!nodeMap.hasOwnProperty(target)) {
+                        nodeMap[target] = nodeIndex;
+                        nodes.push({ 
+                            id: nodeIndex, 
+                            name: target
+                        });
+                        nodeIndex++;
+                    }
                 });
                 
                 // Créer les liens avec les données réelles
@@ -814,7 +823,7 @@
                     const [source, target] = key.split(' -> ');
                     
                     // Ne garder que les flux entre top sources et top targets
-                    if (topSources.includes(source) && topTargets.includes(target)) {
+                    if (nodeMap.hasOwnProperty(source) && nodeMap.hasOwnProperty(target)) {
                         links.push({
                             source: nodeMap[source],
                             target: nodeMap[target],
@@ -823,8 +832,20 @@
                     }
                 });
                 
+                // Afficher les données pour debug
+                console.log(`\n=== Données API pour ${currentFlowType} ===`);
+                console.log('Top Sources:', topSources);
+                console.log('Top Targets:', topTargets);
+                console.log('Nombre de flux trouvés:', Object.keys(flows).length);
+                console.log('Échantillon de flux:', Object.entries(flows).slice(0, 5));
+                console.log('Nombre de nœuds créés:', nodes.length);
+                console.log('Nombre de liens créés:', links.length);
+                
                 // Si on a des données, mettre à jour le graphique
                 if (links.length > 0) {
+                    console.log('Total des valeurs dans les liens:', links.reduce((sum, l) => sum + l.value, 0));
+                    console.log('Liens créés:', links);
+                    
                     // Mettre à jour les données globales
                     flowData[currentFlowType] = {
                         nodes: nodes,
