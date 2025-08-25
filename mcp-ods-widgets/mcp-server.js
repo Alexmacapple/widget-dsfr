@@ -97,52 +97,52 @@ server.setRequestHandler(
     
     try {
       switch (name) {
-        case 'create_widget':
-          return {
-            content: [
-              {
-                type: 'text',
-                text: `Widget ${args.type} créé pour le dataset ${args.dataset}`
-              },
-              {
-                type: 'text', 
-                text: '```html\n' + generateWidget(args.type, args.dataset, args.options) + '\n```'
-              }
-            ]
-          };
+      case 'create_widget':
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Widget ${args.type} créé pour le dataset ${args.dataset}`
+            },
+            {
+              type: 'text', 
+              text: '```html\n' + generateWidget(args.type, args.dataset, args.options) + '\n```'
+            }
+          ]
+        };
           
-        case 'analyze_dataset':
-          const analysis = analyzeDataset(args.dataset);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: `Analyse du dataset ${args.dataset}:`
-              },
-              {
-                type: 'text',
-                text: '```json\n' + JSON.stringify(analysis, null, 2) + '\n```'
-              }
-            ]
-          };
+      case 'analyze_dataset':
+        const analysis = analyzeDataset(args.dataset);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Analyse du dataset ${args.dataset}:`
+            },
+            {
+              type: 'text',
+              text: '```json\n' + JSON.stringify(analysis, null, 2) + '\n```'
+            }
+          ]
+        };
           
-        case 'generate_dashboard':
-          const dashboard = generateDashboard(args.dataset, args.widgets);
-          return {
-            content: [
-              {
-                type: 'text',
-                text: `Dashboard DSFR généré pour ${args.dataset}`
-              },
-              {
-                type: 'text',
-                text: '```html\n' + dashboard + '\n```'
-              }
-            ]
-          };
+      case 'generate_dashboard':
+        const dashboard = generateDashboard(args.dataset, args.widgets);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Dashboard DSFR généré pour ${args.dataset}`
+            },
+            {
+              type: 'text',
+              text: '```html\n' + dashboard + '\n```'
+            }
+          ]
+        };
           
-        default:
-          throw new Error(`Outil non reconnu: ${name}`);
+      default:
+        throw new Error(`Outil non reconnu: ${name}`);
       }
     } catch (error) {
       return {
@@ -199,8 +199,8 @@ function generateWidget(type, dataset, options = {}) {
   <div class="fr-sidemenu__inner">
     <ods-facets context="ctx" ctx-dataset="${dataset}">
       ${(options.facets || ['categorie', 'region']).map(f => 
-        `<ods-facet name="${f}" disjunctive="true"></ods-facet>`
-      ).join('\n      ')}
+    `<ods-facet name="${f}" disjunctive="true"></ods-facet>`
+  ).join('\n      ')}
     </ods-facets>
   </div>
 </div>`,
@@ -332,13 +332,13 @@ function generateDashboard(dataset, widgets = ['kpi', 'chart', 'table']) {
         <!-- Widgets -->
         <div class="widget-grid">
           ${widgets.map(widget => {
-            const options = widget === 'facets' ? { facets: analysis.facets } : {};
-            return `
+    const options = widget === 'facets' ? { facets: analysis.facets } : {};
+    return `
           <div class="widget-box">
             <h2>${getWidgetTitle(widget)}</h2>
             ${generateWidget(widget, dataset, options)}
           </div>`;
-          }).join('')}
+  }).join('')}
         </div>
         
         <!-- Actions -->

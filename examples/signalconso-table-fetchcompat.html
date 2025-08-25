@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Table SignalConso avec FetchCompat - DSFR</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/utility/icons/icons.min.css">
+    
+    <!-- Votre wrapper API -->
+    <script src="../wrapper-api.js"></script>
+    
+    <style>
+        .widget-container {
+            margin: 2rem 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+        .fr-table th {
+            background-color: var(--background-alt-blue-france);
+            color: var(--text-inverted-grey);
+            white-space: nowrap;
+        }
+        .fr-table td {
+            vertical-align: top;
+        }
+        .risk-cell {
+            max-width: 300px;
+        }
+        .product-cell {
+            max-width: 200px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .stat-card {
+            background: var(--background-alt-grey);
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-action-high-blue-france);
+        }
+        .update-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #0a76f6;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container">
+        <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12">
+                <h1>Tableau SignalConso - Temps Réel</h1>
+                
+                <!-- DÉBUT ZONE WIDGET signalconso-table-fetchcompat-001 -->
+                <div id="widget-signalconso-table-fetchcompat-001" class="widget-container">
+                    
+                    <!-- Indicateur de connexion -->
+                    <div class="fr-alert fr-alert--info fr-mb-3w">
+                        <p>
+                            <span class="update-indicator"></span>
+                            <span id="connection-status">Connexion à data.economie.gouv.fr...</span>
+                        </p>
+                    </div>
+
+                    <!-- Statistiques -->
+                    <div class="stats-grid fr-mb-3w">
+                        <div class="stat-card">
+                            <div class="stat-label">Total rappels</div>
+                            <div class="stat-value" id="stat-total">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Aujourd'hui</div>
+                            <div class="stat-value" id="stat-today">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cette semaine</div>
+                            <div class="stat-value" id="stat-week">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cache actif</div>
+                            <div class="stat-value" id="stat-cache">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filtres -->
+                    <div class="fr-search-bar fr-mb-3w" role="search">
+                        <label class="fr-label" for="search-input">
+                            Rechercher dans les rappels
+                        </label>
+                        <input class="fr-input" type="search" id="search-input" name="search-input" placeholder="Rechercher un produit, une marque...">
+                        <button class="fr-btn" id="search-button" title="Rechercher">
+                            Rechercher
+                        </button>
+                    </div>
+
+                    <!-- Sélecteurs -->
+                    <div class="fr-grid-row fr-mb-3w">
+                        <div class="fr-col-6">
+                            <div class="fr-select-group">
+                                <label class="fr-label" for="items-per-page">
+                                    Résultats par page
+                                </label>
+                                <select class="fr-select" id="items-per-page" name="items-per-page">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fr-col-6">
+                            <div class="fr-select-group">
+                                <label class="fr-label" for="category-filter">
+                                    Filtrer par catégorie
+                                </label>
+                                <select class="fr-select" id="category-filter" name="category-filter">
+                                    <option value="">Toutes les catégories</option>
+                                    <option value="Alimentation">Alimentation</option>
+                                    <option value="Cosmétiques">Cosmétiques</option>
+                                    <option value="Jouets">Jouets</option>
+                                    <option value="Appareils électriques">Appareils électriques</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loading" class="loading" style="display: none;">
+                        <div class="fr-spinner fr-spinner--lg" aria-label="Chargement en cours">
+                            <span class="fr-sr-only">Chargement en cours</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Table container -->
+                    <div id="table-container">
+                        <div class="fr-table fr-table--bordered">
+                            <div class="fr-table__wrapper">
+                                <div class="fr-table__container">
+                                    <div class="fr-table__content">
+                                        <table role="table" aria-label="Tableau des rappels de produits SignalConso">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Catégorie</th>
+                                                    <th scope="col">Produit</th>
+                                                    <th scope="col">Marque</th>
+                                                    <th scope="col">Risques</th>
+                                                    <th scope="col">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-body">
+                                                <!-- Data will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <nav class="fr-pagination fr-mt-3w" role="navigation" aria-label="Pagination">
+                            <ul class="fr-pagination__list">
+                                <li>
+                                    <button class="fr-pagination__link fr-pagination__link--prev" 
+                                            id="prev-page"
+                                            aria-label="Page précédente">
+                                        Page précédente
+                                    </button>
+                                </li>
+                                <li>
+                                    <span class="fr-pagination__link" aria-current="page" id="current-page">1</span>
+                                </li>
+                                <li>
+                                    <button class="fr-pagination__link fr-pagination__link--next"
+                                            id="next-page"
+                                            aria-label="Page suivante">
+                                        Page suivante
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                        
+                        <!-- Actions -->
+                        <div class="fr-btns-group fr-btns-group--inline-sm fr-mt-3w">
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line"
+                                    id="export-csv">
+                                Exporter en CSV
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-refresh-line"
+                                    id="refresh-data">
+                                Actualiser
+                            </button>
+                            <button class="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-delete-line"
+                                    id="clear-cache">
+                                Vider le cache
+                            </button>
+                        </div>
+
+                        <!-- Info mise à jour -->
+                        <div class="fr-callout fr-mt-3w">
+                            <h3 class="fr-callout__title">Informations</h3>
+                            <p class="fr-callout__text">
+                                <strong>Total:</strong> <span id="total-records">0</span> rappels • 
+                                <strong>Page:</strong> <span id="page-info">1</span> • 
+                                <strong>Dernière mise à jour:</strong> <span id="last-update"></span> •
+                                <strong>Source:</strong> <span id="data-source">Cache</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Error message -->
+                    <div id="error-container" class="fr-alert fr-alert--error" style="display: none;">
+                        <h3 class="fr-alert__title">Erreur de chargement</h3>
+                        <p id="error-message"></p>
+                    </div>
+                </div>
+                <!-- FIN ZONE WIDGET signalconso-table-fetchcompat-001 -->
+                
+                <!-- Alternative textuelle -->
+                <div class="fr-notice fr-notice--info fr-mt-3w">
+                    <div class="fr-container">
+                        <div class="fr-notice__body">
+                            <p class="fr-notice__title">Alternative textuelle</p>
+                            <p>Ce tableau présente les rappels de produits SignalConso en temps réel avec cache intelligent via FetchCompat.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DSFR JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <!-- Application JavaScript utilisant fetchCompat -->
+    <script>
+        // Configuration
+        const DATASET = 'rappelconso0';
+        const API_DOMAIN = 'data.economie.gouv.fr';
+        
+        // État de l'application
+        let currentPage = 0;
+        let itemsPerPage = 10;
+        let totalRecords = 0;
+        let currentData = [];
+        let searchQuery = '';
+        let categoryFilter = '';
+        let isFromCache = false;
+
+        // Initialiser fetchCompat si disponible
+        if (typeof fetchCompat !== 'undefined') {
+            fetchCompat.configure({
+                apiDomain: API_DOMAIN,
+                enableCache: true,
+                cacheDuration: 300000, // 5 minutes
+                enableMonitoring: true,
+                debug: false
+            });
+            console.log('[Widget] FetchCompat configuré pour', API_DOMAIN);
+        }
+
+        // Fonction pour charger les données avec fetchCompat
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const tableContainer = document.getElementById('table-container');
+            const errorContainer = document.getElementById('error-container');
+            
+            loading.style.display = 'block';
+            errorContainer.style.display = 'none';
+            
+            try {
+                // Construire l'URL avec les paramètres
+                const params = new URLSearchParams({
+                    limit: itemsPerPage,
+                    offset: currentPage * itemsPerPage,
+                    order_by: 'date_de_publication DESC'
+                });
+                
+                // Ajouter les filtres
+                let whereClause = [];
+                if (searchQuery) {
+                    whereClause.push(`(search(noms_des_modeles_ou_references, "${searchQuery}") OR search(marque_du_produit, "${searchQuery}"))`);
+                }
+                if (categoryFilter) {
+                    whereClause.push(`categorie_de_produit="${categoryFilter}"`);
+                }
+                if (whereClause.length > 0) {
+                    params.append('where', whereClause.join(' AND '));
+                }
+                
+                const url = `https://${API_DOMAIN}/api/explore/v2.1/catalog/datasets/${DATASET}/records?${params}`;
+                
+                // Utiliser fetchCompat si disponible, sinon fetch normal
+                const fetchFunction = typeof fetchCompat !== 'undefined' ? fetchCompat : fetch;
+                const response = await fetchFunction(url);
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération des données');
+                }
+                
+                const data = await response.json();
+                
+                // Vérifier si les données viennent du cache
+                isFromCache = response.headers && response.headers.get('X-From-Cache') === 'true';
+                
+                currentData = data.results || [];
+                totalRecords = data.total_count || 0;
+                
+                displayData();
+                updatePagination();
+                updateStats();
+                updateConnectionStatus(true);
+                
+                loading.style.display = 'none';
+                
+            } catch (error) {
+                console.error('[Widget] Erreur:', error);
+                loading.style.display = 'none';
+                errorContainer.style.display = 'block';
+                document.getElementById('error-message').textContent = 
+                    'Impossible de charger les données. Veuillez réessayer plus tard.';
+                updateConnectionStatus(false);
+            }
+        }
+
+        // Fonction pour afficher les données dans le tableau
+        function displayData() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            if (currentData.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 6;
+                cell.textContent = 'Aucun résultat trouvé';
+                cell.style.textAlign = 'center';
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            currentData.forEach(record => {
+                const row = document.createElement('tr');
+                
+                // Date
+                const dateCell = document.createElement('td');
+                const date = new Date(record.date_de_publication);
+                dateCell.textContent = date.toLocaleDateString('fr-FR');
+                row.appendChild(dateCell);
+                
+                // Catégorie
+                const categoryCell = document.createElement('td');
+                categoryCell.textContent = record.categorie_de_produit || '-';
+                row.appendChild(categoryCell);
+                
+                // Produit
+                const productCell = document.createElement('td');
+                productCell.className = 'product-cell';
+                productCell.textContent = record.noms_des_modeles_ou_references || '-';
+                productCell.title = record.noms_des_modeles_ou_references || '';
+                row.appendChild(productCell);
+                
+                // Marque
+                const brandCell = document.createElement('td');
+                brandCell.textContent = record.marque_du_produit || '-';
+                row.appendChild(brandCell);
+                
+                // Risques
+                const riskCell = document.createElement('td');
+                riskCell.className = 'risk-cell';
+                const riskText = record.risques_encourus_par_le_consommateur || '-';
+                riskCell.textContent = riskText.length > 100 ? riskText.substring(0, 100) + '...' : riskText;
+                riskCell.title = riskText;
+                row.appendChild(riskCell);
+                
+                // Actions
+                const actionCell = document.createElement('td');
+                const detailButton = document.createElement('button');
+                detailButton.className = 'fr-btn fr-btn--sm fr-btn--secondary';
+                detailButton.textContent = 'Détails';
+                detailButton.setAttribute('aria-label', `Voir les détails du rappel ${record.noms_des_modeles_ou_references}`);
+                detailButton.onclick = () => showDetails(record);
+                actionCell.appendChild(detailButton);
+                row.appendChild(actionCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fonction pour afficher les détails d'un rappel
+        function showDetails(record) {
+            const modalContent = `
+                <h2>Détails du rappel</h2>
+                <p><strong>Produit:</strong> ${record.noms_des_modeles_ou_references || 'Non spécifié'}</p>
+                <p><strong>Marque:</strong> ${record.marque_du_produit || 'Non spécifiée'}</p>
+                <p><strong>Catégorie:</strong> ${record.categorie_de_produit || 'Non spécifiée'}</p>
+                <p><strong>Sous-catégorie:</strong> ${record.sous_categorie_de_produit || 'Non spécifiée'}</p>
+                <p><strong>Risques:</strong> ${record.risques_encourus_par_le_consommateur || 'Non spécifiés'}</p>
+                <p><strong>Date de publication:</strong> ${new Date(record.date_de_publication).toLocaleDateString('fr-FR')}</p>
+                ${record.numero_de_version ? `<p><strong>Version:</strong> ${record.numero_de_version}</p>` : ''}
+                ${record.conditionnements ? `<p><strong>Conditionnements:</strong> ${record.conditionnements}</p>` : ''}
+                ${record.zone_geographique_de_vente ? `<p><strong>Zone de vente:</strong> ${record.zone_geographique_de_vente}</p>` : ''}
+            `;
+            
+            // Pour l'instant, utiliser alert (à remplacer par un modal DSFR)
+            alert(modalContent.replace(/<[^>]*>/g, ''));
+        }
+
+        // Fonction pour mettre à jour la pagination
+        function updatePagination() {
+            const prevButton = document.getElementById('prev-page');
+            const nextButton = document.getElementById('next-page');
+            const currentPageSpan = document.getElementById('current-page');
+            
+            const totalPages = Math.ceil(totalRecords / itemsPerPage);
+            
+            prevButton.disabled = currentPage === 0;
+            nextButton.disabled = currentPage >= totalPages - 1;
+            currentPageSpan.textContent = currentPage + 1;
+        }
+
+        // Fonction pour mettre à jour les statistiques
+        async function updateStats() {
+            document.getElementById('total-records').textContent = totalRecords;
+            document.getElementById('page-info').textContent = 
+                `${currentPage + 1} / ${Math.ceil(totalRecords / itemsPerPage)}`;
+            document.getElementById('last-update').textContent = new Date().toLocaleString('fr-FR');
+            document.getElementById('data-source').textContent = isFromCache ? 'Cache' : 'API';
+            
+            // Mettre à jour les stats globales
+            document.getElementById('stat-total').textContent = totalRecords;
+            
+            // Calculer les stats du jour et de la semaine
+            if (currentData.length > 0) {
+                const today = new Date().toDateString();
+                const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                
+                const todayCount = currentData.filter(r => 
+                    new Date(r.date_de_publication).toDateString() === today
+                ).length;
+                
+                const weekCount = currentData.filter(r => 
+                    new Date(r.date_de_publication) >= weekAgo
+                ).length;
+                
+                document.getElementById('stat-today').textContent = todayCount;
+                document.getElementById('stat-week').textContent = weekCount;
+            }
+            
+            // État du cache
+            document.getElementById('stat-cache').textContent = isFromCache ? 'Oui' : 'Non';
+        }
+
+        // Fonction pour mettre à jour le statut de connexion
+        function updateConnectionStatus(isConnected) {
+            const statusElement = document.getElementById('connection-status');
+            if (isConnected) {
+                statusElement.textContent = `Connecté à ${API_DOMAIN} (${isFromCache ? 'Cache' : 'Direct'})`;
+            } else {
+                statusElement.textContent = 'Déconnecté - Mode hors ligne';
+            }
+        }
+
+        // Fonction pour exporter en CSV
+        function exportToCSV() {
+            const headers = ['Date', 'Catégorie', 'Produit', 'Marque', 'Risques'];
+            const rows = currentData.map(record => [
+                new Date(record.date_de_publication).toLocaleDateString('fr-FR'),
+                record.categorie_de_produit || '',
+                record.noms_des_modeles_ou_references || '',
+                record.marque_du_produit || '',
+                (record.risques_encourus_par_le_consommateur || '').replace(/[\n\r]/g, ' ')
+            ]);
+            
+            let csv = '\ufeff' + headers.join(';') + '\n'; // BOM pour UTF-8
+            rows.forEach(row => {
+                csv += row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `rappels_signalconso_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        // Fonction pour vider le cache
+        function clearCache() {
+            if (typeof fetchCompat !== 'undefined' && fetchCompat.clearCache) {
+                fetchCompat.clearCache();
+                alert('Cache vidé avec succès');
+                loadData(); // Recharger les données
+            } else {
+                alert('Fonction de cache non disponible');
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger les données initiales
+            loadData();
+            
+            // Recherche
+            document.getElementById('search-button').addEventListener('click', () => {
+                searchQuery = document.getElementById('search-input').value;
+                currentPage = 0;
+                loadData();
+            });
+            
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchQuery = e.target.value;
+                    currentPage = 0;
+                    loadData();
+                }
+            });
+            
+            // Filtre catégorie
+            document.getElementById('category-filter').addEventListener('change', (e) => {
+                categoryFilter = e.target.value;
+                currentPage = 0;
+                loadData();
+            });
+            
+            // Changement du nombre d'items par page
+            document.getElementById('items-per-page').addEventListener('change', (e) => {
+                itemsPerPage = parseInt(e.target.value);
+                currentPage = 0;
+                loadData();
+            });
+            
+            // Pagination
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    loadData();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', () => {
+                if ((currentPage + 1) * itemsPerPage < totalRecords) {
+                    currentPage++;
+                    loadData();
+                }
+            });
+            
+            // Export CSV
+            document.getElementById('export-csv').addEventListener('click', exportToCSV);
+            
+            // Actualiser
+            document.getElementById('refresh-data').addEventListener('click', () => {
+                if (typeof fetchCompat !== 'undefined' && fetchCompat.clearCache) {
+                    // Vider le cache pour cette requête et recharger
+                    const url = new URL(window.location.href).origin;
+                    fetchCompat.clearCache(url);
+                }
+                loadData();
+            });
+            
+            // Vider le cache
+            document.getElementById('clear-cache').addEventListener('click', clearCache);
+            
+            // Auto-refresh toutes les 5 minutes
+            setInterval(() => {
+                console.log('[Widget] Auto-refresh...');
+                loadData();
+            }, 300000);
+        });
+
+        // Écouter les événements de mise à jour si disponibles
+        if (typeof window !== 'undefined') {
+            window.addEventListener('api-update', (event) => {
+                console.log('[Widget] Mise à jour API reçue:', event.detail);
+                if (event.detail && event.detail.dataset === DATASET) {
+                    loadData();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -86,9 +86,9 @@ class DSFRValidator {
     let structure = '';
 
     switch (widgetType) {
-      case 'ods-chart':
-      case 'ods-map':
-        structure = `
+    case 'ods-chart':
+    case 'ods-map':
+      structure = `
           <div class="fr-card">
             <div class="fr-card__body">
               ${title ? `<h3 class="fr-card__title">${title}</h3>` : ''}
@@ -99,10 +99,10 @@ class DSFRValidator {
             </div>
           </div>
         `;
-        break;
+      break;
 
-      case 'ods-aggregation':
-        structure = `
+    case 'ods-aggregation':
+      structure = `
           <div class="fr-tile fr-tile--vertical">
             <div class="fr-tile__body">
               <h4 class="fr-tile__title">${options.value || '0'}</h4>
@@ -110,10 +110,10 @@ class DSFRValidator {
             </div>
           </div>
         `;
-        break;
+      break;
 
-      case 'ods-table':
-        structure = `
+    case 'ods-table':
+      structure = `
           <div class="fr-table fr-table--bordered">
             <div class="fr-table__wrapper">
               <div class="fr-table__container">
@@ -122,10 +122,10 @@ class DSFRValidator {
             </div>
           </div>
         `;
-        break;
+      break;
 
-      default:
-        structure = content || '';
+    default:
+      structure = content || '';
     }
 
     return structure;

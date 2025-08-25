@@ -112,18 +112,18 @@ export class WidgetRecommender {
     // Vérifier les requirements
     const requirementsMet = widget.requirements.every(req => {
       switch(req) {
-        case 'text':
-          return capabilities.hasText;
-        case 'numbers':
-          return capabilities.hasNumbers;
-        case 'dates':
-          return capabilities.hasDates;
-        case 'geo':
-          return capabilities.hasGeo;
-        case 'categories':
-          return capabilities.hasCategories;
-        default:
-          return true;
+      case 'text':
+        return capabilities.hasText;
+      case 'numbers':
+        return capabilities.hasNumbers;
+      case 'dates':
+        return capabilities.hasDates;
+      case 'geo':
+        return capabilities.hasGeo;
+      case 'categories':
+        return capabilities.hasCategories;
+      default:
+        return true;
       }
     });
 
@@ -133,48 +133,48 @@ export class WidgetRecommender {
 
     // Ajuster le score selon le contexte
     switch(widget.name) {
-      case 'Tableau de données':
-        reasons.push('Widget universel pour exploration des données');
-        break;
+    case 'Tableau de données':
+      reasons.push('Widget universel pour exploration des données');
+      break;
         
-      case 'Carte':
-        if (capabilities.hasGeo) {
-          score = 95;
-          reasons.push(`${analysis.fields.geoFields.length} champs géographiques détectés`);
-        }
-        break;
+    case 'Carte':
+      if (capabilities.hasGeo) {
+        score = 95;
+        reasons.push(`${analysis.fields.geoFields.length} champs géographiques détectés`);
+      }
+      break;
         
-      case 'Graphique':
-        if (capabilities.hasNumbers && capabilities.hasCategories) {
-          const numFields = analysis.fields.numberFields.length;
-          const catFields = analysis.fields.categoryFields.length;
-          score = Math.min(95, 85 + numFields * 2);
-          reasons.push(`${numFields} métriques et ${catFields} dimensions disponibles`);
-        }
-        break;
+    case 'Graphique':
+      if (capabilities.hasNumbers && capabilities.hasCategories) {
+        const numFields = analysis.fields.numberFields.length;
+        const catFields = analysis.fields.categoryFields.length;
+        score = Math.min(95, 85 + numFields * 2);
+        reasons.push(`${numFields} métriques et ${catFields} dimensions disponibles`);
+      }
+      break;
         
-      case 'Filtres à facettes':
-        if (capabilities.hasCategories) {
-          const catCount = analysis.fields.categoryFields.length;
-          score = Math.min(95, 90 + catCount);
-          reasons.push(`${catCount} dimensions filtrables`);
-        }
-        break;
+    case 'Filtres à facettes':
+      if (capabilities.hasCategories) {
+        const catCount = analysis.fields.categoryFields.length;
+        score = Math.min(95, 90 + catCount);
+        reasons.push(`${catCount} dimensions filtrables`);
+      }
+      break;
         
-      case 'Indicateurs clés':
-        if (capabilities.hasNumbers) {
-          const numCount = analysis.fields.numberFields.length;
-          score = Math.min(90, 80 + numCount * 2);
-          reasons.push(`${numCount} métriques calculables`);
-        }
-        break;
+    case 'Indicateurs clés':
+      if (capabilities.hasNumbers) {
+        const numCount = analysis.fields.numberFields.length;
+        score = Math.min(90, 80 + numCount * 2);
+        reasons.push(`${numCount} métriques calculables`);
+      }
+      break;
         
-      case 'Timeline':
-        if (capabilities.hasDates) {
-          score = 85;
-          reasons.push('Données temporelles disponibles pour chronologie');
-        }
-        break;
+    case 'Timeline':
+      if (capabilities.hasDates) {
+        score = 85;
+        reasons.push('Données temporelles disponibles pour chronologie');
+      }
+      break;
     }
 
     // Bonus pour les grandes quantités de données
@@ -202,83 +202,83 @@ export class WidgetRecommender {
     };
 
     switch(widgetId) {
-      case 'table':
-        config.fields = analysis.fields.allFields
-          .slice(0, 8)
-          .map(f => f.name);
-        config.pagination = true;
-        config.pageSize = 20;
-        config.search = true;
-        break;
+    case 'table':
+      config.fields = analysis.fields.allFields
+        .slice(0, 8)
+        .map(f => f.name);
+      config.pagination = true;
+      config.pageSize = 20;
+      config.search = true;
+      break;
         
-      case 'chart':
-        if (analysis.fields.dateFields.length > 0) {
-          config.xAxis = analysis.fields.dateFields[0].name;
-          config.chartType = 'line';
-        } else if (analysis.fields.categoryFields.length > 0) {
-          config.xAxis = analysis.fields.categoryFields[0].name;
-          config.chartType = 'column';
+    case 'chart':
+      if (analysis.fields.dateFields.length > 0) {
+        config.xAxis = analysis.fields.dateFields[0].name;
+        config.chartType = 'line';
+      } else if (analysis.fields.categoryFields.length > 0) {
+        config.xAxis = analysis.fields.categoryFields[0].name;
+        config.chartType = 'column';
+      }
+        
+      if (analysis.fields.numberFields.length > 0) {
+        config.yAxis = analysis.fields.numberFields[0].name;
+        config.function = 'SUM';
+      } else {
+        config.function = 'COUNT';
+      }
+      break;
+        
+    case 'map':
+      if (analysis.fields.geoFields.length > 0) {
+        const geoField = analysis.fields.geoFields[0];
+        if (geoField.type === 'geo_point_2d') {
+          config.geoField = geoField.name;
+        } else if (geoField.name === 'latitude' || geoField.name === 'longitude') {
+          config.latField = 'latitude';
+          config.lonField = 'longitude';
         }
+      }
+      config.clustering = true;
+      config.basemap = 'jawg.light';
+      break;
         
-        if (analysis.fields.numberFields.length > 0) {
-          config.yAxis = analysis.fields.numberFields[0].name;
-          config.function = 'SUM';
-        } else {
-          config.function = 'COUNT';
-        }
-        break;
+    case 'facets':
+      config.facets = analysis.fields.categoryFields
+        .slice(0, 5)
+        .map(f => ({
+          field: f.name,
+          label: f.label || this.formatFieldName(f.name),
+          disjunctive: true
+        }));
+      break;
         
-      case 'map':
-        if (analysis.fields.geoFields.length > 0) {
-          const geoField = analysis.fields.geoFields[0];
-          if (geoField.type === 'geo_point_2d') {
-            config.geoField = geoField.name;
-          } else if (geoField.name === 'latitude' || geoField.name === 'longitude') {
-            config.latField = 'latitude';
-            config.lonField = 'longitude';
-          }
-        }
-        config.clustering = true;
-        config.basemap = 'jawg.light';
-        break;
+    case 'kpi':
+      config.kpis = [];
         
-      case 'facets':
-        config.facets = analysis.fields.categoryFields
-          .slice(0, 5)
-          .map(f => ({
-            field: f.name,
-            label: f.label || this.formatFieldName(f.name),
-            disjunctive: true
-          }));
-        break;
+      // KPI total
+      config.kpis.push({
+        function: 'COUNT',
+        label: 'Total enregistrements',
+        icon: 'fr-icon-database-2-line'
+      });
         
-      case 'kpi':
-        config.kpis = [];
-        
-        // KPI total
+      // KPIs numériques
+      analysis.fields.numberFields.slice(0, 3).forEach(field => {
         config.kpis.push({
-          function: 'COUNT',
-          label: 'Total enregistrements',
-          icon: 'fr-icon-database-2-line'
+          field: field.name,
+          function: 'SUM',
+          label: `Total ${field.label || field.name}`,
+          icon: 'fr-icon-bar-chart-box-line'
         });
+      });
+      break;
         
-        // KPIs numériques
-        analysis.fields.numberFields.slice(0, 3).forEach(field => {
-          config.kpis.push({
-            field: field.name,
-            function: 'SUM',
-            label: `Total ${field.label || field.name}`,
-            icon: 'fr-icon-bar-chart-box-line'
-          });
-        });
-        break;
-        
-      case 'timeline':
-        if (analysis.fields.dateFields.length > 0) {
-          config.dateField = analysis.fields.dateFields[0].name;
-          config.groupBy = 'month';
-        }
-        break;
+    case 'timeline':
+      if (analysis.fields.dateFields.length > 0) {
+        config.dateField = analysis.fields.dateFields[0].name;
+        config.groupBy = 'month';
+      }
+      break;
     }
 
     return config;

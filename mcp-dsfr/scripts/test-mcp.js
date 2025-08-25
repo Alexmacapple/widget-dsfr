@@ -1,1 +1,1 @@
-console.log("MCP DSFR Ready");
+console.log('MCP DSFR Ready');

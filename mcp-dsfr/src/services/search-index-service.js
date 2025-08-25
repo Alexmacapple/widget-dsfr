@@ -333,16 +333,16 @@ class SearchIndexService extends IService {
         }
 
         switch (facetName) {
-          case 'category':
-            return facetValues.includes(doc.category);
-          case 'subcategory':
-            return facetValues.includes(doc.subcategory);
-          case 'type':
-            return facetValues.includes(doc.type);
-          case 'tags':
-            return facetValues.some((tag) => doc.tags.includes(tag));
-          default:
-            return true;
+        case 'category':
+          return facetValues.includes(doc.category);
+        case 'subcategory':
+          return facetValues.includes(doc.subcategory);
+        case 'type':
+          return facetValues.includes(doc.type);
+        case 'tags':
+          return facetValues.some((tag) => doc.tags.includes(tag));
+        default:
+          return true;
         }
       });
     });
@@ -393,19 +393,19 @@ class SearchIndexService extends IService {
       const docB = b.item || b;
 
       switch (sortBy) {
-        case 'relevance':
-          return multiplier * ((a.score || 0) - (b.score || 0));
-        case 'title':
-          return multiplier * docA.title.localeCompare(docB.title);
-        case 'category':
-          return multiplier * docA.category.localeCompare(docB.category);
-        case 'date': {
-          const dateA = new Date(docA.indexed);
-          const dateB = new Date(docB.indexed);
-          return multiplier * (dateB - dateA);
-        }
-        default:
-          return 0;
+      case 'relevance':
+        return multiplier * ((a.score || 0) - (b.score || 0));
+      case 'title':
+        return multiplier * docA.title.localeCompare(docB.title);
+      case 'category':
+        return multiplier * docA.category.localeCompare(docB.category);
+      case 'date': {
+        const dateA = new Date(docA.indexed);
+        const dateB = new Date(docB.indexed);
+        return multiplier * (dateB - dateA);
+      }
+      default:
+        return 0;
       }
     });
   }
@@ -517,7 +517,7 @@ class SearchIndexService extends IService {
         });
       }
     } catch (error) {
-      this.logger.warn("Erreur lors du chargement de l'index persisté", { error: error.message });
+      this.logger.warn('Erreur lors du chargement de l\'index persisté', { error: error.message });
     }
   }
 
@@ -551,7 +551,7 @@ class SearchIndexService extends IService {
 
       this.logger.debug('Index persisté dans le cache');
     } catch (error) {
-      this.logger.error("Erreur lors de la persistance de l'index", { error: error.message });
+      this.logger.error('Erreur lors de la persistance de l\'index', { error: error.message });
     }
   }
 

@@ -84,44 +84,44 @@ async function main() {
     const { name, arguments: args } = request.params;
     
     switch (name) {
-      case 'create_widget':
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Widget ${args.type} créé pour ${args.dataset}\n\n` +
+    case 'create_widget':
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Widget ${args.type} créé pour ${args.dataset}\n\n` +
                     '```html\n' +
                     generateWidget(args.type, args.dataset) +
                     '\n```'
-            }
-          ]
-        };
+          }
+        ]
+      };
         
-      case 'analyze_dataset':
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(analyzeDataset(args.dataset), null, 2)
-            }
-          ]
-        };
+    case 'analyze_dataset':
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(analyzeDataset(args.dataset), null, 2)
+          }
+        ]
+      };
         
-      case 'generate_dashboard':
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Dashboard généré pour ${args.dataset}\n\n` +
+    case 'generate_dashboard':
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Dashboard généré pour ${args.dataset}\n\n` +
                     '```html\n' +
                     generateDashboard(args.dataset, args.widgets) +
                     '\n```'
-            }
-          ]
-        };
+          }
+        ]
+      };
         
-      default:
-        throw new Error(`Outil non reconnu: ${name}`);
+    default:
+      throw new Error(`Outil non reconnu: ${name}`);
     }
   });
 

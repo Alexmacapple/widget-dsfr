@@ -7,70 +7,70 @@ console.log('=== VALIDATION COMPLÈTE DES WIDGETS DSFR ===\n');
 
 const widgetDirs = ['tables', 'charts', 'facets', 'maps'];
 let globalSummary = {
-    total: 0,
-    apiReelle: 0,
-    dsfrConforme: 0,
-    problemes: []
+  total: 0,
+  apiReelle: 0,
+  dsfrConforme: 0,
+  problemes: []
 };
 
 widgetDirs.forEach(dir => {
-    const dirPath = path.join(__dirname, 'widgets', dir);
+  const dirPath = path.join(__dirname, 'widgets', dir);
     
-    if (!fs.existsSync(dirPath)) {
-        console.log(`⚠️  Dossier ${dir} non trouvé\n`);
-        return;
+  if (!fs.existsSync(dirPath)) {
+    console.log(`⚠️  Dossier ${dir} non trouvé\n`);
+    return;
+  }
+    
+  const files = fs.readdirSync(dirPath).filter(f => f.endsWith('.html'));
+    
+  console.log(`\n📁 ${dir.toUpperCase()} (${files.length} widgets)\n`);
+  console.log('─'.repeat(50));
+    
+  files.forEach(file => {
+    const filePath = path.join(dirPath, file);
+    const content = fs.readFileSync(filePath, 'utf8');
+        
+    globalSummary.total++;
+        
+    // Check API réelle
+    const usesRealAPI = content.includes('data.economie.gouv.fr');
+        
+    // Check DSFR
+    const dsfrChecks = {
+      'CSS': content.includes('@gouvfr/dsfr'),
+      'Lang': content.includes('lang="fr"'),
+      'Theme': content.includes('data-fr-theme')
+    };
+        
+    const dsfrOk = Object.values(dsfrChecks).every(v => v);
+        
+    // Check emojis
+    const hasEmojis = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]/u.test(content);
+        
+    // Affichage du statut
+    let status = '';
+    if (usesRealAPI) {
+      status += '✅ API ';
+      globalSummary.apiReelle++;
+    } else {
+      status += '❌ API ';
+      globalSummary.problemes.push(`${dir}/${file}: Données simulées`);
     }
-    
-    const files = fs.readdirSync(dirPath).filter(f => f.endsWith('.html'));
-    
-    console.log(`\n📁 ${dir.toUpperCase()} (${files.length} widgets)\n`);
-    console.log('─'.repeat(50));
-    
-    files.forEach(file => {
-        const filePath = path.join(dirPath, file);
-        const content = fs.readFileSync(filePath, 'utf8');
         
-        globalSummary.total++;
+    if (dsfrOk) {
+      status += '✅ DSFR ';
+      globalSummary.dsfrConforme++;
+    } else {
+      status += '⚠️  DSFR ';
+    }
         
-        // Check API réelle
-        const usesRealAPI = content.includes('data.economie.gouv.fr');
+    if (hasEmojis) {
+      status += '⚠️  Emojis';
+      globalSummary.problemes.push(`${dir}/${file}: Contient des emojis`);
+    }
         
-        // Check DSFR
-        const dsfrChecks = {
-            'CSS': content.includes('@gouvfr/dsfr'),
-            'Lang': content.includes('lang="fr"'),
-            'Theme': content.includes('data-fr-theme')
-        };
-        
-        const dsfrOk = Object.values(dsfrChecks).every(v => v);
-        
-        // Check emojis
-        const hasEmojis = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]/u.test(content);
-        
-        // Affichage du statut
-        let status = '';
-        if (usesRealAPI) {
-            status += '✅ API ';
-            globalSummary.apiReelle++;
-        } else {
-            status += '❌ API ';
-            globalSummary.problemes.push(`${dir}/${file}: Données simulées`);
-        }
-        
-        if (dsfrOk) {
-            status += '✅ DSFR ';
-            globalSummary.dsfrConforme++;
-        } else {
-            status += '⚠️  DSFR ';
-        }
-        
-        if (hasEmojis) {
-            status += '⚠️  Emojis';
-            globalSummary.problemes.push(`${dir}/${file}: Contient des emojis`);
-        }
-        
-        console.log(`  ${file.padEnd(35)} ${status}`);
-    });
+    console.log(`  ${file.padEnd(35)} ${status}`);
+  });
 });
 
 // Résumé global
@@ -96,26 +96,26 @@ const dsfrBar = Math.round((dsfrPct / 100) * barLength);
 console.log(`[${'\u2588'.repeat(dsfrBar)}${'-'.repeat(barLength - dsfrBar)}] ${dsfrPct}%`);
 
 if (globalSummary.problemes.length > 0) {
-    console.log('\n⚠️  PROBLÈMES À CORRIGER:');
-    // Limiter l'affichage aux 10 premiers problèmes
-    globalSummary.problemes.slice(0, 10).forEach(p => {
-        console.log(`  - ${p}`);
-    });
-    if (globalSummary.problemes.length > 10) {
-        console.log(`  ... et ${globalSummary.problemes.length - 10} autres`);
-    }
+  console.log('\n⚠️  PROBLÈMES À CORRIGER:');
+  // Limiter l'affichage aux 10 premiers problèmes
+  globalSummary.problemes.slice(0, 10).forEach(p => {
+    console.log(`  - ${p}`);
+  });
+  if (globalSummary.problemes.length > 10) {
+    console.log(`  ... et ${globalSummary.problemes.length - 10} autres`);
+  }
 }
 
 // Recommandations
 console.log('\n💡 RECOMMANDATIONS:');
 if (apiPct < 100) {
-    console.log('  1. Migrer tous les widgets vers l\'API data.economie.gouv.fr');
+  console.log('  1. Migrer tous les widgets vers l\'API data.economie.gouv.fr');
 }
 if (dsfrPct < 100) {
-    console.log('  2. Vérifier la conformité DSFR de tous les widgets');
+  console.log('  2. Vérifier la conformité DSFR de tous les widgets');
 }
 if (globalSummary.problemes.some(p => p.includes('emojis'))) {
-    console.log('  3. Remplacer les emojis par des icônes DSFR');
+  console.log('  3. Remplacer les emojis par des icônes DSFR');
 }
 
 console.log('\n✅ Validation terminée\n');

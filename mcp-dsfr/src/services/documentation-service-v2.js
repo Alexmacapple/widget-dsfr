@@ -27,7 +27,7 @@ class DocumentationServiceV2 extends IService {
       this.initialized = true;
       this.logger.info('DocumentationServiceV2 initialisé');
     } catch (error) {
-      this.logger.error("Erreur lors de l'initialisation du DocumentationServiceV2", error);
+      this.logger.error('Erreur lors de l\'initialisation du DocumentationServiceV2', error);
       throw error;
     }
   }
@@ -222,16 +222,16 @@ class DocumentationServiceV2 extends IService {
           description: 'Barre de recherche avec bouton',
         },
         {
-          name: "Formulaire d'inscription",
+          name: 'Formulaire d\'inscription',
           type: 'form',
-          description: "Formulaire d'inscription complet",
+          description: 'Formulaire d\'inscription complet',
         },
       ],
       page: [
         {
-          name: "Page d'accueil",
+          name: 'Page d\'accueil',
           type: 'page',
-          description: "Template de page d'accueil avec header, navigation et footer DSFR",
+          description: 'Template de page d\'accueil avec header, navigation et footer DSFR',
         },
         {
           name: 'Page de contenu',
@@ -250,7 +250,7 @@ class DocumentationServiceV2 extends IService {
           type: 'navigation',
           description: 'Navigation principale horizontale DSFR',
         },
-        { name: "Fil d'Ariane", type: 'navigation', description: 'Breadcrumb navigation DSFR' },
+        { name: 'Fil d\'Ariane', type: 'navigation', description: 'Breadcrumb navigation DSFR' },
         { name: 'Menu burger', type: 'navigation', description: 'Menu mobile responsive' },
       ],
     };
@@ -477,7 +477,7 @@ class DocumentationServiceV2 extends IService {
 
     // Exemples de code
     if (includeExamples && component.codeExamples.length > 0) {
-      output += `## Exemples de code\\n\\n`;
+      output += '## Exemples de code\\n\\n';
       component.codeExamples.forEach((example, index) => {
         output += `### Exemple ${index + 1} (${example.language})\\n\\n`;
         output += '```' + example.language + '\\n';
@@ -488,12 +488,12 @@ class DocumentationServiceV2 extends IService {
 
     // Informations d'accessibilité
     if (includeAccessibility) {
-      output += `## Accessibilité\\n\\n`;
+      output += '## Accessibilité\\n\\n';
       output += this.extractAccessibilityInfo(component.content);
     }
 
     // Métadonnées
-    output += `## Métadonnées\\n\\n`;
+    output += '## Métadonnées\\n\\n';
     output += `- **Catégorie** : ${this.getCategoryName(component.category)}\\n`;
     output += `- **Type** : ${component.componentType}\\n`;
     output += `- **Tags** : ${component.tags.join(', ') || 'Aucun'}\\n`;
@@ -616,7 +616,7 @@ class DocumentationServiceV2 extends IService {
     });
 
     if (relevantLines.length === 0) {
-      return "Aucune information spécifique d'accessibilité trouvée dans la documentation.";
+      return 'Aucune information spécifique d\'accessibilité trouvée dans la documentation.';
     }
 
     return relevantLines.join('\n');
@@ -626,9 +626,9 @@ class DocumentationServiceV2 extends IService {
     const commonPatterns = {
       page: [
         {
-          name: "Page d'accueil",
+          name: 'Page d\'accueil',
           type: 'page',
-          description: "Template de page d'accueil avec header, navigation et footer DSFR",
+          description: 'Template de page d\'accueil avec header, navigation et footer DSFR',
         },
         {
           name: 'Page de contenu',
@@ -653,9 +653,9 @@ class DocumentationServiceV2 extends IService {
           description: 'Barre de recherche avec bouton',
         },
         {
-          name: "Formulaire d'inscription",
+          name: 'Formulaire d\'inscription',
           type: 'form',
-          description: "Formulaire d'inscription complet",
+          description: 'Formulaire d\'inscription complet',
         },
       ],
       navigation: [
@@ -664,7 +664,7 @@ class DocumentationServiceV2 extends IService {
           type: 'navigation',
           description: 'Navigation principale horizontale DSFR',
         },
-        { name: "Fil d'Ariane", type: 'navigation', description: 'Breadcrumb navigation DSFR' },
+        { name: 'Fil d\'Ariane', type: 'navigation', description: 'Breadcrumb navigation DSFR' },
         { name: 'Menu burger', type: 'navigation', description: 'Menu mobile responsive' },
       ],
       content: [
@@ -674,9 +674,9 @@ class DocumentationServiceV2 extends IService {
           description: 'Layout de cartes en grille responsive',
         },
         {
-          name: "Liste d'articles",
+          name: 'Liste d\'articles',
           type: 'content',
-          description: "Liste d'articles avec pagination",
+          description: 'Liste d\'articles avec pagination',
         },
         { name: 'Tableau de données', type: 'content', description: 'Tableau responsive avec tri' },
       ],
@@ -748,7 +748,7 @@ class DocumentationServiceV2 extends IService {
 
   getPatternCodeExample(pattern) {
     const examples = {
-      "Page d'accueil":
+      'Page d\'accueil':
         '<main class="fr-container">\n  <h1>Bienvenue</h1>\n  <section class="fr-grid-row fr-grid-row--gutters">\n    <!-- Contenu -->\n  </section>\n</main>',
       'Formulaire de contact':
         '<form class="fr-form">\n  <fieldset class="fr-fieldset">\n    <legend class="fr-fieldset__legend">Contact</legend>\n    <div class="fr-input-group">\n      <label class="fr-label" for="email">Email</label>\n      <input class="fr-input" type="email" id="email" required>\n    </div>\n  </fieldset>\n</form>',

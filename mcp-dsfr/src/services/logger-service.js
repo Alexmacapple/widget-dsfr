@@ -74,11 +74,11 @@ class LoggerService extends ILoggerService {
   error(message, error = null, meta = {}) {
     const errorMeta = error
       ? {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-          ...meta,
-        }
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        ...meta,
+      }
       : meta;
 
     this.log('error', message, errorMeta);
@@ -193,7 +193,7 @@ class LoggerService extends ILoggerService {
         await fs.writeFile(this.logFile, '', 'utf8');
         this.info('Logs effacés');
       } catch (error) {
-        this.error("Erreur lors de l'effacement des logs", error);
+        this.error('Erreur lors de l\'effacement des logs', error);
       }
     }
   }

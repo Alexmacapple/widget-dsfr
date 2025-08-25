@@ -56,7 +56,7 @@ class InputSchemas {
           include_accessibility: {
             type: 'boolean',
             default: true,
-            description: "Inclure les informations d'accessibilité",
+            description: 'Inclure les informations d\'accessibilité',
           },
         },
         required: ['component_name'],
@@ -81,7 +81,7 @@ class InputSchemas {
           check_accessibility: {
             type: 'boolean',
             default: true,
-            description: "Effectuer les vérifications d'accessibilité",
+            description: 'Effectuer les vérifications d\'accessibilité',
           },
           check_semantic: {
             type: 'boolean',
@@ -116,7 +116,7 @@ class InputSchemas {
           include_suggestions: {
             type: 'boolean',
             default: true,
-            description: "Inclure des suggestions d'amélioration",
+            description: 'Inclure des suggestions d\'amélioration',
           },
         },
         required: ['html_code'],
@@ -205,7 +205,7 @@ class InputSchemas {
               },
               breadcrumb: {
                 type: 'boolean',
-                description: "Inclure le fil d'ariane",
+                description: 'Inclure le fil d\'ariane',
               },
             },
             additionalProperties: true,
@@ -319,13 +319,13 @@ class InputSchemas {
               'user',
               'weather',
             ],
-            description: "Catégorie d'icônes",
+            description: 'Catégorie d\'icônes',
           },
           search: {
             type: 'string',
             minLength: 1,
             maxLength: 50,
-            description: "Recherche par nom d'icône",
+            description: 'Recherche par nom d\'icône',
           },
         },
         additionalProperties: false,
@@ -370,17 +370,17 @@ class InputSchemas {
             type: 'string',
             enum: ['basic', 'detailed', 'comprehensive'],
             default: 'detailed',
-            description: "Niveau de profondeur de l'analyse",
+            description: 'Niveau de profondeur de l\'analyse',
           },
           include_recommendations: {
             type: 'boolean',
             default: true,
-            description: "Inclure des recommandations d'amélioration",
+            description: 'Inclure des recommandations d\'amélioration',
           },
           include_usage_stats: {
             type: 'boolean',
             default: true,
-            description: "Inclure les statistiques d'utilisation",
+            description: 'Inclure les statistiques d\'utilisation',
           },
           check_best_practices: {
             type: 'boolean',
@@ -415,7 +415,7 @@ class InputSchemas {
               ],
             },
             default: ['accessibility', 'dsfr-compliance', 'best-practices'],
-            description: "Catégories d'améliorations à analyser",
+            description: 'Catégories d\'améliorations à analyser',
           },
           priority_level: {
             type: 'string',
@@ -503,7 +503,7 @@ class InputSchemas {
             type: 'string',
             enum: ['markdown', 'html', 'json', 'pdf-ready'],
             default: 'markdown',
-            description: "Format d'export de la documentation",
+            description: 'Format d\'export de la documentation',
           },
           components: {
             type: 'array',
@@ -523,7 +523,7 @@ class InputSchemas {
           include_accessibility: {
             type: 'boolean',
             default: true,
-            description: "Inclure les informations d'accessibilité",
+            description: 'Inclure les informations d\'accessibilité',
           },
           include_design_tokens: {
             type: 'boolean',

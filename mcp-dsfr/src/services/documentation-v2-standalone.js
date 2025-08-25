@@ -196,7 +196,7 @@ class DocumentationServiceV2Standalone {
       content: [
         {
           type: 'text',
-          text: `📚 Catégories DSFR :\n• Core\n• Components\n• Layout\n• Utility\n\n✅ Service documentation V2 standalone actif !`,
+          text: '📚 Catégories DSFR :\n• Core\n• Components\n• Layout\n• Utility\n\n✅ Service documentation V2 standalone actif !',
         },
       ],
     };
@@ -207,7 +207,7 @@ class DocumentationServiceV2Standalone {
       content: [
         {
           type: 'text',
-          text: `🎨 Icônes DSFR disponibles\n\n✅ Service documentation V2 standalone actif !`,
+          text: '🎨 Icônes DSFR disponibles\n\n✅ Service documentation V2 standalone actif !',
         },
       ],
     };
@@ -218,7 +218,7 @@ class DocumentationServiceV2Standalone {
       content: [
         {
           type: 'text',
-          text: `🎨 Couleurs DSFR :\n• Bleu France: #000091\n• Rouge Marianne: #E1000F\n\n✅ Service documentation V2 standalone actif !`,
+          text: '🎨 Couleurs DSFR :\n• Bleu France: #000091\n• Rouge Marianne: #E1000F\n\n✅ Service documentation V2 standalone actif !',
         },
       ],
     };
@@ -229,7 +229,7 @@ class DocumentationServiceV2Standalone {
       content: [
         {
           type: 'text',
-          text: `📊 Analyse d'usage DSFR\n\n✅ Service documentation V2 standalone actif !`,
+          text: '📊 Analyse d\'usage DSFR\n\n✅ Service documentation V2 standalone actif !',
         },
       ],
     };
@@ -240,7 +240,7 @@ class DocumentationServiceV2Standalone {
       content: [
         {
           type: 'text',
-          text: `🔄 Comparaison versions DSFR\n\n✅ Service documentation V2 standalone actif !`,
+          text: '🔄 Comparaison versions DSFR\n\n✅ Service documentation V2 standalone actif !',
         },
       ],
     };

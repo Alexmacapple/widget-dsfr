@@ -40,54 +40,54 @@ class InputValidatorService {
     const sanitized = { ...params };
 
     switch (toolName) {
-      case 'search_dsfr_components':
-        // Nettoyer la requête de recherche
-        if (sanitized.query) {
-          sanitized.query = this.sanitizeSearchQuery(sanitized.query);
-        }
-        break;
+    case 'search_dsfr_components':
+      // Nettoyer la requête de recherche
+      if (sanitized.query) {
+        sanitized.query = this.sanitizeSearchQuery(sanitized.query);
+      }
+      break;
 
-      case 'validate_dsfr_html':
-      case 'check_accessibility':
-        // Nettoyer le code HTML
-        if (sanitized.html_code) {
-          sanitized.html_code = this.sanitizeHtmlCode(sanitized.html_code);
-        }
-        break;
+    case 'validate_dsfr_html':
+    case 'check_accessibility':
+      // Nettoyer le code HTML
+      if (sanitized.html_code) {
+        sanitized.html_code = this.sanitizeHtmlCode(sanitized.html_code);
+      }
+      break;
 
-      case 'generate_dsfr_component':
-        // Normaliser le nom du composant
-        if (sanitized.component_type) {
-          sanitized.component_type = sanitized.component_type
-            .toLowerCase()
-            .replace(/[^a-z0-9_-]/g, '');
-        }
-        break;
+    case 'generate_dsfr_component':
+      // Normaliser le nom du composant
+      if (sanitized.component_type) {
+        sanitized.component_type = sanitized.component_type
+          .toLowerCase()
+          .replace(/[^a-z0-9_-]/g, '');
+      }
+      break;
 
-      case 'create_dsfr_theme':
-        // Normaliser le nom du thème
-        if (sanitized.theme_name) {
-          sanitized.theme_name = sanitized.theme_name.toLowerCase().replace(/[^a-z0-9_-]/g, '');
-        }
-        // Valider et normaliser les couleurs
-        if (sanitized.primary_color) {
-          sanitized.primary_color = this.normalizeColor(sanitized.primary_color);
-        }
-        if (sanitized.secondary_color) {
-          sanitized.secondary_color = this.normalizeColor(sanitized.secondary_color);
-        }
-        break;
+    case 'create_dsfr_theme':
+      // Normaliser le nom du thème
+      if (sanitized.theme_name) {
+        sanitized.theme_name = sanitized.theme_name.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      }
+      // Valider et normaliser les couleurs
+      if (sanitized.primary_color) {
+        sanitized.primary_color = this.normalizeColor(sanitized.primary_color);
+      }
+      if (sanitized.secondary_color) {
+        sanitized.secondary_color = this.normalizeColor(sanitized.secondary_color);
+      }
+      break;
 
-      case 'convert_to_framework':
-        // Nettoyer le code HTML
-        if (sanitized.html_code) {
-          sanitized.html_code = this.sanitizeHtmlCode(sanitized.html_code);
-        }
-        // Normaliser le nom du composant
-        if (sanitized.component_name) {
-          sanitized.component_name = this.normalizePascalCase(sanitized.component_name);
-        }
-        break;
+    case 'convert_to_framework':
+      // Nettoyer le code HTML
+      if (sanitized.html_code) {
+        sanitized.html_code = this.sanitizeHtmlCode(sanitized.html_code);
+      }
+      // Normaliser le nom du composant
+      if (sanitized.component_name) {
+        sanitized.component_name = this.normalizePascalCase(sanitized.component_name);
+      }
+      break;
     }
 
     return sanitized;

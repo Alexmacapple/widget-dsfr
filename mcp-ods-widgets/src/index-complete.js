@@ -674,73 +674,73 @@ class CompleteODSWidgetsMCPServer {
 
       try {
         switch (name) {
-          case 'create_widget': {
-            const params = CreateWidgetSchema.parse(args);
-            let html = this.generator.generateWidget(params.type, params);
+        case 'create_widget': {
+          const params = CreateWidgetSchema.parse(args);
+          let html = this.generator.generateWidget(params.type, params);
             
-            if (params.theme === 'dsfr') {
-              html = this.generator.generateDSFRWrapper(html, params.type);
-            }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Widget ${params.type} créé avec succès:\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
+          if (params.theme === 'dsfr') {
+            html = this.generator.generateDSFRWrapper(html, params.type);
           }
-
-          case 'list_widgets': {
-            const widgetsList = Object.entries(ODS_WIDGETS).map(([key, widget]) => 
-              `- **${key}** (${widget.directive}): ${widget.description}`
-            ).join('\n');
             
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Widgets ODS disponibles:\n\n${widgetsList}`
-                }
-              ]
-            };
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Widget ${params.type} créé avec succès:\n\n\`\`\`html\n${html}\n\`\`\``
+              }
+            ]
+          };
+        }
+
+        case 'list_widgets': {
+          const widgetsList = Object.entries(ODS_WIDGETS).map(([key, widget]) => 
+            `- **${key}** (${widget.directive}): ${widget.description}`
+          ).join('\n');
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Widgets ODS disponibles:\n\n${widgetsList}`
+              }
+            ]
+          };
+        }
+
+        case 'generate_dashboard': {
+          const params = GenerateDashboardSchema.parse(args);
+          const html = this.generator.generateCompletePage(params);
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Dashboard généré pour ${params.dataset}:\n\n\`\`\`html\n${html}\n\`\`\``
+              }
+            ]
+          };
+        }
+
+        case 'get_widget_code': {
+          const { type, context = 'ctx', options = {}, wrapped = true } = args;
+          let html = this.generator.generateWidget(type, { context, options });
+            
+          if (wrapped) {
+            html = this.generator.generateDSFRWrapper(html, type);
           }
-
-          case 'generate_dashboard': {
-            const params = GenerateDashboardSchema.parse(args);
-            const html = this.generator.generateCompletePage(params);
             
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Dashboard généré pour ${params.dataset}:\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
-          }
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Code du widget ${type}:\n\n\`\`\`html\n${html}\n\`\`\``
+              }
+            ]
+          };
+        }
 
-          case 'get_widget_code': {
-            const { type, context = 'ctx', options = {}, wrapped = true } = args;
-            let html = this.generator.generateWidget(type, { context, options });
-            
-            if (wrapped) {
-              html = this.generator.generateDSFRWrapper(html, type);
-            }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Code du widget ${type}:\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
-          }
-
-          default:
-            throw new Error(`Outil non reconnu: ${name}`);
+        default:
+          throw new Error(`Outil non reconnu: ${name}`);
         }
       } catch (error) {
         return {

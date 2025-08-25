@@ -34,7 +34,7 @@ class ConfigService extends IConfigService {
       this.initialized = true;
       this.logger.info('ConfigService initialisé');
     } catch (error) {
-      this.logger.error("Erreur lors de l'initialisation du ConfigService", error);
+      this.logger.error('Erreur lors de l\'initialisation du ConfigService', error);
       throw error;
     }
   }
@@ -119,7 +119,7 @@ class ConfigService extends IConfigService {
       server: {
         name: 'dsfr-mcp',
         version: '1.1.0',
-        description: "MCP Server complet pour le Système de Design de l'État Français",
+        description: 'MCP Server complet pour le Système de Design de l\'État Français',
       },
 
       paths: {
@@ -163,8 +163,8 @@ class ConfigService extends IConfigService {
           description: 'Classes utilitaires CSS pour un développement rapide',
         },
         analytics: {
-          name: "Outils d'analyse",
-          description: "Intégration d'outils d'analyse et de mesure",
+          name: 'Outils d\'analyse',
+          description: 'Intégration d\'outils d\'analyse et de mesure',
         },
         scheme: {
           name: 'Combinaisons de couleur',
@@ -206,9 +206,9 @@ class ConfigService extends IConfigService {
 
       templates: {
         'page-connexion': 'Page de connexion',
-        'page-inscription': "Page d'inscription",
-        'page-erreur-404': "Page d'erreur 404",
-        'page-erreur-500': "Page d'erreur 500",
+        'page-inscription': 'Page d\'inscription',
+        'page-erreur-404': 'Page d\'erreur 404',
+        'page-erreur-500': 'Page d\'erreur 500',
         'formulaire-contact': 'Formulaire de contact',
         'tableau-donnees': 'Tableau de données',
         'page-recherche': 'Page de recherche',

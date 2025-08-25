@@ -647,133 +647,133 @@ class FinalODSWidgetsMCPServer {
 
       try {
         switch (name) {
-          case 'create_widget': {
-            const { type, dataset, context = 'ctx', domain = 'data.economie.gouv.fr', theme = 'dsfr', options = {} } = args;
-            const widget = ODS_WIDGETS_COMPLETE[type];
+        case 'create_widget': {
+          const { type, dataset, context = 'ctx', domain = 'data.economie.gouv.fr', theme = 'dsfr', options = {} } = args;
+          const widget = ODS_WIDGETS_COMPLETE[type];
             
-            if (!widget) {
-              throw new Error(`Widget inconnu: ${type}`);
-            }
-            
-            let html = this.generator.generateWidget(type, { context, dataset, domain, options });
-            
-            if (theme === 'dsfr') {
-              html = this.generator.generateDSFRWrapper(html, type);
-            }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Widget ${widget.name} (${widget.directive}) créé:\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
+          if (!widget) {
+            throw new Error(`Widget inconnu: ${type}`);
           }
-
-          case 'list_all_widgets': {
-            const { includeUndocumented = true, format = 'simple' } = args;
-            let widgets = ODS_WIDGETS_COMPLETE;
             
-            if (!includeUndocumented) {
-              // Filtrer pour ne garder que les 52 premiers (documentés)
-              widgets = Object.fromEntries(
-                Object.entries(widgets).slice(0, 52)
-              );
-            }
+          let html = this.generator.generateWidget(type, { context, dataset, domain, options });
             
-            const count = Object.keys(widgets).length;
-            let output = `# Widgets ODS disponibles (${count} widgets)\n\n`;
+          if (theme === 'dsfr') {
+            html = this.generator.generateDSFRWrapper(html, type);
+          }
             
-            if (format === 'detailed' || format === 'markdown') {
-              output += '## Widgets documentés (52)\n';
-              Object.entries(widgets).slice(0, 52).forEach(([key, widget]) => {
-                output += `- **${key}** (\`${widget.directive}\`): ${widget.description}\n`;
-              });
-              
-              if (includeUndocumented) {
-                output += '\n## Widgets non documentés mais disponibles (18)\n';
-                Object.entries(widgets).slice(52).forEach(([key, widget]) => {
-                  output += `- **${key}** (\`${widget.directive}\`) [BETA]: ${widget.description}\n`;
-                });
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Widget ${widget.name} (${widget.directive}) créé:\n\n\`\`\`html\n${html}\n\`\`\``
               }
-            } else {
-              Object.entries(widgets).forEach(([key, widget]) => {
-                output += `- ${key}: ${widget.directive}\n`;
+            ]
+          };
+        }
+
+        case 'list_all_widgets': {
+          const { includeUndocumented = true, format = 'simple' } = args;
+          let widgets = ODS_WIDGETS_COMPLETE;
+            
+          if (!includeUndocumented) {
+            // Filtrer pour ne garder que les 52 premiers (documentés)
+            widgets = Object.fromEntries(
+              Object.entries(widgets).slice(0, 52)
+            );
+          }
+            
+          const count = Object.keys(widgets).length;
+          let output = `# Widgets ODS disponibles (${count} widgets)\n\n`;
+            
+          if (format === 'detailed' || format === 'markdown') {
+            output += '## Widgets documentés (52)\n';
+            Object.entries(widgets).slice(0, 52).forEach(([key, widget]) => {
+              output += `- **${key}** (\`${widget.directive}\`): ${widget.description}\n`;
+            });
+              
+            if (includeUndocumented) {
+              output += '\n## Widgets non documentés mais disponibles (18)\n';
+              Object.entries(widgets).slice(52).forEach(([key, widget]) => {
+                output += `- **${key}** (\`${widget.directive}\`) [BETA]: ${widget.description}\n`;
               });
             }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: output
-                }
-              ]
-            };
+          } else {
+            Object.entries(widgets).forEach(([key, widget]) => {
+              output += `- ${key}: ${widget.directive}\n`;
+            });
           }
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: output
+              }
+            ]
+          };
+        }
 
-          case 'generate_dashboard': {
-            const { dataset, domain = 'data.economie.gouv.fr', includeAdvanced = false, theme = 'dsfr' } = args;
+        case 'generate_dashboard': {
+          const { dataset, domain = 'data.economie.gouv.fr', includeAdvanced = false, theme = 'dsfr' } = args;
             
-            // Sélection intelligente de widgets
-            let widgets = ['datasetContext', 'searchbox', 'facets', 'table', 'chart', 'map', 'aggregation'];
+          // Sélection intelligente de widgets
+          let widgets = ['datasetContext', 'searchbox', 'facets', 'table', 'chart', 'map', 'aggregation'];
             
-            if (includeAdvanced) {
-              widgets.push('advancedAnalysis', 'advancedTable', 'dateRangeSlider', 'mapLegend');
-            }
-            
-            const params = { dataset, domain, widgets, theme };
-            const html = this.generator.generateCompletePage(params);
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Dashboard complet généré (${widgets.length} widgets):\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
+          if (includeAdvanced) {
+            widgets.push('advancedAnalysis', 'advancedTable', 'dateRangeSlider', 'mapLegend');
           }
+            
+          const params = { dataset, domain, widgets, theme };
+          const html = this.generator.generateCompletePage(params);
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Dashboard complet généré (${widgets.length} widgets):\n\n\`\`\`html\n${html}\n\`\`\``
+              }
+            ]
+          };
+        }
 
-          case 'get_widget_info': {
-            const { type } = args;
-            const widget = ODS_WIDGETS_COMPLETE[type];
+        case 'get_widget_info': {
+          const { type } = args;
+          const widget = ODS_WIDGETS_COMPLETE[type];
             
-            if (!widget) {
-              throw new Error(`Widget inconnu: ${type}`);
-            }
-            
-            const isDocumented = Object.keys(ODS_WIDGETS_COMPLETE).indexOf(type) < 52;
-            
-            let info = `# Widget: ${widget.name}\n\n`;
-            info += `**Directive**: \`${widget.directive}\`\n`;
-            info += `**Description**: ${widget.description}\n`;
-            info += `**Statut**: ${isDocumented ? '✅ Documenté' : '⚠️ Non documenté (BETA)'}\n\n`;
-            
-            if (widget.params && widget.params.length > 0) {
-              info += `## Paramètres disponibles:\n`;
-              widget.params.forEach(param => {
-                info += `- \`${param}\`\n`;
-              });
-            }
-            
-            info += `\n## Exemple d'utilisation:\n\`\`\`html\n`;
-            info += this.generator.generateWidget(type, { context: 'ctx', dataset: 'example' });
-            info += `\n\`\`\``;
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: info
-                }
-              ]
-            };
+          if (!widget) {
+            throw new Error(`Widget inconnu: ${type}`);
           }
+            
+          const isDocumented = Object.keys(ODS_WIDGETS_COMPLETE).indexOf(type) < 52;
+            
+          let info = `# Widget: ${widget.name}\n\n`;
+          info += `**Directive**: \`${widget.directive}\`\n`;
+          info += `**Description**: ${widget.description}\n`;
+          info += `**Statut**: ${isDocumented ? '✅ Documenté' : '⚠️ Non documenté (BETA)'}\n\n`;
+            
+          if (widget.params && widget.params.length > 0) {
+            info += '## Paramètres disponibles:\n';
+            widget.params.forEach(param => {
+              info += `- \`${param}\`\n`;
+            });
+          }
+            
+          info += '\n## Exemple d\'utilisation:\n```html\n';
+          info += this.generator.generateWidget(type, { context: 'ctx', dataset: 'example' });
+          info += '\n```';
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: info
+              }
+            ]
+          };
+        }
 
-          default:
-            throw new Error(`Outil non reconnu: ${name}`);
+        default:
+          throw new Error(`Outil non reconnu: ${name}`);
         }
       } catch (error) {
         return {

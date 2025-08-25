@@ -68,7 +68,7 @@ class CacheService extends ICacheService {
         maxMemorySize: this.formatBytes(this.maxMemorySize),
       });
     } catch (error) {
-      this.logger.error("Erreur lors de l'initialisation du CacheService", error);
+      this.logger.error('Erreur lors de l\'initialisation du CacheService', error);
       throw error;
     }
   }
@@ -218,7 +218,7 @@ class CacheService extends ICacheService {
       return;
     }
 
-    this.logger.info("Nettoyage du cache pour libérer de l'espace", {
+    this.logger.info('Nettoyage du cache pour libérer de l\'espace', {
       current: this.formatBytes(this.cacheStats.memoryUsage),
       required: this.formatBytes(requiredSize),
       max: this.formatBytes(this.maxMemorySize),

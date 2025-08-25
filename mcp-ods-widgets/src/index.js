@@ -214,15 +214,15 @@ class WidgetManager {
   }
 
   generateSearchTemplate(params) {
-    return `<!-- Template de recherche à implémenter -->`;
+    return '<!-- Template de recherche à implémenter -->';
   }
 
   generateDetailTemplate(params) {
-    return `<!-- Template de détail à implémenter -->`;
+    return '<!-- Template de détail à implémenter -->';
   }
 
   generateComparisonTemplate(params) {
-    return `<!-- Template de comparaison à implémenter -->`;
+    return '<!-- Template de comparaison à implémenter -->';
   }
 }
 
@@ -325,55 +325,55 @@ class ODSWidgetsMCPServer {
 
       try {
         switch (name) {
-          case 'create_widget': {
-            const params = CreateWidgetSchema.parse(args);
-            const result = await this.widgetManager.createWidget(params);
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Widget ${params.type} créé avec succès pour le dataset ${params.dataset}`
-                },
-                {
-                  type: 'text',
-                  text: `\`\`\`html\n${result.html}\n\`\`\``
-                }
-              ]
-            };
-          }
+        case 'create_widget': {
+          const params = CreateWidgetSchema.parse(args);
+          const result = await this.widgetManager.createWidget(params);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Widget ${params.type} créé avec succès pour le dataset ${params.dataset}`
+              },
+              {
+                type: 'text',
+                text: `\`\`\`html\n${result.html}\n\`\`\``
+              }
+            ]
+          };
+        }
 
-          case 'analyze_dataset': {
-            const params = AnalyzeDatasetSchema.parse(args);
-            const result = await this.widgetManager.analyzeDataset(params);
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: JSON.stringify(result, null, 2)
-                }
-              ]
-            };
-          }
+        case 'analyze_dataset': {
+          const params = AnalyzeDatasetSchema.parse(args);
+          const result = await this.widgetManager.analyzeDataset(params);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(result, null, 2)
+              }
+            ]
+          };
+        }
 
-          case 'generate_template': {
-            const params = GenerateTemplateSchema.parse(args);
-            const result = await this.widgetManager.generateTemplate(params);
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Template ${params.templateName} généré pour ${params.dataset}`
-                },
-                {
-                  type: 'text',
-                  text: `\`\`\`html\n${result}\n\`\`\``
-                }
-              ]
-            };
-          }
+        case 'generate_template': {
+          const params = GenerateTemplateSchema.parse(args);
+          const result = await this.widgetManager.generateTemplate(params);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Template ${params.templateName} généré pour ${params.dataset}`
+              },
+              {
+                type: 'text',
+                text: `\`\`\`html\n${result}\n\`\`\``
+              }
+            ]
+          };
+        }
 
-          default:
-            throw new Error(`Outil non reconnu: ${name}`);
+        default:
+          throw new Error(`Outil non reconnu: ${name}`);
         }
       } catch (error) {
         return {

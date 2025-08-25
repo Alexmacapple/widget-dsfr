@@ -30,7 +30,7 @@ class HTMLAnalyzer {
       'fr-nav': { category: 'component', importance: 'high', description: 'Navigation principale' },
       'fr-header': { category: 'component', importance: 'high', description: 'En-tête officiel' },
       'fr-footer': { category: 'component', importance: 'medium', description: 'Pied de page' },
-      'fr-breadcrumb': { category: 'component', importance: 'medium', description: "Fil d'Ariane" },
+      'fr-breadcrumb': { category: 'component', importance: 'medium', description: 'Fil d\'Ariane' },
       'fr-form': { category: 'component', importance: 'high', description: 'Formulaire DSFR' },
       'fr-fieldset': {
         category: 'component',
@@ -47,7 +47,7 @@ class HTMLAnalyzer {
       'fr-sr-only': {
         category: 'utility',
         importance: 'medium',
-        description: "Lecteur d'écran uniquement",
+        description: 'Lecteur d\'écran uniquement',
       },
       'fr-text-': {
         category: 'utility',
@@ -205,7 +205,7 @@ class HTMLAnalyzer {
     if (!structure.main.present) {
       issues.push({
         type: 'critical',
-        message: "Élément <main> manquant - requis pour l'accessibilité",
+        message: 'Élément <main> manquant - requis pour l\'accessibilité',
         fix: '<main role="main" id="content"><!-- Contenu principal --></main>',
       });
     }
@@ -555,7 +555,7 @@ class HTMLAnalyzer {
     const importantCount = issues.filter((i) => i.type === 'important').length;
 
     if (criticalCount > 0) {
-      recommendations.push("🔴 Corriger les problèmes critiques d'accessibilité en priorité");
+      recommendations.push('🔴 Corriger les problèmes critiques d\'accessibilité en priorité');
     }
     if (importantCount > 0) {
       recommendations.push('🟡 Planifier la correction des problèmes importants');
@@ -664,12 +664,12 @@ class HTMLAnalyzer {
 ${
   dsfrClasses.found.length > 0
     ? dsfrClasses.found
-        .map((cls) => {
-          const usage = dsfrClasses.usage[cls];
-          const info = usage?.classInfo || this.getDSFRClassInfo(cls);
-          return `- \`${cls}\` : ${info.description} (${usage?.count || 1}x)`;
-        })
-        .join('\n')
+      .map((cls) => {
+        const usage = dsfrClasses.usage[cls];
+        const info = usage?.classInfo || this.getDSFRClassInfo(cls);
+        return `- \`${cls}\` : ${info.description} (${usage?.count || 1}x)`;
+      })
+      .join('\n')
     : '❌ Aucune classe DSFR détectée'
 }
 
@@ -685,25 +685,25 @@ Total     : ${dsfrClasses.found.length} classes DSFR
 
 #### 📋 **Éléments HTML5 détectés :**
 ${Object.entries(semanticStructure.structure)
-  .map(
-    ([tag, info]) =>
-      `- \`<${tag}>\` : ${info.present ? '✅' : '❌'} ${info.count > 0 ? `(${info.count})` : ''}`
-  )
-  .join('\n')}
+    .map(
+      ([tag, info]) =>
+        `- \`<${tag}>\` : ${info.present ? '✅' : '❌'} ${info.count > 0 ? `(${info.count})` : ''}`
+    )
+    .join('\n')}
 
 ${
   semanticStructure.issues.length > 0
     ? `
 #### 🚨 **Problèmes structurels détectés :**
 ${semanticStructure.issues
-  .map(
-    (issue) =>
-      `**${issue.type === 'critical' ? '🔴' : issue.type === 'important' ? '🟡' : '⚪'}** ${issue.message}
+    .map(
+      (issue) =>
+        `**${issue.type === 'critical' ? '🔴' : issue.type === 'important' ? '🟡' : '⚪'}** ${issue.message}
   \`\`\`html
   ${issue.fix}
   \`\`\``
-  )
-  .join('\n')}`
+    )
+    .join('\n')}`
     : '✅ Structure sémantique correcte'
 }
 
@@ -714,13 +714,13 @@ ${
     ? `
 #### 🔍 **Problèmes d'accessibilité :**
 ${accessibility.issues
-  .map(
-    (issue) =>
-      `**${issue.type === 'critical' ? '🔴 Critique' : issue.type === 'important' ? '🟡 Important' : '⚪ Avertissement'}** : ${issue.message}
+    .map(
+      (issue) =>
+        `**${issue.type === 'critical' ? '🔴 Critique' : issue.type === 'important' ? '🟡 Important' : '⚪ Avertissement'}** : ${issue.message}
   ${issue.fix ? `💡 **Solution** : ${issue.fix}` : ''}`
-  )
-  .join('\n\n')}`
-    : "✅ Aucun problème d'accessibilité majeur détecté"
+    )
+    .join('\n\n')}`
+    : '✅ Aucun problème d\'accessibilité majeur détecté'
 }
 
 ### 📝 **ANALYSE DES FORMULAIRES**
@@ -783,12 +783,12 @@ ${this.generateCorrectedCode(analysis, htmlCode)}
 
     const criticalSemantic = analysis.semanticStructure.issues.filter((i) => i.type === 'critical');
     if (criticalSemantic.length > 0) {
-      recommendations.push(`2. **Ajouter les éléments sémantiques manquants** (main, nav, etc.)`);
+      recommendations.push('2. **Ajouter les éléments sémantiques manquants** (main, nav, etc.)');
     }
 
     if (analysis.dsfrClasses.found.length === 0) {
       recommendations.push(
-        `3. **Intégrer les classes DSFR de base** (fr-container, fr-btn, fr-input)`
+        '3. **Intégrer les classes DSFR de base** (fr-container, fr-btn, fr-input)'
       );
     }
 
@@ -811,7 +811,7 @@ ${this.generateCorrectedCode(analysis, htmlCode)}
       analysis.formAnalysis.forms.count > 0 &&
       analysis.formAnalysis.forms.withDSFRClasses === 0
     ) {
-      recommendations.push(`2. **Migrer les formulaires vers les classes DSFR**`);
+      recommendations.push('2. **Migrer les formulaires vers les classes DSFR**');
     }
 
     return recommendations.length > 0 ? recommendations : ['✅ Aucune action importante requise'];
@@ -821,7 +821,7 @@ ${this.generateCorrectedCode(analysis, htmlCode)}
     const recommendations = [];
 
     if (analysis.dsfrClasses.stats.byCategory.utility === 0) {
-      recommendations.push(`1. **Exploiter les classes utilitaires DSFR** (fr-m-*, fr-p-*, etc.)`);
+      recommendations.push('1. **Exploiter les classes utilitaires DSFR** (fr-m-*, fr-p-*, etc.)');
     }
 
     if (analysis.performance.duplicateIds.length > 0) {
@@ -881,8 +881,8 @@ ${this.generateCorrectedCode(analysis, htmlCode)}
     const formsScore =
       analysis.formAnalysis.forms.count > 0
         ? Math.round(
-            (analysis.formAnalysis.forms.withDSFRClasses / analysis.formAnalysis.forms.count) * 100
-          )
+          (analysis.formAnalysis.forms.withDSFRClasses / analysis.formAnalysis.forms.count) * 100
+        )
         : 100;
 
     const overallScore = Math.round(

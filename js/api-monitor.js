@@ -4,64 +4,64 @@
  */
 
 class ApiMonitor {
-    constructor(options = {}) {
-        this.options = {
-            containerId: options.containerId || 'api-monitor',
-            updateInterval: options.updateInterval || 2000, // 2 secondes
-            theme: options.theme || 'light', // light ou dark
-            position: options.position || 'bottom-right', // bottom-right, bottom-left, top-right, top-left
-            autoStart: options.autoStart !== false,
-            collapsed: options.collapsed || false,
-            ...options
-        };
+  constructor(options = {}) {
+    this.options = {
+      containerId: options.containerId || 'api-monitor',
+      updateInterval: options.updateInterval || 2000, // 2 secondes
+      theme: options.theme || 'light', // light ou dark
+      position: options.position || 'bottom-right', // bottom-right, bottom-left, top-right, top-left
+      autoStart: options.autoStart !== false,
+      collapsed: options.collapsed || false,
+      ...options
+    };
         
-        this.intervalId = null;
-        this.container = null;
-        this.isCollapsed = this.options.collapsed;
+    this.intervalId = null;
+    this.container = null;
+    this.isCollapsed = this.options.collapsed;
         
-        if (this.options.autoStart) {
-            this.init();
-        }
+    if (this.options.autoStart) {
+      this.init();
     }
+  }
     
-    init() {
-        // Créer le conteneur si nécessaire
-        this.createContainer();
+  init() {
+    // Créer le conteneur si nécessaire
+    this.createContainer();
         
-        // Démarrer la mise à jour automatique
-        this.start();
+    // Démarrer la mise à jour automatique
+    this.start();
         
-        // Premier rendu
-        this.render();
-    }
+    // Premier rendu
+    this.render();
+  }
     
-    createContainer() {
-        // Vérifier si le conteneur existe déjà
-        this.container = document.getElementById(this.options.containerId);
+  createContainer() {
+    // Vérifier si le conteneur existe déjà
+    this.container = document.getElementById(this.options.containerId);
         
-        if (!this.container) {
-            // Créer un nouveau conteneur
-            this.container = document.createElement('div');
-            this.container.id = this.options.containerId;
-            this.container.className = `api-monitor api-monitor--${this.options.position} api-monitor--${this.options.theme}`;
+    if (!this.container) {
+      // Créer un nouveau conteneur
+      this.container = document.createElement('div');
+      this.container.id = this.options.containerId;
+      this.container.className = `api-monitor api-monitor--${this.options.position} api-monitor--${this.options.theme}`;
             
-            // Ajouter les styles CSS
-            this.injectStyles();
+      // Ajouter les styles CSS
+      this.injectStyles();
             
-            // Ajouter au body
-            document.body.appendChild(this.container);
-        }
-        
-        // Ajouter les événements
-        this.attachEvents();
+      // Ajouter au body
+      document.body.appendChild(this.container);
     }
-    
-    injectStyles() {
-        if (document.getElementById('api-monitor-styles')) return;
         
-        const styles = document.createElement('style');
-        styles.id = 'api-monitor-styles';
-        styles.textContent = `
+    // Ajouter les événements
+    this.attachEvents();
+  }
+    
+  injectStyles() {
+    if (document.getElementById('api-monitor-styles')) return;
+        
+    const styles = document.createElement('style');
+    styles.id = 'api-monitor-styles';
+    styles.textContent = `
             .api-monitor {
                 position: fixed;
                 z-index: 10000;
@@ -288,83 +288,83 @@ class ApiMonitor {
             }
         `;
         
-        document.head.appendChild(styles);
-    }
+    document.head.appendChild(styles);
+  }
     
-    attachEvents() {
-        // Toggle collapse
-        this.container.addEventListener('click', (e) => {
-            if (e.target.closest('.api-monitor__header') || e.target.closest('.api-monitor__toggle')) {
-                this.toggle();
-            }
+  attachEvents() {
+    // Toggle collapse
+    this.container.addEventListener('click', (e) => {
+      if (e.target.closest('.api-monitor__header') || e.target.closest('.api-monitor__toggle')) {
+        this.toggle();
+      }
             
-            if (e.target.closest('.api-monitor__button--clear')) {
-                this.clearCache();
-            }
+      if (e.target.closest('.api-monitor__button--clear')) {
+        this.clearCache();
+      }
             
-            if (e.target.closest('.api-monitor__button--export')) {
-                this.exportStats();
-            }
-        });
-    }
+      if (e.target.closest('.api-monitor__button--export')) {
+        this.exportStats();
+      }
+    });
+  }
     
-    toggle() {
-        this.isCollapsed = !this.isCollapsed;
-        this.container.classList.toggle('api-monitor--collapsed', this.isCollapsed);
-    }
+  toggle() {
+    this.isCollapsed = !this.isCollapsed;
+    this.container.classList.toggle('api-monitor--collapsed', this.isCollapsed);
+  }
     
-    start() {
-        if (this.intervalId) return;
+  start() {
+    if (this.intervalId) return;
         
-        this.intervalId = setInterval(() => {
-            this.render();
-        }, this.options.updateInterval);
-    }
+    this.intervalId = setInterval(() => {
+      this.render();
+    }, this.options.updateInterval);
+  }
     
-    stop() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
+  stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
+  }
     
-    getStats() {
-        // Récupérer les stats depuis fetchCompat
-        if (window.fetchCompat && typeof window.fetchCompat.getStats === 'function') {
-            return window.fetchCompat.getStats();
-        }
+  getStats() {
+    // Récupérer les stats depuis fetchCompat
+    if (window.fetchCompat && typeof window.fetchCompat.getStats === 'function') {
+      return window.fetchCompat.getStats();
+    }
         
-        // Stats par défaut si fetchCompat n'est pas disponible
-        return {
-            totalRequests: 0,
-            cacheHits: 0,
-            cacheMisses: 0,
-            apiCalls: 0,
-            savedRequests: 0,
-            hitRate: 0,
-            cacheSize: 0,
-            reduction: 0,
-            runtime: 0
-        };
-    }
+    // Stats par défaut si fetchCompat n'est pas disponible
+    return {
+      totalRequests: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+      apiCalls: 0,
+      savedRequests: 0,
+      hitRate: 0,
+      cacheSize: 0,
+      reduction: 0,
+      runtime: 0
+    };
+  }
     
-    formatTime(seconds) {
-        if (seconds < 60) return `${seconds}s`;
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
-        return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-    }
+  formatTime(seconds) {
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+  }
     
-    formatNumber(num) {
-        if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-        if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-        return num.toString();
-    }
+  formatNumber(num) {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  }
     
-    render() {
-        const stats = this.getStats();
-        const isActive = stats.totalRequests > 0;
+  render() {
+    const stats = this.getStats();
+    const isActive = stats.totalRequests > 0;
         
-        this.container.innerHTML = `
+    this.container.innerHTML = `
             <div class="api-monitor__header">
                 <div class="api-monitor__title">
                     <span class="api-monitor__indicator api-monitor__indicator--${isActive ? 'active' : 'idle'}"></span>
@@ -433,62 +433,62 @@ class ApiMonitor {
                 </div>
             </div>
         `;
-    }
+  }
     
-    clearCache() {
-        if (window.fetchCompat && typeof window.fetchCompat.clearCache === 'function') {
-            window.fetchCompat.clearCache();
-            this.render();
-            console.log('[ApiMonitor] Cache cleared');
-        }
+  clearCache() {
+    if (window.fetchCompat && typeof window.fetchCompat.clearCache === 'function') {
+      window.fetchCompat.clearCache();
+      this.render();
+      console.log('[ApiMonitor] Cache cleared');
     }
+  }
     
-    exportStats() {
-        const stats = this.getStats();
-        const data = {
-            timestamp: new Date().toISOString(),
-            ...stats
-        };
+  exportStats() {
+    const stats = this.getStats();
+    const data = {
+      timestamp: new Date().toISOString(),
+      ...stats
+    };
         
-        // Créer un blob CSV
-        const csv = this.convertToCSV(data);
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
+    // Créer un blob CSV
+    const csv = this.convertToCSV(data);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
         
-        // Télécharger
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `api-stats-${Date.now()}.csv`;
-        a.click();
+    // Télécharger
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `api-stats-${Date.now()}.csv`;
+    a.click();
         
-        URL.revokeObjectURL(url);
-        console.log('[ApiMonitor] Stats exported');
-    }
+    URL.revokeObjectURL(url);
+    console.log('[ApiMonitor] Stats exported');
+  }
     
-    convertToCSV(data) {
-        const headers = Object.keys(data);
-        const values = Object.values(data);
+  convertToCSV(data) {
+    const headers = Object.keys(data);
+    const values = Object.values(data);
         
-        return `${headers.join(',')}\n${values.join(',')}`;
-    }
+    return `${headers.join(',')}\n${values.join(',')}`;
+  }
     
-    destroy() {
-        this.stop();
-        if (this.container) {
-            this.container.remove();
-        }
+  destroy() {
+    this.stop();
+    if (this.container) {
+      this.container.remove();
     }
+  }
 }
 
 // Auto-initialisation si configuré
 if (typeof window !== 'undefined') {
-    window.ApiMonitor = ApiMonitor;
+  window.ApiMonitor = ApiMonitor;
     
-    // Auto-start si configuré dans les meta tags
-    document.addEventListener('DOMContentLoaded', () => {
-        const metaAutoStart = document.querySelector('meta[name="api-monitor-autostart"]');
-        if (metaAutoStart && metaAutoStart.content === 'true') {
-            window.apiMonitor = new ApiMonitor();
-        }
-    });
+  // Auto-start si configuré dans les meta tags
+  document.addEventListener('DOMContentLoaded', () => {
+    const metaAutoStart = document.querySelector('meta[name="api-monitor-autostart"]');
+    if (metaAutoStart && metaAutoStart.content === 'true') {
+      window.apiMonitor = new ApiMonitor();
+    }
+  });
 }

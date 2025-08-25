@@ -11,6 +11,7 @@ npm run serve                    # Python HTTP server on http://localhost:8000
 # Testing & validation
 npm test                        # Run all tests (tests/run-tests.js)
 npm run validate               # Validate DSFR compliance
+npm run lint                   # ESLint with HTML plugin
 node tests/validate-dsfr.js [file]  # Validate specific widget file
 
 # Installation & setup
@@ -137,11 +138,17 @@ Use `/epct [task]` for structured multi-step tasks:
 ### Testing Commands
 
 ```bash
-# Validate single widget
+# Run complete test suite (8 tests)
+npm test                        # Tests structure, DSFR compliance, accessibility
+
+# Validate DSFR compliance for specific widget
 node tests/validate-dsfr.js [file]
 
-# Run test suite
-npm test
+# Run all validation checks
+npm run validate               # Runs validate-dsfr.js on all widgets
+
+# Pre-commit validation (lint + test)
+npm run pre-commit            # Runs ESLint then tests
 
 # Manual checks
 - Keyboard navigation (Tab, Enter, Space)
@@ -149,6 +156,26 @@ npm test
 - Color contrast AA (4.5:1 minimum)
 ```
 
+### Test Suite Details (tests/run-tests.js)
+
+The test suite validates:
+1. **Essential files** - package.json, README.md, CLAUDE.md, .mcp.json, setup.sh
+2. **Project structure** - Required directories (mcp-dsfr, mcp-ods-widgets, agents, examples, tests)
+3. **DSFR classes** - Presence of fr-container, fr-grid-row, fr-table, fr-btn classes
+4. **No emojis in titles** - Validates h1-h6 tags don't contain emojis
+5. **Accessibility** - ARIA attributes (role, aria-label, lang)
+6. **CDN references** - DSFR CDN and data.economie.gouv.fr API
+7. **MCP configuration** - ODS widgets server setup
+8. **Widget examples** - At least one example widget exists
+
+## Linting Configuration
+
+ESLint with HTML plugin configured in `.eslintrc.json`:
+- 2-space indentation
+- Single quotes
+- Semicolon required
+- No emojis in production code
+- HTML files included via eslint-plugin-html
 
 ## Troubleshooting
 

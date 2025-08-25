@@ -10,7 +10,7 @@ module.exports = {
   server: {
     name: 'dsfr-mcp',
     version: '1.0.0',
-    description: "MCP Server complet pour le Système de Design de l'État Français",
+    description: 'MCP Server complet pour le Système de Design de l\'État Français',
   },
 
   // Chemins
@@ -40,8 +40,8 @@ module.exports = {
       description: 'Classes utilitaires CSS pour un développement rapide',
     },
     analytics: {
-      name: "Outils d'analyse",
-      description: "Intégration d'outils d'analyse et de mesure",
+      name: 'Outils d\'analyse',
+      description: 'Intégration d\'outils d\'analyse et de mesure',
     },
     scheme: {
       name: 'Combinaisons de couleur',
@@ -97,9 +97,9 @@ module.exports = {
   // Templates prédéfinis
   templates: {
     'page-connexion': 'Page de connexion',
-    'page-inscription': "Page d'inscription",
-    'page-erreur-404': "Page d'erreur 404",
-    'page-erreur-500': "Page d'erreur 500",
+    'page-inscription': 'Page d\'inscription',
+    'page-erreur-404': 'Page d\'erreur 404',
+    'page-erreur-500': 'Page d\'erreur 500',
     'formulaire-contact': 'Formulaire de contact',
     'tableau-donnees': 'Tableau de données',
     'page-recherche': 'Page de recherche',

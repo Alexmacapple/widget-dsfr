@@ -323,23 +323,23 @@ class DSFRParserV2 extends IService {
       let processedData;
 
       switch (fileInfo.type) {
-        case 'yaml':
-          processedData = await this.processYamlFile(fileInfo, content);
-          break;
-        case 'markdown':
-          processedData = await this.processMarkdownFile(fileInfo, content);
-          break;
-        case 'json':
-          processedData = await this.processJsonFile(fileInfo, content);
-          break;
-        case 'scss':
-          processedData = await this.processScssFile(fileInfo, content);
-          break;
-        case 'javascript':
-          processedData = await this.processJavaScriptFile(fileInfo, content);
-          break;
-        default:
-          processedData = await this.processGenericFile(fileInfo, content);
+      case 'yaml':
+        processedData = await this.processYamlFile(fileInfo, content);
+        break;
+      case 'markdown':
+        processedData = await this.processMarkdownFile(fileInfo, content);
+        break;
+      case 'json':
+        processedData = await this.processJsonFile(fileInfo, content);
+        break;
+      case 'scss':
+        processedData = await this.processScssFile(fileInfo, content);
+        break;
+      case 'javascript':
+        processedData = await this.processJavaScriptFile(fileInfo, content);
+        break;
+      default:
+        processedData = await this.processGenericFile(fileInfo, content);
       }
 
       // Enrichir avec les métadonnées de traitement
@@ -459,7 +459,7 @@ class DSFRParserV2 extends IService {
    * Construit l'index de recherche à partir des données traitées
    */
   async buildSearchIndex() {
-    this.logger.info("Construction de l'index de recherche");
+    this.logger.info('Construction de l\'index de recherche');
 
     const documents = [];
 
@@ -503,32 +503,32 @@ class DSFRParserV2 extends IService {
 
     // Contenu spécifique selon le type
     switch (item.type) {
-      case 'documentation':
-        return {
-          ...base,
-          content: item.content,
-          tags: item.tags || [],
-          wordCount: item.wordCount,
-        };
+    case 'documentation':
+      return {
+        ...base,
+        content: item.content,
+        tags: item.tags || [],
+        wordCount: item.wordCount,
+      };
 
-      case 'yaml-config':
-        return {
-          ...base,
-          content: JSON.stringify(item.data, null, 2),
-          tags: Object.keys(item.data || {}),
-          validated: item.validated,
-        };
+    case 'yaml-config':
+      return {
+        ...base,
+        content: JSON.stringify(item.data, null, 2),
+        tags: Object.keys(item.data || {}),
+        validated: item.validated,
+      };
 
-      case 'json-data':
-        return {
-          ...base,
-          content: JSON.stringify(item.data, null, 2),
-          tags: Object.keys(item.data || {}),
-          structure: item.structure,
-        };
+    case 'json-data':
+      return {
+        ...base,
+        content: JSON.stringify(item.data, null, 2),
+        tags: Object.keys(item.data || {}),
+        structure: item.structure,
+      };
 
-      default:
-        return base;
+    default:
+      return base;
     }
   }
 

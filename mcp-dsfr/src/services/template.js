@@ -13,18 +13,18 @@ class TemplateService {
         generate: (options) => this.generateLoginPage(options),
       },
       'page-inscription': {
-        name: "Page d'inscription",
-        description: "Template de page d'inscription avec formulaire complet",
+        name: 'Page d\'inscription',
+        description: 'Template de page d\'inscription avec formulaire complet',
         generate: (options) => this.generateSignupPage(options),
       },
       'page-erreur-404': {
-        name: "Page d'erreur 404",
-        description: "Page d'erreur 404 - Page non trouvée",
+        name: 'Page d\'erreur 404',
+        description: 'Page d\'erreur 404 - Page non trouvée',
         generate: (options) => this.generateError404Page(options),
       },
       'page-erreur-500': {
-        name: "Page d'erreur 500",
-        description: "Page d'erreur 500 - Erreur serveur",
+        name: 'Page d\'erreur 500',
+        description: 'Page d\'erreur 500 - Erreur serveur',
         generate: (options) => this.generateError500Page(options),
       },
       'formulaire-contact': {
@@ -69,18 +69,18 @@ class TemplateService {
     output += `${template.description}\n\n`;
 
     switch (framework) {
-      case 'vanilla':
-        output += this.wrapInVanillaTemplate(baseHTML, customizations);
-        break;
-      case 'react':
-        output += this.wrapInReactTemplate(baseHTML, template.name, customizations);
-        break;
-      case 'vue':
-        output += this.wrapInVueTemplate(baseHTML, template.name, customizations);
-        break;
-      case 'angular':
-        output += this.wrapInAngularTemplate(baseHTML, template.name, customizations);
-        break;
+    case 'vanilla':
+      output += this.wrapInVanillaTemplate(baseHTML, customizations);
+      break;
+    case 'react':
+      output += this.wrapInReactTemplate(baseHTML, template.name, customizations);
+      break;
+    case 'vue':
+      output += this.wrapInVueTemplate(baseHTML, template.name, customizations);
+      break;
+    case 'angular':
+      output += this.wrapInAngularTemplate(baseHTML, template.name, customizations);
+      break;
     }
 
     return {
@@ -122,8 +122,8 @@ class TemplateService {
         </div>
         
         ${
-          showRememberMe
-            ? `
+  showRememberMe
+    ? `
         <div class="fr-form-group">
           <div class="fr-checkbox-group">
             <input type="checkbox" id="remember-me" name="remember-me">
@@ -133,8 +133,8 @@ class TemplateService {
           </div>
         </div>
         `
-            : ''
-        }
+    : ''
+}
         
         <div class="fr-form-group">
           <button class="fr-btn" type="submit">
@@ -224,8 +224,8 @@ class TemplateService {
         </fieldset>
         
         ${
-          includeTerms
-            ? `
+  includeTerms
+    ? `
         <div class="fr-form-group fr-mt-3w">
           <div class="fr-checkbox-group">
             <input type="checkbox" id="accept-terms" name="accept-terms" required>
@@ -235,8 +235,8 @@ class TemplateService {
           </div>
         </div>
         `
-            : ''
-        }
+    : ''
+}
         
         <div class="fr-form-group">
           <button class="fr-btn" type="submit">
@@ -288,7 +288,7 @@ class TemplateService {
   }
 
   generateError500Page(options = {}) {
-    const { title = 'Erreur inattendue', message = "Une erreur inattendue s'est produite." } =
+    const { title = 'Erreur inattendue', message = 'Une erreur inattendue s\'est produite.' } =
       options;
 
     return `
@@ -357,8 +357,8 @@ class TemplateService {
         </div>
         
         ${
-          includePhone
-            ? `
+  includePhone
+    ? `
         <div class="fr-form-group">
           <label class="fr-label" for="phone">
             Téléphone
@@ -367,12 +367,12 @@ class TemplateService {
           <input class="fr-input" type="tel" id="phone" name="phone">
         </div>
         `
-            : ''
-        }
+    : ''
+}
         
         ${
-          includeSubject
-            ? `
+  includeSubject
+    ? `
         <div class="fr-form-group">
           <label class="fr-label" for="subject">
             Objet de votre demande
@@ -386,8 +386,8 @@ class TemplateService {
           </select>
         </div>
         `
-            : ''
-        }
+    : ''
+}
         
         <div class="fr-form-group">
           <label class="fr-label" for="message">
@@ -438,8 +438,8 @@ class TemplateService {
   <h1>${title}</h1>
   
   ${
-    searchable
-      ? `
+  searchable
+    ? `
   <div class="fr-search-bar" id="search" role="search">
     <label class="fr-label" for="search-input">
       Rechercher dans le tableau
@@ -450,8 +450,8 @@ class TemplateService {
     </button>
   </div>
   `
-      : ''
-  }
+    : ''
+}
   
   <div class="fr-table" id="table">
     <table>
@@ -555,8 +555,8 @@ class TemplateService {
 <div class="fr-container fr-mt-6w">
   <div class="fr-grid-row fr-grid-row--gutters">
     ${
-      showFilters
-        ? `
+  showFilters
+    ? `
     <div class="fr-col-12 fr-col-md-3">
       <nav class="fr-sidemenu" aria-label="Filtres de recherche">
         <div class="fr-sidemenu__inner">
@@ -614,8 +614,8 @@ class TemplateService {
       </nav>
     </div>
     `
-        : ''
-    }
+    : ''
+}
     
     <div class="fr-col-12 ${showFilters ? 'fr-col-md-9' : ''}">
       <h1>${title}</h1>
@@ -727,8 +727,8 @@ class TemplateService {
   <h1>${title}</h1>
   
   ${
-    showStats
-      ? `
+  showStats
+    ? `
   <div class="fr-grid-row fr-grid-row--gutters fr-mb-3w">
     <div class="fr-col-12 fr-col-md-3">
       <div class="fr-card">
@@ -787,8 +787,8 @@ class TemplateService {
     </div>
   </div>
   `
-      : ''
-  }
+    : ''
+}
   
   <div class="fr-grid-row fr-grid-row--gutters">
     <div class="fr-col-12 fr-col-md-8">
@@ -797,8 +797,8 @@ class TemplateService {
           <div class="fr-card__content">
             <h3 class="fr-card__title">Activité récente</h3>
             ${
-              showChart
-                ? `
+  showChart
+    ? `
             <div class="fr-callout fr-callout--brown-caramel">
               <p class="fr-callout__text">
                 Emplacement pour un graphique ou diagramme.
@@ -806,8 +806,8 @@ class TemplateService {
               </p>
             </div>
             `
-                : ''
-            }
+    : ''
+}
             
             <div class="fr-table fr-table--no-scroll">
               <table>

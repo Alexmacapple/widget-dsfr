@@ -168,7 +168,7 @@ class ValidationService {
     if (!html || !html.getAttribute('lang')) {
       results.errors.push({
         type: 'accessibility',
-        message: "L'attribut lang est manquant sur la balise <html>",
+        message: 'L\'attribut lang est manquant sur la balise <html>',
       });
     }
 
@@ -280,7 +280,7 @@ class ValidationService {
         if (!inputId || inputId !== labelFor) {
           results.errors.push({
             type: 'dsfr_form',
-            message: "Le label doit être correctement associé au champ avec l'attribut for",
+            message: 'Le label doit être correctement associé au champ avec l\'attribut for',
           });
         }
       }
@@ -460,7 +460,7 @@ class ValidationService {
   }
 
   formatValidationResults(results) {
-    let output = `# Résultats de validation DSFR\n\n`;
+    let output = '# Résultats de validation DSFR\n\n';
     output += `**Score global : ${results.score}/100**\n`;
     output += `**Statut : ${results.valid ? 'Valide' : 'Non valide'}**\n\n`;
 
@@ -489,14 +489,14 @@ class ValidationService {
     }
 
     // Recommandations
-    output += `## Recommandations\n\n`;
+    output += '## Recommandations\n\n';
     if (!results.valid) {
-      output += `1. Corrigez d'abord toutes les erreurs critiques\n`;
-      output += `2. Traitez ensuite les avertissements\n`;
-      output += `3. Appliquez les suggestions pour améliorer la qualité\n`;
+      output += '1. Corrigez d\'abord toutes les erreurs critiques\n';
+      output += '2. Traitez ensuite les avertissements\n';
+      output += '3. Appliquez les suggestions pour améliorer la qualité\n';
     } else {
-      output += `Votre code respecte les standards DSFR de base.\n`;
-      output += `Continuez à suivre les bonnes pratiques d'accessibilité et de sémantique HTML.\n`;
+      output += 'Votre code respecte les standards DSFR de base.\n';
+      output += 'Continuez à suivre les bonnes pratiques d\'accessibilité et de sémantique HTML.\n';
     }
 
     return output;
@@ -532,24 +532,24 @@ class ValidationService {
     // Analyser chaque catégorie demandée
     for (const category of improvement_categories) {
       switch (category) {
-        case 'accessibility':
-          this.suggestAccessibilityImprovements(document, improvements, include_code_examples);
-          break;
-        case 'dsfr-compliance':
-          this.suggestDsfrComplianceImprovements(document, improvements, include_code_examples);
-          break;
-        case 'performance':
-          this.suggestPerformanceImprovements(document, improvements, include_code_examples);
-          break;
-        case 'seo':
-          this.suggestSeoImprovements(document, improvements, include_code_examples);
-          break;
-        case 'semantics':
-          this.suggestSemanticImprovements(document, improvements, include_code_examples);
-          break;
-        case 'best-practices':
-          this.suggestBestPracticesImprovements(document, improvements, include_code_examples);
-          break;
+      case 'accessibility':
+        this.suggestAccessibilityImprovements(document, improvements, include_code_examples);
+        break;
+      case 'dsfr-compliance':
+        this.suggestDsfrComplianceImprovements(document, improvements, include_code_examples);
+        break;
+      case 'performance':
+        this.suggestPerformanceImprovements(document, improvements, include_code_examples);
+        break;
+      case 'seo':
+        this.suggestSeoImprovements(document, improvements, include_code_examples);
+        break;
+      case 'semantics':
+        this.suggestSemanticImprovements(document, improvements, include_code_examples);
+        break;
+      case 'best-practices':
+        this.suggestBestPracticesImprovements(document, improvements, include_code_examples);
+        break;
       }
     }
 
@@ -591,7 +591,7 @@ class ValidationService {
         category: 'accessibility',
         priority: 'critical',
         title: 'Image sans attribut alt',
-        description: "Les images doivent avoir un attribut alt pour l'accessibilité",
+        description: 'Les images doivent avoir un attribut alt pour l\'accessibilité',
         element: `<img src="${img.src || 'unknown'}">`,
         issue: 'Attribut alt manquant',
         solution: 'Ajouter un attribut alt descriptif',
@@ -599,7 +599,7 @@ class ValidationService {
         code_after: includeExamples
           ? img.outerHTML.replace('>', ' alt="Description de l\'image">')
           : null,
-        impact: "Les lecteurs d'écran ne peuvent pas décrire l'image aux utilisateurs malvoyants",
+        impact: 'Les lecteurs d\'écran ne peuvent pas décrire l\'image aux utilisateurs malvoyants',
       });
     });
 
@@ -641,7 +641,7 @@ class ValidationService {
           title: 'Champ de formulaire sans label',
           description: 'Tous les champs doivent être associés à un label',
           element: input.outerHTML,
-          solution: "Ajouter un label avec l'attribut for correspondant à l'id du champ",
+          solution: 'Ajouter un label avec l\'attribut for correspondant à l\'id du champ',
           code_after: includeExamples
             ? `<label for="${input.id || 'field-id'}">Libellé du champ</label>\n${input.outerHTML}`
             : null,
@@ -666,9 +666,9 @@ class ValidationService {
         solution: 'Ajouter la classe fr-btn',
         code_after: includeExamples
           ? button.outerHTML
-              .replace('class="', 'class="fr-btn ')
-              .replace('<button', '<button class="fr-btn"')
-              .replace('<input', '<input class="fr-btn"')
+            .replace('class="', 'class="fr-btn ')
+            .replace('<button', '<button class="fr-btn"')
+            .replace('<input', '<input class="fr-btn"')
           : null,
       });
     });
@@ -700,7 +700,7 @@ class ValidationService {
         category: 'dsfr-compliance',
         priority: 'medium',
         title: 'Système de grille custom détecté',
-        description: "Considérer l'utilisation du système de grille DSFR",
+        description: 'Considérer l\'utilisation du système de grille DSFR',
         solution: 'Remplacer par fr-grid-row et fr-col',
         code_after: includeExamples
           ? '<div class="fr-grid-row">\n  <div class="fr-col-12 fr-col-md-6">Colonne 1</div>\n  <div class="fr-col-12 fr-col-md-6">Colonne 2</div>\n</div>'
@@ -808,14 +808,14 @@ class ValidationService {
           id: `sem_div_${index}`,
           category: 'semantics',
           priority: 'low',
-          title: `Div sémantique détectée`,
+          title: 'Div sémantique détectée',
           description: `Cette div pourrait être remplacée par une balise ${suggestedTag}`,
           element: div.outerHTML.substring(0, 100) + '...',
           solution: `Remplacer la div par <${suggestedTag}>`,
           code_after: includeExamples
             ? div.outerHTML
-                .replace('<div', `<${suggestedTag}`)
-                .replace('</div>', `</${suggestedTag}>`)
+              .replace('<div', `<${suggestedTag}`)
+              .replace('</div>', `</${suggestedTag}>`)
             : null,
         });
       }
@@ -861,10 +861,10 @@ class ValidationService {
   }
 
   formatImprovementSuggestions(improvements, includeExplanations) {
-    let output = "# 🚀 Suggestions d'améliorations DSFR\n\n";
+    let output = '# 🚀 Suggestions d\'améliorations DSFR\n\n';
 
     // Statistiques
-    output += "## 📊 Résumé de l'analyse\n\n";
+    output += '## 📊 Résumé de l\'analyse\n\n';
     output += `- **Éléments analysés** : ${improvements.stats.analyzed_elements}\n`;
     output += `- **Suggestions trouvées** : ${improvements.stats.total_issues_found}\n`;
     output += `- **Catégories analysées** : ${improvements.stats.categories_analyzed.join(', ')}\n\n`;

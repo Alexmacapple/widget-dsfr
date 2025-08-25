@@ -11,29 +11,29 @@ const { minify } = require('terser');
 
 // Configuration
 const config = {
-    inputFiles: [
-        './js/wrapper-api.js',
-        './js/api-client.js', 
-        './js/api-monitor.js'
-    ],
-    outputDir: './dist',
-    bundles: {
-        'api-bundle.js': ['./js/api-client.js', './js/api-monitor.js'],
-        'api-bundle-complete.js': ['./js/wrapper-api.js', './js/api-client.js', './js/api-monitor.js'],
-        'api-wrapper.js': ['./js/wrapper-api.js']
-    }
+  inputFiles: [
+    './js/wrapper-api.js',
+    './js/api-client.js', 
+    './js/api-monitor.js'
+  ],
+  outputDir: './dist',
+  bundles: {
+    'api-bundle.js': ['./js/api-client.js', './js/api-monitor.js'],
+    'api-bundle-complete.js': ['./js/wrapper-api.js', './js/api-client.js', './js/api-monitor.js'],
+    'api-wrapper.js': ['./js/wrapper-api.js']
+  }
 };
 
 // Créer le dossier dist s'il n'existe pas
 if (!fs.existsSync(config.outputDir)) {
-    fs.mkdirSync(config.outputDir, { recursive: true });
+  fs.mkdirSync(config.outputDir, { recursive: true });
 }
 
 // Fonction pour lire et combiner les fichiers
 async function buildBundle(outputName, inputFiles) {
-    console.log(`\n📦 Building ${outputName}...`);
+  console.log(`\n📦 Building ${outputName}...`);
     
-    let combinedCode = `/**
+  let combinedCode = `/**
  * Widget DSFR API Bundle
  * Version: 1.0.0
  * Date: ${new Date().toISOString()}
@@ -45,83 +45,83 @@ async function buildBundle(outputName, inputFiles) {
     
 `;
     
-    // Lire et combiner les fichiers
-    for (const file of inputFiles) {
-        if (!fs.existsSync(file)) {
-            console.error(`❌ File not found: ${file}`);
-            continue;
-        }
+  // Lire et combiner les fichiers
+  for (const file of inputFiles) {
+    if (!fs.existsSync(file)) {
+      console.error(`❌ File not found: ${file}`);
+      continue;
+    }
         
-        console.log(`  📄 Adding ${path.basename(file)}`);
-        let content = fs.readFileSync(file, 'utf8');
+    console.log(`  📄 Adding ${path.basename(file)}`);
+    let content = fs.readFileSync(file, 'utf8');
         
-        // Retirer les wrapper IIFE existants pour éviter les doublons
-        content = content.replace(/^\(function\(window\)\s*\{[\s\S]*?'use strict';/, '');
-        content = content.replace(/\}\)\(window\);?\s*$/, '');
+    // Retirer les wrapper IIFE existants pour éviter les doublons
+    content = content.replace(/^\(function\(window\)\s*\{[\s\S]*?'use strict';/, '');
+    content = content.replace(/\}\)\(window\);?\s*$/, '');
         
-        combinedCode += `
+    combinedCode += `
     // ============ ${path.basename(file)} ============
     ${content}
     
 `;
-    }
+  }
     
-    combinedCode += `
+  combinedCode += `
 })(window);`;
     
-    // Sauvegarder la version non-minifiée
-    const outputPath = path.join(config.outputDir, outputName);
-    fs.writeFileSync(outputPath, combinedCode);
-    console.log(`  ✅ Created ${outputName} (${(combinedCode.length / 1024).toFixed(2)} KB)`);
+  // Sauvegarder la version non-minifiée
+  const outputPath = path.join(config.outputDir, outputName);
+  fs.writeFileSync(outputPath, combinedCode);
+  console.log(`  ✅ Created ${outputName} (${(combinedCode.length / 1024).toFixed(2)} KB)`);
     
-    // Créer la version minifiée
-    try {
-        const minified = await minify(combinedCode, {
-            compress: {
-                drop_console: false,
-                drop_debugger: true,
-                dead_code: true,
-                unused: true
-            },
-            mangle: {
-                toplevel: false,
-                safari10: true
-            },
-            format: {
-                comments: false,
-                preamble: `/* Widget DSFR API Bundle v1.0.0 | ${new Date().toISOString()} */`
-            }
-        });
+  // Créer la version minifiée
+  try {
+    const minified = await minify(combinedCode, {
+      compress: {
+        drop_console: false,
+        drop_debugger: true,
+        dead_code: true,
+        unused: true
+      },
+      mangle: {
+        toplevel: false,
+        safari10: true
+      },
+      format: {
+        comments: false,
+        preamble: `/* Widget DSFR API Bundle v1.0.0 | ${new Date().toISOString()} */`
+      }
+    });
         
-        if (minified.code) {
-            const minPath = outputPath.replace('.js', '.min.js');
-            fs.writeFileSync(minPath, minified.code);
-            console.log(`  ✅ Created ${path.basename(minPath)} (${(minified.code.length / 1024).toFixed(2)} KB)`);
+    if (minified.code) {
+      const minPath = outputPath.replace('.js', '.min.js');
+      fs.writeFileSync(minPath, minified.code);
+      console.log(`  ✅ Created ${path.basename(minPath)} (${(minified.code.length / 1024).toFixed(2)} KB)`);
             
-            // Créer la source map si disponible
-            if (minified.map) {
-                const mapPath = minPath + '.map';
-                fs.writeFileSync(mapPath, minified.map);
-                console.log(`  ✅ Created source map`);
-            }
-        }
-    } catch (error) {
-        console.error(`  ⚠️  Minification failed: ${error.message}`);
+      // Créer la source map si disponible
+      if (minified.map) {
+        const mapPath = minPath + '.map';
+        fs.writeFileSync(mapPath, minified.map);
+        console.log('  ✅ Created source map');
+      }
     }
+  } catch (error) {
+    console.error(`  ⚠️  Minification failed: ${error.message}`);
+  }
 }
 
 // Fonction principale
 async function build() {
-    console.log('🚀 Starting API Bundle Build...\n');
-    console.log('═══════════════════════════════════════════');
+  console.log('🚀 Starting API Bundle Build...\n');
+  console.log('═══════════════════════════════════════════');
     
-    // Construire chaque bundle
-    for (const [outputName, inputFiles] of Object.entries(config.bundles)) {
-        await buildBundle(outputName, inputFiles);
-    }
+  // Construire chaque bundle
+  for (const [outputName, inputFiles] of Object.entries(config.bundles)) {
+    await buildBundle(outputName, inputFiles);
+  }
     
-    // Créer un fichier index HTML pour tester
-    const indexHtml = `<!DOCTYPE html>
+  // Créer un fichier index HTML pour tester
+  const indexHtml = `<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8">
@@ -191,38 +191,38 @@ async function build() {
 </body>
 </html>`;
     
-    fs.writeFileSync(path.join(config.outputDir, 'test-bundle.html'), indexHtml);
-    console.log(`\n  ✅ Created test-bundle.html`);
+  fs.writeFileSync(path.join(config.outputDir, 'test-bundle.html'), indexHtml);
+  console.log('\n  ✅ Created test-bundle.html');
     
-    // Statistiques finales
-    console.log('\n═══════════════════════════════════════════');
-    console.log('\n📊 Build Summary:\n');
+  // Statistiques finales
+  console.log('\n═══════════════════════════════════════════');
+  console.log('\n📊 Build Summary:\n');
     
-    const files = fs.readdirSync(config.outputDir);
-    let totalSize = 0;
-    let totalMinSize = 0;
+  const files = fs.readdirSync(config.outputDir);
+  let totalSize = 0;
+  let totalMinSize = 0;
     
-    files.forEach(file => {
-        const filePath = path.join(config.outputDir, file);
-        const stats = fs.statSync(filePath);
-        const size = stats.size / 1024;
+  files.forEach(file => {
+    const filePath = path.join(config.outputDir, file);
+    const stats = fs.statSync(filePath);
+    const size = stats.size / 1024;
         
-        if (file.endsWith('.min.js')) {
-            totalMinSize += size;
-            console.log(`  📦 ${file}: ${size.toFixed(2)} KB`);
-        } else if (file.endsWith('.js')) {
-            totalSize += size;
-        }
-    });
+    if (file.endsWith('.min.js')) {
+      totalMinSize += size;
+      console.log(`  📦 ${file}: ${size.toFixed(2)} KB`);
+    } else if (file.endsWith('.js')) {
+      totalSize += size;
+    }
+  });
     
-    console.log(`\n  Total minified: ${totalMinSize.toFixed(2)} KB`);
-    console.log(`  Compression: ${((1 - totalMinSize / totalSize) * 100).toFixed(1)}%`);
+  console.log(`\n  Total minified: ${totalMinSize.toFixed(2)} KB`);
+  console.log(`  Compression: ${((1 - totalMinSize / totalSize) * 100).toFixed(1)}%`);
     
-    console.log('\n✨ Build completed successfully!');
-    console.log('\n🧪 Test the bundle:');
-    console.log(`  1. Open: http://localhost:3000/dist/test-bundle.html`);
-    console.log(`  2. Or include in your HTML:`);
-    console.log(`     <script src="/dist/api-bundle-complete.min.js"></script>`);
+  console.log('\n✨ Build completed successfully!');
+  console.log('\n🧪 Test the bundle:');
+  console.log('  1. Open: http://localhost:3000/dist/test-bundle.html');
+  console.log('  2. Or include in your HTML:');
+  console.log('     <script src="/dist/api-bundle-complete.min.js"></script>');
 }
 
 // Lancer le build

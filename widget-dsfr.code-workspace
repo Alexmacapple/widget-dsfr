@@ -8,7 +8,10 @@
     "terminal.integrated.defaultProfile.osx": "bash",
     "terminal.integrated.automationProfile.osx": {
       "path": "/bin/bash",
-      "args": ["-c", "./start-claude.sh"]
+      "args": [
+        "-c",
+        "./start-claude.sh"
+      ]
     },
     "files.exclude": {
       "node_modules": true,
@@ -16,8 +19,9 @@
     },
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    }
+      "source.fixAll.eslint": "explicit"
+    },
+    "kiroAgent.configureMCP": "Disabled"
   },
   "tasks": {
     "version": "2.0.0",

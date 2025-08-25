@@ -55,7 +55,7 @@ class AccessibilityService {
       navigation: {
         'skip-links': {
           level: 'A',
-          description: "Présence de liens d'évitement",
+          description: 'Présence de liens d\'évitement',
           check: (document) => {
             return !!document.querySelector('a[href="#main"], a[href="#content"]');
           },
@@ -267,13 +267,13 @@ class AccessibilityService {
     if (hasSkipToMain) {
       results.passed.push({
         rule: 'nav-skip-links',
-        message: "Lien d'évitement vers le contenu principal trouvé",
+        message: 'Lien d\'évitement vers le contenu principal trouvé',
         level: 'A',
       });
     } else {
       results.warnings.push({
         rule: 'nav-skip-links',
-        message: "Aucun lien d'évitement vers le contenu principal trouvé",
+        message: 'Aucun lien d\'évitement vers le contenu principal trouvé',
         level: 'A',
       });
     }
@@ -388,7 +388,7 @@ class AccessibilityService {
       if (ths.length === 0) {
         results.failed.push({
           rule: 'table-headers',
-          message: "Tableau sans cellules d'en-tête <th>",
+          message: 'Tableau sans cellules d\'en-tête <th>',
           level: 'A',
         });
       }
@@ -398,7 +398,7 @@ class AccessibilityService {
         if (!th.hasAttribute('scope')) {
           results.warnings.push({
             rule: 'table-scope',
-            message: "Cellule d'en-tête <th> sans attribut scope",
+            message: 'Cellule d\'en-tête <th> sans attribut scope',
             level: 'A',
           });
         }
@@ -432,7 +432,7 @@ class AccessibilityService {
     // Tests avec lecteur d'écran
     results.suggestions.push({
       category: 'Tests',
-      message: "Tester avec un lecteur d'écran (NVDA, JAWS, VoiceOver)",
+      message: 'Tester avec un lecteur d\'écran (NVDA, JAWS, VoiceOver)',
     });
 
     // Navigation clavier
@@ -454,7 +454,7 @@ class AccessibilityService {
   }
 
   formatResults(results) {
-    let output = `# Rapport d'accessibilité RGAA\n\n`;
+    let output = '# Rapport d\'accessibilité RGAA\n\n';
     output += `**Niveau vérifié** : ${results.level}\n`;
     output += `**Score global** : ${results.score}/100\n\n`;
 
@@ -490,7 +490,7 @@ class AccessibilityService {
     }
 
     if (results.suggestions.length > 0) {
-      output += `## Suggestions d'amélioration\n\n`;
+      output += '## Suggestions d\'amélioration\n\n';
       results.suggestions.forEach((suggestion) => {
         output += `- **${suggestion.category}** : ${suggestion.message}\n`;
       });
@@ -498,15 +498,15 @@ class AccessibilityService {
     }
 
     // Recommandations finales
-    output += `## Recommandations\n\n`;
+    output += '## Recommandations\n\n';
     if (results.score < 50) {
-      output += `**Attention** : Le score d'accessibilité est faible. Des améliorations importantes sont nécessaires.\n\n`;
+      output += '**Attention** : Le score d\'accessibilité est faible. Des améliorations importantes sont nécessaires.\n\n';
     }
 
-    output += `1. Corriger toutes les erreurs critiques (niveau A)\n`;
-    output += `2. Traiter les avertissements pour atteindre le niveau AA\n`;
-    output += `3. Tester avec de vrais utilisateurs et assistances techniques\n`;
-    output += `4. Utiliser les composants DSFR qui intègrent l'accessibilité\n`;
+    output += '1. Corriger toutes les erreurs critiques (niveau A)\n';
+    output += '2. Traiter les avertissements pour atteindre le niveau AA\n';
+    output += '3. Tester avec de vrais utilisateurs et assistances techniques\n';
+    output += '4. Utiliser les composants DSFR qui intègrent l\'accessibilité\n';
 
     return output;
   }

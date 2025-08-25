@@ -158,7 +158,7 @@ class DSFRIconDatabase {
         name: 'Groupe',
         category: 'user',
         svg: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22a8 8 0 1116 0H2zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm7.363 2.233A7.505 7.505 0 0122.001 22H20c0-2.61-1.27-4.92-3.226-6.357l.589-.41z"/></svg>',
-        description: "Groupe d'utilisateurs",
+        description: 'Groupe d\'utilisateurs',
         usage: ['équipe', 'groupe', 'collaboration'],
       },
       'mail-line': {
@@ -408,22 +408,22 @@ class DSFRIconDatabase {
 \`\`\`html
 <!-- Icônes avec accessibilité -->
 ${sampleIcons
-  .map(
-    (icon) =>
-      `<span class="fr-icon-${icon.id}" aria-hidden="true" title="${icon.description}"></span> <!-- ${icon.name} -->`
-  )
-  .join('\n')}
+    .map(
+      (icon) =>
+        `<span class="fr-icon-${icon.id}" aria-hidden="true" title="${icon.description}"></span> <!-- ${icon.name} -->`
+    )
+    .join('\n')}
 \`\`\`
 
 ### Avec boutons DSFR
 \`\`\`html
 <!-- Boutons avec icônes -->
 ${sampleIcons
-  .map(
-    (icon) =>
-      `<button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-${icon.id}">\n  ${icon.name}\n</button>`
-  )
-  .join('\n\n')}
+    .map(
+      (icon) =>
+        `<button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-${icon.id}">\n  ${icon.name}\n</button>`
+    )
+    .join('\n\n')}
 \`\`\`
 
 ### React/JSX
@@ -439,8 +439,8 @@ const DSFRIcon = ({ name, size = "md", color = "default", title }) => (
 
 // Utilisation
 ${sampleIcons
-  .map((icon) => `<DSFRIcon name="${icon.id}" title="${icon.description}" />`)
-  .join('\n')}
+    .map((icon) => `<DSFRIcon name="${icon.id}" title="${icon.description}" />`)
+    .join('\n')}
 \`\`\`
 
 ### CSS personnalisé

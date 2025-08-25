@@ -55,20 +55,20 @@ class Container {
     }
 
     switch (service.type) {
-      case 'singleton':
-        if (!service.instance) {
-          service.instance = service.factory(this);
-        }
-        return service.instance;
+    case 'singleton':
+      if (!service.instance) {
+        service.instance = service.factory(this);
+      }
+      return service.instance;
 
-      case 'transient':
-        return service.factory(this);
+    case 'transient':
+      return service.factory(this);
 
-      case 'value':
-        return service.value;
+    case 'value':
+      return service.value;
 
-      default:
-        throw new Error(`Type de service invalide: ${service.type}`);
+    default:
+      throw new Error(`Type de service invalide: ${service.type}`);
     }
   }
 

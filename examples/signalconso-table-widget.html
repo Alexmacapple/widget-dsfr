@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Table SignalConso - DSFR</title>
+    
+    <!-- DSFR CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/utility/icons/icons.min.css">
+    
+    <!-- Angular JS (must load before ODS) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-sanitize.min.js"></script>
+    
+    <!-- ODS Widgets -->
+    <link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest/ods-widgets.css">
+    <script src="https://static.opendatasoft.com/ods-widgets/latest/ods-widgets.js"></script>
+    
+    <style>
+        .widget-container {
+            margin: 2rem 0;
+        }
+        .fr-table th {
+            background-color: var(--background-alt-blue-france);
+            color: var(--text-inverted-grey);
+        }
+        .ods-table__head {
+            background-color: var(--background-alt-blue-france);
+        }
+        .ods-table__cell {
+            padding: 0.75rem;
+            border: 1px solid var(--border-default-grey);
+        }
+    </style>
+</head>
+<body>
+    <div class="fr-container" ng-app="widgetApp" ng-controller="MainController">
+        <div class="fr-grid-row fr-grid-row--center">
+            <div class="fr-col-12">
+                <h1>Tableau des signalements SignalConso</h1>
+                
+                <!-- DÉBUT ZONE WIDGET signalconso-table-001 -->
+                <div id="widget-signalconso-table-001" class="widget-container">
+                    <ods-dataset-context 
+                        context="signalconso" 
+                        signalconso-dataset="rappelconso-0"
+                        signalconso-domain="https://data.economie.gouv.fr">
+                        
+                        <div class="fr-table fr-table--bordered fr-table--no-scroll">
+                            <div class="fr-table__wrapper">
+                                <div class="fr-table__container">
+                                    <div class="fr-table__content">
+                                        <table role="table" aria-label="Tableau des rappels de produits SignalConso">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Date de publication</th>
+                                                    <th scope="col">Catégorie</th>
+                                                    <th scope="col">Sous-catégorie</th>
+                                                    <th scope="col">Nom du produit</th>
+                                                    <th scope="col">Marque</th>
+                                                    <th scope="col">Risques</th>
+                                                    <th scope="col">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="record in signalconso.dataset.records | limitTo:10">
+                                                    <td>{{ record.fields.date_de_publication | date:'dd/MM/yyyy' }}</td>
+                                                    <td>{{ record.fields.categorie_de_produit }}</td>
+                                                    <td>{{ record.fields.sous_categorie_de_produit }}</td>
+                                                    <td>{{ record.fields.noms_des_modeles_ou_references }}</td>
+                                                    <td>{{ record.fields.marque_du_produit }}</td>
+                                                    <td>{{ record.fields.risques_encourus_par_le_consommateur }}</td>
+                                                    <td>
+                                                        <button class="fr-btn fr-btn--sm fr-btn--secondary" 
+                                                                ng-click="viewDetails(record)"
+                                                                aria-label="Voir les détails du rappel">
+                                                            Détails
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagination DSFR -->
+                        <nav class="fr-pagination" role="navigation" aria-label="Pagination">
+                            <ul class="fr-pagination__list">
+                                <li>
+                                    <button class="fr-pagination__link fr-pagination__link--prev" 
+                                            ng-click="previousPage()"
+                                            ng-disabled="currentPage === 1"
+                                            aria-label="Page précédente">
+                                        Page précédente
+                                    </button>
+                                </li>
+                                <li>
+                                    <span class="fr-pagination__link" aria-current="page">{{ currentPage }}</span>
+                                </li>
+                                <li>
+                                    <button class="fr-pagination__link fr-pagination__link--next"
+                                            ng-click="nextPage()"
+                                            aria-label="Page suivante">
+                                        Page suivante
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                        
+                        <!-- Export buttons -->
+                        <div class="fr-btns-group fr-btns-group--inline-sm fr-mt-3w">
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-download-line"
+                                    ng-click="exportCSV()">
+                                Exporter en CSV
+                            </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--icon-left fr-icon-printer-line"
+                                    onclick="window.print()">
+                                Imprimer
+                            </button>
+                        </div>
+                    </ods-dataset-context>
+                </div>
+                <!-- FIN ZONE WIDGET signalconso-table-001 -->
+                
+                <!-- Alternative textuelle pour l'accessibilité -->
+                <div class="fr-notice fr-notice--info fr-mt-3w">
+                    <div class="fr-container">
+                        <div class="fr-notice__body">
+                            <p class="fr-notice__title">Alternative textuelle</p>
+                            <p>Ce tableau présente les rappels de produits publiés sur SignalConso avec les informations suivantes : date de publication, catégorie, sous-catégorie, nom du produit, marque, risques encourus et actions disponibles.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DSFR JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+    
+    <!-- Angular App -->
+    <script>
+        angular.module('widgetApp', ['ods-widgets'])
+            .controller('MainController', ['$scope', '$http', function($scope, $http) {
+                $scope.currentPage = 1;
+                $scope.itemsPerPage = 10;
+                
+                $scope.viewDetails = function(record) {
+                    console.log('Affichage des détails pour:', record.fields.noms_des_modeles_ou_references);
+                    // Implémenter la logique pour afficher les détails
+                    alert('Détails du rappel:\n' + 
+                          'Produit: ' + record.fields.noms_des_modeles_ou_references + '\n' +
+                          'Marque: ' + record.fields.marque_du_produit + '\n' +
+                          'Risques: ' + record.fields.risques_encourus_par_le_consommateur);
+                };
+                
+                $scope.nextPage = function() {
+                    $scope.currentPage++;
+                    // Implémenter la logique de pagination
+                };
+                
+                $scope.previousPage = function() {
+                    if ($scope.currentPage > 1) {
+                        $scope.currentPage--;
+                    }
+                };
+                
+                $scope.exportCSV = function() {
+                    console.log('Export CSV en cours...');
+                    // Implémenter la logique d'export CSV
+                    alert('Fonctionnalité d\'export CSV à implémenter');
+                };
+            }]);
+    </script>
+</body>
+</html>

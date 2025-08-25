@@ -707,7 +707,7 @@ class DashboardService {
       if (body) {
         try {
           params = JSON.parse(body);
-          this.logger?.info(`Paramètres parsés:`, params);
+          this.logger?.info('Paramètres parsés:', params);
         } catch (parseError) {
           this.logger?.error(`Erreur parsing JSON: ${parseError.message}`);
           throw new Error(`Format JSON invalide: ${parseError.message}`);
@@ -844,8 +844,8 @@ class DashboardService {
         form: '<form class="fr-form"><div class="fr-input-group"><label class="fr-label" for="input">Label</label><input class="fr-input" type="text" id="input"></div></form>'
       },
       react: {
-        button: `import React from 'react';\n\nconst Button = ({ children, variant = 'primary' }) => {\n  return (\n    <button className={\`fr-btn fr-btn--\${variant}\`} type="button">\n      {children}\n    </button>\n  );\n};\n\nexport default Button;`,
-        card: `import React from 'react';\n\nconst Card = ({ title, description }) => {\n  return (\n    <div className="fr-card">\n      <div className="fr-card__body">\n        <h3 className="fr-card__title">{title}</h3>\n        <p className="fr-card__desc">{description}</p>\n      </div>\n    </div>\n  );\n};\n\nexport default Card;`
+        button: 'import React from \'react\';\n\nconst Button = ({ children, variant = \'primary\' }) => {\n  return (\n    <button className={`fr-btn fr-btn--${variant}`} type="button">\n      {children}\n    </button>\n  );\n};\n\nexport default Button;',
+        card: 'import React from \'react\';\n\nconst Card = ({ title, description }) => {\n  return (\n    <div className="fr-card">\n      <div className="fr-card__body">\n        <h3 className="fr-card__title">{title}</h3>\n        <p className="fr-card__desc">{description}</p>\n      </div>\n    </div>\n  );\n};\n\nexport default Card;'
       }
     };
 

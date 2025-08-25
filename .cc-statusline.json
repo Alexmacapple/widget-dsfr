@@ -1,0 +1,278 @@
+{
+  "features": {
+    "workingDirectory": true,
+    "gitBranch": true,
+    "gitStatus": true,
+    "modelInfo": true,
+    "modelVersion": true,
+    "contextRemaining": true,
+    "contextPercentage": true,
+    "usage": true,
+    "costEstimate": true,
+    "sessionTimeRemaining": true,
+    "sessionTimeElapsed": true,
+    "tokenStatistics": true,
+    "tokenInput": true,
+    "tokenOutput": true,
+    "tokenTotal": true,
+    "burnRate": true,
+    "averageResponseTime": true,
+    "timestamp": true,
+    "timestampFormat": "HH:mm:ss",
+    "lastToolUsed": true,
+    "toolUsageCount": true,
+    "todoList": true,
+    "todoCount": true,
+    "memoryUsage": true,
+    "networkLatency": true,
+    "cpuUsage": true,
+    "cpuTemperature": false,
+    "batteryLevel": false,
+    "customMessage": true,
+    "customMessageText": "🚀 Widget DSFR Development",
+    "projectName": true,
+    "userName": true,
+    "hostname": true,
+    "platform": true,
+    "nodeVersion": true,
+    "npmVersion": true,
+    "activeFile": true,
+    "fileCount": true,
+    "errorCount": true,
+    "warningCount": true,
+    "apiEndpoint": true,
+    "rateLimitStatus": true,
+    "cacheStatus": true,
+    "debugMode": false,
+    "performanceMetrics": true,
+    "lastCommand": true,
+    "commandHistory": true,
+    "shortcuts": true
+  },
+  "style": {
+    "template": "detailed",
+    "colorTheme": "vibrant",
+    "compact": false,
+    "refreshInterval": 3000,
+    "animateTransitions": true,
+    "showIcons": true,
+    "iconStyle": "emoji",
+    "borderStyle": "rounded",
+    "padding": 1,
+    "margin": 0,
+    "fontSize": "default",
+    "fontFamily": "monospace",
+    "backgroundOpacity": 0.95,
+    "glowEffect": true,
+    "gradientBackground": true,
+    "pulseAnimation": false,
+    "separatorStyle": "pipe",
+    "highlightActive": true,
+    "showTooltips": true,
+    "colorBlindMode": false,
+    "highContrast": false,
+    "customColors": {
+      "primary": "#0070f3",
+      "secondary": "#7928ca",
+      "success": "#0070a3",
+      "warning": "#f5a623",
+      "error": "#e00",
+      "background": "#000",
+      "foreground": "#fff",
+      "accent": "#00ffcc"
+    }
+  },
+  "display": {
+    "position": "bottom",
+    "alignment": "center",
+    "width": "full",
+    "height": "auto",
+    "autoHide": false,
+    "hideDelay": 5000,
+    "transparency": 0.95,
+    "zIndex": 9999,
+    "sticky": true,
+    "dock": false,
+    "floatingWindow": false,
+    "miniMode": false,
+    "expandOnHover": false,
+    "collapseInactive": false,
+    "showOnStartup": true,
+    "rememberPosition": true,
+    "multiMonitor": "primary",
+    "screenEdgeSnap": true,
+    "keyboardShortcuts": {
+      "toggle": "cmd+shift+s",
+      "refresh": "cmd+r",
+      "miniMode": "cmd+m",
+      "position": "cmd+p"
+    }
+  },
+  "advanced": {
+    "enableTelemetry": false,
+    "logLevel": "info",
+    "updateChannel": "stable",
+    "autoUpdate": true,
+    "experimentalFeatures": false,
+    "cacheTimeout": 300000,
+    "maxHistoryItems": 100,
+    "dataRetention": 7,
+    "syncSettings": true,
+    "cloudBackup": false,
+    "encryptSettings": false,
+    "apiPollingInterval": 10000,
+    "webhookUrl": "",
+    "customPlugins": [],
+    "enableExtensions": true,
+    "sandboxMode": false,
+    "performanceMode": "balanced",
+    "gpuAcceleration": true,
+    "accessibility": {
+      "screenReaderSupport": true,
+      "keyboardNavigation": true,
+      "announceChanges": true,
+      "largeText": false,
+      "reduceMotion": false
+    }
+  },
+  "integrations": {
+    "vscode": false,
+    "slack": false,
+    "discord": false,
+    "github": true,
+    "gitlab": false,
+    "jira": false,
+    "notion": false,
+    "linear": false,
+    "figma": false,
+    "postman": false,
+    "datadog": false,
+    "sentry": false,
+    "raycast": false,
+    "alfredApp": false,
+    "iterm2": false,
+    "hyperTerm": false
+  },
+  "notifications": {
+    "enabled": true,
+    "sound": false,
+    "desktop": true,
+    "email": false,
+    "types": {
+      "errors": true,
+      "warnings": true,
+      "success": true,
+      "info": false,
+      "contextLow": true,
+      "sessionExpiring": true,
+      "rateLimit": true,
+      "toolFailure": true,
+      "todoComplete": true,
+      "buildStatus": true
+    },
+    "throttle": 30000,
+    "groupSimilar": true,
+    "priority": {
+      "high": ["errors", "contextLow", "sessionExpiring"],
+      "medium": ["warnings", "rateLimit", "toolFailure"],
+      "low": ["success", "info", "todoComplete"]
+    }
+  },
+  "widgets": {
+    "clock": {
+      "enabled": true,
+      "format": "24h",
+      "timezone": "local",
+      "showDate": false
+    },
+    "weather": {
+      "enabled": false,
+      "location": "auto",
+      "units": "metric"
+    },
+    "calendar": {
+      "enabled": false,
+      "source": "local"
+    },
+    "music": {
+      "enabled": false,
+      "service": "spotify"
+    },
+    "pomodoro": {
+      "enabled": true,
+      "workDuration": 25,
+      "breakDuration": 5,
+      "longBreakDuration": 15,
+      "sessionsBeforeLongBreak": 4
+    },
+    "notes": {
+      "enabled": true,
+      "syncEnabled": false,
+      "defaultFormat": "markdown"
+    },
+    "terminal": {
+      "enabled": true,
+      "shell": "zsh",
+      "showPath": true
+    }
+  },
+  "profiles": {
+    "default": {
+      "name": "Default",
+      "active": true
+    },
+    "minimal": {
+      "name": "Minimal",
+      "active": false,
+      "overrides": {
+        "features": {
+          "workingDirectory": true,
+          "gitBranch": true,
+          "modelInfo": true,
+          "contextRemaining": true
+        }
+      }
+    },
+    "development": {
+      "name": "Development",
+      "active": false,
+      "overrides": {
+        "advanced": {
+          "logLevel": "debug",
+          "experimentalFeatures": true
+        }
+      }
+    },
+    "presentation": {
+      "name": "Presentation",
+      "active": false,
+      "overrides": {
+        "display": {
+          "autoHide": true,
+          "miniMode": true
+        }
+      }
+    }
+  },
+  "customCommands": [
+    {
+      "name": "refreshStatus",
+      "key": "cmd+shift+r",
+      "action": "refresh"
+    },
+    {
+      "name": "toggleDebug",
+      "key": "cmd+shift+d",
+      "action": "toggleDebug"
+    }
+  ],
+  "experimental": {
+    "aiSuggestions": false,
+    "predictiveText": false,
+    "smartGrouping": false,
+    "autoLayout": false,
+    "voiceControl": false,
+    "gestureControl": false,
+    "holographicMode": false
+  }
+}

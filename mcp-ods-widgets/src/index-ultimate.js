@@ -923,169 +923,169 @@ class UltimateODSWidgetsMCPServer {
 
       try {
         switch (name) {
-          case 'create_widget': {
-            const params = CreateWidgetSchema.parse(args);
-            let html = this.generator.generateWidget(params.type, params);
+        case 'create_widget': {
+          const params = CreateWidgetSchema.parse(args);
+          let html = this.generator.generateWidget(params.type, params);
             
-            if (params.theme === 'dsfr') {
-              html = this.generator.generateDSFRWrapper(html, params.type);
-            }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Widget ${params.type} (${ODS_WIDGETS[params.type].directive}) créé avec succès:\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
+          if (params.theme === 'dsfr') {
+            html = this.generator.generateDSFRWrapper(html, params.type);
           }
-
-          case 'list_widgets': {
-            const format = args.format || 'simple';
-            let output = '';
             
-            if (format === 'detailed') {
-              output = Object.entries(ODS_WIDGETS).map(([key, widget]) => 
-                `**${key}** (${widget.directive})\n  ${widget.description}\n  Params: ${widget.params.join(', ')}`
-              ).join('\n\n');
-            } else if (format === 'markdown') {
-              output = '# Widgets ODS disponibles\n\n';
-              const categories = {
-                'Contextes': ['datasetContext', 'catalogContext'],
-                'Visualisation': ['table', 'chart', 'chartQuery', 'chartSerie', 'map'],
-                'Agrégation': ['aggregation', 'analysis', 'subaggregation', 'gauge'],
-                'Filtrage': ['facets', 'facetResults', 'searchbox', 'textSearch', 'clearAllFilters', 'filterSummary'],
-                'Temporel': ['calendar', 'timerange', 'timescale', 'datetime'],
-                'Résultats': ['results', 'resultEnumerator', 'infiniteScrollResults', 'paginationBlock'],
-                'Média': ['mediaGallery', 'slideshow', 'recordImage'],
-                'Avancé': ['crossTable', 'tagCloud'],
-                'Catalogue': ['mostPopularDatasets', 'mostUsedThemes', 'lastDatasetsFeed', 'domainStatistics', 'datasetSchema'],
-                'Social': ['socialButtons', 'disqus', 'reuses', 'lastReusesFeed'],
-                'Utilitaires': ['spinner', 'picto', 'themePicto', 'themeBoxes', 'toggleModel', 'autoResize', 'pageRefresh', 'widgetTooltip'],
-                'Externe': ['gist', 'hubspotForm'],
-                'Géographique': ['geotooltip'],
-                'Publication': ['topPublishers'],
-                'Spécial': ['refineOnClick']
-              };
-              
-              for (const [category, widgets] of Object.entries(categories)) {
-                output += `\n## ${category}\n\n`;
-                widgets.forEach(key => {
-                  const widget = ODS_WIDGETS[key];
-                  if (widget) {
-                    output += `- **${key}** (\`${widget.directive}\`): ${widget.description}\n`;
-                  }
-                });
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Widget ${params.type} (${ODS_WIDGETS[params.type].directive}) créé avec succès:\n\n\`\`\`html\n${html}\n\`\`\``
               }
-            } else {
-              output = `Widgets ODS disponibles (${Object.keys(ODS_WIDGETS).length} widgets):\n\n`;
-              output += Object.entries(ODS_WIDGETS).map(([key, widget]) => 
-                `- **${key}** (${widget.directive}): ${widget.description}`
-              ).join('\n');
-            }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: output
-                }
-              ]
-            };
-          }
+            ]
+          };
+        }
 
-          case 'list_filters': {
-            const filtersList = Object.entries(ODS_FILTERS).map(([key, description]) => 
-              `- **${key}**: ${description}`
+        case 'list_widgets': {
+          const format = args.format || 'simple';
+          let output = '';
+            
+          if (format === 'detailed') {
+            output = Object.entries(ODS_WIDGETS).map(([key, widget]) => 
+              `**${key}** (${widget.directive})\n  ${widget.description}\n  Params: ${widget.params.join(', ')}`
+            ).join('\n\n');
+          } else if (format === 'markdown') {
+            output = '# Widgets ODS disponibles\n\n';
+            const categories = {
+              'Contextes': ['datasetContext', 'catalogContext'],
+              'Visualisation': ['table', 'chart', 'chartQuery', 'chartSerie', 'map'],
+              'Agrégation': ['aggregation', 'analysis', 'subaggregation', 'gauge'],
+              'Filtrage': ['facets', 'facetResults', 'searchbox', 'textSearch', 'clearAllFilters', 'filterSummary'],
+              'Temporel': ['calendar', 'timerange', 'timescale', 'datetime'],
+              'Résultats': ['results', 'resultEnumerator', 'infiniteScrollResults', 'paginationBlock'],
+              'Média': ['mediaGallery', 'slideshow', 'recordImage'],
+              'Avancé': ['crossTable', 'tagCloud'],
+              'Catalogue': ['mostPopularDatasets', 'mostUsedThemes', 'lastDatasetsFeed', 'domainStatistics', 'datasetSchema'],
+              'Social': ['socialButtons', 'disqus', 'reuses', 'lastReusesFeed'],
+              'Utilitaires': ['spinner', 'picto', 'themePicto', 'themeBoxes', 'toggleModel', 'autoResize', 'pageRefresh', 'widgetTooltip'],
+              'Externe': ['gist', 'hubspotForm'],
+              'Géographique': ['geotooltip'],
+              'Publication': ['topPublishers'],
+              'Spécial': ['refineOnClick']
+            };
+              
+            for (const [category, widgets] of Object.entries(categories)) {
+              output += `\n## ${category}\n\n`;
+              widgets.forEach(key => {
+                const widget = ODS_WIDGETS[key];
+                if (widget) {
+                  output += `- **${key}** (\`${widget.directive}\`): ${widget.description}\n`;
+                }
+              });
+            }
+          } else {
+            output = `Widgets ODS disponibles (${Object.keys(ODS_WIDGETS).length} widgets):\n\n`;
+            output += Object.entries(ODS_WIDGETS).map(([key, widget]) => 
+              `- **${key}** (${widget.directive}): ${widget.description}`
             ).join('\n');
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Filtres Angular ODS disponibles:\n\n${filtersList}\n\nUtilisation: {{ expression | filterName:param1:param2 }}`
-                }
-              ]
-            };
           }
-
-          case 'generate_dashboard': {
-            const params = GenerateDashboardSchema.parse(args);
-            const html = this.generator.generateCompletePage(params);
             
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Dashboard complet généré pour ${params.dataset}:\n\n\`\`\`html\n${html}\n\`\`\``
-                }
-              ]
-            };
+          return {
+            content: [
+              {
+                type: 'text',
+                text: output
+              }
+            ]
+          };
+        }
+
+        case 'list_filters': {
+          const filtersList = Object.entries(ODS_FILTERS).map(([key, description]) => 
+            `- **${key}**: ${description}`
+          ).join('\n');
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Filtres Angular ODS disponibles:\n\n${filtersList}\n\nUtilisation: {{ expression | filterName:param1:param2 }}`
+              }
+            ]
+          };
+        }
+
+        case 'generate_dashboard': {
+          const params = GenerateDashboardSchema.parse(args);
+          const html = this.generator.generateCompletePage(params);
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Dashboard complet généré pour ${params.dataset}:\n\n\`\`\`html\n${html}\n\`\`\``
+              }
+            ]
+          };
+        }
+
+        case 'get_widget_code': {
+          const { type, context = 'ctx', options = {}, wrapped = true, includeExample = false } = args;
+          const widget = ODS_WIDGETS[type];
+            
+          if (!widget) {
+            throw new Error(`Widget inconnu: ${type}`);
           }
-
-          case 'get_widget_code': {
-            const { type, context = 'ctx', options = {}, wrapped = true, includeExample = false } = args;
-            const widget = ODS_WIDGETS[type];
             
-            if (!widget) {
-              throw new Error(`Widget inconnu: ${type}`);
-            }
+          let html = this.generator.generateWidget(type, { context, options });
             
-            let html = this.generator.generateWidget(type, { context, options });
-            
-            if (wrapped) {
-              html = this.generator.generateDSFRWrapper(html, type);
-            }
-            
-            let response = `Widget: ${widget.name}\nDirective: ${widget.directive}\nDescription: ${widget.description}\n\n`;
-            response += `Code:\n\`\`\`html\n${html}\n\`\`\`\n\n`;
-            
-            if (includeExample) {
-              response += `Paramètres disponibles:\n${widget.params.map(p => `- ${p}`).join('\n')}\n\n`;
-              response += `Exemple d'utilisation complète:\n\`\`\`html\n`;
-              response += `<ods-dataset-context context="myctx" myctx-domain="data.example.com" myctx-dataset="my-dataset">\n`;
-              response += `  ${html}\n`;
-              response += `</ods-dataset-context>\n\`\`\``;
-            }
-            
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: response
-                }
-              ]
-            };
+          if (wrapped) {
+            html = this.generator.generateDSFRWrapper(html, type);
           }
-
-          case 'analyze_dataset': {
-            const { dataset, domain } = args;
             
-            // Simulation d'analyse (dans un vrai cas, on ferait un appel API)
-            const recommendations = [
-              'table - Pour afficher les données brutes',
-              'chart - Pour visualiser les tendances',
-              'map - Si des données géographiques sont présentes',
-              'facets - Pour permettre le filtrage',
-              'aggregation - Pour afficher des KPIs',
-              'searchbox - Pour la recherche textuelle',
-              'calendar - Si des dates sont présentes',
-              'tagCloud - Pour les catégories'
-            ];
+          let response = `Widget: ${widget.name}\nDirective: ${widget.directive}\nDescription: ${widget.description}\n\n`;
+          response += `Code:\n\`\`\`html\n${html}\n\`\`\`\n\n`;
             
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: `Analyse du dataset "${dataset}" sur ${domain}\n\nWidgets recommandés:\n${recommendations.join('\n')}`
-                }
-              ]
-            };
+          if (includeExample) {
+            response += `Paramètres disponibles:\n${widget.params.map(p => `- ${p}`).join('\n')}\n\n`;
+            response += 'Exemple d\'utilisation complète:\n```html\n';
+            response += '<ods-dataset-context context="myctx" myctx-domain="data.example.com" myctx-dataset="my-dataset">\n';
+            response += `  ${html}\n`;
+            response += '</ods-dataset-context>\n```';
           }
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: response
+              }
+            ]
+          };
+        }
 
-          default:
-            throw new Error(`Outil non reconnu: ${name}`);
+        case 'analyze_dataset': {
+          const { dataset, domain } = args;
+            
+          // Simulation d'analyse (dans un vrai cas, on ferait un appel API)
+          const recommendations = [
+            'table - Pour afficher les données brutes',
+            'chart - Pour visualiser les tendances',
+            'map - Si des données géographiques sont présentes',
+            'facets - Pour permettre le filtrage',
+            'aggregation - Pour afficher des KPIs',
+            'searchbox - Pour la recherche textuelle',
+            'calendar - Si des dates sont présentes',
+            'tagCloud - Pour les catégories'
+          ];
+            
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Analyse du dataset "${dataset}" sur ${domain}\n\nWidgets recommandés:\n${recommendations.join('\n')}`
+              }
+            ]
+          };
+        }
+
+        default:
+          throw new Error(`Outil non reconnu: ${name}`);
         }
       } catch (error) {
         return {

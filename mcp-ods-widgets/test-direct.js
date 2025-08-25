@@ -188,7 +188,7 @@ console.log('==========================================');
 const dashboard = generateDashboard('signalconso', ['kpi', 'facets', 'chart', 'table']);
 console.log('Dashboard généré avec succès !');
 console.log(`Taille: ${dashboard.length} caractères`);
-console.log(`Widgets inclus: KPI, Facets, Chart, Table`);
+console.log('Widgets inclus: KPI, Facets, Chart, Table');
 
 // Sauvegarder le dashboard généré
 import { writeFileSync } from 'fs';

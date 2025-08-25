@@ -981,26 +981,6 @@
             exportData(selected, 'signalconso-selection.csv');
         }
         
-        function viewDetails(recordId) {
-            const record = allData.find(r => r.recordid === recordId);
-            if (record) {
-                const fields = record.fields;
-                alert(`Détails du signalement:
-                
-ID: ${recordId}
-Date: ${fields.creationdate}
-Catégorie: ${fields.category}
-Département: ${fields.dep_name} (${fields.dep_code})
-Région: ${fields.reg_name}
-Statut: ${fields.status}
-Tags: ${fields.tags || 'Aucun'}
-Sous-catégories: ${fields.subcategories || 'Aucune'}
-Transmis: ${fields.signalement_transmis == 1 ? 'Oui' : 'Non'}
-Lu: ${fields.signalement_lu == 1 ? 'Oui' : 'Non'}
-Réponse: ${fields.signalement_reponse == 1 ? 'Oui' : 'Non'}`);
-            }
-        }
-        
         // Event listeners pour les filtres
         document.getElementById('search-text').addEventListener('keyup', function(e) {
             if (e.key === 'Enter') applyFilters();

@@ -107,17 +107,17 @@ process.stdin.on('data', (data) => {
       let content = '';
       
       switch (name) {
-        case 'create_widget':
-          content = generateWidget(args.type, args.dataset);
-          break;
-        case 'analyze_dataset':
-          content = JSON.stringify(analyzeDataset(args.dataset), null, 2);
-          break;
-        case 'generate_dashboard':
-          content = generateDashboard(args.dataset, args.widgets);
-          break;
-        default:
-          content = `Outil non reconnu: ${name}`;
+      case 'create_widget':
+        content = generateWidget(args.type, args.dataset);
+        break;
+      case 'analyze_dataset':
+        content = JSON.stringify(analyzeDataset(args.dataset), null, 2);
+        break;
+      case 'generate_dashboard':
+        content = generateDashboard(args.dataset, args.widgets);
+        break;
+      default:
+        content = `Outil non reconnu: ${name}`;
       }
       
       const response = {

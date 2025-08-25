@@ -102,30 +102,30 @@ export class DatasetAnalyzer {
 
     fields.forEach(field => {
       switch (field.type) {
-        case 'text':
-          analysis.textFields.push(field);
-          // Identifier les champs catégoriels potentiels
-          if (field.name.includes('categor') || 
+      case 'text':
+        analysis.textFields.push(field);
+        // Identifier les champs catégoriels potentiels
+        if (field.name.includes('categor') || 
               field.name.includes('type') || 
               field.name.includes('statut') ||
               field.name.includes('region') ||
               field.name.includes('dep')) {
-            analysis.categoryFields.push(field);
-          }
-          break;
-        case 'int':
-        case 'double':
-        case 'decimal':
-          analysis.numberFields.push(field);
-          break;
-        case 'date':
-        case 'datetime':
-          analysis.dateFields.push(field);
-          break;
-        case 'geo_point_2d':
-        case 'geo_shape':
-          analysis.geoFields.push(field);
-          break;
+          analysis.categoryFields.push(field);
+        }
+        break;
+      case 'int':
+      case 'double':
+      case 'decimal':
+        analysis.numberFields.push(field);
+        break;
+      case 'date':
+      case 'datetime':
+        analysis.dateFields.push(field);
+        break;
+      case 'geo_point_2d':
+      case 'geo_shape':
+        analysis.geoFields.push(field);
+        break;
       }
 
       // Détecter les coordonnées géographiques

@@ -50,7 +50,7 @@ class DocumentationRepository extends IDataRepository {
       this.initialized = true;
       this.logger.info(`DocumentationRepository initialisé avec ${this.documents.size} documents`);
     } catch (error) {
-      this.logger.error("Erreur lors de l'initialisation du DocumentationRepository", error);
+      this.logger.error('Erreur lors de l\'initialisation du DocumentationRepository', error);
       throw error;
     }
   }
@@ -232,7 +232,7 @@ class DocumentationRepository extends IDataRepository {
       // Créer l'index de recherche
       await this.createSearchIndex();
     } catch (error) {
-      this.logger.error("Erreur lors de l'indexation", error);
+      this.logger.error('Erreur lors de l\'indexation', error);
       throw error;
     }
   }
