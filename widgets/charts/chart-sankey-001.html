@@ -700,18 +700,48 @@
         // Chargement des données depuis l'API
         async function loadDataFromAPI() {
             try {
-                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=2000&facet=categoriedeprobleme&facet=statut');
+                const response = await fetch('https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=5000&facet=category&facet=status');
                 const data = await response.json();
-                
                 
                 // Créer les flux entre catégories et statuts
                 const flows = {};
+                const categoryCount = {};
+                const statusCount = {};
+                
+                // Mapper les statuts API vers des libellés français
+                const statusLabels = {
+                    'NA': 'Non défini',
+                    'PromesseAction': 'Promesse d\'action',
+                    'NonConsulte': 'Non consulté',
+                    'Infonde': 'Infondé',
+                    'ConsulteIgnore': 'Consulté ignoré',
+                    'MalAttribue': 'Mal attribué',
+                    'SuppressionRGPD': 'Suppression RGPD',
+                    'InformateurInterne': 'Informateur interne',
+                    'TraitementEnCours': 'En cours',
+                    'Transmis': 'Transmis'
+                };
+                
                 data.records.forEach(record => {
-                    const cat = record.fields.categoriedeprobleme || 'Autre';
-                    const status = record.fields.statut || 'En cours';
-                    const key = cat + ' -> ' + status;
+                    const cat = record.fields.category || 'Autre';
+                    const status = record.fields.status || 'NA';
+                    const statusLabel = statusLabels[status] || status;
+                    
+                    // Limiter les catégories aux 6 principales
+                    categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+                    statusCount[statusLabel] = (statusCount[statusLabel] || 0) + 1;
+                    
+                    const key = cat + ' -> ' + statusLabel;
                     flows[key] = (flows[key] || 0) + 1;
                 });
+                
+                // Prendre les top catégories et statuts
+                const topCategories = Object.entries(categoryCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 6)
+                    .map(c => c[0]);
+                
+                const topStatuses = ['Promesse d\'action', 'Non consulté', 'Infondé', 'En cours', 'Transmis'];
                 
                 // Convertir en format pour D3 Sankey
                 const nodes = [];
@@ -719,37 +749,64 @@
                 const nodeMap = {};
                 let nodeIndex = 0;
                 
+                // Ajouter les nœuds de catégories
+                topCategories.forEach(cat => {
+                    nodeMap[cat] = nodeIndex++;
+                    nodes.push({ id: nodeIndex - 1, name: cat });
+                });
+                
+                // Ajouter les nœuds de statuts
+                topStatuses.forEach(status => {
+                    nodeMap[status] = nodeIndex++;
+                    nodes.push({ id: nodeIndex - 1, name: status });
+                });
+                
+                // Créer les liens avec les données réelles
                 Object.entries(flows).forEach(([key, value]) => {
                     const [source, target] = key.split(' -> ');
                     
-                    if (!nodeMap[source]) {
-                        nodeMap[source] = nodeIndex++;
-                        nodes.push({ name: source });
+                    // Ne garder que les flux entre top catégories et top statuts
+                    if (topCategories.includes(source) && topStatuses.includes(target)) {
+                        links.push({
+                            source: nodeMap[source],
+                            target: nodeMap[target],
+                            value: value
+                        });
                     }
-                    if (!nodeMap[target]) {
-                        nodeMap[target] = nodeIndex++;
-                        nodes.push({ name: target });
-                    }
-                    
-                    links.push({
-                        source: nodeMap[source],
-                        target: nodeMap[target],
-                        value: value
-                    });
                 });
                 
-                // Mettre à jour le graphique
-                updateChart(labels, values);
+                // Si on a des données, mettre à jour le graphique
+                if (links.length > 0) {
+                    // Mettre à jour les données globales
+                    sankeyData['category-status'] = {
+                        nodes: nodes,
+                        links: links
+                    };
+                    
+                    // Redessiner le graphique avec les nouvelles données
+                    drawSankey();
+                    
+                    // Mettre à jour les statistiques avec les vraies données
+                    const totalFlux = links.reduce((sum, link) => sum + link.value, 0);
+                    document.getElementById('total-flux').textContent = totalFlux.toLocaleString('fr-FR');
+                    document.getElementById('total-nodes').textContent = nodes.length;
+                    document.getElementById('total-links').textContent = links.length;
+                } else {
+                    console.log('Pas assez de données, utilisation des données de démonstration');
+                }
                 
             } catch (error) {
                 console.error('Erreur lors du chargement des données:', error);
-                // Utiliser des données de démonstration en cas d'erreur
-                useDefaultData();
+                // Les données de démonstration sont déjà chargées
             }
         }
         
         // Initialisation au chargement
         document.addEventListener('DOMContentLoaded', async function() {
+            // D'abord dessiner avec les données de démo
+            drawSankey();
+            
+            // Puis charger les vraies données de l'API
             await loadDataFromAPI();
             
             // Ajouter les event listeners
