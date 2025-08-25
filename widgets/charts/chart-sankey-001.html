@@ -33,7 +33,21 @@
         }
         .fr-table table {
             width: 100% !important;
-            table-layout: fixed;
+            table-layout: auto;
+        }
+        .fr-table td {
+            word-break: break-word;
+            word-wrap: break-word;
+            white-space: normal;
+            max-width: 300px;
+        }
+        .fr-table td:first-child {
+            max-width: 400px;
+        }
+        .fr-table td:nth-child(3),
+        .fr-table td:nth-child(4) {
+            white-space: nowrap;
+            text-align: right;
         }
         /* Caption DSFR en dehors du tableau */
         .fr-table__caption {
@@ -83,6 +97,14 @@
         }
         @media (max-width: 768px) {
             .chart-container { height: 500px; }
+            .fr-table td:first-child {
+                max-width: 250px;
+                font-size: 0.875rem;
+            }
+            .fr-table td {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
         }
     </style>
 </head>
@@ -767,7 +789,13 @@
                     });
                 } else if (currentFlowType === 'subcategory-status') {
                     data.records.forEach(record => {
-                        const subcat = record.fields.subcategories || 'Autre';
+                        let subcat = record.fields.subcategories || 'Autre';
+                        // Simplifier les sous-catégories longues pour l'affichage
+                        if (subcat.includes(';')) {
+                            // Prendre seulement les deux premières parties
+                            const parts = subcat.split(';');
+                            subcat = parts.slice(0, 2).join(' - ');
+                        }
                         const status = record.fields.status || 'NA';
                         const statusLabel = statusLabels[status] || status;
                         
