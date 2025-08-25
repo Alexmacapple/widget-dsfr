@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget champ avec autocomplétion DSFR pour SignalConso">
+    <title>Champ avec autocomplétion DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        
+        /* Styles pour l'autocomplétion */
+        .autocomplete-container {
+            position: relative;
+            max-width: 600px;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .autocomplete-results.show {
+            display: block;
+        }
+        
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background-color: #f5f5fe;
+        }
+        
+        .autocomplete-item.selected {
+            background-color: #e5e5fe;
+        }
+        
+        .autocomplete-item-main {
+            flex: 1;
+        }
+        
+        .autocomplete-item-title {
+            font-weight: 500;
+            color: #161616;
+            margin-bottom: 2px;
+        }
+        
+        .autocomplete-item-subtitle {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .autocomplete-item-badge {
+            background: #000091;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        
+        .autocomplete-no-results {
+            padding: 16px;
+            text-align: center;
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        .autocomplete-loading {
+            padding: 16px;
+            text-align: center;
+            color: #000091;
+        }
+        
+        .autocomplete-loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #000091;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Highlight de la recherche */
+        .highlight {
+            background-color: #ffeb3b;
+            font-weight: 600;
+        }
+        
+        /* Styles pour les exemples */
+        .example-section {
+            background: #f6f6f6;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        /* Indicateurs de statut */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active { background-color: #18753C; }
+        .status-inactive { background-color: #CE0500; }
+        .status-pending { background-color: #B34000; }
+        
+        /* Tags */
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: #e5e5fe;
+            color: #000091;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+        
+        .tag-remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .tag-remove:hover {
+            color: #CE0500;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .autocomplete-results {
+                max-height: 200px;
+            }
+            
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET FORM-AUTOCOMPLETE-001 -->
+    <div id="widget-form-autocomplete-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Recherche avec autocomplétion</h1>
+        <p class="fr-text--lead">Champs de recherche intelligents avec suggestions en temps réel depuis l'API SignalConso</p>
+        
+        <!-- Exemple 1: Recherche d'entreprise -->
+        <div class="example-section">
+            <h2 class="fr-h4">Recherche d'entreprise</h2>
+            <p class="fr-text--sm">Commencez à taper pour rechercher une entreprise par nom ou SIRET</p>
+            
+            <div class="fr-input-group">
+                <label class="fr-label" for="entreprise-search">
+                    Nom ou SIRET de l'entreprise
+                    <span class="fr-hint-text">Minimum 3 caractères pour lancer la recherche</span>
+                </label>
+                <div class="autocomplete-container">
+                    <input 
+                        class="fr-input" 
+                        type="text" 
+                        id="entreprise-search" 
+                        name="entreprise"
+                        placeholder="Ex: Carrefour, Amazon, 77567227200037..."
+                        autocomplete="off"
+                        aria-autocomplete="list"
+                        aria-expanded="false"
+                        aria-controls="entreprise-results"
+                        role="combobox">
+                    <div id="entreprise-results" class="autocomplete-results" role="listbox"></div>
+                </div>
+            </div>
+            
+            <div class="fr-alert fr-alert--info fr-mt-3w">
+                <p class="fr-alert__title">Information</p>
+                <p>La recherche interroge la base de données SignalConso et le registre des entreprises.</p>
+            </div>
+        </div>
+        
+        <!-- Exemple 2: Recherche de catégorie -->
+        <div class="example-section">
+            <h2 class="fr-h4">Recherche de catégorie de problème</h2>
+            <p class="fr-text--sm">Trouvez rapidement la catégorie correspondant à votre signalement</p>
+            
+            <div class="fr-input-group">
+                <label class="fr-label" for="categorie-search">
+                    Catégorie du problème
+                    <span class="fr-hint-text">Décrivez votre problème en quelques mots</span>
+                </label>
+                <div class="autocomplete-container">
+                    <input 
+                        class="fr-input" 
+                        type="text" 
+                        id="categorie-search" 
+                        name="categorie"
+                        placeholder="Ex: téléphone, voyage, alimentation..."
+                        autocomplete="off"
+                        aria-autocomplete="list"
+                        aria-expanded="false"
+                        aria-controls="categorie-results"
+                        role="combobox">
+                    <div id="categorie-results" class="autocomplete-results" role="listbox"></div>
+                </div>
+            </div>
+            
+            <!-- Tags sélectionnés -->
+            <div id="selected-categories" class="tag-container"></div>
+        </div>
+        
+        <!-- Exemple 3: Recherche de ville -->
+        <div class="example-section">
+            <h2 class="fr-h4">Recherche de commune</h2>
+            <p class="fr-text--sm">Recherchez une commune française par nom ou code postal</p>
+            
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="ville-search">
+                            Commune
+                            <span class="fr-hint-text">Nom ou code postal</span>
+                        </label>
+                        <div class="autocomplete-container">
+                            <input 
+                                class="fr-input" 
+                                type="text" 
+                                id="ville-search" 
+                                name="ville"
+                                placeholder="Ex: Paris, 75001, Lyon..."
+                                autocomplete="off"
+                                aria-autocomplete="list"
+                                aria-expanded="false"
+                                aria-controls="ville-results"
+                                role="combobox">
+                            <div id="ville-results" class="autocomplete-results" role="listbox"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="selected-ville">
+                            Commune sélectionnée
+                        </label>
+                        <input 
+                            class="fr-input" 
+                            type="text" 
+                            id="selected-ville" 
+                            readonly
+                            placeholder="Aucune sélection">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Exemple 4: Multi-sélection avec autocomplétion -->
+        <div class="example-section">
+            <h2 class="fr-h4">Sélection multiple de produits</h2>
+            <p class="fr-text--sm">Ajoutez plusieurs produits concernés par votre signalement</p>
+            
+            <div class="fr-input-group">
+                <label class="fr-label" for="produit-search">
+                    Produits concernés
+                    <span class="fr-hint-text">Vous pouvez sélectionner plusieurs produits</span>
+                </label>
+                <div class="autocomplete-container">
+                    <input 
+                        class="fr-input" 
+                        type="text" 
+                        id="produit-search" 
+                        name="produit"
+                        placeholder="Ex: smartphone, ordinateur, télévision..."
+                        autocomplete="off"
+                        aria-autocomplete="list"
+                        aria-expanded="false"
+                        aria-controls="produit-results"
+                        role="combobox">
+                    <div id="produit-results" class="autocomplete-results" role="listbox"></div>
+                </div>
+            </div>
+            
+            <!-- Produits sélectionnés -->
+            <div id="selected-products" class="tag-container"></div>
+        </div>
+        
+        <!-- Statistiques et exemples -->
+        <div class="fr-grid-row fr-grid-row--gutters fr-mt-4w">
+            <div class="fr-col-12 fr-col-md-4">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Recherches populaires</h3>
+                        <ul class="fr-list">
+                            <li>Téléphonie mobile</li>
+                            <li>Achat internet</li>
+                            <li>Voyage annulé</li>
+                            <li>Démarchage abusif</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="fr-col-12 fr-col-md-4">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Entreprises fréquentes</h3>
+                        <ul class="fr-list">
+                            <li><span class="status-indicator status-active"></span>Orange</li>
+                            <li><span class="status-indicator status-active"></span>SFR</li>
+                            <li><span class="status-indicator status-active"></span>Free</li>
+                            <li><span class="status-indicator status-active"></span>Amazon</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="fr-col-12 fr-col-md-4">
+                <div class="fr-card">
+                    <div class="fr-card__body">
+                        <h3 class="fr-card__title">Régions actives</h3>
+                        <ul class="fr-list">
+                            <li>Île-de-France (45%)</li>
+                            <li>Auvergne-Rhône-Alpes (12%)</li>
+                            <li>PACA (10%)</li>
+                            <li>Occitanie (8%)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET FORM-AUTOCOMPLETE-001 -->
+    
+    <script>
+        // Configuration de l'autocomplétion
+        class AutoComplete {
+            constructor(inputId, resultsId, options = {}) {
+                this.input = document.getElementById(inputId);
+                this.results = document.getElementById(resultsId);
+                this.options = {
+                    minChars: options.minChars || 3,
+                    delay: options.delay || 300,
+                    maxResults: options.maxResults || 10,
+                    searchFn: options.searchFn || this.defaultSearch,
+                    renderFn: options.renderFn || this.defaultRender,
+                    selectFn: options.selectFn || this.defaultSelect,
+                    multiSelect: options.multiSelect || false,
+                    ...options
+                };
+                
+                this.selectedIndex = -1;
+                this.searchTimeout = null;
+                this.selectedItems = [];
+                this.cache = new Map();
+                
+                this.init();
+            }
+            
+            init() {
+                // Événements clavier
+                this.input.addEventListener('input', this.handleInput.bind(this));
+                this.input.addEventListener('keydown', this.handleKeydown.bind(this));
+                this.input.addEventListener('focus', this.handleFocus.bind(this));
+                this.input.addEventListener('blur', this.handleBlur.bind(this));
+                
+                // Fermer les résultats au clic extérieur
+                document.addEventListener('click', (e) => {
+                    if (!this.input.contains(e.target) && !this.results.contains(e.target)) {
+                        this.hideResults();
+                    }
+                });
+            }
+            
+            handleInput(e) {
+                const query = e.target.value.trim();
+                
+                clearTimeout(this.searchTimeout);
+                
+                if (query.length < this.options.minChars) {
+                    this.hideResults();
+                    return;
+                }
+                
+                // Afficher le loader
+                this.showLoading();
+                
+                // Debounce la recherche
+                this.searchTimeout = setTimeout(() => {
+                    this.search(query);
+                }, this.options.delay);
+            }
+            
+            handleKeydown(e) {
+                const items = this.results.querySelectorAll('.autocomplete-item');
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
+                        this.updateSelection(items);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+                        this.updateSelection(items);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (this.selectedIndex >= 0 && items[this.selectedIndex]) {
+                            items[this.selectedIndex].click();
+                        }
+                        break;
+                    case 'Escape':
+                        this.hideResults();
+                        break;
+                }
+            }
+            
+            handleFocus() {
+                if (this.input.value.length >= this.options.minChars) {
+                    this.search(this.input.value);
+                }
+            }
+            
+            handleBlur() {
+                // Délai pour permettre le clic sur les résultats
+                setTimeout(() => {
+                    this.hideResults();
+                }, 200);
+            }
+            
+            async search(query) {
+                // Vérifier le cache
+                if (this.cache.has(query)) {
+                    this.displayResults(this.cache.get(query), query);
+                    return;
+                }
+                
+                try {
+                    const results = await this.options.searchFn(query);
+                    this.cache.set(query, results);
+                    this.displayResults(results, query);
+                } catch (error) {
+                    console.error('Erreur de recherche:', error);
+                    this.showError();
+                }
+            }
+            
+            displayResults(data, query) {
+                if (!data || data.length === 0) {
+                    this.showNoResults();
+                    return;
+                }
+                
+                this.results.innerHTML = '';
+                data.slice(0, this.options.maxResults).forEach((item, index) => {
+                    const element = this.options.renderFn(item, query);
+                    element.classList.add('autocomplete-item');
+                    element.setAttribute('role', 'option');
+                    element.setAttribute('data-index', index);
+                    
+                    element.addEventListener('click', () => {
+                        this.selectItem(item);
+                    });
+                    
+                    this.results.appendChild(element);
+                });
+                
+                this.showResults();
+                this.selectedIndex = -1;
+            }
+            
+            selectItem(item) {
+                this.options.selectFn(item, this);
+                
+                if (this.options.multiSelect) {
+                    this.selectedItems.push(item);
+                    this.input.value = '';
+                } else {
+                    this.hideResults();
+                }
+            }
+            
+            showResults() {
+                this.results.classList.add('show');
+                this.input.setAttribute('aria-expanded', 'true');
+            }
+            
+            hideResults() {
+                this.results.classList.remove('show');
+                this.input.setAttribute('aria-expanded', 'false');
+                this.selectedIndex = -1;
+            }
+            
+            showLoading() {
+                this.results.innerHTML = '<div class="autocomplete-loading">Recherche en cours</div>';
+                this.showResults();
+            }
+            
+            showNoResults() {
+                this.results.innerHTML = '<div class="autocomplete-no-results">Aucun résultat trouvé</div>';
+                this.showResults();
+            }
+            
+            showError() {
+                this.results.innerHTML = '<div class="autocomplete-no-results">Erreur lors de la recherche</div>';
+                this.showResults();
+            }
+            
+            updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === this.selectedIndex) {
+                        item.classList.add('selected');
+                        item.setAttribute('aria-selected', 'true');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                        item.setAttribute('aria-selected', 'false');
+                    }
+                });
+            }
+            
+            // Méthodes par défaut
+            async defaultSearch(query) {
+                // Simulation d'une recherche
+                return [];
+            }
+            
+            defaultRender(item, query) {
+                const div = document.createElement('div');
+                div.textContent = item.label || item.name || item;
+                return div;
+            }
+            
+            defaultSelect(item) {
+                this.input.value = item.label || item.name || item;
+            }
+            
+            // Utilitaire pour highlight
+            highlightText(text, query) {
+                const regex = new RegExp(`(${query})`, 'gi');
+                return text.replace(regex, '<span class="highlight">$1</span>');
+            }
+        }
+        
+        // Recherche d'entreprise
+        const entrepriseAutocomplete = new AutoComplete('entreprise-search', 'entreprise-results', {
+            searchFn: async (query) => {
+                try {
+                    // Recherche dans l'API SignalConso
+                    const response = await fetch(
+                        `https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&q=${encodeURIComponent(query)}&facet=prenomProfessionnel&rows=20`
+                    );
+                    const data = await response.json();
+                    
+                    // Extraire les entreprises uniques
+                    const entreprises = new Map();
+                    data.records.forEach(record => {
+                        if (record.fields.prenomProfessionnel) {
+                            const nom = record.fields.prenomProfessionnel;
+                            if (!entreprises.has(nom)) {
+                                entreprises.set(nom, {
+                                    name: nom,
+                                    siret: record.fields.siret || 'Non renseigné',
+                                    count: 1
+                                });
+                            } else {
+                                entreprises.get(nom).count++;
+                            }
+                        }
+                    });
+                    
+                    // Simuler des résultats supplémentaires
+                    const mockData = [
+                        { name: 'Orange SA', siret: '38012986600013', count: 245 },
+                        { name: 'SFR', siret: '34397063700086', count: 189 },
+                        { name: 'Free Mobile', siret: '42193886100034', count: 156 },
+                        { name: 'Bouygues Telecom', siret: '39748032300150', count: 134 }
+                    ];
+                    
+                    // Filtrer les résultats mock
+                    const filtered = mockData.filter(item => 
+                        item.name.toLowerCase().includes(query.toLowerCase()) ||
+                        item.siret.includes(query)
+                    );
+                    
+                    // Combiner et retourner les résultats
+                    return [...filtered, ...Array.from(entreprises.values())]
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 10);
+                        
+                } catch (error) {
+                    console.error('Erreur API:', error);
+                    return [];
+                }
+            },
+            renderFn: (item, query) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="autocomplete-item-main">
+                        <div class="autocomplete-item-title">${entrepriseAutocomplete.highlightText(item.name, query)}</div>
+                        <div class="autocomplete-item-subtitle">SIRET: ${item.siret}</div>
+                    </div>
+                    <div class="autocomplete-item-badge">${item.count} signalements</div>
+                `;
+                return div;
+            },
+            selectFn: (item) => {
+                document.getElementById('entreprise-search').value = item.name;
+            }
+        });
+        
+        // Recherche de catégorie
+        const categorieAutocomplete = new AutoComplete('categorie-search', 'categorie-results', {
+            minChars: 2,
+            multiSelect: true,
+            searchFn: async (query) => {
+                const categories = [
+                    { name: 'AchatInternet', label: 'Achat sur Internet', count: 3450 },
+                    { name: 'AchatMagasin', label: 'Achat en magasin', count: 2890 },
+                    { name: 'DemarchageAbusif', label: 'Démarchage abusif', count: 2345 },
+                    { name: 'TravauxRenovations', label: 'Travaux et rénovations', count: 1876 },
+                    { name: 'VoyageLoisirs', label: 'Voyage et loisirs', count: 1654 },
+                    { name: 'Telephonie', label: 'Téléphonie et Internet', count: 1543 },
+                    { name: 'Voiture', label: 'Voiture / Véhicule', count: 1234 },
+                    { name: 'Services', label: 'Services aux particuliers', count: 987 },
+                    { name: 'Alimentation', label: 'Alimentation', count: 876 },
+                    { name: 'Sante', label: 'Santé et cosmétiques', count: 654 },
+                    { name: 'Energie', label: 'Énergie (gaz, électricité)', count: 543 },
+                    { name: 'Banque', label: 'Banque et assurance', count: 432 }
+                ];
+                
+                const filtered = categories.filter(cat => 
+                    cat.label.toLowerCase().includes(query.toLowerCase()) ||
+                    cat.name.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                return filtered.sort((a, b) => b.count - a.count);
+            },
+            renderFn: (item, query) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="autocomplete-item-main">
+                        <div class="autocomplete-item-title">${categorieAutocomplete.highlightText(item.label, query)}</div>
+                    </div>
+                    <div class="autocomplete-item-badge">${item.count}</div>
+                `;
+                return div;
+            },
+            selectFn: (item, autocomplete) => {
+                // Ajouter un tag
+                const container = document.getElementById('selected-categories');
+                const existing = container.querySelector(`[data-value="${item.name}"]`);
+                
+                if (!existing) {
+                    const tag = document.createElement('div');
+                    tag.className = 'tag';
+                    tag.setAttribute('data-value', item.name);
+                    tag.innerHTML = `
+                        ${item.label}
+                        <span class="tag-remove" onclick="removeTag(this, 'selected-categories')">×</span>
+                    `;
+                    container.appendChild(tag);
+                }
+                
+                document.getElementById('categorie-search').value = '';
+                autocomplete.hideResults();
+            }
+        });
+        
+        // Recherche de ville
+        const villeAutocomplete = new AutoComplete('ville-search', 'ville-results', {
+            minChars: 2,
+            searchFn: async (query) => {
+                try {
+                    // API des communes françaises
+                    const response = await fetch(
+                        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(query)}&fields=nom,code,codesPostaux,population&limit=10`
+                    );
+                    const data = await response.json();
+                    
+                    // Si c'est un code postal
+                    if (/^\d{5}$/.test(query)) {
+                        const cpResponse = await fetch(
+                            `https://geo.api.gouv.fr/communes?codePostal=${query}&fields=nom,code,codesPostaux,population&limit=10`
+                        );
+                        const cpData = await cpResponse.json();
+                        return cpData;
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.error('Erreur API Geo:', error);
+                    return [];
+                }
+            },
+            renderFn: (item, query) => {
+                const div = document.createElement('div');
+                const population = item.population ? item.population.toLocaleString('fr-FR') : 'N/A';
+                const codePostal = item.codesPostaux ? item.codesPostaux[0] : '';
+                
+                div.innerHTML = `
+                    <div class="autocomplete-item-main">
+                        <div class="autocomplete-item-title">${villeAutocomplete.highlightText(item.nom, query)}</div>
+                        <div class="autocomplete-item-subtitle">CP: ${codePostal} | Pop: ${population} hab.</div>
+                    </div>
+                `;
+                return div;
+            },
+            selectFn: (item) => {
+                const codePostal = item.codesPostaux ? item.codesPostaux[0] : '';
+                document.getElementById('ville-search').value = item.nom;
+                document.getElementById('selected-ville').value = `${item.nom} (${codePostal})`;
+            }
+        });
+        
+        // Recherche de produits
+        const produitAutocomplete = new AutoComplete('produit-search', 'produit-results', {
+            minChars: 2,
+            multiSelect: true,
+            searchFn: async (query) => {
+                const produits = [
+                    { id: 1, name: 'Smartphone', category: 'High-tech' },
+                    { id: 2, name: 'Ordinateur portable', category: 'Informatique' },
+                    { id: 3, name: 'Télévision', category: 'Électroménager' },
+                    { id: 4, name: 'Tablette', category: 'High-tech' },
+                    { id: 5, name: 'Montre connectée', category: 'High-tech' },
+                    { id: 6, name: 'Casque audio', category: 'Audio' },
+                    { id: 7, name: 'Enceinte bluetooth', category: 'Audio' },
+                    { id: 8, name: 'Appareil photo', category: 'Photo' },
+                    { id: 9, name: 'Console de jeu', category: 'Gaming' },
+                    { id: 10, name: 'Réfrigérateur', category: 'Électroménager' },
+                    { id: 11, name: 'Lave-linge', category: 'Électroménager' },
+                    { id: 12, name: 'Aspirateur', category: 'Électroménager' }
+                ];
+                
+                return produits.filter(p => 
+                    p.name.toLowerCase().includes(query.toLowerCase())
+                );
+            },
+            renderFn: (item, query) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="autocomplete-item-main">
+                        <div class="autocomplete-item-title">${produitAutocomplete.highlightText(item.name, query)}</div>
+                        <div class="autocomplete-item-subtitle">${item.category}</div>
+                    </div>
+                `;
+                return div;
+            },
+            selectFn: (item, autocomplete) => {
+                // Ajouter un tag
+                const container = document.getElementById('selected-products');
+                const existing = container.querySelector(`[data-value="${item.id}"]`);
+                
+                if (!existing) {
+                    const tag = document.createElement('div');
+                    tag.className = 'tag';
+                    tag.setAttribute('data-value', item.id);
+                    tag.innerHTML = `
+                        ${item.name}
+                        <span class="tag-remove" onclick="removeTag(this, 'selected-products')">×</span>
+                    `;
+                    container.appendChild(tag);
+                }
+                
+                document.getElementById('produit-search').value = '';
+                autocomplete.hideResults();
+            }
+        });
+        
+        // Fonction pour supprimer un tag
+        function removeTag(element, containerId) {
+            element.parentElement.remove();
+        }
+        
+        // Charger des données initiales depuis l'API
+        async function loadInitialData() {
+            try {
+                const response = await fetch(
+                    'https://data.economie.gouv.fr/api/records/1.0/search/?dataset=signalconso&rows=1&facet=categoriedeprobleme&facet=prenomProfessionnel&facet=prenom_region'
+                );
+                const data = await response.json();
+                
+                console.log('Données SignalConso chargées:', data.nhits, 'enregistrements');
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement initial:', error);
+            }
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInitialData();
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>

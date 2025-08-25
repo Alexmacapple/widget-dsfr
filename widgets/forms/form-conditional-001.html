@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Widget champs conditionnels DSFR pour SignalConso">
+    <title>Champs conditionnels DSFR - SignalConso</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.min.css">
+    <style>
+        body { margin: 0; font-family: Marianne, arial, sans-serif; }
+        
+        /* Styles pour les champs conditionnels */
+        .conditional-field {
+            display: none;
+            animation: slideDown 0.3s ease-out;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f6f6f6;
+            border-left: 3px solid #000091;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .conditional-field.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Groupes conditionnels */
+        .conditional-group {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        .conditional-group.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .conditional-group.highlighted {
+            border-color: #000091;
+            box-shadow: 0 0 0 3px rgba(0, 0, 145, 0.1);
+        }
+        
+        /* Indicateurs de dépendance */
+        .dependency-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: #e5e5fe;
+            color: #000091;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        
+        .dependency-arrow {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+            color: #000091;
+        }
+        
+        /* Arbre de décision visuel */
+        .decision-tree {
+            background: #f6f6f6;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .decision-node {
+            padding: 1rem;
+            background: white;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .decision-node.active {
+            border-color: #000091;
+            background: #f5f5fe;
+        }
+        
+        .decision-node.completed {
+            border-color: #18753C;
+            background: #f0fff0;
+        }
+        
+        .decision-node::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            width: 15px;
+            height: 2px;
+            background: #000091;
+        }
+        
+        .decision-node:first-child::before {
+            display: none;
+        }
+        
+        /* Badges de statut */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-required {
+            background: #ffe9e6;
+            color: #CE0500;
+        }
+        
+        .status-optional {
+            background: #e5e5fe;
+            color: #000091;
+        }
+        
+        .status-completed {
+            background: #d4f4dd;
+            color: #18753C;
+        }
+        
+        /* Section d'aide contextuelle */
+        .help-section {
+            background: #f0f8ff;
+            border: 1px solid #0063CB;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .help-section.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .help-icon {
+            width: 20px;
+            height: 20px;
+            color: #0063CB;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        
+        /* Résumé dynamique */
+        .dynamic-summary {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .summary-value {
+            color: #161616;
+        }
+        
+        /* Animation de transition */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .conditional-group {
+                padding: 1rem;
+            }
+            
+            .dynamic-summary {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- DÉBUT ZONE WIDGET FORM-CONDITIONAL-001 -->
+    <div id="widget-form-conditional-001" class="fr-container fr-py-3w">
+        <h1 class="fr-h3">Formulaire avec champs conditionnels</h1>
+        <p class="fr-text--lead">Formulaire intelligent SignalConso avec affichage dynamique des champs selon vos réponses</p>
+        
+        <!-- Arbre de décision -->
+        <div class="decision-tree">
+            <h2 class="fr-h5">Parcours de signalement</h2>
+            <div id="decision-path">
+                <div class="decision-node active" id="node-1">
+                    <strong>1. Type de problème</strong>
+                    <span class="status-badge status-required">Requis</span>
+                </div>
+                <div class="decision-node" id="node-2">
+                    <strong>2. Détails spécifiques</strong>
+                    <span class="status-badge status-optional">Selon le type</span>
+                </div>
+                <div class="decision-node" id="node-3">
+                    <strong>3. Informations complémentaires</strong>
+                    <span class="status-badge status-optional">Optionnel</span>
+                </div>
+                <div class="decision-node" id="node-4">
+                    <strong>4. Finalisation</strong>
+                    <span class="status-badge status-required">Requis</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="fr-grid-row fr-grid-row--gutters">
+            <!-- Formulaire principal -->
+            <div class="fr-col-12 fr-col-lg-8">
+                <form id="conditionalForm" class="fr-form" novalidate>
+                    
+                    <!-- Étape 1: Type de problème -->
+                    <div class="conditional-group highlighted" id="group-type">
+                        <h2 class="fr-h5">
+                            Type de problème
+                            <span class="dependency-indicator">Étape 1/4</span>
+                        </h2>
+                        
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="problem-type">
+                                Catégorie principale du problème
+                                <span class="fr-hint-text">Cette sélection déterminera les champs suivants</span>
+                            </label>
+                            <select class="fr-select" id="problem-type" name="problemType" required>
+                                <option value="">-- Sélectionnez une catégorie --</option>
+                                <option value="achat-internet">Achat sur Internet</option>
+                                <option value="achat-magasin">Achat en magasin</option>
+                                <option value="demarchage">Démarchage abusif</option>
+                                <option value="travaux">Travaux et rénovations</option>
+                                <option value="voyage">Voyage et tourisme</option>
+                                <option value="telephonie">Téléphonie et Internet</option>
+                                <option value="energie">Énergie (gaz, électricité)</option>
+                                <option value="banque">Banque et assurance</option>
+                                <option value="sante">Santé et cosmétiques</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Champs conditionnels selon le type -->
+                    
+                    <!-- Achat Internet -->
+                    <div class="conditional-field" id="fields-achat-internet">
+                        <h3 class="fr-h6">
+                            Détails de l'achat en ligne
+                            <svg class="dependency-arrow" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 17l5-5-5-5v10z"/>
+                            </svg>
+                        </h3>
+                        
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="site-web">
+                                Site web du vendeur
+                                <span class="fr-hint-text">URL complète</span>
+                            </label>
+                            <input class="fr-input" type="url" id="site-web" name="siteWeb" placeholder="https://www.exemple.fr">
+                        </div>
+                        
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="numero-commande">
+                                Numéro de commande
+                            </label>
+                            <input class="fr-input" type="text" id="numero-commande" name="numeroCommande">
+                        </div>
+                        
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="probleme-livraison">
+                                Type de problème rencontré
+                            </label>
+                            <select class="fr-select" id="probleme-livraison" name="problemeLivraison">
+                                <option value="">-- Sélectionnez --</option>
+                                <option value="non-livre">Produit non livré</option>
+                                <option value="defectueux">Produit défectueux</option>
+                                <option value="non-conforme">Produit non conforme</option>
+                                <option value="retard">Retard de livraison</option>
+                                <option value="remboursement">Problème de remboursement</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Sous-condition: Non livré -->
+                        <div class="conditional-field" id="fields-non-livre">
+                            <div class="fr-alert fr-alert--warning">
+                                <p class="fr-alert__title">Délai de livraison dépassé</p>
+                                <p>Veuillez préciser les dates pour établir le retard</p>
+                            </div>
+                            
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="date-commande">
+                                    Date de commande
+                                </label>
+                                <input class="fr-input" type="date" id="date-commande" name="dateCommande">
+                            </div>
+                            
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="date-prevue">
+                                    Date de livraison prévue
+                                </label>
+                                <input class="fr-input" type="date" id="date-prevue" name="datePrevue">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Démarchage -->
+                    <div class="conditional-field" id="fields-demarchage">
+                        <h3 class="fr-h6">
+                            Détails du démarchage
+                            <svg class="dependency-arrow" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 17l5-5-5-5v10z"/>
+                            </svg>
+                        </h3>
+                        
+                        <fieldset class="fr-fieldset">
+                            <legend class="fr-fieldset__legend fr-text--regular">
+                                Type de démarchage
+                            </legend>
+                            <div class="fr-fieldset__content">
+                                <div class="fr-radio-group">
+                                    <input type="radio" id="demarchage-telephone" name="typeDemarchage" value="telephone">
+                                    <label class="fr-label" for="demarchage-telephone">Téléphonique</label>
+                                </div>
+                                <div class="fr-radio-group">
+                                    <input type="radio" id="demarchage-domicile" name="typeDemarchage" value="domicile">
+                                    <label class="fr-label" for="demarchage-domicile">À domicile</label>
+                                </div>
+                                <div class="fr-radio-group">
+                                    <input type="radio" id="demarchage-email" name="typeDemarchage" value="email">
+                                    <label class="fr-label" for="demarchage-email">Par email</label>
+                                </div>
+                                <div class="fr-radio-group">
+                                    <input type="radio" id="demarchage-sms" name="typeDemarchage" value="sms">
+                                    <label class="fr-label" for="demarchage-sms">Par SMS</label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        
+                        <!-- Champs spécifiques téléphone -->
+                        <div class="conditional-field" id="fields-demarchage-telephone">
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="numero-appelant">
+                                    Numéro de l'appelant
+                                    <span class="fr-hint-text">Si connu</span>
+                                </label>
+                                <input class="fr-input" type="tel" id="numero-appelant" name="numeroAppelant">
+                            </div>
+                            
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="bloctel" name="bloctel">
+                                <label class="fr-label" for="bloctel">
+                                    Je suis inscrit sur Bloctel
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Champs spécifiques domicile -->
+                        <div class="conditional-field" id="fields-demarchage-domicile">
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="date-visite">
+                                    Date de la visite
+                                </label>
+                                <input class="fr-input" type="date" id="date-visite" name="dateVisite">
+                            </div>
+                            
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="contrat-signe" name="contratSigne">
+                                <label class="fr-label" for="contrat-signe">
+                                    J'ai signé un contrat/bon de commande
+                                </label>
+                            </div>
+                            
+                            <!-- Si contrat signé -->
+                            <div class="conditional-field" id="fields-contrat">
+                                <div class="fr-alert fr-alert--info">
+                                    <p class="fr-alert__title">Droit de rétractation</p>
+                                    <p>Vous disposez de 14 jours pour vous rétracter d'un contrat signé à domicile</p>
+                                </div>
+                                
+                                <div class="fr-input-group">
+                                    <label class="fr-label" for="montant-contrat">
+                                        Montant du contrat (€)
+                                    </label>
+                                    <input class="fr-input" type="number" id="montant-contrat" name="montantContrat" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Travaux -->
+                    <div class="conditional-field" id="fields-travaux">
+                        <h3 class="fr-h6">
+                            Détails des travaux
+                            <svg class="dependency-arrow" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 17l5-5-5-5v10z"/>
+                            </svg>
+                        </h3>
+                        
+                        <div class="fr-select-group">
+                            <label class="fr-label" for="type-travaux">
+                                Type de travaux
+                            </label>
+                            <select class="fr-select" id="type-travaux" name="typeTravaux">
+                                <option value="">-- Sélectionnez --</option>
+                                <option value="renovation">Rénovation énergétique</option>
+                                <option value="toiture">Toiture</option>
+                                <option value="isolation">Isolation</option>
+                                <option value="chauffage">Chauffage</option>
+                                <option value="peinture">Peinture</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="fr-checkbox-group">
+                            <input type="checkbox" id="devis-signe" name="devisSigne">
+                            <label class="fr-label" for="devis-signe">
+                                Devis signé
+                            </label>
+                        </div>
+                        
+                        <div class="fr-checkbox-group">
+                            <input type="checkbox" id="travaux-commences" name="travauxCommences">
+                            <label class="fr-label" for="travaux-commences">
+                                Travaux commencés
+                            </label>
+                        </div>
+                        
+                        <!-- Si travaux commencés -->
+                        <div class="conditional-field" id="fields-travaux-en-cours">
+                            <div class="fr-select-group">
+                                <label class="fr-label" for="etat-travaux">
+                                    État d'avancement
+                                </label>
+                                <select class="fr-select" id="etat-travaux" name="etatTravaux">
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option value="abandonnes">Travaux abandonnés</option>
+                                    <option value="mal-faits">Travaux mal réalisés</option>
+                                    <option value="non-conformes">Travaux non conformes au devis</option>
+                                    <option value="retard">Retard important</option>
+                                </select>
+                            </div>
+                            
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="montant-paye">
+                                    Montant déjà payé (€)
+                                </label>
+                                <input class="fr-input" type="number" id="montant-paye" name="montantPaye" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Voyage -->
+                    <div class="conditional-field" id="fields-voyage">
+                        <h3 class="fr-h6">
+                            Détails du voyage
+                            <svg class="dependency-arrow" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 17l5-5-5-5v10z"/>
+                            </svg>
+                        </h3>
+                        
+                        <fieldset class="fr-fieldset">
+                            <legend class="fr-fieldset__legend fr-text--regular">
+                                Services concernés
+                            </legend>
+                            <div class="fr-fieldset__content">
+                                <div class="fr-checkbox-group">
+                                    <input type="checkbox" id="service-vol" name="serviceVol" value="vol">
+                                    <label class="fr-label" for="service-vol">Vol</label>
+                                </div>
+                                <div class="fr-checkbox-group">
+                                    <input type="checkbox" id="service-hotel" name="serviceHotel" value="hotel">
+                                    <label class="fr-label" for="service-hotel">Hébergement</label>
+                                </div>
+                                <div class="fr-checkbox-group">
+                                    <input type="checkbox" id="service-location" name="serviceLocation" value="location">
+                                    <label class="fr-label" for="service-location">Location de véhicule</label>
+                                </div>
+                                <div class="fr-checkbox-group">
+                                    <input type="checkbox" id="service-sejour" name="serviceSejour" value="sejour">
+                                    <label class="fr-label" for="service-sejour">Séjour organisé</label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        
+                        <!-- Champs vol -->
+                        <div class="conditional-field" id="fields-vol">
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="compagnie">
+                                    Compagnie aérienne
+                                </label>
+                                <input class="fr-input" type="text" id="compagnie" name="compagnie">
+                            </div>
+                            
+                            <div class="fr-select-group">
+                                <label class="fr-label" for="probleme-vol">
+                                    Problème rencontré
+                                </label>
+                                <select class="fr-select" id="probleme-vol" name="problemeVol">
+                                    <option value="">-- Sélectionnez --</option>
+                                    <option value="annulation">Vol annulé</option>
+                                    <option value="retard">Retard important (>3h)</option>
+                                    <option value="surreservation">Surréservation</option>
+                                    <option value="bagages">Bagages perdus/endommagés</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Autre -->
+                    <div class="conditional-field" id="fields-autre">
+                        <h3 class="fr-h6">
+                            Précisez votre problème
+                            <svg class="dependency-arrow" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10 17l5-5-5-5v10z"/>
+                            </svg>
+                        </h3>
+                        
+                        <div class="fr-input-group">
+                            <label class="fr-label" for="autre-categorie">
+                                Catégorie spécifique
+                            </label>
+                            <input class="fr-input" type="text" id="autre-categorie" name="autreCategorie" placeholder="Ex: Services à la personne, Éducation...">
+                        </div>
+                    </div>
+                    
+                    <!-- Section commune finale (toujours visible après sélection) -->
+                    <div class="conditional-field" id="fields-common">
+                        <div class="conditional-group">
+                            <h2 class="fr-h5">
+                                Informations complémentaires
+                                <span class="dependency-indicator">Étape 3/4</span>
+                            </h2>
+                            
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="entreprise">
+                                    Nom de l'entreprise
+                                    <span class="fr-hint-text">Entreprise concernée par le signalement</span>
+                                </label>
+                                <input class="fr-input" type="text" id="entreprise" name="entreprise" required>
+                            </div>
+                            
+                            <div class="fr-input-group">
+                                <label class="fr-label" for="description">
+                                    Description détaillée
+                                    <span class="fr-hint-text">Décrivez précisément le problème rencontré</span>
+                                </label>
+                                <textarea class="fr-input" id="description" name="description" rows="5" required></textarea>
+                            </div>
+                            
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="urgent" name="urgent">
+                                <label class="fr-label" for="urgent">
+                                    Situation urgente nécessitant une intervention rapide
+                                </label>
+                            </div>
+                            
+                            <!-- Champs urgence -->
+                            <div class="conditional-field" id="fields-urgent">
+                                <div class="fr-alert fr-alert--error">
+                                    <p class="fr-alert__title">Situation urgente</p>
+                                    <p>Votre signalement sera traité en priorité</p>
+                                </div>
+                                
+                                <div class="fr-input-group">
+                                    <label class="fr-label" for="raison-urgence">
+                                        Raison de l'urgence
+                                    </label>
+                                    <textarea class="fr-input" id="raison-urgence" name="raisonUrgence" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="fr-grid-row fr-grid-row--right fr-mt-3w">
+                        <div class="fr-col-auto">
+                            <button type="button" class="fr-btn fr-btn--secondary" onclick="resetForm()">
+                                Réinitialiser
+                            </button>
+                        </div>
+                        <div class="fr-col-auto">
+                            <button type="submit" class="fr-btn">
+                                Envoyer le signalement
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Résumé dynamique -->
+            <div class="fr-col-12 fr-col-lg-4">
+                <div class="dynamic-summary">
+                    <h3 class="fr-h5">Récapitulatif</h3>
+                    <div id="summary-content">
+                        <p class="fr-text--sm fr-text--alt">Complétez le formulaire pour voir le récapitulatif</p>
+                    </div>
+                    
+                    <div class="fr-alert fr-alert--info fr-mt-2w">
+                        <p class="fr-text--sm">Les champs s'affichent dynamiquement selon vos sélections</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FIN ZONE WIDGET FORM-CONDITIONAL-001 -->
+    
+    <script>
+        // Configuration des dépendances
+        const fieldDependencies = {
+            'problem-type': {
+                'achat-internet': ['fields-achat-internet'],
+                'achat-magasin': [],
+                'demarchage': ['fields-demarchage'],
+                'travaux': ['fields-travaux'],
+                'voyage': ['fields-voyage'],
+                'telephonie': [],
+                'energie': [],
+                'banque': [],
+                'sante': [],
+                'autre': ['fields-autre']
+            },
+            'probleme-livraison': {
+                'non-livre': ['fields-non-livre']
+            },
+            'typeDemarchage': {
+                'telephone': ['fields-demarchage-telephone'],
+                'domicile': ['fields-demarchage-domicile']
+            },
+            'contrat-signe': {
+                true: ['fields-contrat']
+            },
+            'travaux-commences': {
+                true: ['fields-travaux-en-cours']
+            },
+            'service-vol': {
+                true: ['fields-vol']
+            },
+            'urgent': {
+                true: ['fields-urgent']
+            }
+        };
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            setupConditionalLogic();
+            setupFormValidation();
+            updateDecisionTree();
+        });
+        
+        // Configuration de la logique conditionnelle
+        function setupConditionalLogic() {
+            // Select principal
+            const problemType = document.getElementById('problem-type');
+            problemType.addEventListener('change', function() {
+                handleFieldChange(this);
+                showCommonFields();
+                updateDecisionTree();
+                updateSummary();
+            });
+            
+            // Autres champs avec dépendances
+            setupDependentField('probleme-livraison', 'change');
+            setupDependentField('typeDemarchage', 'change');
+            setupDependentField('contrat-signe', 'change');
+            setupDependentField('travaux-commences', 'change');
+            setupDependentField('service-vol', 'change');
+            setupDependentField('urgent', 'change');
+            
+            // Radio buttons pour démarchage
+            document.querySelectorAll('input[name="typeDemarchage"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    handleRadioChange(this);
+                    updateSummary();
+                });
+            });
+            
+            // Checkboxes services voyage
+            document.querySelectorAll('[name^="service"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    handleCheckboxChange(this);
+                    updateSummary();
+                });
+            });
+            
+            // Mise à jour du résumé sur tous les champs
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                field.addEventListener('input', updateSummary);
+                field.addEventListener('change', updateSummary);
+            });
+        }
+        
+        // Configuration d'un champ dépendant
+        function setupDependentField(fieldId, eventType) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener(eventType, function() {
+                    handleFieldChange(this);
+                    updateSummary();
+                });
+            }
+        }
+        
+        // Gestion du changement de champ
+        function handleFieldChange(field) {
+            const fieldName = field.name || field.id;
+            const value = field.type === 'checkbox' ? field.checked : field.value;
+            
+            // Masquer tous les champs dépendants actuels
+            hideAllDependentFields(fieldName);
+            
+            // Afficher les nouveaux champs dépendants
+            if (fieldDependencies[fieldName] && fieldDependencies[fieldName][value]) {
+                fieldDependencies[fieldName][value].forEach(fieldId => {
+                    showField(fieldId);
+                });
+            }
+        }
+        
+        // Gestion des radio buttons
+        function handleRadioChange(radio) {
+            const name = radio.name;
+            const value = radio.value;
+            
+            // Masquer tous les champs dépendants du groupe
+            if (fieldDependencies[name]) {
+                Object.values(fieldDependencies[name]).flat().forEach(fieldId => {
+                    hideField(fieldId);
+                });
+            }
+            
+            // Afficher les champs pour la valeur sélectionnée
+            if (fieldDependencies[name] && fieldDependencies[name][value]) {
+                fieldDependencies[name][value].forEach(fieldId => {
+                    showField(fieldId);
+                });
+            }
+        }
+        
+        // Gestion des checkboxes
+        function handleCheckboxChange(checkbox) {
+            const name = checkbox.name;
+            const checked = checkbox.checked;
+            
+            if (fieldDependencies[name]) {
+                if (checked && fieldDependencies[name][true]) {
+                    fieldDependencies[name][true].forEach(fieldId => {
+                        showField(fieldId);
+                    });
+                } else if (!checked && fieldDependencies[name][true]) {
+                    fieldDependencies[name][true].forEach(fieldId => {
+                        hideField(fieldId);
+                    });
+                }
+            }
+        }
+        
+        // Masquer tous les champs dépendants
+        function hideAllDependentFields(parentField) {
+            if (fieldDependencies[parentField]) {
+                Object.values(fieldDependencies[parentField]).flat().forEach(fieldId => {
+                    hideField(fieldId);
+                });
+            }
+        }
+        
+        // Afficher un champ
+        function showField(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('show');
+                // Activer les champs requis
+                field.querySelectorAll('[required-conditional]').forEach(input => {
+                    input.setAttribute('required', '');
+                });
+            }
+        }
+        
+        // Masquer un champ
+        function hideField(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('show');
+                // Désactiver les champs requis et réinitialiser
+                field.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.hasAttribute('required')) {
+                        input.setAttribute('required-conditional', '');
+                        input.removeAttribute('required');
+                    }
+                    // Réinitialiser les valeurs
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+                // Masquer les sous-dépendances
+                field.querySelectorAll('.conditional-field').forEach(subfield => {
+                    subfield.classList.remove('show');
+                });
+            }
+        }
+        
+        // Afficher les champs communs
+        function showCommonFields() {
+            const problemType = document.getElementById('problem-type').value;
+            if (problemType) {
+                showField('fields-common');
+            } else {
+                hideField('fields-common');
+            }
+        }
+        
+        // Mise à jour de l'arbre de décision
+        function updateDecisionTree() {
+            const problemType = document.getElementById('problem-type').value;
+            const nodes = document.querySelectorAll('.decision-node');
+            
+            // Réinitialiser tous les nœuds
+            nodes.forEach(node => {
+                node.classList.remove('active', 'completed');
+            });
+            
+            // Marquer les étapes selon l'avancement
+            if (problemType) {
+                document.getElementById('node-1').classList.add('completed');
+                document.getElementById('node-2').classList.add('active');
+                
+                const hasDetails = document.querySelector('.conditional-field.show input:not([type="hidden"])');
+                if (hasDetails && hasDetails.value) {
+                    document.getElementById('node-2').classList.add('completed');
+                    document.getElementById('node-3').classList.add('active');
+                }
+                
+                const description = document.getElementById('description');
+                if (description && description.value) {
+                    document.getElementById('node-3').classList.add('completed');
+                    document.getElementById('node-4').classList.add('active');
+                }
+            } else {
+                document.getElementById('node-1').classList.add('active');
+            }
+        }
+        
+        // Mise à jour du résumé
+        function updateSummary() {
+            const summary = document.getElementById('summary-content');
+            const data = new FormData(document.getElementById('conditionalForm'));
+            const values = {};
+            
+            // Collecter les valeurs
+            for (let [key, value] of data.entries()) {
+                if (value) {
+                    if (values[key]) {
+                        if (Array.isArray(values[key])) {
+                            values[key].push(value);
+                        } else {
+                            values[key] = [values[key], value];
+                        }
+                    } else {
+                        values[key] = value;
+                    }
+                }
+            }
+            
+            // Générer le HTML du résumé
+            let html = '';
+            
+            if (values.problemType) {
+                const typeLabel = document.querySelector(`#problem-type option[value="${values.problemType}"]`).textContent;
+                html += createSummaryItem('Type de problème', typeLabel);
+            }
+            
+            if (values.siteWeb) {
+                html += createSummaryItem('Site web', values.siteWeb);
+            }
+            
+            if (values.numeroCommande) {
+                html += createSummaryItem('N° commande', values.numeroCommande);
+            }
+            
+            if (values.typeDemarchage) {
+                const typeLabel = document.querySelector(`input[name="typeDemarchage"][value="${values.typeDemarchage}"]`).nextElementSibling.textContent;
+                html += createSummaryItem('Type démarchage', typeLabel);
+            }
+            
+            if (values.entreprise) {
+                html += createSummaryItem('Entreprise', values.entreprise);
+            }
+            
+            if (values.urgent) {
+                html += createSummaryItem('Urgence', '<span style="color:#CE0500">OUI</span>');
+            }
+            
+            // Compter les champs remplis
+            const filledFields = Object.keys(values).length;
+            const totalFields = document.querySelectorAll('#conditionalForm input:not([type="hidden"]), #conditionalForm select, #conditionalForm textarea').length;
+            
+            if (html) {
+                html += `<div class="fr-mt-2w fr-pt-2w" style="border-top:1px solid #e5e5e5">
+                    <strong>Progression:</strong> ${filledFields} champs remplis
+                </div>`;
+            }
+            
+            summary.innerHTML = html || '<p class="fr-text--sm fr-text--alt">Complétez le formulaire pour voir le récapitulatif</p>';
+        }
+        
+        // Créer un élément de résumé
+        function createSummaryItem(label, value) {
+            return `<div class="summary-item">
+                <span class="summary-label">${label}:</span>
+                <span class="summary-value">${value}</span>
+            </div>`;
+        }
+        
+        // Validation du formulaire
+        function setupFormValidation() {
+            const form = document.getElementById('conditionalForm');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Validation
+                if (!validateForm()) {
+                    return;
+                }
+                
+                // Collecte des données
+                const formData = new FormData(form);
+                const data = {};
+                for (let [key, value] of formData.entries()) {
+                    if (data[key]) {
+                        if (Array.isArray(data[key])) {
+                            data[key].push(value);
+                        } else {
+                            data[key] = [data[key], value];
+                        }
+                    } else {
+                        data[key] = value;
+                    }
+                }
+                
+                // Envoi à l'API SignalConso (simulation)
+                console.log('Données à envoyer:', data);
+                
+                // Afficher un message de succès
+                showSuccessMessage();
+            });
+        }
+        
+        // Validation du formulaire
+        function validateForm() {
+            let isValid = true;
+            
+            // Valider les champs visibles et requis
+            document.querySelectorAll('.conditional-field.show [required], .conditional-group:not(.disabled) [required]').forEach(field => {
+                if (!field.value) {
+                    isValid = false;
+                    showFieldError(field);
+                } else {
+                    clearFieldError(field);
+                }
+            });
+            
+            if (!isValid) {
+                showAlert('Veuillez remplir tous les champs obligatoires', 'error');
+            }
+            
+            return isValid;
+        }
+        
+        // Afficher une erreur sur un champ
+        function showFieldError(field) {
+            const group = field.closest('.fr-input-group, .fr-select-group');
+            if (group) {
+                group.classList.add('fr-input-group--error');
+            }
+        }
+        
+        // Effacer l'erreur d'un champ
+        function clearFieldError(field) {
+            const group = field.closest('.fr-input-group, .fr-select-group');
+            if (group) {
+                group.classList.remove('fr-input-group--error');
+            }
+        }
+        
+        // Afficher une alerte
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `fr-alert fr-alert--${type} fr-mb-2w fade-in`;
+            alert.innerHTML = `
+                <p class="fr-alert__title">${type === 'error' ? 'Erreur' : 'Succès'}</p>
+                <p>${message}</p>
+            `;
+            
+            const form = document.getElementById('conditionalForm');
+            form.parentNode.insertBefore(alert, form);
+            
+            setTimeout(() => alert.remove(), 5000);
+        }
+        
+        // Message de succès
+        function showSuccessMessage() {
+            showAlert('Votre signalement a été envoyé avec succès !', 'success');
+            
+            // Marquer la dernière étape comme complétée
+            document.getElementById('node-4').classList.add('completed');
+            
+            // Optionnel : réinitialiser après quelques secondes
+            setTimeout(() => {
+                if (confirm('Voulez-vous créer un nouveau signalement ?')) {
+                    resetForm();
+                }
+            }, 3000);
+        }
+        
+        // Réinitialiser le formulaire
+        function resetForm() {
+            const form = document.getElementById('conditionalForm');
+            form.reset();
+            
+            // Masquer tous les champs conditionnels
+            document.querySelectorAll('.conditional-field').forEach(field => {
+                field.classList.remove('show');
+            });
+            
+            // Réinitialiser l'arbre de décision
+            updateDecisionTree();
+            
+            // Réinitialiser le résumé
+            updateSummary();
+            
+            // Effacer les erreurs
+            document.querySelectorAll('.fr-input-group--error').forEach(group => {
+                group.classList.remove('fr-input-group--error');
+            });
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.14.0/dist/dsfr.module.min.js"></script>
+</body>
+</html>
