@@ -88,6 +88,16 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
+                                <div class="fr-col-12">
+                                    <div class="fr-toggle">
+                                        <input type="checkbox" class="fr-toggle__input" id="toggle-table">
+                                        <label class="fr-toggle__label" for="toggle-table">
+                                            Afficher le tableau de données
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Graphique -->
@@ -106,6 +116,32 @@
                             <button class="fr-btn fr-btn--secondary fr-btn--sm" id="togglefullscreen-btn">
                                 Plein écran
                             </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Corrélation temps/satisfaction</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Plage de temps (jours)</th>
+                                                        <th scope="col">Nombre de cas</th>
+                                                        <th scope="col">Satisfaction moyenne (%)</th>
+                                                        <th scope="col">% du total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Statistiques -->
@@ -298,6 +334,42 @@
         const ctx = document.getElementById('scatterChart').getContext('2d');
         const myChart = new Chart(ctx, config);
         
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            // Grouper les données par plages de temps
+            const ranges = [
+                { min: 0, max: 7, label: '0-7 jours' },
+                { min: 8, max: 15, label: '8-15 jours' },
+                { min: 16, max: 30, label: '16-30 jours' },
+                { min: 31, max: 60, label: '31-60 jours' }
+            ];
+            
+            const totalPoints = scatterData.length;
+            
+            ranges.forEach(range => {
+                const pointsInRange = scatterData.filter(p => p.x > range.min && p.x <= range.max);
+                const count = pointsInRange.length;
+                const avgSatisfaction = count > 0 
+                    ? (pointsInRange.reduce((sum, p) => sum + p.y, 0) / count).toFixed(1)
+                    : '-';
+                const percentage = ((count / totalPoints) * 100).toFixed(1);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${range.label}</td>
+                    <td>${count}</td>
+                    <td>${avgSatisfaction}/5</td>
+                    <td>${percentage}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
         // Mise à jour des statistiques
         function updateStatistics() {
             document.getElementById('correlation-value').textContent = 
@@ -334,6 +406,7 @@
             
             myChart.update();
             updateStatistics();
+            updateDataTable();
         }
         
         // Ajouter la ligne de régression
@@ -409,6 +482,15 @@
         
         // Initialisation
         updateStatistics();
+        updateDataTable();
+        
+        // Toggle du tableau de données
+        document.getElementById('toggle-table').addEventListener('change', function(e) {
+            const table = document.getElementById('data-table');
+            if (table) {
+                table.classList.toggle('show', e.target.checked);
+            }
+        });
         
         // Adaptation responsive
         window.addEventListener('resize', () => {
@@ -462,6 +544,7 @@
             }
         }
         
+        
         // Initialisation au chargement
         document.addEventListener('DOMContentLoaded', async function() {
             await loadDataFromAPI();
@@ -474,6 +557,7 @@
                     btn.addEventListener('click', window[funcName]);
                 }
             });
+            
         });
     </script>
     

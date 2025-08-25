@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test automatique des filtres Bar Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-console {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        h1 {
+            color: #333;
+        }
+        .instructions {
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test automatique des filtres du widget chart-bar-001</h1>
+    
+    <div class="instructions">
+        <h2>Instructions :</h2>
+        <ol>
+            <li>Le widget va se charger ci-dessous</li>
+            <li>Les tests automatiques vont s'exécuter après 2 secondes</li>
+            <li>Les résultats apparaîtront dans la console ci-dessous</li>
+            <li>Ouvrez aussi la console du navigateur (F12) pour voir les détails</li>
+        </ol>
+    </div>
+    
+    <div id="test-console" class="test-console">
+        Chargement des tests...
+    </div>
+    
+    <h2>Widget en cours de test :</h2>
+    <iframe id="widget-frame" src="widgets/charts/chart-bar-001.html" width="100%" height="800" style="border: 1px solid #ccc;"></iframe>
+    
+    <script>
+        const testConsole = document.getElementById('test-console');
+        let testOutput = '';
+        
+        // Intercepter les messages de console de l'iframe
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'console') {
+                testOutput += e.data.message + '\n';
+                testConsole.textContent = testOutput;
+            }
+        });
+        
+        // Fonction pour exécuter les tests dans l'iframe
+        function runTestsInIframe() {
+            const iframe = document.getElementById('widget-frame');
+            const iframeWindow = iframe.contentWindow;
+            
+            testOutput = "=== DÉBUT DES TESTS ===\n\n";
+            
+            // Attendre que le widget soit chargé
+            setTimeout(() => {
+                try {
+                    // Test 1: Variables originales
+                    testOutput += "Test 1: Variables originales sauvegardées\n";
+                    if (iframeWindow.originalLabels && iframeWindow.originalValues) {
+                        testOutput += "✅ originalLabels et originalValues existent\n";
+                        testOutput += `   - ${iframeWindow.originalLabels.length} régions trouvées\n`;
+                    } else {
+                        testOutput += "❌ Variables originales non trouvées\n";
+                    }
+                    
+                    // Test 2: Changement de type de graphique
+                    testOutput += "\nTest 2: Changement de type de graphique\n";
+                    
+                    // Test barres horizontales
+                    iframeWindow.document.getElementById('chart-type').value = 'horizontalBar';
+                    iframeWindow.changeChartType();
+                    
+                    if (iframeWindow.config.options.indexAxis === 'y') {
+                        testOutput += "✅ Barres horizontales: indexAxis = 'y'\n";
+                    } else {
+                        testOutput += `❌ Barres horizontales: indexAxis = '${iframeWindow.config.options.indexAxis}'\n`;
+                    }
+                    
+                    // Test barres verticales
+                    iframeWindow.document.getElementById('chart-type').value = 'bar';
+                    iframeWindow.changeChartType();
+                    
+                    if (iframeWindow.config.options.indexAxis === 'x') {
+                        testOutput += "✅ Barres verticales: indexAxis = 'x'\n";
+                    } else {
+                        testOutput += `❌ Barres verticales: indexAxis = '${iframeWindow.config.options.indexAxis}'\n`;
+                    }
+                    
+                    // Test 3: Tri des données
+                    testOutput += "\nTest 3: Tri des données\n";
+                    
+                    // Test tri alphabétique
+                    iframeWindow.document.getElementById('sort-select').value = 'alpha';
+                    iframeWindow.sortData();
+                    
+                    let isAlphaSorted = true;
+                    for (let i = 1; i < iframeWindow.chartLabels.length; i++) {
+                        if (iframeWindow.chartLabels[i].localeCompare(iframeWindow.chartLabels[i-1], 'fr') < 0) {
+                            isAlphaSorted = false;
+                            break;
+                        }
+                    }
+                    
+                    if (isAlphaSorted) {
+                        testOutput += "✅ Tri alphabétique fonctionne\n";
+                        testOutput += `   Premier: ${iframeWindow.chartLabels[0]}\n`;
+                        testOutput += `   Dernier: ${iframeWindow.chartLabels[iframeWindow.chartLabels.length-1]}\n`;
+                    } else {
+                        testOutput += "❌ Tri alphabétique ne fonctionne pas\n";
+                    }
+                    
+                    // Test tri croissant
+                    iframeWindow.document.getElementById('sort-select').value = 'asc';
+                    iframeWindow.sortData();
+                    
+                    let isAscSorted = true;
+                    for (let i = 1; i < iframeWindow.chartValues.length; i++) {
+                        if (iframeWindow.chartValues[i] < iframeWindow.chartValues[i-1]) {
+                            isAscSorted = false;
+                            break;
+                        }
+                    }
+                    
+                    if (isAscSorted) {
+                        testOutput += "✅ Tri croissant fonctionne\n";
+                        testOutput += `   Min: ${iframeWindow.chartValues[0]}\n`;
+                        testOutput += `   Max: ${iframeWindow.chartValues[iframeWindow.chartValues.length-1]}\n`;
+                    } else {
+                        testOutput += "❌ Tri croissant ne fonctionne pas\n";
+                    }
+                    
+                    // Test tri décroissant
+                    iframeWindow.document.getElementById('sort-select').value = 'desc';
+                    iframeWindow.sortData();
+                    
+                    let isDescSorted = true;
+                    for (let i = 1; i < iframeWindow.chartValues.length; i++) {
+                        if (iframeWindow.chartValues[i] > iframeWindow.chartValues[i-1]) {
+                            isDescSorted = false;
+                            break;
+                        }
+                    }
+                    
+                    if (isDescSorted) {
+                        testOutput += "✅ Tri décroissant fonctionne\n";
+                        testOutput += `   Max: ${iframeWindow.chartValues[0]}\n`;
+                        testOutput += `   Min: ${iframeWindow.chartValues[iframeWindow.chartValues.length-1]}\n`;
+                    } else {
+                        testOutput += "❌ Tri décroissant ne fonctionne pas\n";
+                    }
+                    
+                    testOutput += "\n=== FIN DES TESTS ===\n";
+                    testOutput += "\n✅ Tous les tests sont terminés !";
+                    
+                } catch (error) {
+                    testOutput += `\n❌ Erreur lors des tests: ${error.message}\n`;
+                    console.error(error);
+                }
+                
+                testConsole.textContent = testOutput;
+            }, 3000);
+        }
+        
+        // Lancer les tests quand l'iframe est chargée
+        document.getElementById('widget-frame').addEventListener('load', function() {
+            testOutput = "Widget chargé. Lancement des tests dans 3 secondes...\n";
+            testConsole.textContent = testOutput;
+            runTestsInIframe();
+        });
+    </script>
+</body>
+</html>

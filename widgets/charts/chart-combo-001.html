@@ -13,6 +13,31 @@
         .fr-card__body { padding-bottom: 2rem !important; }
         .chart-container { position: relative; height: 400px; margin: 2rem 0; }
         .chart-controls { margin-bottom: 1rem; }
+        .data-table { 
+            display: none;
+            margin-top: 2rem;
+        }
+        .data-table.show { 
+            display: block !important;
+        }
+        .fr-table {
+            width: 100% !important;
+            margin-top: 2rem;
+        }
+        .fr-table table {
+            width: 100% !important;
+            table-layout: fixed;
+        }
+        .fr-table__caption {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #f6f6f6;
+            color: #161616;
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: left;
+            border-left: 3px solid #000091;
+        }
         @media (max-width: 768px) {
             .chart-container { height: 350px; }
         }
@@ -29,6 +54,16 @@
                         <h2 class="fr-h4">Analyse combinée volume et satisfaction</h2>
                         <p class="fr-text--sm">Volume de signalements (barres) vs Taux de satisfaction (ligne)</p>
                         
+                        <!-- Contrôle d'affichage du tableau -->
+                        <div class="chart-controls">
+                            <div class="fr-toggle">
+                                <input type="checkbox" class="fr-toggle__input" id="toggle-table">
+                                <label class="fr-toggle__label" for="toggle-table">
+                                    Afficher le tableau de données
+                                </label>
+                            </div>
+                        </div>
+                        
                         <!-- Graphique -->
                         <div class="chart-container">
                             <canvas id="comboChart" role="img" aria-label="Graphique combiné ligne et barres"></canvas>
@@ -39,6 +74,35 @@
                             <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-png">
                                 Exporter en PNG
                             </button>
+                            <button class="fr-btn fr-btn--secondary fr-btn--sm" id="export-csv">
+                                Exporter les données (CSV)
+                            </button>
+                        </div>
+                        
+                        <!-- Tableau de données alternatif (accessibilité) -->
+                        <div class="data-table" id="data-table">
+                            <div class="fr-table fr-table--bordered">
+                                <div class="fr-table__caption">Données du graphique : Volume et satisfaction mensuels</div>
+                                <div class="fr-table__wrapper">
+                                    <div class="fr-table__container">
+                                        <div class="fr-table__content">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Mois</th>
+                                                        <th scope="col">Volume de signalements</th>
+                                                        <th scope="col">Taux de résolution (%)</th>
+                                                        <th scope="col">Évolution volume</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table-body">
+                                                    <!-- Les données seront insérées ici -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Légende -->
@@ -131,8 +195,9 @@
                 // Restaurer l'opacité
                 document.getElementById('comboChart').style.opacity = '1';
                 
-                // Initialiser le graphique
+                // Initialiser le graphique et le tableau
                 initChart();
+                updateDataTable();
                 
             } catch (error) {
                 console.error('Erreur lors du chargement des données:', error);
@@ -252,7 +317,28 @@
             myChart = new Chart(ctx, config);
         }
         
-        // Export
+        // Mise à jour du tableau de données
+        function updateDataTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            months.forEach((month, index) => {
+                const row = document.createElement('tr');
+                const prevVolume = index > 0 ? volumeData[index - 1] : volumeData[index];
+                const evolution = ((volumeData[index] - prevVolume) / prevVolume * 100).toFixed(1);
+                const evolutionSign = evolution > 0 ? '+' : '';
+                
+                row.innerHTML = `
+                    <td>${month}</td>
+                    <td>${volumeData[index].toLocaleString('fr-FR')}</td>
+                    <td>${resolutionData[index]}%</td>
+                    <td>${evolutionSign}${evolution}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Export PNG
         function exportChartAsPNG() {
             const link = document.createElement('a');
             link.download = 'signalconso-combo.png';
@@ -260,12 +346,33 @@
             link.click();
         }
         
+        // Export CSV
+        function exportDataAsCSV() {
+            let csvContent = 'Mois,Volume signalements,Taux résolution (%)\n';
+            months.forEach((month, index) => {
+                csvContent += `${month},${volumeData[index]},${resolutionData[index]}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'signalconso-combo-data.csv';
+            link.click();
+        }
+        
         // Initialisation au chargement de la page
         document.addEventListener('DOMContentLoaded', async function() {
             await loadDataFromAPI();
             
-            // Ajouter l'event listener pour l'export
+            // Ajouter les event listeners
             document.getElementById('export-png').addEventListener('click', exportChartAsPNG);
+            document.getElementById('export-csv').addEventListener('click', exportDataAsCSV);
+            
+            // Toggle du tableau de données
+            document.getElementById('toggle-table').addEventListener('change', function(e) {
+                const table = document.getElementById('data-table');
+                table.classList.toggle('show', e.target.checked);
+            });
         });
     </script>
     

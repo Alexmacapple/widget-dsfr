@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Bar Chart Filters</title>
+</head>
+<body>
+    <h1>Test des filtres du widget chart-bar-001.html</h1>
+    
+    <h2>Corrections apport\u00e9es :</h2>
+    <ul>
+        <li>\u2705 <strong>Barres horizontales/verticales</strong> : Correction de la configuration Chart.js v4 avec indexAxis</li>
+        <li>\u2705 <strong>Tri alphab\u00e9tique</strong> : Utilisation correcte de localeCompare avec locale 'fr'</li>
+        <li>\u2705 <strong>Sauvegarde des donn\u00e9es originales</strong> : Ajout de originalLabels et originalValues pour permettre le tri correct</li>
+    </ul>
+    
+    <h2>Tests \u00e0 effectuer :</h2>
+    <ol>
+        <li>Ouvrir le widget : <a href="widgets/charts/chart-bar-001.html" target="_blank">chart-bar-001.html</a></li>
+        <li>Tester le changement entre "Barres verticales" et "Barres horizontales"</li>
+        <li>Tester les trois options de tri :
+            <ul>
+                <li>Alphab\u00e9tique : Les r\u00e9gions doivent \u00eatre tri\u00e9es par ordre alphab\u00e9tique</li>
+                <li>Croissant : Les r\u00e9gions doivent \u00eatre tri\u00e9es par valeur croissante</li>
+                <li>D\u00e9croissant : Les r\u00e9gions doivent \u00eatre tri\u00e9es par valeur d\u00e9croissante</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h2>Widget int\u00e9gr\u00e9 :</h2>
+    <iframe src="widgets/charts/chart-bar-001.html" width="100%" height="800" style="border: 1px solid #ccc;"></iframe>
+</body>
+</html>
